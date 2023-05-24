@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DX11-Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_1.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_2.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_3.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_4.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_5.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_6.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_7.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_8.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_9.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_10.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_11.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_a.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_b.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_c.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_d.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_e.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\all_f.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\classes_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\defines_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_1.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_2.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_3.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_4.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_5.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_6.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_7.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\files_8.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\functions_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_1.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_2.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_3.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_4.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_5.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_6.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_7.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_8.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_9.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\groups_a.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\nomatches.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_1.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_2.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_3.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_4.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_5.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_6.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_7.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_8.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_9.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\pages_a.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\typedefs_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_0.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_1.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_2.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_3.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_4.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_5.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_6.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\search\variables_7.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\compat_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\compat_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\compile_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\compile_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\context_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\context_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\deprecated.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\dir_1dfd43b3952c5bc1ba15d15b12afff7b.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\dir_4351554941a2744586042c1cf3cf139a.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\dir_f6ba4c3dca55a8d4e7d63c8235e0ad43.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\dir_fda32cf7bec00275262cb8799a618f76.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\files.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\glfw3_8h.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\glfw3_8h_source.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\glfw3native_8h.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\glfw3native_8h_source.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__buttons.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__context.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__errors.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__gamepad__axes.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__gamepad__buttons.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__hat__state.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__init.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__input.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__joysticks.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__keys.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__mods.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__monitor.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__native.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__shapes.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__vulkan.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\group__window.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\index.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\input_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\input_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\internal_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\internals_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\intro_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\intro_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\main_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\modules.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\monitor_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\monitor_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\moving_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\moving_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\news.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\news_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\pages.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\quick_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\quick_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\structGLFWgamepadstate.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\structGLFWgammaramp.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\structGLFWimage.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\structGLFWvidmode.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\vulkan_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\vulkan_guide.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\window_8dox.html" />
+    <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\window_guide.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />
+    <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3_mt.lib" />
+    <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3dll.lib" />
+  </ItemGroup>
+</Project>
