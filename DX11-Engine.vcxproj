@@ -104,14 +104,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\;$(ProjectDir)Dependencies\DirectXTex\lib;$(ProjectDir)Dependencies\FreeImage\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;DirectXTex.lib;FreeImaged.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderType>
@@ -148,6 +148,8 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ShaderCollection.cpp" />
+    <ClCompile Include="TexturingApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -276,14 +278,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.hpp" />
+    <ClInclude Include="Definitions.hpp" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="HelloTriangleApplication.hpp" />
+    <ClInclude Include="ShaderCollection.hpp" />
+    <ClInclude Include="TexturingApplication.hpp" />
+    <ClInclude Include="VertexType.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3dll.lib" />
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3_mt.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Downloads\default.png" />
+    <Image Include="..\..\..\Downloads\T_Froge.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
