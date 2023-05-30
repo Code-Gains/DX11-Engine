@@ -6,13 +6,25 @@
 #include <d3d11_2.h>
 
 #include <memory>
+#include <DirectXMath.h>
 #include "ShaderCollection.hpp"
 
-class TexturingApplication final : public Application
+struct PerFrameConstantBuffer
+{
+    DirectX::XMFLOAT4X4 viewProjectionMatrix;
+};
+
+struct PerObjectConstantBuffer
+{
+    DirectX::XMFLOAT4X4 modelMatrix;
+};
+
+
+class Setting3DApplication final : public Application
 {
 public:
-    TexturingApplication(const std::string& title);
-    ~TexturingApplication() override;
+    Setting3DApplication(const std::string& title);
+    ~Setting3DApplication() override;
 
 protected:
     bool Initialize() override;
@@ -24,9 +36,9 @@ protected:
     void Render() override;
 
 private:
+    void CreateConstantBuffers();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
-
 
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
@@ -41,5 +53,11 @@ private:
     WRL::ComPtr<ID3D11ShaderResourceView> _textureSrv = nullptr;
     WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
 
+    WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
+
     ShaderCollection _shaderCollection;
+
+    PerFrameConstantBuffer _perFrameConstantBufferData{};
+    PerObjectConstantBuffer _perObjectConstantBufferData{};
 };

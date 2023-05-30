@@ -1,4 +1,4 @@
-#include "TexturingApplication.hpp"
+#include "Setting3DApplication.hpp"
 #include "ShaderCollection.hpp"
 
 #include <GLFW/glfw3.h>
@@ -21,22 +21,25 @@
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "FreeImaged.lib")
 
+
 template <UINT TDebugNameLength>
 inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const char(&debugName)[TDebugNameLength])
 {
     deviceResource->SetPrivateData(WKPDID_D3DDebugObjectName, TDebugNameLength - 1, debugName);
 }
 
-TexturingApplication::TexturingApplication(const std::string& title)
+Setting3DApplication::Setting3DApplication(const std::string& title)
     : Application(title)
 {
 }
 
-TexturingApplication::~TexturingApplication()
+Setting3DApplication::~Setting3DApplication()
 {
     _deviceContext->Flush();
     _textureSrv.Reset();
     _triangleVertices.Reset();
+    _perFrameConstantBuffer.Reset();
+    _perObjectConstantBuffer.Reset();
     _linearSamplerState.Reset();
     _rasterState.Reset();
     _shaderCollection.Destroy();
@@ -51,7 +54,7 @@ TexturingApplication::~TexturingApplication()
     _device.Reset();
 }
 
-bool TexturingApplication::Initialize()
+bool Setting3DApplication::Initialize()
 {
     if (!Application::Initialize())
     {
@@ -60,7 +63,6 @@ bool TexturingApplication::Initialize()
 
     if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&_dxgiFactory))))
     {
-        std::cerr << "DXGI: Failed to create factory\n";
         return false;
     }
 
@@ -83,23 +85,22 @@ bool TexturingApplication::Initialize()
         nullptr,
         &deviceContext)))
     {
-        std::cerr << "D3D11: Failed to create Device and Device Context\n";
         return false;
     }
 
 #if !defined(NDEBUG)
     if (FAILED(_device.As(&_debug)))
     {
-        std::cerr << "D3D11: Failed to get the debug layer from the device\n";
         return false;
     }
 #endif
 
-    _deviceContext = deviceContext;
-
     constexpr char deviceName[] = "DEV_Main";
     _device->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(deviceName), deviceName);
     SetDebugName(deviceContext.Get(), "CTX_Main");
+
+    _deviceContext = deviceContext;
+
 
     DXGI_SWAP_CHAIN_DESC1 swapChainDescriptor = {};
     swapChainDescriptor.Width = GetWindowWidth();
@@ -124,11 +125,12 @@ bool TexturingApplication::Initialize()
         nullptr,
         &_swapChain)))
     {
-        std::cerr << "DXGI: Failed to create SwapChain\n";
         return false;
     }
 
     CreateSwapchainResources();
+
+    CreateConstantBuffers();
 
     FreeImage_Initialise();
     return true;
@@ -140,7 +142,6 @@ WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureViewFromDDS(ID3D11Device* dev
     DirectX::ScratchImage scratchImage;
     if (FAILED(DirectX::LoadFromDDSFile(pathToDDS.c_str(), DirectX::DDS_FLAGS_NONE, &metaData, scratchImage)))
     {
-        std::cerr << "DXTEX: Failed to load image\n";
         return nullptr;
     }
 
@@ -152,7 +153,6 @@ WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureViewFromDDS(ID3D11Device* dev
         metaData,
         &texture)))
     {
-        std::cerr << "DXTEX: Failed to create texture out of image\n";
         scratchImage.Release();
         return nullptr;
     }
@@ -166,7 +166,6 @@ WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureViewFromDDS(ID3D11Device* dev
         metaData,
         &srv)))
     {
-        std::cerr << "DXTEX: Failed to create shader resource view out of texture\n";
         scratchImage.Release();
         return nullptr;
     }
@@ -180,6 +179,12 @@ WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureView(ID3D11Device* device, co
     FIBITMAP* image = nullptr;
     //Win32 methods of opening files is called "CreateFile" counterintuitively, we make sure to tell it to only to read pre-existing files
     HANDLE file = CreateFileW(pathToTexture.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, 0);
+
+    //If the file didn't exist we'll get an invalid handle
+    if (file == INVALID_HANDLE_VALUE)
+    {
+        return nullptr;
+    }
 
     size_t fileSize = GetFileSize(file, nullptr);
 
@@ -244,6 +249,7 @@ WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureView(ID3D11Device* device, co
         break;
     default:
     {
+        //we could try to handle some weird bitcount, but these will probably be HDR or some antique format, just exit instead..
         return nullptr;
     }
     break;
@@ -282,17 +288,32 @@ WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureView(ID3D11Device* device, co
     return srv;
 }
 
-bool TexturingApplication::Load()
+void Setting3DApplication::CreateConstantBuffers()
 {
-    ShaderCollectionDescriptor shaderCollectionDescriptor = {};
-    shaderCollectionDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
-    shaderCollectionDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
-    shaderCollectionDescriptor.VertexType = VertexType::PositionColorUv;
-    _shaderCollection = ShaderCollection::CreateShaderCollection(shaderCollectionDescriptor, _device.Get());
+    D3D11_BUFFER_DESC desc{};
+    desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+    desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+    desc.ByteWidth = sizeof(PerFrameConstantBuffer);
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
+
+    desc.ByteWidth = sizeof(PerObjectConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
+}
+
+bool Setting3DApplication::Load()
+{
+    ShaderCollectionDescriptor shaderDescriptor = {};
+    shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
+    shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
+    shaderDescriptor.VertexType = VertexType::PositionColorUv;
+
+    _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
     constexpr VertexPositionColorUv vertices[] = {
-        {  Position{ 0.0f, 0.5f, 0.0f }, Color{ 0.25f, 0.39f, 0.19f }, Uv{ 0.5f, 0.0f }},
-        { Position{ 0.5f, -0.5f, 0.0f }, Color{ 0.44f, 0.75f, 0.35f }, Uv{ 1.0f, 1.0f }},
+        {Position{  0.0f,  0.5f, 0.0f }, Color{ 0.25f, 0.39f, 0.19f }, Uv{ 0.5f, 0.0f }},
+        {Position{  0.5f, -0.5f, 0.0f }, Color{ 0.44f, 0.75f, 0.35f }, Uv{ 1.0f, 1.0f }},
         {Position{ -0.5f, -0.5f, 0.0f }, Color{ 0.38f, 0.55f, 0.20f }, Uv{ 0.0f, 1.0f }},
     };
     D3D11_BUFFER_DESC bufferInfo = {};
@@ -308,7 +329,6 @@ bool TexturingApplication::Load()
         &resourceData,
         &_triangleVertices)))
     {
-        std::cerr << "D3D11: Failed to create triangle vertex buffer\n";
         return false;
     }
 
@@ -322,6 +342,7 @@ bool TexturingApplication::Load()
         _textureSrv = _fallbackTextureSrv;
     }
 
+
     D3D11_SAMPLER_DESC linearSamplerStateDescriptor = {};
     linearSamplerStateDescriptor.Filter = D3D11_FILTER::D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
     linearSamplerStateDescriptor.AddressU = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
@@ -329,21 +350,25 @@ bool TexturingApplication::Load()
     linearSamplerStateDescriptor.AddressW = D3D11_TEXTURE_ADDRESS_MODE::D3D11_TEXTURE_ADDRESS_WRAP;
     if (FAILED(_device->CreateSamplerState(&linearSamplerStateDescriptor, &_linearSamplerState)))
     {
-        std::cerr << "D3D11: Failed to create linear sampler state\n";
         return false;
     }
+
+    D3D11_RASTERIZER_DESC rasterDesc{};
+    rasterDesc.CullMode = D3D11_CULL_NONE;
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+
+    _device->CreateRasterizerState(&rasterDesc, &_rasterState);
 
     return true;
 }
 
-bool TexturingApplication::CreateSwapchainResources()
+bool Setting3DApplication::CreateSwapchainResources()
 {
     WRL::ComPtr<ID3D11Texture2D> backBuffer = nullptr;
     if (FAILED(_swapChain->GetBuffer(
         0,
         IID_PPV_ARGS(&backBuffer))))
     {
-        std::cerr << "D3D11: Failed to get back buffer from swapchain\n";
         return false;
     }
 
@@ -352,19 +377,18 @@ bool TexturingApplication::CreateSwapchainResources()
         nullptr,
         &_renderTarget)))
     {
-        std::cerr << "D3D11: Failed to create rendertarget view from back buffer\n";
         return false;
     }
 
     return true;
 }
 
-void TexturingApplication::DestroySwapchainResources()
+void Setting3DApplication::DestroySwapchainResources()
 {
     _renderTarget.Reset();
 }
 
-void TexturingApplication::OnResize(
+void Setting3DApplication::OnResize(
     const int32_t width,
     const int32_t height)
 {
@@ -380,28 +404,72 @@ void TexturingApplication::OnResize(
         DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM,
         0)))
     {
-        std::cerr << "D3D11: Failed to recreate swapchain buffers\n";
         return;
     }
 
     CreateSwapchainResources();
 }
 
-void TexturingApplication::Update()
+void Setting3DApplication::Update()
 {
     Application::Update();
+
+    using namespace DirectX;
+
+    static float _yRotation = 0.0f;
+    static float _scale = 1.0f;
+    static XMFLOAT3 _cameraPosition = { 0.0f, 0.0f, -1.0f };
+
+    _yRotation += _deltaTime;
+
+    //////////////////////////
+    //This will be our "camera"
+    XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
+
+    XMMATRIX view = XMMatrixLookAtRH(camPos, g_XMZero, { 0,1,0,1 });
+    XMMATRIX proj = XMMatrixPerspectiveFovRH(90.0f * 0.0174533f,
+        static_cast<float>(_width) / static_cast<float>(_height),
+        0.1f,
+        100.0f);
+    //combine the view & proj matrix
+    XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
+    XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
+    //////////////////////////
+
+    //////////////////////////
+    //This will define our 3D object
+    XMMATRIX translation = XMMatrixTranslation(0, 0, 0);
+    XMMATRIX scaling = XMMatrixScaling(_scale, _scale, _scale);
+    XMMATRIX rotation = XMMatrixRotationRollPitchYaw(0, _yRotation, 0);
+
+    //Now we create our model matrix
+    XMMATRIX modelMatrix = XMMatrixMultiply(translation, XMMatrixMultiply(scaling, rotation));
+    XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
+    /////////////////////////
+
+    /////////////////////////
+    //Update our constant buffer
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
+    _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
+
+    _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
+    _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
+    /////////////////////////
 }
 
-void TexturingApplication::Render()
+void Setting3DApplication::Render()
 {
     float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
     constexpr UINT vertexOffset = 0;
-
     ID3D11RenderTargetView* nullTarget = nullptr;
 
     //set to 0 so we can clear properly
     _deviceContext->OMSetRenderTargets(1, &nullTarget, nullptr);
     _deviceContext->ClearRenderTargetView(_renderTarget.Get(), clearColor);
+
     _deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), nullptr);
 
     _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -430,9 +498,17 @@ void TexturingApplication::Render()
     _deviceContext->RSSetViewports(1, &viewport);
     _deviceContext->RSSetState(_rasterState.Get());
 
+
     _deviceContext->PSSetShaderResources(0, 1, _textureSrv.GetAddressOf());
     _deviceContext->PSSetSamplers(0, 1, _linearSamplerState.GetAddressOf());
 
+    ID3D11Buffer* constantBuffers[2] =
+    {
+        _perFrameConstantBuffer.Get(),
+        _perObjectConstantBuffer.Get()
+    };
+
+    _deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
     _deviceContext->Draw(3, 0);
     _swapChain->Present(1, 0);
 }

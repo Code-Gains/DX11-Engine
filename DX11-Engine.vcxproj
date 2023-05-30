@@ -148,8 +148,8 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Setting3DApplication.cpp" />
     <ClCompile Include="ShaderCollection.cpp" />
-    <ClCompile Include="TexturingApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -282,8 +282,8 @@
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="HelloTriangleApplication.hpp" />
+    <ClInclude Include="Setting3DApplication.hpp" />
     <ClInclude Include="ShaderCollection.hpp" />
-    <ClInclude Include="TexturingApplication.hpp" />
     <ClInclude Include="VertexType.hpp" />
   </ItemGroup>
   <ItemGroup>

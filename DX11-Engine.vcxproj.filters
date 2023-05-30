@@ -24,10 +24,10 @@
     <ClCompile Include="HelloTriangleApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TexturingApplication.cpp">
+    <ClCompile Include="ShaderCollection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderCollection.cpp">
+    <ClCompile Include="Setting3DApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,7 +178,7 @@
     <ClInclude Include="VertexType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TexturingApplication.hpp">
+    <ClInclude Include="Setting3DApplication.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

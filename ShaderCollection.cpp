@@ -181,7 +181,6 @@ bool ShaderCollection::CompileShader(const std::wstring& filePath, const std::st
     return true;
 }
 
-
 void ShaderCollection::ApplyToContext(ID3D11DeviceContext* context)
 {
     context->IASetInputLayout(_inputLayout.Get());
