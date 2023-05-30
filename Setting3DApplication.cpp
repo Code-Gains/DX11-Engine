@@ -420,7 +420,7 @@ void Setting3DApplication::Update()
     static float _scale = 1.0f;
     static XMFLOAT3 _cameraPosition = { 0.0f, 0.0f, -1.0f };
 
-    _yRotation += _deltaTime;
+    _yRotation += _deltaTime * 1.0f;
 
     //////////////////////////
     //This will be our "camera"
