@@ -312,9 +312,15 @@ bool Setting3DApplication::Load()
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
     constexpr VertexPositionColorUv vertices[] = {
-        {Position{  0.0f,  0.5f, 0.0f }, Color{ 0.25f, 0.39f, 0.19f }, Uv{ 0.5f, 0.0f }},
-        {Position{  0.5f, -0.5f, 0.0f }, Color{ 0.44f, 0.75f, 0.35f }, Uv{ 1.0f, 1.0f }},
-        {Position{ -0.5f, -0.5f, 0.0f }, Color{ 0.38f, 0.55f, 0.20f }, Uv{ 0.0f, 1.0f }},
+      {Position{  0.0f,  0.5f, 0.0f }, Color{ 0.25f, 0.39f, 0.19f }, Uv{ 0.5f, 0.0f }},
+    {Position{  0.5f, -0.5f, 0.0f }, Color{ 0.44f, 0.75f, 0.35f }, Uv{ 1.0f, 1.0f }},
+    {Position{ -0.5f, -0.5f, 0.0f }, Color{ 0.38f, 0.55f, 0.20f }, Uv{ 0.0f, 1.0f }},
+
+    // Triangle 2
+    {Position{  0.0f, -1.5f, 0.0f }, Color{ 0.38f, 0.55f, 0.20f }, Uv{ 0.5f, 0.0f }},
+    {Position{ 0.5f, -0.5f, 0.0f }, Color{ 0.44f, 0.75f, 0.35f }, Uv{ 1.0f, 1.0f }},
+    {Position{  -0.5f, -0.5f, 0.0f }, Color{ 0.25f, 0.39f, 0.19f }, Uv{ 0.0f, 1.0f }},
+
     };
     D3D11_BUFFER_DESC bufferInfo = {};
     bufferInfo.ByteWidth = sizeof(vertices);
@@ -509,6 +515,6 @@ void Setting3DApplication::Render()
     };
 
     _deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
-    _deviceContext->Draw(3, 0);
+    _deviceContext->Draw(6, 0);
     _swapChain->Present(1, 0);
 }
