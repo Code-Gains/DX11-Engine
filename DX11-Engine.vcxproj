@@ -151,6 +151,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Setting3DApplication.cpp" />
     <ClCompile Include="ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
@@ -289,6 +290,7 @@
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="HelloTriangleApplication.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\Scene.hpp" />
     <ClInclude Include="Setting3DApplication.hpp" />
     <ClInclude Include="ShaderCollection.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Transform.hpp" />

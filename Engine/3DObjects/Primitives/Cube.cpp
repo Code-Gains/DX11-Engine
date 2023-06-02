@@ -93,6 +93,11 @@ bool Cube::Initialize(ID3D11Device* device)
 
 }
 
+void Cube::Update()
+{
+ 
+}
+
 void Cube::Render(ID3D11DeviceContext* deviceContext)
 {
     // Set the vertex and index buffers, and draw the cube

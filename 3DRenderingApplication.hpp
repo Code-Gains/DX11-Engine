@@ -10,6 +10,7 @@
 #include "ShaderCollection.hpp"
 
 #include <Cube.hpp>
+#include <Scene.hpp>
 
 struct PerFrameConstantBuffer
 {
@@ -70,6 +71,6 @@ private:
     PerFrameConstantBuffer _perFrameConstantBufferData{};
     PerObjectConstantBuffer _perObjectConstantBufferData{};
 
-    // scene
-    std::unique_ptr<Cube> _cube;
+    Cube _cube;
+    Scene _scene;
 };

@@ -303,13 +303,42 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    _cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
+    //_cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
+    //std::unique_ptr<Cube> cube;
+    auto cube = std::make_unique<Cube>();
+    auto cube2 = std::make_unique<Cube>();
+    auto cube3 = std::make_unique<Cube>();
+    auto cube4 = std::make_unique<Cube>();
+    auto cube5 = std::make_unique<Cube>();
 
-    if (!_cube->Initialize(_device.Get()))
+    cube2->transform.position = { 1, 0, 0 };
+    cube3->transform.position = {-1, 0, 0};
+    cube4->transform.position = { 0, 1, 0 };
+    cube5->transform.position = { 0, -1, 0 };
+
+    cube->Initialize(_device.Get());
+    cube2->Initialize(_device.Get());
+    cube3->Initialize(_device.Get());
+    cube4->Initialize(_device.Get());
+    cube5->Initialize(_device.Get());
+    /*if (!cube->Initialize(_device.Get()))
+    {
+        std::cerr << "Failed to initialize cube\n";
+    }*/
+
+    _scene.AddObject(std::move(cube));
+    _scene.AddObject(std::move(cube2));
+    _scene.AddObject(std::move(cube3));
+    _scene.AddObject(std::move(cube4));
+    _scene.AddObject(std::move(cube5));
+
+    /*_cube.transform.position = { 1, 0, 0 };
+
+    if (!_cube.Initialize(_device.Get()))
     {
         std::cerr << "Failed to initialize cube\n";
         return false;
-    }
+    }*/
 
     return true;
 }
@@ -377,12 +406,10 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    //static float _yRotation = 0.0f;
-    //static float _scale = 1.0f;
+    static float _yRotation = 0.0f;
+    _yRotation += _deltaTime;
 
-    static XMFLOAT3 _cameraPosition = { 0.0f, 0.0f, -2.0f };
-
-    //_yRotation += _deltaTime;
+    static XMFLOAT3 _cameraPosition = { 1.0f, 0.0f, -2.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
@@ -394,73 +421,7 @@ void Rendering3DApplication::Update()
     XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
     XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 
-   /* XMMATRIX translation = XMMatrixTranslation(0, 0, 0);
-    XMMATRIX scaling = XMMatrixScaling(_scale, _scale, _scale);
-    XMMATRIX rotation = XMMatrixRotationRollPitchYaw(_yRotation, _yRotation / 2.0f, 0);*/
-
-    XMMATRIX translation = XMMatrixIdentity();
-    XMMATRIX scaling = XMMatrixIdentity();
-    XMMATRIX rotation = XMMatrixIdentity();
-
-    XMMATRIX modelMatrix = XMMatrixMultiply(translation, XMMatrixMultiply(scaling, rotation));
-    XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
-
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-    _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
-    _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
-
-    _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
-    _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
-
-    //static float _yRotation = 0.0f;
-    //static float _scale = 1.0f;
-    //static XMFLOAT3 _cameraPosition = { 0.0f, 0.0f, -2.0f };
-
-
-    //_yRotation += _deltaTime;
-    ////_scale += _deltaTime / 100;
-
-    ////////////////////////////
-    ////This will be our "camera"
-    //XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
-
-    //XMMATRIX view = XMMatrixLookAtRH(camPos, g_XMZero, { 0,1,0,1 });
-    //XMMATRIX proj = XMMatrixPerspectiveFovRH(90.0f * 0.0174533f,
-    //    static_cast<float>(_width) / static_cast<float>(_height),
-    //    0.1f,
-    //    100.0f);
-    ////combine the view & proj matrix
-    //XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
-    //XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
-    ////////////////////////////
-
-    ////////////////////////////
-    ////This will define our 3D object
-    //XMMATRIX translation = XMMatrixTranslation(0, 0, 0);
-    //XMMATRIX scaling = XMMatrixScaling(_scale, _scale, _scale);
-    //XMMATRIX rotation = XMMatrixRotationRollPitchYaw(_yRotation, _yRotation / 2.0f, 0);
-    ///*XMMATRIX translation = XMMatrixIdentity();
-    //XMMATRIX scaling = XMMatrixIdentity();
-    //XMMATRIX rotation = XMMatrixIdentity();*/
-
-    ////Now we create our model matrix
-    //XMMATRIX modelMatrix = XMMatrixMultiply(translation, XMMatrixMultiply(scaling, rotation));
-    //XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
-    ///////////////////////////
-
-    ///////////////////////////
-    ////Update our constant buffer
-    //D3D11_MAPPED_SUBRESOURCE mappedResource;
-    //_deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    //memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
-    //_deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
-
-    //_deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    //memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
-    //_deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
-    ///////////////////////////
+    _scene.Update(_deltaTime);
 }
 
 void Rendering3DApplication::Render()
@@ -557,7 +518,22 @@ void Rendering3DApplication::Render()
 
     _deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
 
-    _cube->Render(_deviceContext.Get());
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
+    _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
+
+    for (auto& object : _scene.GetObjects()) {
+        DirectX::XMMATRIX modelMatrix = object->transform.GetWorldMatrix();
+        XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
+
+        _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
+        _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
+
+        object->Render(_deviceContext.Get());
+    }
+    //_cube.Render(_deviceContext.Get());
 
     _swapChain->Present(1, 0);
 }

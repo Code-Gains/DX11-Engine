@@ -12,9 +12,11 @@ private:
 public:
     Cube();
 
-    virtual ~Cube();
+    ~Cube();
 
     bool Initialize(ID3D11Device* device) override;
+
+    void Update() override;
 
     void Render(ID3D11DeviceContext* deviceContext) override;
 };
