@@ -7,7 +7,9 @@ class Object3D
 public:
     Transform transform;
 
-    virtual ~Object3D() {}
+    Object3D() {};
+
+    virtual ~Object3D() {};
 
     virtual bool Initialize(ID3D11Device* device) = 0;
 

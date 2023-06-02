@@ -305,16 +305,11 @@ bool Rendering3DApplication::Load()
 
     //_cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
     //std::unique_ptr<Cube> cube;
-    auto cube = std::make_unique<Cube>();
-    auto cube2 = std::make_unique<Cube>();
-    auto cube3 = std::make_unique<Cube>();
-    auto cube4 = std::make_unique<Cube>();
-    auto cube5 = std::make_unique<Cube>();
-
-    cube2->transform.position = { 1, 0, 0 };
-    cube3->transform.position = {-1, 0, 0};
-    cube4->transform.position = { 0, 1, 0 };
-    cube5->transform.position = { 0, -1, 0 };
+    auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(0, 0, 0));
+    auto cube2 = std::make_unique<Cube>(DirectX::XMFLOAT3(2, 0, 0));
+    auto cube3 = std::make_unique<Cube>(DirectX::XMFLOAT3(-2, 0, 0));
+    auto cube4 = std::make_unique<Cube>(DirectX::XMFLOAT3(0, 2, 0));
+    auto cube5 = std::make_unique<Cube>(DirectX::XMFLOAT3(0, -2, 0));
 
     cube->Initialize(_device.Get());
     cube2->Initialize(_device.Get());
@@ -426,61 +421,6 @@ void Rendering3DApplication::Update()
 
 void Rendering3DApplication::Render()
 {
-    //float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-    //constexpr UINT vertexOffset = 0;
-
-    //ID3D11RenderTargetView* nullRTV = nullptr;
-
-    ////set to nullptr so we can clear properly
-    //_deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
-
-    //_deviceContext->ClearRenderTargetView(_renderTarget.Get(), clearColor);
-    //_deviceContext->ClearDepthStencilView(_depthTarget.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-    //_deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), _depthTarget.Get());
-
-    //_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    //UINT stride = _shaderCollection.GetLayoutByteSize(VertexType::PositionColorUv);
-    //_deviceContext->IASetVertexBuffers(
-    //    0,
-    //    1,
-    //    _cubeVertices.GetAddressOf(),
-    //    &stride,
-    //    &vertexOffset);
-
-    //_deviceContext->IASetIndexBuffer(
-    //    _cubeIndices.Get(),
-    //    DXGI_FORMAT::DXGI_FORMAT_R32_UINT,
-    //    0
-    //);
-
-    //_shaderCollection.ApplyToContext(_deviceContext.Get());
-
-    //D3D11_VIEWPORT viewport = {
-    //    0.0f,
-    //    0.0f,
-    //    static_cast<float>(GetWindowWidth()),
-    //    static_cast<float>(GetWindowHeight()),
-    //    0.0f,
-    //    1.0f
-    //};
-
-    //_deviceContext->RSSetViewports(1, &viewport);
-    //_deviceContext->RSSetState(_rasterState.Get());
-    //_deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
-
-    //ID3D11Buffer* constantBuffers[2] =
-    //{
-    //    _perFrameConstantBuffer.Get(),
-    //    _perObjectConstantBuffer.Get()
-    //};
-
-    //_deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
-
-    //_deviceContext->DrawIndexed(36, 0, 0);
-    //_swapChain->Present(1, 0);
-
     float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;
@@ -533,7 +473,6 @@ void Rendering3DApplication::Render()
 
         object->Render(_deviceContext.Get());
     }
-    //_cube.Render(_deviceContext.Get());
 
     _swapChain->Present(1, 0);
 }

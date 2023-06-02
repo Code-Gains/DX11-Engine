@@ -83,6 +83,11 @@ void Application::Run()
 
     while (!glfwWindowShouldClose(_window))
     {
+        if (glfwGetWindowAttrib(_window, GLFW_ICONIFIED))
+        {
+            continue;
+        }
+
         Update();
         Render();
     }

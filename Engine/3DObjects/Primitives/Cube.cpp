@@ -6,6 +6,13 @@ Cube::Cube()
     _indexBuffer = nullptr;
 }
 
+Cube::Cube(DirectX::XMFLOAT3 position)
+{
+    _vertexBuffer = nullptr;
+    _indexBuffer = nullptr;
+    transform.position = position;
+}
+
 Cube::~Cube()
 {
     if (_vertexBuffer)
