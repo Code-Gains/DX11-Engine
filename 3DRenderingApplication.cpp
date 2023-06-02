@@ -204,6 +204,98 @@ void Rendering3DApplication::CreateConstantBuffers()
 
 bool Rendering3DApplication::Load()
 {
+    //ShaderCollectionDescriptor shaderDescriptor = {};
+    //shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
+    //shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
+    //shaderDescriptor.VertexType = VertexType::PositionColorUv;
+
+    //_shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
+
+    //constexpr VertexPositionColorUv vertices[] = {
+    //    //Front 
+    //    {Position{ -0.5f,  -0.5f, 0.5f }, Color{ 1.0f, 0.0f, 0.0f}, Uv{ 0.0f, 1.0f }},
+    //    {Position{  0.5f,  -0.5f, 0.5f }, Color{ 0.0f, 1.0f, 0.0f}, Uv{ 1.0f, 1.0f }},
+    //    {Position{ -0.5f,   0.5f, 0.5f }, Color{ 0.0f, 0.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
+    //    {Position{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 0.0f}, Uv{ 1.0f, 0.0f }},
+
+    //    //Back
+    //    {Position{ -0.5f,  -0.5f, -0.5f }, Color{ 0.0f, 1.0f, 1.0f}, Uv{ 0.0f, 1.0f }},
+    //    {Position{  0.5f,  -0.5f, -0.5f }, Color{ 1.0f, 0.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
+    //    {Position{ -0.5f,   0.5f, -0.5f }, Color{ 0.0f, 0.0f, 0.0f}, Uv{ 0.0f, 0.0f }},
+    //    {Position{  0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
+    //};
+
+    //constexpr uint32_t indices[] =
+    //{
+    //    //Top
+    //    7, 6, 2,
+    //    2, 3, 7,
+
+    //    //Bottom
+    //    0, 4, 5,
+    //    5, 1, 0,
+
+    //    //Left
+    //    0, 2, 6,
+    //    6, 4, 0,
+
+    //    //Right
+    //    7, 3, 1,
+    //    1, 5, 7,
+
+    //    //Front
+    //    3, 2, 0,
+    //    0, 1, 3,
+
+    //    //Back
+    //    4, 6, 7,
+    //    7, 5, 4
+    //};
+
+    //D3D11_BUFFER_DESC bufferInfo = {};
+    //bufferInfo.ByteWidth = sizeof(vertices);
+    //bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
+    //bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
+
+    //D3D11_SUBRESOURCE_DATA resourceData = {};
+    //resourceData.pSysMem = vertices;
+
+    //if (FAILED(_device->CreateBuffer(
+    //    &bufferInfo,
+    //    &resourceData,
+    //    &_cubeVertices)))
+    //{
+    //    std::cerr << "D3D11: Failed to create cube vertex buffer\n";
+    //    return false;
+    //}
+
+    //bufferInfo.ByteWidth = sizeof(indices);
+    //bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
+
+    //resourceData.pSysMem = indices;
+    //if (FAILED(_device->CreateBuffer(
+    //    &bufferInfo,
+    //    &resourceData,
+    //    &_cubeIndices)))
+    //{
+    //    std::cerr << "D3D11: Failed to create cube index buffer\n";
+    //    return false;
+    //}
+
+    //_cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
+
+    //if (!_cube->Initialize(_device.Get()))
+    //{
+    //    std::cerr << "Failed to initialize cube\n";
+    //    return false;
+    //}
+    //else 
+    //{
+    //    std::cerr << "The Cube has been created!\n";
+    //}
+
+    //return true;
+
     ShaderCollectionDescriptor shaderDescriptor = {};
     shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
     shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
@@ -211,74 +303,11 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    constexpr VertexPositionColorUv vertices[] = {
-        //Front 
-        {Position{ -0.5f,  -0.5f, 0.5f }, Color{ 1.0f, 0.0f, 0.0f}, Uv{ 0.0f, 1.0f }},
-        {Position{  0.5f,  -0.5f, 0.5f }, Color{ 0.0f, 1.0f, 0.0f}, Uv{ 1.0f, 1.0f }},
-        {Position{ -0.5f,   0.5f, 0.5f }, Color{ 0.0f, 0.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
-        {Position{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 0.0f}, Uv{ 1.0f, 0.0f }},
+    _cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
 
-        //Back
-        {Position{ -0.5f,  -0.5f, -0.5f }, Color{ 0.0f, 1.0f, 1.0f}, Uv{ 0.0f, 1.0f }},
-        {Position{  0.5f,  -0.5f, -0.5f }, Color{ 1.0f, 0.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
-        {Position{ -0.5f,   0.5f, -0.5f }, Color{ 0.0f, 0.0f, 0.0f}, Uv{ 0.0f, 0.0f }},
-        {Position{  0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
-    };
-
-    constexpr uint32_t indices[] =
+    if (!_cube->Initialize(_device.Get()))
     {
-        //Top
-        7, 6, 2,
-        2, 3, 7,
-
-        //Bottom
-        0, 4, 5,
-        5, 1, 0,
-
-        //Left
-        0, 2, 6,
-        6, 4, 0,
-
-        //Right
-        7, 3, 1,
-        1, 5, 7,
-
-        //Front
-        3, 2, 0,
-        0, 1, 3,
-
-        //Back
-        4, 6, 7,
-        7, 5, 4
-    };
-
-    D3D11_BUFFER_DESC bufferInfo = {};
-    bufferInfo.ByteWidth = sizeof(vertices);
-    bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
-    bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA resourceData = {};
-    resourceData.pSysMem = vertices;
-
-    if (FAILED(_device->CreateBuffer(
-        &bufferInfo,
-        &resourceData,
-        &_cubeVertices)))
-    {
-        std::cerr << "D3D11: Failed to create cube vertex buffer\n";
-        return false;
-    }
-
-    bufferInfo.ByteWidth = sizeof(indices);
-    bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
-
-    resourceData.pSysMem = indices;
-    if (FAILED(_device->CreateBuffer(
-        &bufferInfo,
-        &resourceData,
-        &_cubeIndices)))
-    {
-        std::cerr << "D3D11: Failed to create cube index buffer\n";
+        std::cerr << "Failed to initialize cube\n";
         return false;
     }
 
@@ -348,15 +377,13 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static float _yRotation = 0.0f;
-    static float _scale = 1.0f;
+    //static float _yRotation = 0.0f;
+    //static float _scale = 1.0f;
+
     static XMFLOAT3 _cameraPosition = { 0.0f, 0.0f, -2.0f };
 
+    //_yRotation += _deltaTime;
 
-    _yRotation += _deltaTime;
-
-    //////////////////////////
-    //This will be our "camera"
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
     XMMATRIX view = XMMatrixLookAtRH(camPos, g_XMZero, { 0,1,0,1 });
@@ -364,24 +391,20 @@ void Rendering3DApplication::Update()
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
         100.0f);
-    //combine the view & proj matrix
     XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
     XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
-    //////////////////////////
 
-    //////////////////////////
-    //This will define our 3D object
-    XMMATRIX translation = XMMatrixTranslation(0, 0, 0);
+   /* XMMATRIX translation = XMMatrixTranslation(0, 0, 0);
     XMMATRIX scaling = XMMatrixScaling(_scale, _scale, _scale);
-    XMMATRIX rotation = XMMatrixRotationRollPitchYaw(_yRotation, _yRotation / 2.0f, 0);
+    XMMATRIX rotation = XMMatrixRotationRollPitchYaw(_yRotation, _yRotation / 2.0f, 0);*/
 
-    //Now we create our model matrix
+    XMMATRIX translation = XMMatrixIdentity();
+    XMMATRIX scaling = XMMatrixIdentity();
+    XMMATRIX rotation = XMMatrixIdentity();
+
     XMMATRIX modelMatrix = XMMatrixMultiply(translation, XMMatrixMultiply(scaling, rotation));
     XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
-    /////////////////////////
 
-    /////////////////////////
-    //Update our constant buffer
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
@@ -390,13 +413,114 @@ void Rendering3DApplication::Update()
     _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
     _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
-    /////////////////////////
+
+    //static float _yRotation = 0.0f;
+    //static float _scale = 1.0f;
+    //static XMFLOAT3 _cameraPosition = { 0.0f, 0.0f, -2.0f };
+
+
+    //_yRotation += _deltaTime;
+    ////_scale += _deltaTime / 100;
+
+    ////////////////////////////
+    ////This will be our "camera"
+    //XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
+
+    //XMMATRIX view = XMMatrixLookAtRH(camPos, g_XMZero, { 0,1,0,1 });
+    //XMMATRIX proj = XMMatrixPerspectiveFovRH(90.0f * 0.0174533f,
+    //    static_cast<float>(_width) / static_cast<float>(_height),
+    //    0.1f,
+    //    100.0f);
+    ////combine the view & proj matrix
+    //XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
+    //XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
+    ////////////////////////////
+
+    ////////////////////////////
+    ////This will define our 3D object
+    //XMMATRIX translation = XMMatrixTranslation(0, 0, 0);
+    //XMMATRIX scaling = XMMatrixScaling(_scale, _scale, _scale);
+    //XMMATRIX rotation = XMMatrixRotationRollPitchYaw(_yRotation, _yRotation / 2.0f, 0);
+    ///*XMMATRIX translation = XMMatrixIdentity();
+    //XMMATRIX scaling = XMMatrixIdentity();
+    //XMMATRIX rotation = XMMatrixIdentity();*/
+
+    ////Now we create our model matrix
+    //XMMATRIX modelMatrix = XMMatrixMultiply(translation, XMMatrixMultiply(scaling, rotation));
+    //XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
+    ///////////////////////////
+
+    ///////////////////////////
+    ////Update our constant buffer
+    //D3D11_MAPPED_SUBRESOURCE mappedResource;
+    //_deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    //memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
+    //_deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
+
+    //_deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    //memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
+    //_deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
+    ///////////////////////////
 }
 
 void Rendering3DApplication::Render()
 {
+    //float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+    //constexpr UINT vertexOffset = 0;
+
+    //ID3D11RenderTargetView* nullRTV = nullptr;
+
+    ////set to nullptr so we can clear properly
+    //_deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
+
+    //_deviceContext->ClearRenderTargetView(_renderTarget.Get(), clearColor);
+    //_deviceContext->ClearDepthStencilView(_depthTarget.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    //_deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), _depthTarget.Get());
+
+    //_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    //UINT stride = _shaderCollection.GetLayoutByteSize(VertexType::PositionColorUv);
+    //_deviceContext->IASetVertexBuffers(
+    //    0,
+    //    1,
+    //    _cubeVertices.GetAddressOf(),
+    //    &stride,
+    //    &vertexOffset);
+
+    //_deviceContext->IASetIndexBuffer(
+    //    _cubeIndices.Get(),
+    //    DXGI_FORMAT::DXGI_FORMAT_R32_UINT,
+    //    0
+    //);
+
+    //_shaderCollection.ApplyToContext(_deviceContext.Get());
+
+    //D3D11_VIEWPORT viewport = {
+    //    0.0f,
+    //    0.0f,
+    //    static_cast<float>(GetWindowWidth()),
+    //    static_cast<float>(GetWindowHeight()),
+    //    0.0f,
+    //    1.0f
+    //};
+
+    //_deviceContext->RSSetViewports(1, &viewport);
+    //_deviceContext->RSSetState(_rasterState.Get());
+    //_deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
+
+    //ID3D11Buffer* constantBuffers[2] =
+    //{
+    //    _perFrameConstantBuffer.Get(),
+    //    _perObjectConstantBuffer.Get()
+    //};
+
+    //_deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
+
+    //_deviceContext->DrawIndexed(36, 0, 0);
+    //_swapChain->Present(1, 0);
+
     float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-    constexpr UINT vertexOffset = 0;
 
     ID3D11RenderTargetView* nullRTV = nullptr;
 
@@ -409,20 +533,6 @@ void Rendering3DApplication::Render()
     _deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), _depthTarget.Get());
 
     _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    UINT stride = _shaderCollection.GetLayoutByteSize(VertexType::PositionColorUv);
-    _deviceContext->IASetVertexBuffers(
-        0,
-        1,
-        _cubeVertices.GetAddressOf(),
-        &stride,
-        &vertexOffset);
-
-    _deviceContext->IASetIndexBuffer(
-        _cubeIndices.Get(),
-        DXGI_FORMAT::DXGI_FORMAT_R32_UINT,
-        0
-    );
 
     _shaderCollection.ApplyToContext(_deviceContext.Get());
 
@@ -447,6 +557,7 @@ void Rendering3DApplication::Render()
 
     _deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
 
-    _deviceContext->DrawIndexed(36, 0, 0);
+    _cube->Render(_deviceContext.Get());
+
     _swapChain->Present(1, 0);
 }

@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Dependencies\Engine\include\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -145,12 +145,15 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\3DObjects\Primitives\Cube.cpp" />
+    <ClCompile Include="Engine\3DObjects\Object3D.cpp" />
     <ClCompile Include="3DRenderingApplication.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Setting3DApplication.cpp" />
     <ClCompile Include="ShaderCollection.cpp" />
+    <ClCompile Include="Engine\Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -278,6 +281,8 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\Engine\include\Cube.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\Object3D.hpp" />
     <ClInclude Include="3DRenderingApplication.hpp" />
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="Definitions.hpp" />
@@ -286,7 +291,8 @@
     <ClInclude Include="HelloTriangleApplication.hpp" />
     <ClInclude Include="Setting3DApplication.hpp" />
     <ClInclude Include="ShaderCollection.hpp" />
-    <ClInclude Include="VertexType.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\Transform.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\VertexType.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

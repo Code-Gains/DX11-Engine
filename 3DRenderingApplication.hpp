@@ -9,6 +9,8 @@
 #include <DirectXMath.h>
 #include "ShaderCollection.hpp"
 
+#include <Cube.hpp>
+
 struct PerFrameConstantBuffer
 {
     DirectX::XMFLOAT4X4 viewProjectionMatrix;
@@ -67,4 +69,7 @@ private:
 
     PerFrameConstantBuffer _perFrameConstantBufferData{};
     PerObjectConstantBuffer _perObjectConstantBufferData{};
+
+    // scene
+    std::unique_ptr<Cube> _cube;
 };
