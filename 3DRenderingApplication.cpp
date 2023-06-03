@@ -193,7 +193,7 @@ void Rendering3DApplication::CreateConstantBuffers()
     D3D11_BUFFER_DESC desc{};
     desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
     desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-    desc.ByteWidth = sizeof(PerFrameConstantBuffer);
+    desc.ByteWidth = sizeof(PerFrameConstantBuffer); // all of the buffers are currently 16B
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
