@@ -204,98 +204,6 @@ void Rendering3DApplication::CreateConstantBuffers()
 
 bool Rendering3DApplication::Load()
 {
-    //ShaderCollectionDescriptor shaderDescriptor = {};
-    //shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
-    //shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
-    //shaderDescriptor.VertexType = VertexType::PositionColorUv;
-
-    //_shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-
-    //constexpr VertexPositionColorUv vertices[] = {
-    //    //Front 
-    //    {Position{ -0.5f,  -0.5f, 0.5f }, Color{ 1.0f, 0.0f, 0.0f}, Uv{ 0.0f, 1.0f }},
-    //    {Position{  0.5f,  -0.5f, 0.5f }, Color{ 0.0f, 1.0f, 0.0f}, Uv{ 1.0f, 1.0f }},
-    //    {Position{ -0.5f,   0.5f, 0.5f }, Color{ 0.0f, 0.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
-    //    {Position{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 0.0f}, Uv{ 1.0f, 0.0f }},
-
-    //    //Back
-    //    {Position{ -0.5f,  -0.5f, -0.5f }, Color{ 0.0f, 1.0f, 1.0f}, Uv{ 0.0f, 1.0f }},
-    //    {Position{  0.5f,  -0.5f, -0.5f }, Color{ 1.0f, 0.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
-    //    {Position{ -0.5f,   0.5f, -0.5f }, Color{ 0.0f, 0.0f, 0.0f}, Uv{ 0.0f, 0.0f }},
-    //    {Position{  0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
-    //};
-
-    //constexpr uint32_t indices[] =
-    //{
-    //    //Top
-    //    7, 6, 2,
-    //    2, 3, 7,
-
-    //    //Bottom
-    //    0, 4, 5,
-    //    5, 1, 0,
-
-    //    //Left
-    //    0, 2, 6,
-    //    6, 4, 0,
-
-    //    //Right
-    //    7, 3, 1,
-    //    1, 5, 7,
-
-    //    //Front
-    //    3, 2, 0,
-    //    0, 1, 3,
-
-    //    //Back
-    //    4, 6, 7,
-    //    7, 5, 4
-    //};
-
-    //D3D11_BUFFER_DESC bufferInfo = {};
-    //bufferInfo.ByteWidth = sizeof(vertices);
-    //bufferInfo.Usage = D3D11_USAGE::D3D11_USAGE_IMMUTABLE;
-    //bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
-
-    //D3D11_SUBRESOURCE_DATA resourceData = {};
-    //resourceData.pSysMem = vertices;
-
-    //if (FAILED(_device->CreateBuffer(
-    //    &bufferInfo,
-    //    &resourceData,
-    //    &_cubeVertices)))
-    //{
-    //    std::cerr << "D3D11: Failed to create cube vertex buffer\n";
-    //    return false;
-    //}
-
-    //bufferInfo.ByteWidth = sizeof(indices);
-    //bufferInfo.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
-
-    //resourceData.pSysMem = indices;
-    //if (FAILED(_device->CreateBuffer(
-    //    &bufferInfo,
-    //    &resourceData,
-    //    &_cubeIndices)))
-    //{
-    //    std::cerr << "D3D11: Failed to create cube index buffer\n";
-    //    return false;
-    //}
-
-    //_cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
-
-    //if (!_cube->Initialize(_device.Get()))
-    //{
-    //    std::cerr << "Failed to initialize cube\n";
-    //    return false;
-    //}
-    //else 
-    //{
-    //    std::cerr << "The Cube has been created!\n";
-    //}
-
-    //return true;
-
     ShaderCollectionDescriptor shaderDescriptor = {};
     shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
     shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
@@ -303,8 +211,6 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    //_cube = std::make_unique<Cube>();  // You will have to add _cube to your class as a unique_ptr
-    //std::unique_ptr<Cube> cube;
     auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(0, 0, 0));
     auto cube2 = std::make_unique<Cube>(DirectX::XMFLOAT3(2, 0, 0));
     auto cube3 = std::make_unique<Cube>(DirectX::XMFLOAT3(-2, 0, 0));
@@ -316,6 +222,7 @@ bool Rendering3DApplication::Load()
     cube3->Initialize(_device.Get());
     cube4->Initialize(_device.Get());
     cube5->Initialize(_device.Get());
+
     /*if (!cube->Initialize(_device.Get()))
     {
         std::cerr << "Failed to initialize cube\n";
@@ -326,14 +233,6 @@ bool Rendering3DApplication::Load()
     _scene.AddObject(std::move(cube3));
     _scene.AddObject(std::move(cube4));
     _scene.AddObject(std::move(cube5));
-
-    /*_cube.transform.position = { 1, 0, 0 };
-
-    if (!_cube.Initialize(_device.Get()))
-    {
-        std::cerr << "Failed to initialize cube\n";
-        return false;
-    }*/
 
     return true;
 }
