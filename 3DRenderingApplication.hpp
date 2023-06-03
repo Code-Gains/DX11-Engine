@@ -10,6 +10,8 @@
 #include "ShaderCollection.hpp"
 
 #include <Cube.hpp>
+#include <Sphere.hpp>
+#include <Cylinder.hpp>
 #include <Scene.hpp>
 
 struct PerFrameConstantBuffer

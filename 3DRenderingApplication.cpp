@@ -211,28 +211,17 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(0, 0, 0));
-    auto cube2 = std::make_unique<Cube>(DirectX::XMFLOAT3(2, 0, 0));
-    auto cube3 = std::make_unique<Cube>(DirectX::XMFLOAT3(-2, 0, 0));
-    auto cube4 = std::make_unique<Cube>(DirectX::XMFLOAT3(0, 2, 0));
-    auto cube5 = std::make_unique<Cube>(DirectX::XMFLOAT3(0, -2, 0));
+    auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3(0, 0, 0));
+    auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(-1.5f, 0, 0));
+    auto cylinder = std::make_unique<Cylinder>(DirectX::XMFLOAT3(1.5f, 0, 0), false);
 
+    sphere->Initialize(_device.Get());
     cube->Initialize(_device.Get());
-    cube2->Initialize(_device.Get());
-    cube3->Initialize(_device.Get());
-    cube4->Initialize(_device.Get());
-    cube5->Initialize(_device.Get());
+    cylinder->Initialize(_device.Get());
 
-    /*if (!cube->Initialize(_device.Get()))
-    {
-        std::cerr << "Failed to initialize cube\n";
-    }*/
-
+    _scene.AddObject(std::move(sphere));
     _scene.AddObject(std::move(cube));
-    _scene.AddObject(std::move(cube2));
-    _scene.AddObject(std::move(cube3));
-    _scene.AddObject(std::move(cube4));
-    _scene.AddObject(std::move(cube5));
+    _scene.AddObject(std::move(cylinder));
 
     return true;
 }
@@ -303,7 +292,7 @@ void Rendering3DApplication::Update()
     static float _yRotation = 0.0f;
     _yRotation += _deltaTime;
 
-    static XMFLOAT3 _cameraPosition = { -1.0f, 0.0f, 3.0f };
+    static XMFLOAT3 _cameraPosition = { 0.0f, 5.0f, 3.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
@@ -318,11 +307,11 @@ void Rendering3DApplication::Update()
     _materialConstantBufferData.Ambient = { 1.0f, 1.0f, 1.0f, 1.0f };
     _materialConstantBufferData.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
     _materialConstantBufferData.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
-    _materialConstantBufferData.Shininess = 2.0f;
+    _materialConstantBufferData.Shininess = 3.0f;
 
     _lightConstantBufferData.Position = { 0.0f, 0.0f, 5.0f, 0.0f };
     _lightConstantBufferData.Ambient = { 0.3f, 0.3f, 0.3f, 1.0f };
-    _lightConstantBufferData.Diffuse = { 0.3f, 0.3f, 0.3f, 1.0f };
+    _lightConstantBufferData.Diffuse = { 0.4f, 0.4f, 0.4f, 1.0f };
     _lightConstantBufferData.Specular = { 0.3f, 0.3f, 0.3f, 1.0f };
 
     _scene.Update(_deltaTime);

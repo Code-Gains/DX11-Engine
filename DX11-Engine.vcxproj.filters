@@ -42,6 +42,9 @@
     <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3DObjects\Primitives\Cylinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
@@ -203,6 +206,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Engine\include\Sphere.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Engine\include\Cylinder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

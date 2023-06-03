@@ -145,6 +145,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\3DObjects\Primitives\Cylinder.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Cube.cpp" />
     <ClCompile Include="Engine\3DObjects\Object3D.cpp" />
     <ClCompile Include="3DRenderingApplication.cpp" />
@@ -281,6 +282,7 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\Engine\include\Cylinder.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Cube.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Object3D.hpp" />
     <ClInclude Include="3DRenderingApplication.hpp" />
