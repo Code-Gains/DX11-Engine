@@ -11,22 +11,24 @@ struct VSOutput
     float4 Position : SV_Position;
     float3 Color : COLOR0;
     float2 Uv : TEXCOORD0;
+    float3 Normal : NORMAL;
+    float3 PositionWorld : POSITIONWORLD;
 };
 
 struct Material
 {
-    float4 Ambient;
-    float4 Diffuse;
-    float4 Specular;
-    float Shininess;
+    float4 matAmbient;
+    float4 matDiffuse;
+    float4 matSpecular;
+    float matShininess;
 };
 
 struct Light
 {
-    float4 Position;
-    float4 Ambient;
-    float4 Diffuse;
-    float4 Specular;
+    float4 lightPosition;
+    float4 lightAmbient;
+    float4 lightDiffuse;
+    float4 lightSpecular;
 };
 
 cbuffer PerFrame : register(b0)
@@ -34,20 +36,7 @@ cbuffer PerFrame : register(b0)
     matrix viewprojection;
 };
 
-cbuffer Material : register(b1)
-{
-    float4 DiffuseColor;
-    float SpecularIntensity;
-    float SpecularPower;
-};
-
-cbuffer Light : register(b2)
-{
-    float3 LightDirection;
-    float3 LightColor;
-};
-
-cbuffer PerObject : register(b3)
+cbuffer PerObject : register(b1)
 {
     matrix modelmatrix;
 };
@@ -60,5 +49,7 @@ VSOutput Main(VSInput input)
     output.Position = mul(world, float4(input.Position, 1.0));
     output.Color = input.Color;
     output.Uv = input.Uv;
+    output.Normal = mul(input.Normal, (float3x3) modelmatrix);
+    output.PositionWorld = mul(float4(input.Position, 1.0), modelmatrix).xyz;
     return output;
 }

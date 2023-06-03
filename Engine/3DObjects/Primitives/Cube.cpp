@@ -29,42 +29,66 @@ Cube::~Cube()
 
 static constexpr VertexPositionNormalColorUv vertices[] = {
     //Front
-    {Position{ -0.5f,  -0.5f, 0.5f }, Normal{ -0.5f,  -0.5f, 0.5f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{  0.5f,  -0.5f, 0.5f }, Normal{  0.5f,  -0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
-    {Position{ -0.5f,   0.5f, 0.5f }, Normal{ -0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
-    {Position{  0.5f,   0.5f, 0.5f }, Normal{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
+    {Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
+    {Position{  0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
 
     //Back
-    {Position{ -0.5f,  -0.5f, -0.5f }, Normal{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 0.0f, 1.0f }},
-    {Position{  0.5f,  -0.5f, -0.5f }, Normal{  0.5f,  -0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
-    {Position{ -0.5f,   0.5f, -0.5f }, Normal{ -0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
-    {Position{  0.5f,   0.5f, -0.5f }, Normal{  0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
+    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
+    {Position{  0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+
+    //Top
+    {Position{ -0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
+    {Position{  0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+
+    //Bottom
+    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
+    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+
+    //Left
+    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
+    {Position{ -0.5f,  0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+
+    //Right
+    {Position{ 0.5f, -0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{ 0.5f, -0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
+    {Position{ 0.5f,  0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
+    {Position{ 0.5f,  0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
 };
 
 static constexpr uint32_t indices[] = {
-    //Top
-    7, 6, 2,
-    2, 3, 7,
-
-    //Bottom
-    0, 4, 5,
-    5, 1, 0,
-
-    //Left
-    0, 2, 6,
-    6, 4, 0,
-
-    //Right
-    7, 3, 1,
-    1, 5, 7,
-
     //Front
-    3, 2, 0,
-    0, 1, 3,
+    0, 1, 2,
+    2, 1, 3,
 
     //Back
-    4, 6, 7,
-    7, 5, 4
+    4, 5, 6,
+    6, 5, 7,
+
+    //Top
+    8, 9, 10,
+    10, 9, 11,
+
+    //Bottom
+    12, 13, 14,
+    14, 13, 15,
+
+    //Left
+    16, 17, 18,
+    18, 17, 19,
+
+    //Right
+    20, 21, 22,
+    22, 21, 23,
 };
 
 bool Cube::Initialize(ID3D11Device* device)
