@@ -14,7 +14,7 @@ public:
 
     Cube(DirectX::XMFLOAT3 position);
 
-    ~Cube();
+    virtual ~Cube();
 
     bool Initialize(ID3D11Device* device) override;
 

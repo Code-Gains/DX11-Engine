@@ -18,7 +18,7 @@ public:
 
     Cylinder(DirectX::XMFLOAT3 position, bool caps = true);
 
-    ~Cylinder();
+    virtual ~Cylinder();
 
     void GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalColorUv>& vertices);
     void GenerateCylinderIndices(int numSlices, std::vector<uint32_t>& indices);

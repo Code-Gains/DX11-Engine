@@ -289,9 +289,6 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static float _yRotation = 0.0f;
-    _yRotation += _deltaTime;
-
     static XMFLOAT3 _cameraPosition = { 0.0f, 5.0f, 3.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);

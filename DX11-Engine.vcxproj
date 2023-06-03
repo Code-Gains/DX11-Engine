@@ -155,6 +155,7 @@
     <ClCompile Include="ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp" />
+    <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -284,6 +285,7 @@
   <ItemGroup>
     <ClInclude Include="Dependencies\Engine\include\Cylinder.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Cube.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\IntVectors.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Object3D.hpp" />
     <ClInclude Include="3DRenderingApplication.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Application.hpp" />
@@ -295,6 +297,7 @@
     <ClInclude Include="Dependencies\Engine\include\Transform.hpp" />
     <ClInclude Include="Dependencies\Engine\include\VertexType.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Sphere.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\WindowsXpPipesSimulation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

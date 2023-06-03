@@ -16,7 +16,7 @@ public:
 
     Sphere(DirectX::XMFLOAT3 position);
 
-    ~Sphere();
+    virtual ~Sphere();
 
     void GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalColorUv>& vertices);
     void GenerateSphereIndices(int numSlices, int numStacks, std::vector<uint32_t>& indices);
