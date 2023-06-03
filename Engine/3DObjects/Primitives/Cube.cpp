@@ -1,4 +1,4 @@
-#include "Cube.hpp"
+#include <Cube.hpp>
 
 Cube::Cube()
 {
@@ -27,18 +27,18 @@ Cube::~Cube()
     }
 }
 
-static constexpr VertexPositionColorUv vertices[] = {
+static constexpr VertexPositionNormalColorUv vertices[] = {
     //Front
-    {Position{ -0.5f,  -0.5f, 0.5f }, Color{ 1.0f, 0.0f, 0.0f}, Uv{ 0.0f, 1.0f }},
-    {Position{  0.5f,  -0.5f, 0.5f }, Color{ 0.0f, 1.0f, 0.0f}, Uv{ 1.0f, 1.0f }},
-    {Position{ -0.5f,   0.5f, 0.5f }, Color{ 0.0f, 0.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
-    {Position{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 0.0f}, Uv{ 1.0f, 0.0f }},
+    {Position{ -0.5f,  -0.5f, 0.5f }, Normal{ -0.5f,  -0.5f, 0.5f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
+    {Position{  0.5f,  -0.5f, 0.5f }, Normal{  0.5f,  -0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
+    {Position{ -0.5f,   0.5f, 0.5f }, Normal{ -0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
+    {Position{  0.5f,   0.5f, 0.5f }, Normal{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
 
     //Back
-    {Position{ -0.5f,  -0.5f, -0.5f }, Color{ 0.0f, 1.0f, 1.0f}, Uv{ 0.0f, 1.0f }},
-    {Position{  0.5f,  -0.5f, -0.5f }, Color{ 1.0f, 0.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
-    {Position{ -0.5f,   0.5f, -0.5f }, Color{ 0.0f, 0.0f, 0.0f}, Uv{ 0.0f, 0.0f }},
-    {Position{  0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
+    {Position{ -0.5f,  -0.5f, -0.5f }, Normal{  0.5f,   0.5f, 0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 0.0f, 1.0f }},
+    {Position{  0.5f,  -0.5f, -0.5f }, Normal{  0.5f,  -0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 1.0f }},
+    {Position{ -0.5f,   0.5f, -0.5f }, Normal{ -0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 0.0f, 0.0f }},
+    {Position{  0.5f,   0.5f, -0.5f }, Normal{  0.5f,   0.5f, -0.5f }, Color{ 1.0f, 1.0f, 1.0f}, Uv{ 1.0f, 0.0f }},
 };
 
 static constexpr uint32_t indices[] = {
@@ -73,7 +73,7 @@ bool Cube::Initialize(ID3D11Device* device)
     D3D11_BUFFER_DESC vertexBufferDesc;
     ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc)); // not sure if this is needed, I just created it
     vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexPositionColorUv) * ARRAYSIZE(vertices);
+    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalColorUv) * ARRAYSIZE(vertices);
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;  // Don't set D3D11_CPU_ACCESS_WRITE for a D3D11_USAGE_DEFAULT resource
     vertexBufferDesc.MiscFlags = 0;  // We don't need any flags for now https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_resource_misc_flag
@@ -108,7 +108,7 @@ void Cube::Update()
 void Cube::Render(ID3D11DeviceContext* deviceContext)
 {
     // Set the vertex and index buffers, and draw the cube
-    UINT stride = sizeof(VertexPositionColorUv);
+    UINT stride = sizeof(VertexPositionNormalColorUv);
     UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);

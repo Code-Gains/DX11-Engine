@@ -197,8 +197,8 @@ void Rendering3DApplication::CreateConstantBuffers()
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
     _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
-
-    desc.ByteWidth = sizeof(PerObjectConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
 }
 
@@ -299,7 +299,7 @@ bool Rendering3DApplication::Load()
     ShaderCollectionDescriptor shaderDescriptor = {};
     shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
     shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
-    shaderDescriptor.VertexType = VertexType::PositionColorUv;
+    shaderDescriptor.VertexType = VertexType::PositionNormalColorUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
@@ -416,6 +416,16 @@ void Rendering3DApplication::Update()
     XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
     XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 
+    _materialConstantBufferData.Ambient = { 1.0f, 1.0f, 1.0f, 1.0f };
+    _materialConstantBufferData.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+    _materialConstantBufferData.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
+    _materialConstantBufferData.Shininess = 32.0f;
+
+    _lightConstantBufferData.Position = { 0.0f, 1.0f, -1.0f, 0.0f };
+    _lightConstantBufferData.Ambient = { 0.2f, 0.2f, 0.2f, 1.0f };
+    _lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
+    _lightConstantBufferData.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
+
     _scene.Update(_deltaTime);
 }
 
@@ -450,18 +460,28 @@ void Rendering3DApplication::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    ID3D11Buffer* constantBuffers[2] =
+    ID3D11Buffer* constantBuffers[4] =
     {
         _perFrameConstantBuffer.Get(),
+        _materialConstantBuffer.Get(),
+        _lightConstantBuffer.Get(),
         _perObjectConstantBuffer.Get()
     };
 
-    _deviceContext->VSSetConstantBuffers(0, 2, constantBuffers);
+    _deviceContext->VSSetConstantBuffers(0, 4, constantBuffers);
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
     _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
+
+    _deviceContext->Map(_materialConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_materialConstantBufferData, sizeof(Material));
+    _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
+
+    _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_lightConstantBufferData, sizeof(Light));
+    _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
 
     for (auto& object : _scene.GetObjects()) {
         DirectX::XMMATRIX modelMatrix = object->transform.GetWorldMatrix();

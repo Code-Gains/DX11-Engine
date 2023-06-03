@@ -22,6 +22,23 @@ struct PerObjectConstantBuffer
     DirectX::XMFLOAT4X4 modelMatrix;
 };
 
+struct Material
+{
+    DirectX::XMFLOAT4 Ambient;
+    DirectX::XMFLOAT4 Diffuse;
+    DirectX::XMFLOAT4 Specular;
+    float Shininess;
+};
+
+struct Light
+{
+    DirectX::XMFLOAT4 Position;
+    DirectX::XMFLOAT4 Ambient;
+    DirectX::XMFLOAT4 Diffuse;
+    DirectX::XMFLOAT4 Specular;
+};
+
+
 
 class Rendering3DApplication final : public Application
 {
@@ -65,11 +82,15 @@ private:
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
 
     ShaderCollection _shaderCollection;
 
     PerFrameConstantBuffer _perFrameConstantBufferData{};
     PerObjectConstantBuffer _perObjectConstantBufferData{};
+    Material _materialConstantBufferData{};
+    Light _lightConstantBufferData{};
 
     Cube _cube;
     Scene _scene;

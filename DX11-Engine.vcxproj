@@ -152,9 +152,9 @@
     <ClCompile Include="HelloTriangleApplication.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine\Scene.cpp" />
-    <ClCompile Include="Setting3DApplication.cpp" />
     <ClCompile Include="ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
+    <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -285,16 +285,16 @@
     <ClInclude Include="Dependencies\Engine\include\Cube.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Object3D.hpp" />
     <ClInclude Include="3DRenderingApplication.hpp" />
-    <ClInclude Include="Application.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\Application.hpp" />
     <ClInclude Include="Definitions.hpp" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="HelloTriangleApplication.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Scene.hpp" />
-    <ClInclude Include="Setting3DApplication.hpp" />
     <ClInclude Include="ShaderCollection.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Transform.hpp" />
     <ClInclude Include="Dependencies\Engine\include\VertexType.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\Sphere.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

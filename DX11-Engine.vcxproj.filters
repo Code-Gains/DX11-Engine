@@ -27,9 +27,6 @@
     <ClCompile Include="ShaderCollection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Setting3DApplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="3DRenderingApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +40,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,7 +178,7 @@
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Application.hpp">
+    <ClInclude Include="Dependencies\Engine\include\Application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HelloTriangleApplication.hpp">
@@ -191,9 +191,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Engine\include\VertexType.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Setting3DApplication.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="3DRenderingApplication.hpp">
@@ -209,6 +206,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\Engine\include\Scene.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\Engine\include\Sphere.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

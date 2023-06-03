@@ -31,7 +31,7 @@ std::unordered_map<VertexType, std::vector<D3D11_INPUT_ELEMENT_DESC>> ShaderColl
         }
     },
     {
-        VertexType::PositionColorUv,
+        VertexType::PositionNormalColorUv,
         {
             {
                 {
@@ -39,7 +39,16 @@ std::unordered_map<VertexType, std::vector<D3D11_INPUT_ELEMENT_DESC>> ShaderColl
                     0,
                     DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
                     0,
-                    offsetof(VertexPositionColorUv, position),
+                    offsetof(VertexPositionNormalColorUv, position),
+                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
+                    0
+                },
+    {
+                    "NORMAL",
+                    0,
+                    DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+                    0,
+                    offsetof(VertexPositionNormalColorUv, normal),
                     D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
                     0
                 },
@@ -48,7 +57,7 @@ std::unordered_map<VertexType, std::vector<D3D11_INPUT_ELEMENT_DESC>> ShaderColl
                     0,
                     DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
                     0,
-                    offsetof(VertexPositionColorUv, color),
+                    offsetof(VertexPositionNormalColorUv, color),
                     D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
                     0
                 },
@@ -57,7 +66,7 @@ std::unordered_map<VertexType, std::vector<D3D11_INPUT_ELEMENT_DESC>> ShaderColl
                     0,
                     DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
                     0,
-                    offsetof(VertexPositionColorUv, uv),
+                    offsetof(VertexPositionNormalColorUv, uv),
                     D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
                     0
                 }
@@ -86,8 +95,8 @@ UINT ShaderCollection::GetLayoutByteSize(VertexType vertexType)
     {
     case VertexType::PositionColor:
         return static_cast<UINT>(sizeof(VertexPositionColor));
-    case VertexType::PositionColorUv:
-        return static_cast<UINT>(sizeof(VertexPositionColorUv));
+    case VertexType::PositionNormalColorUv:
+        return static_cast<UINT>(sizeof(VertexPositionNormalColorUv));
     }
     return 0;
 }

@@ -4,7 +4,7 @@
 #include <dxgi1_3.h>
 #include <wrl.h>
 
-#include "Application.hpp"
+#include <Application.hpp>
 
 class HelloTriangleApplication final : public Application
 {
