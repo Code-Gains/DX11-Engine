@@ -46,35 +46,10 @@ void WindowsXpPipesSimulation::Update(const float deltaTime)
 
 void WindowsXpPipesSimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
 {
-    for (int x = 0; x < _dimensions.x; ++x)
+    for (auto& pipeObject : _pipes)
     {
-        for (int y = 0; y < _dimensions.y; ++y)
-        {
-            for (int z = 0; z < _dimensions.z; ++z)
-            {
-                if(_grid[x][y][z].pipe != nullptr)
-                    _grid[x][y][z].pipe->Render(deviceContext, perObjectConstantBuffer);
-            }
-        }
+        pipeObject->Render(deviceContext, perObjectConstantBuffer);
     }
-}
-
-std::vector<Object3D*> WindowsXpPipesSimulation::GetAllObjects() {
-    std::vector<Object3D*> allObjects = CompositeObject3D::GetAllObjects();
-
-    // Iterate over all grid cells.
-    for (const auto& xLayer : _grid) {
-        for (const auto& yLayer : xLayer) {
-            for (const auto& cell : yLayer) {
-                // If the grid cell has a pipe object, add it to the list.
-                if (cell.pipe) {
-                    allObjects.push_back(cell.pipe.get());
-                }
-            }
-        }
-    }
-
-    return allObjects;
 }
 
 Int3 WindowsXpPipesSimulation::GetNextCell() const
@@ -137,7 +112,6 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, GridCe
     {
         case GridCell::PIPE_STRAIGHT:
             pipeObject = std::make_unique<Cylinder>(GetCellWorldPosition(cellPosition), false);
-            //pipeObject = std::make_unique<Cube>(GetCellWorldPosition(cellPosition));
             break;
         case GridCell::PIPE_CORNER:
             pipeObject = std::make_unique<Sphere>(GetCellWorldPosition(cellPosition));
@@ -149,5 +123,8 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, GridCe
     }
     if (pipeObject)
         pipeObject->Initialize(_device.Get());
+         _pipes.push_back(pipeObject.get());
         _grid[cellPosition.x][cellPosition.y][cellPosition.z].pipe = std::move(pipeObject);
+
+
 }
