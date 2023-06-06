@@ -12,6 +12,7 @@
 #include <Cube.hpp>
 #include <Sphere.hpp>
 #include <Cylinder.hpp>
+#include <WindowsXpPipesSimulation.hpp>
 #include <Scene.hpp>
 
 struct PerFrameConstantBuffer

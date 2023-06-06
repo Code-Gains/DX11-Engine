@@ -184,7 +184,7 @@
     <ClInclude Include="Dependencies\Engine\include\Application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Definitions.hpp">
+    <ClInclude Include="Dependencies\Engine\include\Definitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCollection.hpp">

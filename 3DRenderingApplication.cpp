@@ -210,8 +210,12 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalColorUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
+    //WindowsXpPipesSimulation(const Int3& dimensions, const float simulationSpeed = 1.0f);
+    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(10, 10, 10));
+    simulation->Initialize(_device.Get());
+    _scene.AddObject(std::move(simulation));
 
-    auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3(0, 0, 0));
+    /*auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3(0, 0, 0));
     auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(-1.5f, 0, 0));
     auto cylinder = std::make_unique<Cylinder>(DirectX::XMFLOAT3(1.5f, 0, 0), false);
 
@@ -221,7 +225,7 @@ bool Rendering3DApplication::Load()
 
     _scene.AddObject(std::move(sphere));
     _scene.AddObject(std::move(cube));
-    _scene.AddObject(std::move(cylinder));
+    _scene.AddObject(std::move(cylinder));*/
 
     return true;
 }
@@ -289,7 +293,7 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static XMFLOAT3 _cameraPosition = { 0.0f, 5.0f, 3.0f };
+    static XMFLOAT3 _cameraPosition = { 0.0f, 10.0f, 10.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
@@ -313,10 +317,27 @@ void Rendering3DApplication::Update()
 
     _scene.Update(_deltaTime);
 }
+//
+//void RenderObject(RenderableObject* object, const DirectX::XMMATRIX& parentMatrix)
+//{
+//    DirectX::XMMATRIX modelMatrix = DirectX::XMMatrixMultiply(object->transform.GetWorldMatrix(), parentMatrix);
+//    XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
+//
+//    _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+//    memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
+//    _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
+//
+//    object->Render(_deviceContext.Get());
+//
+//    for (auto& child : object->GetChildren()) {
+//        RenderObject(child, modelMatrix);
+//    }
+//}
+
 
 void Rendering3DApplication::Render()
 {
-    float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+    float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;
 
@@ -375,16 +396,7 @@ void Rendering3DApplication::Render()
     memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
     _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
 
-    for (auto& object : _scene.GetObjects()) {
-        DirectX::XMMATRIX modelMatrix = object->transform.GetWorldMatrix();
-        XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
-
-        _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
-        _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
-
-        object->Render(_deviceContext.Get());
-    }
+    _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get());
 
     _swapChain->Present(1, 0);
 }

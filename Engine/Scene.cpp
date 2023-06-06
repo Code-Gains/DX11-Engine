@@ -26,18 +26,29 @@ const std::vector<std::unique_ptr<Object3D>>& Scene::GetObjects() const
 	return _objects;
 }
 
+const std::vector<Object3D*> Scene::GetAllObjects() const {
+	std::vector<Object3D*> allObjects;
+
+	for (const auto& object : _objects) {
+		auto objectObjects = object->GetAllObjects();
+		allObjects.insert(allObjects.end(), objectObjects.begin(), objectObjects.end());
+	}
+
+	return allObjects;
+}
+
 void Scene::Update(float _deltaTime)
 {
 	for (auto& object : _objects)
 	{
-		object->Update();
+		object->Update(_deltaTime);
 	}
 }
 
-void Scene::Render(ID3D11DeviceContext* deviceContext)
+void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
 {
 	for (auto& object : _objects)
 	{
-		object->Render(deviceContext);
+		object->Render(deviceContext, perObjectConstantBuffer);
 	}
 }

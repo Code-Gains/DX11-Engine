@@ -4,15 +4,24 @@
 #include <IntVectors.hpp>
 #include <vector>
 #include <memory>
+#include <Sphere.hpp>
+#include <Cylinder.hpp>
+#include <Cube.hpp>
+#include <iostream>
+#include <Definitions.hpp>
+
+
+#include <memory>
+
 
 struct GridCell
 {
     enum Type { EMPTY, PIPE_STRAIGHT, PIPE_CORNER };
     Type type;
-    std::unique_ptr<Object3D> pipe;
+    std::unique_ptr<Object3D> pipe = nullptr;
 };
 
-class WindowsXpPipesSimulation : public Object3D
+class WindowsXpPipesSimulation : public CompositeObject3D 
 {
 public:
     enum class Direction {
@@ -24,21 +33,28 @@ public:
         NegativeZ
     };
 private:
+    WRL::ComPtr<ID3D11Device> _device = nullptr;
     std::vector<std::vector<std::vector<GridCell>>> _grid;
 
+    Int3 _dimensions;
     Int3 _currentPosition;
     Direction _currentDirection;
+    float _simulationSpeed;
+
+    float _timeUntilNextSegment;
 
 public:
-    WindowsXpPipesSimulation();
+    WindowsXpPipesSimulation(const WRL::ComPtr<ID3D11Device>& device, const Int3& dimensions, const float simulationSpeed = 1.0f);
     virtual ~WindowsXpPipesSimulation();
 
     bool Initialize(ID3D11Device* device) override;
-    void Update() override;
-    void Render(ID3D11DeviceContext* deviceContext) override;
+    void Update(const float deltaTime) override;
+    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
+    std::vector<Object3D*> GetAllObjects() override;
 
     Int3 GetNextCell() const;
     Direction GetNextDirection();
+    DirectX::XMFLOAT3 GetCellWorldPosition(const Int3& cellPosition) const;
 
     void CreatePipeAtCell(const Int3& cellPosition, GridCell::Type pipeType);
 };

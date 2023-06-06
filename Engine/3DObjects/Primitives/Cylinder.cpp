@@ -1,4 +1,5 @@
 #include <Cylinder.hpp>
+#include <iostream>
 
 Cylinder::Cylinder(bool caps): _caps(caps)
 {
@@ -10,7 +11,6 @@ Cylinder::Cylinder(DirectX::XMFLOAT3 position, bool caps): _caps(caps)
 {
     _vertexBuffer = nullptr;
     _indexBuffer = nullptr;
-
     transform.position = position;
 }
 
@@ -140,13 +140,22 @@ bool Cylinder::Initialize(ID3D11Device* device)
     return true;
 }
 
-void Cylinder::Update()
+void Cylinder::Update(const float deltaTime)
 {
 
 }
 
-void Cylinder::Render(ID3D11DeviceContext* deviceContext)
+void Cylinder::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
 {
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
+    DirectX::XMFLOAT4X4 modelMatrixToPass;
+    XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
+
+    deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
+    deviceContext->Unmap(perObjectConstantBuffer, 0);
+
     UINT stride = sizeof(VertexPositionNormalColorUv);
     UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);

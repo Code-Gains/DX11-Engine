@@ -124,13 +124,22 @@ bool Cube::Initialize(ID3D11Device* device)
 
 }
 
-void Cube::Update()
+void Cube::Update(const float deltaTime)
 {
  
 }
 
-void Cube::Render(ID3D11DeviceContext* deviceContext)
+void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
 {
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
+    DirectX::XMFLOAT4X4 modelMatrixToPass;
+    XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
+
+    deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
+    deviceContext->Unmap(perObjectConstantBuffer, 0);
+
     // Set the vertex and index buffers, and draw the cube
     UINT stride = sizeof(VertexPositionNormalColorUv);
     UINT offset = 0;

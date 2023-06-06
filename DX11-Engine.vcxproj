@@ -289,7 +289,7 @@
     <ClInclude Include="Dependencies\Engine\include\Object3D.hpp" />
     <ClInclude Include="3DRenderingApplication.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Application.hpp" />
-    <ClInclude Include="Definitions.hpp" />
+    <ClInclude Include="Dependencies\Engine\include\Definitions.hpp" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="Dependencies\Engine\include\Scene.hpp" />
