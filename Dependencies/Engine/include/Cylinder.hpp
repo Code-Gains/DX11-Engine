@@ -4,19 +4,22 @@
 #include <VertexType.hpp>
 #include <vector>
 #include <cmath>
+#include <Constants.hpp>
 
 class Cylinder : public Object3D
 {
 private:
-    ID3D11Buffer* _vertexBuffer;
-    ID3D11Buffer* _indexBuffer;
+    ID3D11Buffer* _vertexBuffer = nullptr;
+    ID3D11Buffer* _indexBuffer = nullptr;
 
     bool _caps;
 
 public:
-    Cylinder(bool caps = true);
 
-    Cylinder(DirectX::XMFLOAT3 position, bool caps = true);
+    Cylinder(const bool caps = true);
+    Cylinder(const DirectX::XMFLOAT3& position, const bool caps = true);
+    Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const bool caps = true);
+    Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale, const bool caps = true);
 
     virtual ~Cylinder();
 

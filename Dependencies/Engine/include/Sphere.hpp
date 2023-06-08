@@ -4,6 +4,7 @@
 #include <VertexType.hpp>
 #include <vector>
 #include <cmath>
+#include <Constants.hpp>
 
 class Sphere : public Object3D
 {

@@ -39,6 +39,11 @@ cbuffer Light : register(b1)
     float4 lightSpecular;
 };
 
+cbuffer Camera : register(b2)
+{
+    float3 camPosition;
+};
+
 float4 Main(PSInput input) : SV_Target
 {
     float3 normal = normalize(input.Normal);
@@ -51,10 +56,11 @@ float4 Main(PSInput input) : SV_Target
     float3 diff = max(dot(normal, lightDir), 0.0) * matDiffuse.rgb * lightDiffuse.rgb;
 
     // Specular
-    float3 viewDir = normalize(-input.PositionWorld);
+    float3 viewDir = normalize(camPosition);
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), matShininess) * matSpecular.rgb * lightSpecular.rgb;
 
     float3 result = ambient + diff + spec;
+    //return float4(normalize(input.Normal) * 0.5f + 0.5f, 1.0f); // note: normalize to 0-1 range for visualization
     return float4(result, 1.0);
 }

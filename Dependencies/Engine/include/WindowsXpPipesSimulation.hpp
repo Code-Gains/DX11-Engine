@@ -9,6 +9,8 @@
 #include <Cube.hpp>
 #include <iostream>
 #include <Definitions.hpp>
+#include <random>
+#include <Constants.hpp>
 
 
 #include <memory>
@@ -18,7 +20,7 @@ struct GridCell
 {
     enum Type { EMPTY, PIPE_STRAIGHT, PIPE_CORNER };
     Type type;
-    std::unique_ptr<Object3D> pipe = nullptr;
+    std::shared_ptr<Object3D> pipe = nullptr;
 };
 
 class WindowsXpPipesSimulation : public Object3D 
@@ -35,7 +37,7 @@ public:
 private:
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     std::vector<std::vector<std::vector<GridCell>>> _grid;
-    std::vector<Object3D*> _pipes;
+    std::vector<std::shared_ptr<Object3D>> _pipes;
 
     Int3 _dimensions;
     Int3 _currentPosition;
@@ -52,9 +54,11 @@ public:
     void Update(const float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
 
-    Int3 GetNextCell() const;
-    Direction GetNextDirection();
+    Int3 GetNextCell();
+    Direction GetNextDirection(const std::vector<Direction>& availableDirections) const;
+    std::vector<Direction> GetAvailableDirections() const;
     DirectX::XMFLOAT3 GetCellWorldPosition(const Int3& cellPosition) const;
+    DirectX::XMFLOAT3 GetRotationByDirection(const Direction direction) const;
 
-    void CreatePipeAtCell(const Int3& cellPosition, GridCell::Type pipeType);
+    void CreatePipeAtCell(const Int3& cellPosition, const WindowsXpPipesSimulation::Direction direction, GridCell::Type pipeType);
 };

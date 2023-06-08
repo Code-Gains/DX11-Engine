@@ -1,16 +1,18 @@
 #include <Cube.hpp>
 
-Cube::Cube()
+Cube::Cube(const DirectX::XMFLOAT3& position) : Cube(position, {0.0f, 0.0f, 0.0f}, { 1.0f, 1.0f, 1.0f })
 {
-    _vertexBuffer = nullptr;
-    _indexBuffer = nullptr;
 }
 
-Cube::Cube(DirectX::XMFLOAT3 position)
+Cube::Cube(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation) : Cube(position, rotation, { 1.0f, 1.0f, 1.0f })
 {
-    _vertexBuffer = nullptr;
-    _indexBuffer = nullptr;
+}
+
+Cube::Cube(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
+{
     transform.position = position;
+    transform.rotation = rotation;
+    transform.scale = scale;
 }
 
 Cube::~Cube()
@@ -133,11 +135,18 @@ void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectCon
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
+    DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
+
     DirectX::XMFLOAT4X4 modelMatrixToPass;
+    DirectX::XMFLOAT4X4 normalMatrixToPass;
+
     XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
+    XMStoreFloat4x4(&normalMatrixToPass, modelMatrix);
+
 
     deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
+    memcpy((char*)mappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
     deviceContext->Unmap(perObjectConstantBuffer, 0);
 
     // Set the vertex and index buffers, and draw the cube

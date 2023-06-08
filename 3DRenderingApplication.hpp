@@ -23,17 +23,25 @@ struct PerFrameConstantBuffer
 struct PerObjectConstantBuffer
 {
     DirectX::XMFLOAT4X4 modelMatrix;
+    DirectX::XMFLOAT4X4 normalMatrix;
 };
 
-struct Material
+struct CameraConstantBuffer
+{
+    DirectX::XMFLOAT3 cameraPosition;
+    float padding;
+};
+
+struct MaterialConstantBuffer
 {
     DirectX::XMFLOAT4 Ambient;
     DirectX::XMFLOAT4 Diffuse;
     DirectX::XMFLOAT4 Specular;
     float Shininess;
+    float Padding[3];
 };
 
-struct Light
+struct LightConstantBuffer
 {
     DirectX::XMFLOAT4 Position;
     DirectX::XMFLOAT4 Ambient;
@@ -87,14 +95,15 @@ private:
     WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
 
     ShaderCollection _shaderCollection;
 
     PerFrameConstantBuffer _perFrameConstantBufferData{};
     PerObjectConstantBuffer _perObjectConstantBufferData{};
-    Material _materialConstantBufferData{};
-    Light _lightConstantBufferData{};
+    MaterialConstantBuffer _materialConstantBufferData{};
+    LightConstantBuffer _lightConstantBufferData{};
+    CameraConstantBuffer _cameraConstantBufferData{};
 
-    Cube _cube;
     Scene _scene;
 };

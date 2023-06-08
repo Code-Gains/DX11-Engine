@@ -193,12 +193,21 @@ void Rendering3DApplication::CreateConstantBuffers()
     D3D11_BUFFER_DESC desc{};
     desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
     desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-    desc.ByteWidth = sizeof(PerFrameConstantBuffer); // all of the buffers are currently 16B
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
+    desc.ByteWidth = sizeof(PerFrameConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
+
+    desc.ByteWidth = sizeof(MaterialConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
+
+    desc.ByteWidth = sizeof(LightConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
+
+    desc.ByteWidth = sizeof(CameraConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_cameraConstantBuffer);
+
+    desc.ByteWidth = sizeof(PerObjectConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
 }
 
@@ -211,7 +220,7 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
     //WindowsXpPipesSimulation(const Int3& dimensions, const float simulationSpeed = 1.0f);
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(10, 10, 10));
+    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(10, 10, 10), 5.0f);
     simulation->Initialize(_device.Get());
     _scene.AddObject(std::move(simulation));
 
@@ -293,7 +302,7 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static XMFLOAT3 _cameraPosition = { 0.0f, 10.0f, 10.0f };
+    static XMFLOAT3 _cameraPosition = { -3.0f, 13.0f, 13.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
@@ -310,10 +319,10 @@ void Rendering3DApplication::Update()
     _materialConstantBufferData.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
     _materialConstantBufferData.Shininess = 3.0f;
 
-    _lightConstantBufferData.Position = { 0.0f, 0.0f, 5.0f, 0.0f };
-    _lightConstantBufferData.Ambient = { 0.3f, 0.3f, 0.3f, 1.0f };
-    _lightConstantBufferData.Diffuse = { 0.4f, 0.4f, 0.4f, 1.0f };
-    _lightConstantBufferData.Specular = { 0.3f, 0.3f, 0.3f, 1.0f };
+    _lightConstantBufferData.Position = { 200.0f, 200.0f, 200.0f, 0.0f };
+    _lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
+    _lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
+    _lightConstantBufferData.Specular = { 0.4f, 0.4f, 0.4f, 1.0f };
 
     _scene.Update(_deltaTime);
 }
@@ -372,29 +381,34 @@ void Rendering3DApplication::Render()
         _perObjectConstantBuffer.Get()
     };
 
-    ID3D11Buffer* constantPSBuffers[2] =
+    ID3D11Buffer* constantPSBuffers[3] =
     {
          _materialConstantBuffer.Get(),
-        _lightConstantBuffer.Get()
+        _lightConstantBuffer.Get(),
+        _cameraConstantBuffer.Get()
     };
 
     _deviceContext->VSSetConstantBuffers(0, 2, constantVSBuffers);
-    _deviceContext->PSSetConstantBuffers(0, 2, constantPSBuffers);
+    _deviceContext->PSSetConstantBuffers(0, 3, constantPSBuffers);
 
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-    _deviceContext->Map(_materialConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_materialConstantBufferData, sizeof(Material));
-    _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
-
-    _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_lightConstantBufferData, sizeof(Light));
-    _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
-
     _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
     _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
+
+    _deviceContext->Map(_materialConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_materialConstantBufferData, sizeof(MaterialConstantBuffer));
+    _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
+
+    _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_lightConstantBufferData, sizeof(LightConstantBuffer));
+    _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
+
+    _deviceContext->Map(_cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &_cameraConstantBufferData, sizeof(CameraConstantBuffer));
+    _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
 
     _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get());
 

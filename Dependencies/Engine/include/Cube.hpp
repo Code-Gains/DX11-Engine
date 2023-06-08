@@ -6,13 +6,15 @@
 class Cube : public Object3D
 {
 private:
-    ID3D11Buffer* _vertexBuffer;
-    ID3D11Buffer* _indexBuffer;
+    ID3D11Buffer* _vertexBuffer = nullptr;
+    ID3D11Buffer* _indexBuffer = nullptr;
 
 public:
-    Cube();
+    Cube() {};
 
-    Cube(DirectX::XMFLOAT3 position);
+    Cube(const DirectX::XMFLOAT3& position);
+    Cube(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation);
+    Cube(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale);
 
     virtual ~Cube();
 

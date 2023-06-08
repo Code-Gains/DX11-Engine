@@ -283,6 +283,7 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\Engine\include\Constants.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Cylinder.hpp" />
     <ClInclude Include="Dependencies\Engine\include\Cube.hpp" />
     <ClInclude Include="Dependencies\Engine\include\IntVectors.hpp" />

@@ -1,19 +1,26 @@
 #include <Cylinder.hpp>
 #include <iostream>
 
-Cylinder::Cylinder(bool caps): _caps(caps)
+Cylinder::Cylinder(const bool caps): _caps(caps)
 {
-    _vertexBuffer = nullptr;
-    _indexBuffer = nullptr;
 }
 
-Cylinder::Cylinder(DirectX::XMFLOAT3 position, bool caps): _caps(caps)
+Cylinder::Cylinder(const DirectX::XMFLOAT3& position, const bool caps): Cylinder(position, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f }, caps)
 {
-    _vertexBuffer = nullptr;
-    _indexBuffer = nullptr;
+}
+
+
+Cylinder::Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const bool caps): Cylinder(position, rotation, { 1.0f, 1.0f, 1.0f }, caps)
+{
+}
+
+
+Cylinder::Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale, const bool caps): _caps(caps)
+{
     transform.position = position;
+    transform.rotation = rotation;
+    transform.scale = scale;
 }
-
 Cylinder::~Cylinder()
 {
     if (_vertexBuffer)
@@ -30,12 +37,11 @@ Cylinder::~Cylinder()
 
 void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalColorUv>& vertices)
 {
-    const float PI = 3.14159265358979323846;
     vertices.clear();
 
     // Generate cap vertices and side vertices
     for (int i = 0; i <= numSlices; ++i) {
-        float phi = i * 2.0f * PI / numSlices;
+        float phi = i * 2.0f * Constants::PI / numSlices;
         float sinPhi = sin(phi);
         float cosPhi = cos(phi);
 
@@ -46,7 +52,7 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
                 {0, 1, 0},                                       // Normal
                 {1.0f, 1.0f, 1.0f},                              // Color
                 {cosPhi, sinPhi}                                  // Uv
-                });
+            });
 
             // Bottom cap
             vertices.push_back({
@@ -54,7 +60,7 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
                 {0, -1, 0},                                      // Normal
                 {1.0f, 1.0f, 1.0f},                              // Color
                 {cosPhi, sinPhi}                                  // Uv
-                });
+            });
         }
 
         // Side top
@@ -63,7 +69,7 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
             {cosPhi, 0, sinPhi},                             // Normal
             {1.0f, 1.0f, 1.0f},                              // Color
             {(float)i / numSlices, 1.0f}                      // Uv
-            });
+        });
 
         // Side bottom
         vertices.push_back({
@@ -71,7 +77,7 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
             {cosPhi, 0, sinPhi},                             // Normal
             {1.0f, 1.0f, 1.0f},                              // Color
             {(float)i / numSlices, 0.0f}                      // Uv
-            });
+        });
     }
 }
 
@@ -149,11 +155,17 @@ void Cylinder::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjec
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
+    DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
+
     DirectX::XMFLOAT4X4 modelMatrixToPass;
+    DirectX::XMFLOAT4X4 normalMatrixToPass;
+
     XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
+    XMStoreFloat4x4(&normalMatrixToPass, normalMatrix);
 
     deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
+    memcpy((char*)mappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
     deviceContext->Unmap(perObjectConstantBuffer, 0);
 
     UINT stride = sizeof(VertexPositionNormalColorUv);

@@ -29,17 +29,16 @@ Sphere::~Sphere()
 
 void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalColorUv>& vertices)
 {
-    const float PI = 3.14159265358979323846;
     vertices.clear();
 
     // Iterate over latitude and longitude
     for (int i = 0; i <= numStacks; ++i) {
-        float theta = i * PI / numStacks;      // Range [0, PI]
+        float theta = i * Constants::PI / numStacks;      // Range [0, PI]
         float sinTheta = sin(theta);
         float cosTheta = cos(theta);
 
         for (int j = 0; j <= numSlices; ++j) {
-            float phi = j * 2.0f * PI / numSlices;   // Range [0, 2PI]
+            float phi = j * 2.0f * Constants::PI / numSlices;   // Range [0, 2PI]
             float sinPhi = sin(phi);
             float cosPhi = cos(phi);
 
@@ -125,11 +124,17 @@ void Sphere::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectC
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
+    DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
+
     DirectX::XMFLOAT4X4 modelMatrixToPass;
+    DirectX::XMFLOAT4X4 normalMatrixToPass;
+
     XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
+    XMStoreFloat4x4(&normalMatrixToPass, normalMatrix);
 
     deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
+    memcpy((char*)mappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
     deviceContext->Unmap(perObjectConstantBuffer, 0);
 
     UINT stride = sizeof(VertexPositionNormalColorUv);
