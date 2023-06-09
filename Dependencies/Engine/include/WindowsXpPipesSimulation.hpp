@@ -54,7 +54,8 @@ public:
     void Update(const float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
 
-    Int3 GetNextCell();
+    Int3 GetNextCell(const Int3& currentPosition) const;
+    Int3 GetPreviousCell(const Int3& currentPosition, const Direction direction) const;
     Direction GetNextDirection(const std::vector<Direction>& availableDirections) const;
     std::vector<Direction> GetAvailableDirections() const;
     DirectX::XMFLOAT3 GetCellWorldPosition(const Int3& cellPosition) const;
