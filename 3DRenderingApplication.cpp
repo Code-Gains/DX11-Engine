@@ -302,11 +302,19 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
+    //static XMFLOAT3 _cameraPosition = { -1.0f, 8.5f, 1.0f };
     static XMFLOAT3 _cameraPosition = { -3.0f, 13.0f, 13.0f };
+
+    //XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
+   // static XMFLOAT3 _cameraPosition = { -3.0f, 13.0f, 13.0f };
+    //static XMFLOAT3 _cameraPosition = { -1.0f, 8.5f, 1.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
     XMMATRIX view = XMMatrixLookAtRH(camPos, g_XMZero, { 0,1,0,1 });
+    //XMMATRIX view = XMMatrixLookAtRH(camPos, { 0, 8.5, 0 }, { 0,1,0,1 });
+
+    //XMMATRIX view = XMMatrixLookAtRH(camPos, {0, 8.5, 0}, { 0,1,0,1 });
     XMMATRIX proj = XMMatrixPerspectiveFovRH(90.0f * 0.0174533f,
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
