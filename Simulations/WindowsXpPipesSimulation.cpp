@@ -21,6 +21,25 @@ _simulationSpeed(simulationSpeed)
             }
         }
     }
+
+    CreatePipeAtCell(_currentPosition, _currentDirection, GridCell::PIPE_STRAIGHT);
+    _timeUntilNextSegment = 1 / simulationSpeed;
+    _currentPosition = GetNextCell(_currentPosition, _currentDirection);
+
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_int_distribution<> lengthShortest(1, 5);
+    _shortestStraight = lengthShortest(gen);
+
+    std::uniform_int_distribution<> lengthLongest(_shortestStraight, 20);
+    _longestStraight = lengthLongest(gen);
+
+    std::uniform_real_distribution<> disRatio(1, 1.1);
+    _turnProbabilityIncreaseRatio = disRatio(gen);
+
+    _turnProbability = (float)_shortestStraight / _longestStraight;
 }
 
 WindowsXpPipesSimulation::~WindowsXpPipesSimulation() {}
@@ -34,26 +53,51 @@ void WindowsXpPipesSimulation::Update(const float deltaTime)
 {
     _timeUntilNextSegment -= deltaTime;
    // std::cout << _timeUntilNextSegment << std::endl;
-    if (_timeUntilNextSegment < 0.0f)
+    while (_timeUntilNextSegment < 0.0f)
     {
+        Int3 previousCellPosition = GetPreviousCell(_currentPosition, _currentDirection);
+        //std::cout << previousCellPosition.x << std::endl;
+        GridCell previousCell = _grid[previousCellPosition.x][previousCellPosition.y][previousCellPosition.z];
 
         std::vector<Direction> availableDirections = GetAvailableDirections();
-        if (std::find(availableDirections.begin(), availableDirections.end(), _currentDirection) == availableDirections.end()) {
-            Int3 previousCellPosition = GetPreviousCell(_currentPosition, _currentDirection);
-            GridCell previousCell = _grid[previousCellPosition.x][previousCellPosition.y][previousCellPosition.z];
+        bool makeCorner = false;
 
-            /*previousCell.pipe->transform.position.y += 0.1;
-            previousCell.pipe->transform.scale.y += 0.2;*/
+        if (_currentStraightLength >= _shortestStraight)
+        {
+            Direction generatedDirection = GenerateDirection(availableDirections, _currentDirection, _turnProbability);
+            makeCorner = generatedDirection != _currentDirection;
+            if (makeCorner)
+            {
+                _currentDirection = generatedDirection;
+            }
+            else
+            {
+                _turnProbability *= _turnProbabilityIncreaseRatio;
+            }
+        }
+
+        if (makeCorner || std::find(availableDirections.begin(), availableDirections.end(), _currentDirection) == availableDirections.end()) {
+            ExtendCellPipe(previousCell, _currentDirection, 0.1);
 
             _currentDirection = GetNextDirection(availableDirections);
             CreatePipeAtCell(_currentPosition, _currentDirection, GridCell::PIPE_CORNER);
-            _currentPosition = GetNextCell(_currentPosition);
+            _currentPosition = GetNextCell(_currentPosition, _currentDirection);
+            _currentStraightLength = 0;
             _timeUntilNextSegment = 1 / _simulationSpeed;
             return;
         }
+
         CreatePipeAtCell(_currentPosition, _currentDirection, GridCell::PIPE_STRAIGHT);
-        _currentPosition = GetNextCell(_currentPosition);
-        _timeUntilNextSegment = 1 / _simulationSpeed;
+
+        if (previousCell.type == GridCell::PIPE_CORNER)
+        {
+            GridCell currentCell = GetCell(_currentPosition);
+            ExtendCellPipe(currentCell, GetOppositeDirection(_currentDirection), 0.1);
+        }
+
+        _currentPosition = GetNextCell(_currentPosition, _currentDirection);
+        _currentStraightLength += 1;
+        _timeUntilNextSegment += 1 / _simulationSpeed;
     }
 }
 
@@ -65,9 +109,13 @@ void WindowsXpPipesSimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11
     }
 }
 
-Int3 WindowsXpPipesSimulation::GetNextCell(const Int3& currentPosition) const
+GridCell WindowsXpPipesSimulation::GetCell(const Int3& position) const {
+    return _grid[position.x][position.y][position.z];
+}
+
+Int3 WindowsXpPipesSimulation::GetNextCell(const Int3& currentPosition, const Direction currentDirection) const
 {
-    Int3 nextCell = _currentPosition;
+    Int3 nextCell = currentPosition;
 
     switch (_currentDirection)
     {
@@ -110,6 +158,7 @@ Int3 WindowsXpPipesSimulation::GetNextCell(const Int3& currentPosition) const
 Int3 WindowsXpPipesSimulation::GetPreviousCell(const Int3& currentPosition, const Direction direction) const
 {
     Int3 previousCell = currentPosition;
+    //std::cout << previousCell.x << previousCell.y<< previousCell.z << std::endl;
 
     switch (direction) {
         case Direction::PositiveX:
@@ -130,15 +179,17 @@ Int3 WindowsXpPipesSimulation::GetPreviousCell(const Int3& currentPosition, cons
         case Direction::NegativeZ:
             previousCell.z += 1;
     }
-
+    //std::cout << previousCell.x << previousCell.y << previousCell.z << std::endl;
     if (previousCell.x < 0 || previousCell.y < 0 || previousCell.z < 0
         || previousCell.x >= _dimensions.x || previousCell.y >= _dimensions.y || previousCell.z >= _dimensions.z)
     {
+        std::cout << "Empty" << std::endl;
         throw std::runtime_error("Previous cell is out of bounds.");
     }
 
     if (_grid[previousCell.x][previousCell.y][previousCell.z].type == GridCell::EMPTY)
     {
+        std::cout << "OutOfBOunds" << std::endl;
         throw std::runtime_error("Previous cell does not exist.");
     }
 
@@ -225,9 +276,31 @@ DirectX::XMFLOAT3 WindowsXpPipesSimulation::GetRotationByDirection(const Directi
     return rotation;
 }
 
+
+WindowsXpPipesSimulation::Direction WindowsXpPipesSimulation::GetOppositeDirection(const Direction direction) const
+{
+    switch (direction)
+    {
+        case Direction::PositiveX:
+            return Direction::NegativeX;
+        case Direction::NegativeX:
+            return Direction::PositiveX;
+        case Direction::PositiveY:
+            return Direction::NegativeY;
+        case Direction::NegativeY:
+            return Direction::PositiveY;
+        case Direction::PositiveZ:
+            return Direction::NegativeZ;
+        case Direction::NegativeZ:
+            return Direction::PositiveZ;
+        default:
+            throw std::invalid_argument("Invalid direction");
+    }
+}
+
 void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const Direction direction, GridCell::Type pipeType)
 {
-    std::cout << "CreatingPipe: " << (int)direction << std::endl;
+   // std::cout << "CreatingPipe: " << (int)direction << std::endl;
     std::shared_ptr<Object3D> pipeObject = nullptr;
     GridCell::Type type = GridCell::EMPTY;
     switch (pipeType)
@@ -250,4 +323,54 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
         _pipes.push_back(pipeObject);
         _grid[cellPosition.x][cellPosition.y][cellPosition.z].pipe = pipeObject;
         _grid[cellPosition.x][cellPosition.y][cellPosition.z].type = type;
+}
+
+void WindowsXpPipesSimulation::ExtendCellPipe(GridCell& gridCell, const Direction direction, const float length)
+{
+
+    float oldLength = gridCell.pipe->transform.scale.y;
+    float newLength = oldLength + length;
+    switch (direction)
+    {
+        case Direction::PositiveX:
+            gridCell.pipe->transform.scale.y *= (newLength / oldLength);
+            gridCell.pipe->transform.position.x += length / 2;
+            return;
+        case Direction::NegativeX:
+            gridCell.pipe->transform.scale.y *= (newLength / oldLength);
+            gridCell.pipe->transform.position.x -= length / 2;
+            return;
+        case Direction::PositiveY:
+            gridCell.pipe->transform.scale.y *= (newLength / oldLength);
+            gridCell.pipe->transform.position.y += length / 2;
+            return;
+        case Direction::NegativeY:
+            gridCell.pipe->transform.scale.y *= (newLength / oldLength);
+            gridCell.pipe->transform.position.y -= length / 2;
+            return;
+        case Direction::PositiveZ:
+            gridCell.pipe->transform.scale.y *= (newLength / oldLength);
+            gridCell.pipe->transform.position.z += length / 2;
+            return;
+        case Direction::NegativeZ:
+            gridCell.pipe->transform.scale.y *= (newLength / oldLength);
+            gridCell.pipe->transform.position.z -= length / 2;
+            return;
+        default:
+            return;
+    }
+}
+
+WindowsXpPipesSimulation::Direction WindowsXpPipesSimulation::GenerateDirection(const std::vector<Direction>& availableDirections, Direction currentDirection, const float turnProbability) const
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_real_distribution<> disRandom(0, 1);
+    float randomZeroToOne = disRandom(gen);
+
+    if (turnProbability > randomZeroToOne) {
+        return GetNextDirection(availableDirections);
+    }
+    return currentDirection;
 }

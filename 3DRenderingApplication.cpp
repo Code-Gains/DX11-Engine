@@ -220,7 +220,7 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
     //WindowsXpPipesSimulation(const Int3& dimensions, const float simulationSpeed = 1.0f);
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(10, 10, 10), 5.0f);
+    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
     simulation->Initialize(_device.Get());
     _scene.AddObject(std::move(simulation));
 
@@ -302,19 +302,11 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    //static XMFLOAT3 _cameraPosition = { -1.0f, 8.5f, 1.0f };
-    static XMFLOAT3 _cameraPosition = { -3.0f, 13.0f, 13.0f };
-
-    //XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
-   // static XMFLOAT3 _cameraPosition = { -3.0f, 13.0f, 13.0f };
-    //static XMFLOAT3 _cameraPosition = { -1.0f, 8.5f, 1.0f };
+    static XMFLOAT3 _cameraPosition = { -15.0f, 15.0f, 15.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
-    XMMATRIX view = XMMatrixLookAtRH(camPos, g_XMZero, { 0,1,0,1 });
-    //XMMATRIX view = XMMatrixLookAtRH(camPos, { 0, 8.5, 0 }, { 0,1,0,1 });
-
-    //XMMATRIX view = XMMatrixLookAtRH(camPos, {0, 8.5, 0}, { 0,1,0,1 });
+    XMMATRIX view = XMMatrixLookAtRH(camPos, { 10.0f, 10.0f, 10.0f }, { 0,1,0,1 });
     XMMATRIX proj = XMMatrixPerspectiveFovRH(90.0f * 0.0174533f,
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
@@ -334,23 +326,6 @@ void Rendering3DApplication::Update()
 
     _scene.Update(_deltaTime);
 }
-//
-//void RenderObject(RenderableObject* object, const DirectX::XMMATRIX& parentMatrix)
-//{
-//    DirectX::XMMATRIX modelMatrix = DirectX::XMMatrixMultiply(object->transform.GetWorldMatrix(), parentMatrix);
-//    XMStoreFloat4x4(&_perObjectConstantBufferData.modelMatrix, modelMatrix);
-//
-//    _deviceContext->Map(_perObjectConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-//    memcpy(mappedResource.pData, &_perObjectConstantBufferData, sizeof(PerObjectConstantBuffer));
-//    _deviceContext->Unmap(_perObjectConstantBuffer.Get(), 0);
-//
-//    object->Render(_deviceContext.Get());
-//
-//    for (auto& child : object->GetChildren()) {
-//        RenderObject(child, modelMatrix);
-//    }
-//}
-
 
 void Rendering3DApplication::Render()
 {
