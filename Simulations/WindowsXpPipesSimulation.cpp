@@ -30,7 +30,7 @@ _simulationSpeed(simulationSpeed)
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    std::uniform_int_distribution<> lengthShortest(1, 5);
+    std::uniform_int_distribution<> lengthShortest(3, 5);
     _shortestStraight = lengthShortest(gen);
 
     std::uniform_int_distribution<> lengthLongest(_shortestStraight, 20);
@@ -58,6 +58,7 @@ void WindowsXpPipesSimulation::Update(const float deltaTime)
         Int3 previousCellPosition = GetPreviousCell(_currentPosition, _currentDirection);
         //std::cout << previousCellPosition.x << std::endl;
         GridCell previousCell = _grid[previousCellPosition.x][previousCellPosition.y][previousCellPosition.z];
+        Direction previousDirection = _currentDirection;
 
         std::vector<Direction> availableDirections = GetAvailableDirections();
         bool makeCorner = false;
@@ -77,7 +78,7 @@ void WindowsXpPipesSimulation::Update(const float deltaTime)
         }
 
         if (makeCorner || std::find(availableDirections.begin(), availableDirections.end(), _currentDirection) == availableDirections.end()) {
-            ExtendCellPipe(previousCell, _currentDirection, 0.1);
+            ExtendCellPipe(previousCell, previousDirection, 0.1);
 
             _currentDirection = GetNextDirection(availableDirections);
             CreatePipeAtCell(_currentPosition, _currentDirection, GridCell::PIPE_CORNER);

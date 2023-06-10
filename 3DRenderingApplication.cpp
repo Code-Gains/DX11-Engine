@@ -302,7 +302,7 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static XMFLOAT3 _cameraPosition = { -15.0f, 15.0f, 15.0f };
+    static XMFLOAT3 _cameraPosition = { -5.0f, 15.0f, 15.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
