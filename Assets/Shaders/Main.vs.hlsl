@@ -36,7 +36,7 @@ cbuffer PerFrame : register(b0)
     matrix viewprojection;
 };
 
-cbuffer PerObject : register(b1)
+cbuffer PerObject : register(b4)
 {
     matrix modelmatrix;
     matrix normalMatrix;

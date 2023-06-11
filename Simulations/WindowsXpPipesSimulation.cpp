@@ -33,13 +33,13 @@ _simulationSpeed(simulationSpeed)
     std::uniform_int_distribution<> lengthShortest(3, 5);
     _shortestStraight = lengthShortest(gen);
 
-    std::uniform_int_distribution<> lengthLongest(_shortestStraight, 20);
+    std::uniform_int_distribution<> lengthLongest(_shortestStraight, 25);
     _longestStraight = lengthLongest(gen);
 
     std::uniform_real_distribution<> disRatio(1, 1.1);
     _turnProbabilityIncreaseRatio = disRatio(gen);
 
-    _turnProbability = (float)_shortestStraight / _longestStraight;
+    ResetTurnProbability();
 }
 
 WindowsXpPipesSimulation::~WindowsXpPipesSimulation() {}
@@ -70,17 +70,18 @@ void WindowsXpPipesSimulation::Update(const float deltaTime)
             if (makeCorner)
             {
                 _currentDirection = generatedDirection;
+                ResetTurnProbability();
             }
             else
             {
                 _turnProbability *= _turnProbabilityIncreaseRatio;
             }
         }
-
-        if (makeCorner || std::find(availableDirections.begin(), availableDirections.end(), _currentDirection) == availableDirections.end()) {
+        bool currentDirectionIsBlocked = std::find(availableDirections.begin(), availableDirections.end(), _currentDirection) == availableDirections.end();
+        if (makeCorner || currentDirectionIsBlocked) {
             ExtendCellPipe(previousCell, previousDirection, 0.1);
-
-            _currentDirection = GetNextDirection(availableDirections);
+            if (!makeCorner)
+                _currentDirection = GetNextDirection(availableDirections);
             CreatePipeAtCell(_currentPosition, _currentDirection, GridCell::PIPE_CORNER);
             _currentPosition = GetNextCell(_currentPosition, _currentDirection);
             _currentStraightLength = 0;
@@ -374,4 +375,9 @@ WindowsXpPipesSimulation::Direction WindowsXpPipesSimulation::GenerateDirection(
         return GetNextDirection(availableDirections);
     }
     return currentDirection;
+}
+
+void WindowsXpPipesSimulation::ResetTurnProbability()
+{
+    _turnProbability = (float)_shortestStraight / _longestStraight / 2;
 }

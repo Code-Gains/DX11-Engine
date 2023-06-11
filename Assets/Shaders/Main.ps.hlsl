@@ -23,15 +23,12 @@ struct Light
     float4 lightSpecular;
 };
 
-cbuffer Material : register(b0)
+cbuffer Camera : register(b1)
 {
-    float4 matAmbient;
-    float4 matDiffuse;
-    float4 matSpecular;
-    float matShininess;
+    float3 camPosition;
 };
 
-cbuffer Light : register(b1)
+cbuffer Light : register(b2)
 {
     float4 lightPosition;
     float4 lightAmbient;
@@ -39,9 +36,12 @@ cbuffer Light : register(b1)
     float4 lightSpecular;
 };
 
-cbuffer Camera : register(b2)
+cbuffer Material : register(b3)
 {
-    float3 camPosition;
+    float4 matAmbient;
+    float4 matDiffuse;
+    float4 matSpecular;
+    float matShininess;
 };
 
 float4 Main(PSInput input) : SV_Target
@@ -62,5 +62,7 @@ float4 Main(PSInput input) : SV_Target
 
     float3 result = ambient + diff + spec;
     //return float4(normalize(input.Normal) * 0.5f + 0.5f, 1.0f); // note: normalize to 0-1 range for visualization
+    
+    result *= input.Color;
     return float4(result, 1.0);
 }

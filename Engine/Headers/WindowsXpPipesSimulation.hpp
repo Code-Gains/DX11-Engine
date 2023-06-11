@@ -67,9 +67,10 @@ public:
     Direction GetNextDirection(const std::vector<Direction>& availableDirections) const;
     Direction GetOppositeDirection(const Direction direction) const;
     std::vector<Direction> GetAvailableDirections() const;
+    Direction GenerateDirection(const std::vector<Direction>& availableDirections, Direction currentDirection, const float turnProbability) const;
     DirectX::XMFLOAT3 GetCellWorldPosition(const Int3& cellPosition) const;
     DirectX::XMFLOAT3 GetRotationByDirection(const Direction direction) const;
     void ExtendCellPipe(GridCell& gridCell, const Direction direction, const float length);
     void CreatePipeAtCell(const Int3& cellPosition, const WindowsXpPipesSimulation::Direction direction, GridCell::Type pipeType);
-    Direction GenerateDirection(const std::vector<Direction>& availableDirections, Direction currentDirection, const float turnProbability) const;
+    void ResetTurnProbability();
 };

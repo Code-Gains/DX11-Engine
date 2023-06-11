@@ -34,11 +34,18 @@ struct CameraConstantBuffer
 
 struct MaterialConstantBuffer
 {
-    DirectX::XMFLOAT4 Ambient;
-    DirectX::XMFLOAT4 Diffuse;
-    DirectX::XMFLOAT4 Specular;
-    float Shininess;
-    float Padding[3];
+    DirectX::XMFLOAT4 ambient;
+    DirectX::XMFLOAT4 diffuse;
+    DirectX::XMFLOAT4 specular;
+    float shininess;
+    float padding[3];
+
+    MaterialConstantBuffer()
+        : ambient(1.0f, 1.0f, 1.0f, 1.0f),
+        diffuse(1.0f, 1.0f, 1.0f, 1.0f),
+        specular(1.0f, 1.0f, 1.0f, 1.0f),
+        shininess(3.0f)
+    { }
 };
 
 struct LightConstantBuffer
@@ -92,18 +99,18 @@ private:
     WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
 
     ShaderCollection _shaderCollection;
 
     PerFrameConstantBuffer _perFrameConstantBufferData{};
-    PerObjectConstantBuffer _perObjectConstantBufferData{};
-    MaterialConstantBuffer _materialConstantBufferData{};
-    LightConstantBuffer _lightConstantBufferData{};
     CameraConstantBuffer _cameraConstantBufferData{};
+    LightConstantBuffer _lightConstantBufferData{};
+    MaterialConstantBuffer _materialConstantBufferData{};
+    PerObjectConstantBuffer _perObjectConstantBufferData{};
 
     Scene _scene;
 };
