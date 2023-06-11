@@ -181,46 +181,46 @@
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Application.hpp">
+    <ClInclude Include="Headers\Application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Definitions.hpp">
+    <ClInclude Include="Headers\Definitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCollection.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\VertexType.hpp">
+    <ClInclude Include="Headers\VertexType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="3DRenderingApplication.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Object3D.hpp">
+    <ClInclude Include="Headers\Object3D.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Transform.hpp">
+    <ClInclude Include="Headers\Transform.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Cube.hpp">
+    <ClInclude Include="Headers\Cube.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Scene.hpp">
+    <ClInclude Include="Headers\Scene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Sphere.hpp">
+    <ClInclude Include="Headers\Sphere.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Cylinder.hpp">
+    <ClInclude Include="Headers\Cylinder.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\WindowsXpPipesSimulation.hpp">
+    <ClInclude Include="Headers\WindowsXpPipesSimulation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\IntVectors.hpp">
+    <ClInclude Include="Headers\IntVectors.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Headers\Constants.hpp">
+    <ClInclude Include="Headers\Constants.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
