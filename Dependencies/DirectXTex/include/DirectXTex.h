@@ -20,13 +20,13 @@
 #ifdef _WIN32
 #if !defined(__d3d11_h__) && !defined(__d3d11_x_h__) && !defined(__d3d12_h__) && !defined(__d3d12_x_h__) && !defined(__XBOX_D3D12_X__)
 #ifdef _GAMING_XBOX_SCARLETT
-#include <d3d12_xs.h>
+#include "d3d12_xs.h"
 #elif defined(_GAMING_XBOX)
-#include <d3d12_x.h>
+#include "d3d12_x.h"
 #elif defined(_XBOX_ONE) && defined(_TITLE)
-#include <d3d11_x.h>
+#include "d3d11_x.h"
 #else
-#include <d3d11_1.h>
+#include "d3d11_1.h"
 #endif
 #endif
 #else // !WIN32
@@ -38,9 +38,9 @@
 
 #ifdef _WIN32
 #if defined(NTDDI_WIN10_FE) || defined(__MINGW32__)
-#include <ocidl.h>
+#include "ocidl.h"
 #else
-#include <OCIdl.h>
+#include "OCIdl.h"
 #endif
 
 struct IWICImagingFactory;
