@@ -14,6 +14,7 @@
 #include <Cylinder.hpp>
 #include <WindowsXpPipesSimulation.hpp>
 #include <Scene.hpp>
+#include "PhongMaterial.hpp"
 
 struct PerFrameConstantBuffer
 {
@@ -32,21 +33,8 @@ struct CameraConstantBuffer
     float padding;
 };
 
-struct MaterialConstantBuffer
-{
-    DirectX::XMFLOAT4 ambient;
-    DirectX::XMFLOAT4 diffuse;
-    DirectX::XMFLOAT4 specular;
-    float shininess;
-    float padding[3];
-
-    MaterialConstantBuffer()
-        : ambient(1.0f, 1.0f, 1.0f, 1.0f),
-        diffuse(1.0f, 1.0f, 1.0f, 1.0f),
-        specular(1.0f, 1.0f, 1.0f, 1.0f),
-        shininess(3.0f)
-    { }
-};
+struct MaterialConstantBuffer: PhongMaterial
+{};
 
 struct LightConstantBuffer
 {

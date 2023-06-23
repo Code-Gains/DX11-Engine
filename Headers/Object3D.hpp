@@ -4,8 +4,19 @@
 #include <vector>
 #include <memory>
 
+enum class PropertyType
+{
+    Material
+};
+
+class Property {
+public:
+    virtual ~Property() {}
+};
+
 class Object3D
 {
+    std::vector<Property> _properties;
 public:
     Transform transform;
 
@@ -20,6 +31,7 @@ public:
     virtual void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) = 0;
 
     virtual std::vector<Object3D*> GetAllObjects();
+
 };
 
 class CompositeObject3D: public Object3D

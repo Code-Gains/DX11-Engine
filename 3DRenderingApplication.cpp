@@ -353,19 +353,6 @@ void Rendering3DApplication::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    /*ID3D11Buffer* constantVSBuffers[2] =
-    {
-        _perFrameConstantBuffer.Get(),
-        _perObjectConstantBuffer.Get()
-    };
-
-    ID3D11Buffer* constantPSBuffers[3] =
-    {
-        _cameraConstantBuffer.Get(),
-        _lightConstantBuffer.Get(),
-        _materialConstantBuffer.Get()
-    };*/
-
     ID3D11Buffer* constantPerFrameBuffers[4] = 
     {
         _perFrameConstantBuffer.Get(),
