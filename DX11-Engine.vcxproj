@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\;$(ProjectDir)Dependencies\imgui\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -145,6 +145,14 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\imgui\imgui.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Cylinder.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Cube.cpp" />
     <ClCompile Include="Engine\3DObjects\Object3D.cpp" />
