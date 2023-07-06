@@ -135,6 +135,18 @@ bool Rendering3DApplication::Initialize()
     CreateDepthStencilView();
     CreateDepthState();
     CreateConstantBuffers();
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForOther(_window, true);
+    ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
+
     return true;
 }
 
@@ -391,6 +403,8 @@ void Rendering3DApplication::Render()
     _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
 
     _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get());
+
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     _swapChain->Present(1, 0);
 }

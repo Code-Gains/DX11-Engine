@@ -37,9 +37,9 @@ protected:
     int32_t _width = 0;
     int32_t _height = 0;
     float _deltaTime = 0.016f;
+    GLFWwindow* _window = nullptr;
 private:
     std::chrono::high_resolution_clock::time_point _currentTime;
-    GLFWwindow* _window = nullptr;
     std::string _title;
 };
 
