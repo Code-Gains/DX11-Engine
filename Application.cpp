@@ -95,7 +95,6 @@ void Application::Run()
         {
             continue;
         }
-
         Update();
         Render();
     }
