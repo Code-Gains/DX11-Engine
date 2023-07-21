@@ -329,7 +329,7 @@ void Rendering3DApplication::Update()
     _lightConstantBufferData.Position = { -5.0f, 15.0f, 15.0f, 0.0f };
     _lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
     _lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
-    _lightConstantBufferData.Specular = { 0.4f, 0.4f, 0.4f, 1.0f };
+    _lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     _scene.Update(_deltaTime);
 

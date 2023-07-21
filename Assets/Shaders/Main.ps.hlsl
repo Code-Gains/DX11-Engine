@@ -56,7 +56,7 @@ float4 Main(PSInput input) : SV_Target
     float3 diff = max(dot(normal, lightDir), 0.0) * matDiffuse.rgb * lightDiffuse.rgb;
 
     // Specular
-    float3 viewDir = normalize(camPosition);
+    float3 viewDir = normalize(input.PositionWorld - camPosition);
     float3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), matShininess) * matSpecular.rgb * lightSpecular.rgb;
 
