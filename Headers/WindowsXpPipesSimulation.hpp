@@ -58,6 +58,7 @@ public:
     bool Initialize(ID3D11Device* device) override;
     void Update(const float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
+    void Reset(const Int3& dimensions, const float simulationSpeed);
 
     GridCell GetCell(const Int3& position) const;
     Int3 GetNextCell(const Int3& currentPosition, const Direction currentDirection) const;
