@@ -1,7 +1,7 @@
 #pragma once
-#include "Component.hpp"
 #include <d3d11_2.h>
 #include <cstddef>
+#include "Component.hpp"
 
 class RenderComponent : public Component {
 public:

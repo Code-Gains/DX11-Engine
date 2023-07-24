@@ -1,5 +1,4 @@
 #pragma once
-
 #include <DirectXMath.h>
 
 enum class VertexType

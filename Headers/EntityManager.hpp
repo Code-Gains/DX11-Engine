@@ -1,8 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include "Component.hpp"
 #include <memory>
+#include "Component.hpp"
 
 using Entity = std::size_t;
 

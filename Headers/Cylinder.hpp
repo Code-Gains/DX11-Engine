@@ -1,10 +1,10 @@
 #pragma once
-#include <Object3D.hpp>
-#include <d3d11_2.h>
-#include <VertexType.hpp>
 #include <vector>
 #include <cmath>
-#include <Constants.hpp>
+#include <d3d11_2.h>
+#include "Object3D.hpp"
+#include "VertexType.hpp"
+#include "Constants.hpp"
 
 class Cylinder : public Object3D
 {

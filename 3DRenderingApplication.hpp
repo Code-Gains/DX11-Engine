@@ -1,25 +1,25 @@
 #pragma once
-
-#include "Definitions.hpp"
-#include "Application.hpp"
-
 #include <d3d11_2.h>
 
 #include <memory>
 #include <DirectXMath.h>
-#include "ShaderCollection.hpp"
-
-#include <Cube.hpp>
-#include <Sphere.hpp>
-#include <Cylinder.hpp>
-#include <WindowsXpPipesSimulation.hpp>
-#include <Scene.hpp>
-#include "PhongMaterial.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include "imgui_impl_win32.h"
 #include <imgui_impl_dx11.h>
+
+#include "Definitions.hpp"
+#include "Application.hpp"
+#include "ShaderCollection.hpp"
+#include "Cube.hpp"
+#include "Sphere.hpp"
+#include "Cylinder.hpp"
+#include "WindowsXpPipesSimulation.hpp"
+#include "Scene.hpp"
+#include "PhongMaterial.hpp"
+#include "3DRenderingApplication.hpp"
+#include "ShaderCollection.hpp"
 
 struct PerFrameConstantBuffer
 {

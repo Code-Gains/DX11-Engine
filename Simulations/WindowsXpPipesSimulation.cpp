@@ -1,4 +1,4 @@
-#include <WindowsXpPipesSimulation.hpp>
+#include "WindowsXpPipesSimulation.hpp"
 
 WindowsXpPipesSimulation::WindowsXpPipesSimulation(const WRL::ComPtr<ID3D11Device>& device, const Int3& dimensions, const float simulationSpeed):
 _device(device),

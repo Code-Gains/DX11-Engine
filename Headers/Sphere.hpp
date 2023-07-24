@@ -1,10 +1,10 @@
 #pragma once
 #include <Object3D.hpp>
 #include <d3d11_2.h>
-#include <VertexType.hpp>
 #include <vector>
 #include <cmath>
-#include <Constants.hpp>
+#include "Constants.hpp"
+#include "VertexType.hpp"
 
 class Sphere : public Object3D
 {

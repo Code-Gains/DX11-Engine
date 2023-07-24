@@ -1,7 +1,7 @@
 #pragma once
-#include <Object3D.hpp>
 #include <d3d11_2.h>
-#include <VertexType.hpp>
+#include "Object3D.hpp"
+#include "VertexType.hpp"
 
 class Cube : public Object3D
 {

@@ -1,6 +1,3 @@
-#include "3DRenderingApplication.hpp"
-#include "ShaderCollection.hpp"
-
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -10,6 +7,7 @@
 #include <d3dcompiler.h>
 
 #include <iostream>
+#include "3DRenderingApplication.hpp"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -231,23 +229,9 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalColorUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-    //WindowsXpPipesSimulation(const Int3& dimensions, const float simulationSpeed = 1.0f);
     auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
     simulation->Initialize(_device.Get());
     _scene.AddObject(std::move(simulation));
-
-    /*auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3(0, 0, 0));
-    auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(-1.5f, 0, 0));
-    auto cylinder = std::make_unique<Cylinder>(DirectX::XMFLOAT3(1.5f, 0, 0), false);
-
-    sphere->Initialize(_device.Get());
-    cube->Initialize(_device.Get());
-    cylinder->Initialize(_device.Get());
-
-    _scene.AddObject(std::move(sphere));
-    _scene.AddObject(std::move(cube));
-    _scene.AddObject(std::move(cylinder));*/
-
     return true;
 }
 
@@ -339,18 +323,18 @@ void Rendering3DApplication::Update()
 void Rendering3DApplication::Render()
 {
 
-    ImGui_ImplGlfw_NewFrame();
-    ImGui_ImplDX11_NewFrame();
-    ImGui::NewFrame();
+    //ImGui_ImplGlfw_NewFrame();
+    //ImGui_ImplDX11_NewFrame();
+    //ImGui::NewFrame();
 
     static float f = 0.0f;
     static int counter = 0;
 
-    ImGui::Begin("Debug Info");                
-    ImGui::Text(std::to_string(1 / _deltaTime).c_str());
-    ImGui::End();
+    //ImGui::Begin("Debug Info");                
+    //ImGui::Text(std::to_string(1 / _deltaTime).c_str());
+    //ImGui::End();
 
-    ImGui::Render();
+    //ImGui::Render();
 
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -420,7 +404,7 @@ void Rendering3DApplication::Render()
 
     _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get());
 
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     _swapChain->Present(1, 0);
 
