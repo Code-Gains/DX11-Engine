@@ -75,6 +75,9 @@
     <ClCompile Include="Dependencies\imgui\imgui_impl_glfw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Vectors\IntVectors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
