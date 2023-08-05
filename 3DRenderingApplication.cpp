@@ -407,7 +407,6 @@ void Rendering3DApplication::Render()
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    _swapChain->Present(1, 0);
-
+    _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 
 }
