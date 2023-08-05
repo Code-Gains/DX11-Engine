@@ -110,7 +110,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\;$(ProjectDir)Dependencies\DirectXTex\lib;$(ProjectDir)Dependencies\FreeImage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\;$(ProjectDir)Dependencies\DirectXTex\lib\Debug;$(ProjectDir)Dependencies\FreeImage\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;DirectXTex.lib;FreeImaged.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
@@ -127,7 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\;$(ProjectDir)Dependencies\imgui\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,8 +135,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\;$(ProjectDir)Dependencies\DirectXTex\lib\Release;$(ProjectDir)Dependencies\FreeImage\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;DirectXTex.lib;FreeImaged.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderType>

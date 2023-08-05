@@ -252,6 +252,7 @@ bool Rendering3DApplication::CreateSwapchainResources()
         &_renderTarget)))
     {
         std::cerr << "D3D11: Failed to create rendertarget view from back buffer\n";
+        std::cerr << "D3D11: Failed to create rendertarget view from back buffer\n";
         return false;
     }
 
@@ -323,18 +324,18 @@ void Rendering3DApplication::Update()
 void Rendering3DApplication::Render()
 {
 
-    //ImGui_ImplGlfw_NewFrame();
-    //ImGui_ImplDX11_NewFrame();
-    //ImGui::NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui_ImplDX11_NewFrame();
+    ImGui::NewFrame();
 
     static float f = 0.0f;
     static int counter = 0;
 
-    //ImGui::Begin("Debug Info");                
-    //ImGui::Text(std::to_string(1 / _deltaTime).c_str());
-    //ImGui::End();
+    ImGui::Begin("Debug Info");                
+    ImGui::Text(std::to_string(1 / _deltaTime).c_str());
+    ImGui::End();
 
-    //ImGui::Render();
+    ImGui::Render();
 
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -404,7 +405,7 @@ void Rendering3DApplication::Render()
 
     _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get());
 
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     _swapChain->Present(1, 0);
 
