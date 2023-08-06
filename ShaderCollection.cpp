@@ -4,76 +4,38 @@
 
 std::unordered_map<VertexType, std::vector<D3D11_INPUT_ELEMENT_DESC>> ShaderCollection::_layoutMap =
 {
-    // clang-format off
     {
-        VertexType::PositionColor,
+        VertexType::PositionNormalUv,
         {
             {
-                {
-                    "POSITION",
-                    0,
-                    DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-                    0,
-                    offsetof(VertexPositionColor, position),
-                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-                    0
-                },
-                {
-                    "COLOR",
-                    0,
-                    DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-                    0,
-                    offsetof(VertexPositionColor, color),
-                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-                    0
-                },
-            }
-        }
-    },
-    {
-        VertexType::PositionNormalColorUv,
-        {
+                "POSITION",
+                0,
+                DXGI_FORMAT_R32G32B32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUv, position),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
+            },
             {
-                {
-                    "POSITION",
-                    0,
-                    DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-                    0,
-                    offsetof(VertexPositionNormalColorUv, position),
-                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-                    0
-                },
-    {
-                    "NORMAL",
-                    0,
-                    DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-                    0,
-                    offsetof(VertexPositionNormalColorUv, normal),
-                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-                    0
-                },
-                {
-                    "COLOR",
-                    0,
-                    DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-                    0,
-                    offsetof(VertexPositionNormalColorUv, color),
-                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-                    0
-                },
-                {
-                    "TEXCOORD",
-                    0,
-                    DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
-                    0,
-                    offsetof(VertexPositionNormalColorUv, uv),
-                    D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA,
-                    0
-                }
+                "NORMAL",
+                0,
+                DXGI_FORMAT_R32G32B32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUv, normal),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
+            },
+            {
+                "TEXCOORD",
+                0,
+                DXGI_FORMAT_R32G32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUv, uv),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
             }
         }
     }
-    // clang-format on
 };
 ShaderCollection ShaderCollection::CreateShaderCollection(const ShaderCollectionDescriptor& settings, ID3D11Device* device)
 {
@@ -93,10 +55,8 @@ UINT ShaderCollection::GetLayoutByteSize(VertexType vertexType)
 {
     switch (vertexType)
     {
-    case VertexType::PositionColor:
-        return static_cast<UINT>(sizeof(VertexPositionColor));
-    case VertexType::PositionNormalColorUv:
-        return static_cast<UINT>(sizeof(VertexPositionNormalColorUv));
+    case VertexType::PositionNormalUv:
+        return static_cast<UINT>(sizeof(VertexPositionNormalUv));
     }
     return 0;
 }

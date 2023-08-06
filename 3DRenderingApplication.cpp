@@ -219,6 +219,9 @@ void Rendering3DApplication::CreateConstantBuffers()
 
     desc.ByteWidth = sizeof(PerObjectConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
+
+    /*desc.ByteWidth = sizeof(InstanceConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);*/
 }
 
 bool Rendering3DApplication::Load()
@@ -226,7 +229,7 @@ bool Rendering3DApplication::Load()
     ShaderCollectionDescriptor shaderDescriptor = {};
     shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
     shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
-    shaderDescriptor.VertexType = VertexType::PositionNormalColorUv;
+    shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
     auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
@@ -299,7 +302,7 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static XMFLOAT3 _cameraPosition = { -5.0f, 15.0f, 15.0f };
+    static XMFLOAT3 _cameraPosition = { -15.0f, 15.0f, 15.0f };
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
@@ -323,20 +326,17 @@ void Rendering3DApplication::Update()
 
 void Rendering3DApplication::Render()
 {
-
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
 
-    static float f = 0.0f;
     static int counter = 0;
-
-    ImGui::Begin("Debug Info");                
-    ImGui::Text(std::to_string(1 / _deltaTime).c_str());
+    ImGui::Begin("Debug Info");
+    ImGui::Text("FPS: %.2f", 1 / _deltaTime);
+    ImGui::Text("Objects: %d", _scene.GetAllObjectCount());
     ImGui::End();
 
     ImGui::Render();
-
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;

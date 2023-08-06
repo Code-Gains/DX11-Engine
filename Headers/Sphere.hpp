@@ -19,7 +19,7 @@ public:
 
     virtual ~Sphere();
 
-    void GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalColorUv>& vertices);
+    void GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalUv>& vertices);
     void GenerateSphereIndices(int numSlices, int numStacks, std::vector<uint32_t>& indices);
 
     bool Initialize(ID3D11Device* device) override;

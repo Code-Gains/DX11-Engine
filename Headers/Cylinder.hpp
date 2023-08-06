@@ -11,7 +11,8 @@ class Cylinder : public Object3D
 private:
     ID3D11Buffer* _vertexBuffer = nullptr;
     ID3D11Buffer* _indexBuffer = nullptr;
-
+    ID3D11Buffer* _instanceBuffer = nullptr;
+    std::vector<DirectX::XMFLOAT4X4> _instanceTransforms;
     bool _caps;
 
 public:
@@ -23,7 +24,7 @@ public:
 
     virtual ~Cylinder();
 
-    void GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalColorUv>& vertices);
+    void GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalUv>& vertices);
     void GenerateCylinderIndices(int numSlices, std::vector<uint32_t>& indices);
 
     bool Initialize(ID3D11Device* device) override;

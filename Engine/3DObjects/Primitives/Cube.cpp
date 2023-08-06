@@ -29,42 +29,42 @@ Cube::~Cube()
     }
 }
 
-static constexpr VertexPositionNormalColorUv vertices[] = {
+static constexpr VertexPositionNormalUv vertices[] = {
     //Front
-    {Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
-    {Position{  0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+    {Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 0.0f}},
+    {Position{  0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 0.0f}},
 
     //Back
-    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
-    {Position{  0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 0.0f}},
+    {Position{  0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 0.0f}},
 
     //Top
-    {Position{ -0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
-    {Position{  0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+    {Position{ -0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Uv{0.0f, 0.0f}},
+    {Position{  0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Uv{1.0f, 0.0f}},
 
     //Bottom
-    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
-    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Uv{0.0f, 1.0f}},
+    {Position{  0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Uv{0.0f, 0.0f}},
+    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Uv{1.0f, 0.0f}},
 
     //Left
-    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
-    {Position{ -0.5f,  0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Uv{0.0f, 1.0f}},
+    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f}},
+    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Uv{0.0f, 0.0f}},
+    {Position{ -0.5f,  0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}},
 
     //Right
-    {Position{ 0.5f, -0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 1.0f}},
-    {Position{ 0.5f, -0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 1.0f}},
-    {Position{ 0.5f,  0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{0.0f, 0.0f}},
-    {Position{ 0.5f,  0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Color{1.0f, 1.0f, 1.0f}, Uv{1.0f, 0.0f}},
+    {Position{ 0.5f, -0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Uv{0.0f, 1.0f}},
+    {Position{ 0.5f, -0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f}},
+    {Position{ 0.5f,  0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Uv{0.0f, 0.0f}},
+    {Position{ 0.5f,  0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}},
 };
 
 static constexpr uint32_t indices[] = {
@@ -93,13 +93,21 @@ static constexpr uint32_t indices[] = {
     22, 21, 23,
 };
 
+
+//static const D3D11_INPUT_ELEMENT_DESC  s_inputElementDesc[] =
+//{
+//        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+//        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+//        { "SV_InstanceID",   0, DXGI_FORMAT_R32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+//};
+
 bool Cube::Initialize(ID3D11Device* device)
 {
 
     D3D11_BUFFER_DESC vertexBufferDesc;
     ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc)); // not sure if this is needed, I just created it
     vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalColorUv) * ARRAYSIZE(vertices);
+    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * ARRAYSIZE(vertices);
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;  // Don't set D3D11_CPU_ACCESS_WRITE for a D3D11_USAGE_DEFAULT resource
     vertexBufferDesc.MiscFlags = 0;  // We don't need any flags for now https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_resource_misc_flag
@@ -150,7 +158,7 @@ void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectCon
     deviceContext->Unmap(perObjectConstantBuffer, 0);
 
     // Set the vertex and index buffers, and draw the cube
-    UINT stride = sizeof(VertexPositionNormalColorUv);
+    UINT stride = sizeof(VertexPositionNormalUv);
     UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);

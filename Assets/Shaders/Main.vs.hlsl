@@ -2,14 +2,12 @@ struct VSInput
 {
     float3 Position : POSITION;
     float3 Normal : NORMAL;
-    float3 Color : COLOR0;
     float2 Uv : TEXCOORD0;
 };
 
 struct VSOutput
 {
     float4 Position : SV_Position;
-    float3 Color : COLOR0;
     float2 Uv : TEXCOORD0;
     float3 Normal : NORMAL;
     float3 PositionWorld : POSITIONWORLD;
@@ -50,7 +48,6 @@ VSOutput Main(VSInput input)
     matrix world = mul(viewprojection, modelmatrix);
     output.Position = mul(world, float4(input.Position, 1.0));
     
-    output.Color = input.Color;
     output.Uv = input.Uv;
     
     // Transform the normal

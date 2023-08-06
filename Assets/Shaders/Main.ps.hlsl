@@ -1,7 +1,6 @@
 struct PSInput
 {
     float4 Position : SV_Position;
-    float3 Color : COLOR0;
     float2 Uv : TEXCOORD0;
     float3 Normal : NORMAL;
     float3 PositionWorld : POSITIONWORLD;
@@ -63,6 +62,5 @@ float4 Main(PSInput input) : SV_Target
     float3 result = ambient + diff + spec;
     //return float4(normalize(input.Normal) * 0.5f + 0.5f, 1.0f); // note: normalize to 0-1 range for visualization
     
-    result *= input.Color;
     return float4(result, 1.0);
 }

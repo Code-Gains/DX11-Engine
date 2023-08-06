@@ -3,25 +3,17 @@
 
 enum class VertexType
 {
-    PositionColor,
-    PositionNormalColorUv
+    PositionNormalUv
 };
 
 using Position = DirectX::XMFLOAT3;
 using Normal = DirectX::XMFLOAT3;
-using Color = DirectX::XMFLOAT3;
 using Uv = DirectX::XMFLOAT2;
 
-struct VertexPositionColor
-{
-    Position position;
-    Color color;
-};
 
-struct VertexPositionNormalColorUv
+struct VertexPositionNormalUv
 {
     Position position;
     Normal normal;
-    Color color;
     Uv uv;
 };

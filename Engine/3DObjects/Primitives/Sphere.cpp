@@ -27,7 +27,7 @@ Sphere::~Sphere()
     }
 }
 
-void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalColorUv>& vertices)
+void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalUv>& vertices)
 {
     vertices.clear();
 
@@ -54,7 +54,6 @@ void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, 
             vertices.push_back({
                 {x * radius, y * radius, z * radius}, // Position
                 {x, y, z},                            // Normal
-                {1.0f, 1.0f, 1.0f},                   // Color
                 {u, v}                                // Uv
             });
         }
@@ -84,7 +83,7 @@ void Sphere::GenerateSphereIndices(int numSlices, int numStacks, std::vector<uin
 bool Sphere::Initialize(ID3D11Device* device)
 {
 
-    std::vector<VertexPositionNormalColorUv> vertices;
+    std::vector<VertexPositionNormalUv> vertices;
     GenerateSphereVertices(0.5f, 30, 30, vertices);
 
     std::vector<uint32_t> indices;
@@ -93,7 +92,7 @@ bool Sphere::Initialize(ID3D11Device* device)
     D3D11_BUFFER_DESC vertexBufferDesc;
     ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
     vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalColorUv) * vertices.size();
+    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * vertices.size();
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA vertexData;
@@ -137,7 +136,7 @@ void Sphere::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectC
     memcpy((char*)mappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
     deviceContext->Unmap(perObjectConstantBuffer, 0);
 
-    UINT stride = sizeof(VertexPositionNormalColorUv);
+    UINT stride = sizeof(VertexPositionNormalUv);
     UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);

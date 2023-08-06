@@ -35,7 +35,7 @@ Cylinder::~Cylinder()
     }
 }
 
-void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalColorUv>& vertices)
+void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalUv>& vertices)
 {
     vertices.clear();
 
@@ -50,7 +50,6 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
             vertices.push_back({
                 {radius * cosPhi, height / 2, radius * sinPhi},  // Position
                 {0, 1, 0},                                       // Normal
-                {1.0f, 1.0f, 1.0f},                              // Color
                 {cosPhi, sinPhi}                                  // Uv
             });
 
@@ -58,7 +57,6 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
             vertices.push_back({
                 {radius * cosPhi, -height / 2, radius * sinPhi}, // Position
                 {0, -1, 0},                                      // Normal
-                {1.0f, 1.0f, 1.0f},                              // Color
                 {cosPhi, sinPhi}                                  // Uv
             });
         }
@@ -67,7 +65,6 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
         vertices.push_back({
             {radius * cosPhi, height / 2, radius * sinPhi},  // Position
             {cosPhi, 0, sinPhi},                             // Normal
-            {1.0f, 1.0f, 1.0f},                              // Color
             {(float)i / numSlices, 1.0f}                      // Uv
         });
 
@@ -75,7 +72,6 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
         vertices.push_back({
             {radius * cosPhi, -height / 2, radius * sinPhi}, // Position
             {cosPhi, 0, sinPhi},                             // Normal
-            {1.0f, 1.0f, 1.0f},                              // Color
             {(float)i / numSlices, 0.0f}                      // Uv
         });
     }
@@ -115,7 +111,7 @@ void Cylinder::GenerateCylinderIndices(int numSlices, std::vector<uint32_t>& ind
 bool Cylinder::Initialize(ID3D11Device* device)
 {
 
-    std::vector<VertexPositionNormalColorUv> vertices;
+    std::vector<VertexPositionNormalUv> vertices;
     GenerateCylinderVertices(0.5f, 1, 30, vertices);
 
     std::vector<uint32_t> indices;
@@ -124,7 +120,7 @@ bool Cylinder::Initialize(ID3D11Device* device)
     D3D11_BUFFER_DESC vertexBufferDesc;
     ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
     vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalColorUv) * vertices.size();
+    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * vertices.size();
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA vertexData;
@@ -168,7 +164,7 @@ void Cylinder::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjec
     memcpy((char*)mappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
     deviceContext->Unmap(perObjectConstantBuffer, 0);
 
-    UINT stride = sizeof(VertexPositionNormalColorUv);
+    UINT stride = sizeof(VertexPositionNormalUv);
     UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
     deviceContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);

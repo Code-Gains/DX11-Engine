@@ -30,7 +30,14 @@ struct PerObjectConstantBuffer
 {
     DirectX::XMFLOAT4X4 modelMatrix;
     DirectX::XMFLOAT4X4 normalMatrix;
+    //int instanceIndex;
+    //float padding[3];
 };
+
+//struct InstanceConstantBuffer
+//{
+//    DirectX::XMFLOAT4X4 worldMatrix;
+//};
 
 struct CameraConstantBuffer
 {
@@ -96,6 +103,7 @@ private:
     WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     ShaderCollection _shaderCollection;
 

@@ -37,6 +37,10 @@ const std::vector<Object3D*> Scene::GetAllObjects() const {
 	return allObjects;
 }
 
+const int Scene::GetAllObjectCount() const {
+	return _objects.size();
+}
+
 void Scene::Update(float _deltaTime)
 {
 	for (auto& object : _objects)

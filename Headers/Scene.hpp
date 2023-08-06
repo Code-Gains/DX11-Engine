@@ -15,6 +15,7 @@ public:
 
 	const std::vector<std::unique_ptr<Object3D>>& GetObjects() const;
 	const std::vector<Object3D*> GetAllObjects() const;
+	const int GetAllObjectCount() const;
 
 	void Update(float _deltaTime);
 	void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer);
