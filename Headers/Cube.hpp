@@ -6,8 +6,10 @@
 class Cube : public Object3D
 {
 private:
+    int _instanceIndex;
     ID3D11Buffer* _vertexBuffer = nullptr;
     ID3D11Buffer* _indexBuffer = nullptr;
+    ID3D11Buffer* _instanceConstantBuffer = nullptr;
 
 public:
     Cube() {};

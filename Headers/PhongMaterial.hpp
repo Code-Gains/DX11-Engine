@@ -12,3 +12,6 @@ struct PhongMaterial
 
     PhongMaterial();
 };
+
+struct MaterialConstantBuffer : PhongMaterial
+{};

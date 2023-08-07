@@ -38,6 +38,7 @@ cbuffer PerObject : register(b4)
 {
     matrix modelmatrix;
     matrix normalMatrix;
+    uint instanceIndex;
 };
 
 VSOutput Main(VSInput input)

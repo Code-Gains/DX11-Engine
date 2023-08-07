@@ -1,6 +1,9 @@
 #include <Scene.hpp>
+#include "../3DRenderingApplication.hpp"
 
 Scene::Scene() {}
+
+
 Scene::~Scene() {}
 
 void Scene::AddObject(std::unique_ptr<Object3D> object)
@@ -55,4 +58,5 @@ void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectCo
 	{
 		object->Render(deviceContext, perObjectConstantBuffer);
 	}
+	_instanceManager.RenderInstances(deviceContext, perObjectConstantBuffer);
 }

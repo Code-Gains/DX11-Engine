@@ -220,8 +220,8 @@ void Rendering3DApplication::CreateConstantBuffers()
     desc.ByteWidth = sizeof(PerObjectConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
 
-    /*desc.ByteWidth = sizeof(InstanceConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);*/
+    desc.ByteWidth = sizeof(InstanceConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
 
 bool Rendering3DApplication::Load()
@@ -232,9 +232,24 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
+    /*auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
     simulation->Initialize(_device.Get());
-    _scene.AddObject(std::move(simulation));
+    _scene.AddObject(std::move(simulation));*/
+    int gridSize = 10;
+    for (int x = 0; x < gridSize; x++)
+    {
+        for (int y = 0; y < gridSize; y++)
+        {
+            for (int z = 0; z < gridSize; z++)
+            {
+                auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
+                cube->Initialize(_device.Get());
+                _scene.AddObject(std::move(cube));
+            }
+        }
+    }
+
+
     return true;
 }
 
@@ -254,7 +269,6 @@ bool Rendering3DApplication::CreateSwapchainResources()
         nullptr,
         &_renderTarget)))
     {
-        std::cerr << "D3D11: Failed to create rendertarget view from back buffer\n";
         std::cerr << "D3D11: Failed to create rendertarget view from back buffer\n";
         return false;
     }
@@ -374,16 +388,17 @@ void Rendering3DApplication::Render()
         _materialConstantBuffer.Get()
     };
 
-    ID3D11Buffer* constantPerObjectBuffers[1] = 
+    ID3D11Buffer* constantPerObjectBuffers[2] = 
     {
-        _perObjectConstantBuffer.Get()
+        _perObjectConstantBuffer.Get(),
+        _instanceConstantBuffer.Get()
     };
 
     _deviceContext->VSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-    _deviceContext->VSSetConstantBuffers(4, 1, constantPerObjectBuffers);
+    _deviceContext->VSSetConstantBuffers(4, 2, constantPerObjectBuffers);
 
     _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-    _deviceContext->PSSetConstantBuffers(4, 1, constantPerObjectBuffers);
+    _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -407,6 +422,6 @@ void Rendering3DApplication::Render()
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
+    _swapChain->Present(DXGI_SWAP_EFFECT_DISCARD, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 
 }

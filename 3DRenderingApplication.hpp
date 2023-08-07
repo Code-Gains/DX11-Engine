@@ -20,42 +20,7 @@
 #include "PhongMaterial.hpp"
 #include "3DRenderingApplication.hpp"
 #include "ShaderCollection.hpp"
-
-struct PerFrameConstantBuffer
-{
-    DirectX::XMFLOAT4X4 viewProjectionMatrix;
-};
-
-struct PerObjectConstantBuffer
-{
-    DirectX::XMFLOAT4X4 modelMatrix;
-    DirectX::XMFLOAT4X4 normalMatrix;
-    //int instanceIndex;
-    //float padding[3];
-};
-
-//struct InstanceConstantBuffer
-//{
-//    DirectX::XMFLOAT4X4 worldMatrix;
-//};
-
-struct CameraConstantBuffer
-{
-    DirectX::XMFLOAT3 cameraPosition;
-    float padding;
-};
-
-struct MaterialConstantBuffer: PhongMaterial
-{};
-
-struct LightConstantBuffer
-{
-    DirectX::XMFLOAT4 Position;
-    DirectX::XMFLOAT4 Ambient;
-    DirectX::XMFLOAT4 Diffuse;
-    DirectX::XMFLOAT4 Specular;
-};
-
+#include "ConstantBufferDefinitions.hpp"
 
 
 class Rendering3DApplication final : public Application
@@ -112,6 +77,7 @@ private:
     LightConstantBuffer _lightConstantBufferData{};
     MaterialConstantBuffer _materialConstantBufferData{};
     PerObjectConstantBuffer _perObjectConstantBufferData{};
+    InstanceConstantBuffer _instanceConstantBufferData{};
 
     Scene _scene;
 };

@@ -159,6 +159,7 @@
     <ClCompile Include="3DRenderingApplication.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Vectors\IntVectors.cpp" />
+    <ClCompile Include="Engine\InstanceManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Engine\Materials\PhongMaterial.cpp" />
@@ -293,6 +294,7 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\ConstantBufferDefinitions.hpp" />
     <ClInclude Include="Headers\Constants.hpp" />
     <ClInclude Include="Headers\Cylinder.hpp" />
     <ClInclude Include="Headers\Cube.hpp" />
@@ -305,6 +307,7 @@
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="Headers\Scene.hpp" />
     <ClInclude Include="Headers\PhongMaterial.hpp" />
+    <ClInclude Include="Headers\InstanceManager.hpp" />
     <ClInclude Include="ShaderCollection.hpp" />
     <ClInclude Include="Headers\Transform.hpp" />
     <ClInclude Include="Headers\VertexType.hpp" />
