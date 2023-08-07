@@ -1,9 +1,15 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
+#include <corecrt_math_defines.h>
 
 namespace Constants
 {
-    const double PI = 3.14159265358979323846;
+    const float DegreesToRadiansConst = M_PI * 2.0f / 360.0f;
+
+    inline float DegreesToRadians(float degrees)
+    {
+        return DegreesToRadiansConst * degrees;
+    }
 }
 
 #endif

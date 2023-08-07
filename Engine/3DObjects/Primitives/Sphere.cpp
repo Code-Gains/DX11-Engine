@@ -33,12 +33,12 @@ void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, 
 
     // Iterate over latitude and longitude
     for (int i = 0; i <= numStacks; ++i) {
-        float theta = i * Constants::PI / numStacks;      // Range [0, PI]
+        float theta = i * M_PI / numStacks;      // Range [0, PI]
         float sinTheta = sin(theta);
         float cosTheta = cos(theta);
 
         for (int j = 0; j <= numSlices; ++j) {
-            float phi = j * 2.0f * Constants::PI / numSlices;   // Range [0, 2PI]
+            float phi = j * 2.0f * M_PI / numSlices;   // Range [0, 2PI]
             float sinPhi = sin(phi);
             float cosPhi = cos(phi);
 

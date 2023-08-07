@@ -1,5 +1,9 @@
-#include <Cylinder.hpp>
+#include "Cylinder.hpp"
 #include <iostream>
+
+Cylinder::Cylinder(): _caps(true)
+{
+}
 
 Cylinder::Cylinder(const bool caps): _caps(caps)
 {
@@ -41,7 +45,7 @@ void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlice
 
     // Generate cap vertices and side vertices
     for (int i = 0; i <= numSlices; ++i) {
-        float phi = i * 2.0f * Constants::PI / numSlices;
+        float phi = i * 2.0f * M_PI / numSlices;
         float sinPhi = sin(phi);
         float cosPhi = cos(phi);
 
@@ -179,3 +183,4 @@ void Cylinder::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjec
 
     deviceContext->DrawIndexed(numIndices, 0, 0);
 }
+

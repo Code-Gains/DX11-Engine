@@ -16,7 +16,7 @@ private:
     bool _caps;
 
 public:
-
+    Cylinder();
     Cylinder(const bool caps = true);
     Cylinder(const DirectX::XMFLOAT3& position, const bool caps = true);
     Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const bool caps = true);

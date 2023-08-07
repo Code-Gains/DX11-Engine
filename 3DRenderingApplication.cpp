@@ -321,7 +321,7 @@ void Rendering3DApplication::Update()
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
     XMMATRIX view = XMMatrixLookAtRH(camPos, { 10.0f, 10.0f, 10.0f }, { 0,1,0,1 });
-    XMMATRIX proj = XMMatrixPerspectiveFovRH(90.0f * 0.0174533f,
+    XMMATRIX proj = XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
         100.0f);

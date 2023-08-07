@@ -260,10 +260,10 @@ DirectX::XMFLOAT3 WindowsXpPipesSimulation::GetRotationByDirection(const Directi
     switch (direction)
     {
         case Direction::PositiveX:
-            rotation = DirectX::XMFLOAT3(0.0f, 0.0f, PI / 2);
+            rotation = DirectX::XMFLOAT3(0.0f, 0.0f, M_PI / 2);
             break;
         case Direction::NegativeX:
-            rotation = DirectX::XMFLOAT3(0.0f, 0.0f, -PI / 2);
+            rotation = DirectX::XMFLOAT3(0.0f, 0.0f, -M_PI / 2);
             break;
         case Direction::PositiveY:
             rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -272,10 +272,10 @@ DirectX::XMFLOAT3 WindowsXpPipesSimulation::GetRotationByDirection(const Directi
             rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
             break;
         case Direction::PositiveZ:
-            rotation = DirectX::XMFLOAT3(-PI / 2, 0.0f, 0.0f);
+            rotation = DirectX::XMFLOAT3(-M_PI / 2, 0.0f, 0.0f);
             break;
         case Direction::NegativeZ:
-            rotation = DirectX::XMFLOAT3(PI / 2, 0.0f, 0.0f);
+            rotation = DirectX::XMFLOAT3(M_PI / 2, 0.0f, 0.0f);
             break;
         default:
             throw std::invalid_argument("Invalid direction");
