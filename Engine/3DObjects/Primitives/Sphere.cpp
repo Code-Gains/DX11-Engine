@@ -15,16 +15,6 @@ Sphere::Sphere(DirectX::XMFLOAT3 position)
 
 Sphere::~Sphere()
 {
-    if (_vertexBuffer)
-    {
-        _vertexBuffer->Release();
-        _vertexBuffer = nullptr;
-    }
-    if (_indexBuffer)
-    {
-        _indexBuffer->Release();
-        _indexBuffer = nullptr;
-    }
 }
 
 void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalUv>& vertices)
@@ -97,7 +87,7 @@ bool Sphere::Initialize(ID3D11Device* device)
 
     D3D11_SUBRESOURCE_DATA vertexData;
     vertexData.pSysMem = vertices.data();
-    HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
+    HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexData, _vertexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
     D3D11_BUFFER_DESC indexBufferDesc;
@@ -108,13 +98,13 @@ bool Sphere::Initialize(ID3D11Device* device)
 
     D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices.data();
-    hr = device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer);
+    hr = device->CreateBuffer(&indexBufferDesc, &indexData, _indexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
     return true;
 }
 
-void Sphere::Update(const float deltaTime)
+void Sphere::Update(float deltaTime)
 {
 
 }
@@ -138,8 +128,8 @@ void Sphere::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectC
 
     UINT stride = sizeof(VertexPositionNormalUv);
     UINT offset = 0;
-    deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-    deviceContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    deviceContext->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
+    deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
     int numSlices = 30;
     int numStacks = 30;

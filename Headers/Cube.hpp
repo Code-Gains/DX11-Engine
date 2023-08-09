@@ -2,14 +2,13 @@
 #include <d3d11_2.h>
 #include "Object3D.hpp"
 #include "VertexType.hpp"
+#include "Definitions.hpp"
 
 class Cube : public Object3D
 {
 private:
-    int _instanceIndex;
-    ID3D11Buffer* _vertexBuffer = nullptr;
-    ID3D11Buffer* _indexBuffer = nullptr;
-    ID3D11Buffer* _instanceConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _vertexBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _indexBuffer = nullptr;
 
 public:
     Cube() {};
@@ -22,7 +21,7 @@ public:
 
     bool Initialize(ID3D11Device* device) override;
 
-    void Update(const float deltaTime) override;
+    void Update(float deltaTime) override;
 
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
 };

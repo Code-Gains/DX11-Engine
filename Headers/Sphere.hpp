@@ -5,12 +5,13 @@
 #include <cmath>
 #include "Constants.hpp"
 #include "VertexType.hpp"
+#include "Definitions.hpp"
 
 class Sphere : public Object3D
 {
 private:
-    ID3D11Buffer* _vertexBuffer;
-    ID3D11Buffer* _indexBuffer;
+    WRL::ComPtr<ID3D11Buffer> _vertexBuffer;
+    WRL::ComPtr<ID3D11Buffer> _indexBuffer;
 
 public:
     Sphere();
@@ -24,7 +25,7 @@ public:
 
     bool Initialize(ID3D11Device* device) override;
 
-    void Update(const float deltaTime) override;
+    void Update(float deltaTime) override;
 
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
 };

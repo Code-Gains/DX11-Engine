@@ -35,6 +35,7 @@ Rendering3DApplication::~Rendering3DApplication()
     _cubeVertices.Reset();
     _perFrameConstantBuffer.Reset();
     _perObjectConstantBuffer.Reset();
+    _instanceConstantBuffer.Reset();
     _rasterState.Reset();
     _depthState.Reset();
     _depthTarget.Reset();

@@ -5,14 +5,14 @@
 #include "Object3D.hpp"
 #include "VertexType.hpp"
 #include "Constants.hpp"
+#include "Definitions.hpp"
 
 class Cylinder : public Object3D
 {
 private:
-    ID3D11Buffer* _vertexBuffer = nullptr;
-    ID3D11Buffer* _indexBuffer = nullptr;
-    ID3D11Buffer* _instanceBuffer = nullptr;
-    std::vector<DirectX::XMFLOAT4X4> _instanceTransforms;
+    WRL::ComPtr<ID3D11Buffer> _vertexBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _indexBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _instanceBuffer = nullptr;
     bool _caps;
 
 public:
@@ -29,7 +29,7 @@ public:
 
     bool Initialize(ID3D11Device* device) override;
 
-    void Update(const float deltaTime) override;
+    void Update(float deltaTime) override;
 
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
 };

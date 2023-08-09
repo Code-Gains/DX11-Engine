@@ -1,15 +1,24 @@
 #pragma once
 #include <vector>
 #include <d3d11_2.h>
+#include "Definitions.hpp"
 #include "ConstantBufferDefinitions.hpp"
+#include <unordered_map>
+
+struct VertexBufferPool
+{
+    WRL::ComPtr<ID3D11Buffer> buffer;
+    UINT vertexCount;
+    UINT instanceCount;
+    std::vector<InstanceConstantBuffer> instances;
+};
+
 
 class InstanceManager
 {
-    std::vector<InstanceConstantBuffer> _instances;
-    ID3D11Buffer* _instanceConstantBuffer;
+    std::unordered_map<size_t, VertexBufferPool> _vertexBufferPools;
 public:
-    InstanceManager() {};
-    ~InstanceManager() {};
+    InstanceManager();
     void AddInstance(const InstanceConstantBuffer& instanceData);
     void UpdateInstanceData(int instanceIndex, const InstanceConstantBuffer& newData);
     void RemoveInstance(int instanceIndex);

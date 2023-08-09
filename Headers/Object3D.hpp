@@ -26,7 +26,7 @@ public:
 
     virtual bool Initialize(ID3D11Device* device) = 0;
 
-    virtual void Update(const float deltaTime) = 0;
+    virtual void Update(float deltaTime) = 0;
 
     virtual void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) = 0;
 

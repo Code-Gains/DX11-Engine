@@ -58,7 +58,7 @@ void WindowsXpPipesSimulation::Reset(const Int3& dimensions, const float simulat
     ResetTurnProbability();
 }
 
-void WindowsXpPipesSimulation::Update(const float deltaTime)
+void WindowsXpPipesSimulation::Update(float deltaTime)
 {
     _timeUntilNextSegment -= deltaTime;
     while (_timeUntilNextSegment < 0.0f)

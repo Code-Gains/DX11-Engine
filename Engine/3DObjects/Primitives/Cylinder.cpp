@@ -27,16 +27,6 @@ Cylinder::Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& r
 }
 Cylinder::~Cylinder()
 {
-    if (_vertexBuffer)
-    {
-        _vertexBuffer->Release();
-        _vertexBuffer = nullptr;
-    }
-    if (_indexBuffer)
-    {
-        _indexBuffer->Release();
-        _indexBuffer = nullptr;
-    }
 }
 
 void Cylinder::GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalUv>& vertices)
@@ -129,7 +119,7 @@ bool Cylinder::Initialize(ID3D11Device* device)
 
     D3D11_SUBRESOURCE_DATA vertexData;
     vertexData.pSysMem = vertices.data();
-    HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
+    HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexData, _vertexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
     D3D11_BUFFER_DESC indexBufferDesc;
@@ -140,13 +130,13 @@ bool Cylinder::Initialize(ID3D11Device* device)
 
     D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices.data();
-    hr = device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer);
+    hr = device->CreateBuffer(&indexBufferDesc, &indexData, _indexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
     return true;
 }
 
-void Cylinder::Update(const float deltaTime)
+void Cylinder::Update(float deltaTime)
 {
 
 }
@@ -170,8 +160,8 @@ void Cylinder::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjec
 
     UINT stride = sizeof(VertexPositionNormalUv);
     UINT offset = 0;
-    deviceContext->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-    deviceContext->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    deviceContext->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
+    deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
     int numSlices = 30;
 
