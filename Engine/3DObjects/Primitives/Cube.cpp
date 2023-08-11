@@ -67,7 +67,7 @@ static constexpr VertexPositionNormalUv vertices[] = {
     {Position{ 0.5f,  0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}},
 };
 
-static constexpr uint32_t indices[] = {
+static constexpr UINT indices[] = {
     //Front
     0, 1, 2,
     2, 1, 3,

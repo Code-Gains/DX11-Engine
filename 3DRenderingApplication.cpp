@@ -233,10 +233,10 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
+    /*auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
     simulation->Initialize(_device.Get());
-    _scene.AddObject(std::move(simulation));
-    /*int gridSize = 10;
+    _scene.AddObject(std::move(simulation));*/
+    int gridSize = 10;
     for (int x = 0; x < gridSize; x++)
     {
         for (int y = 0; y < gridSize; y++)
@@ -248,7 +248,7 @@ bool Rendering3DApplication::Load()
                 _scene.AddObject(std::move(cube));
             }
         }
-    }*/
+    }
     return true;
 }
 

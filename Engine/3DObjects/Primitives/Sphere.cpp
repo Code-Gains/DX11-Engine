@@ -76,7 +76,7 @@ bool Sphere::Initialize(ID3D11Device* device)
     std::vector<VertexPositionNormalUv> vertices;
     GenerateSphereVertices(0.5f, 30, 30, vertices);
 
-    std::vector<uint32_t> indices;
+    std::vector<UINT> indices;
     GenerateSphereIndices(30, 30, indices);
 
     D3D11_BUFFER_DESC vertexBufferDesc;
@@ -93,7 +93,7 @@ bool Sphere::Initialize(ID3D11Device* device)
     D3D11_BUFFER_DESC indexBufferDesc;
     ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(uint32_t) * indices.size();
+    indexBufferDesc.ByteWidth = sizeof(UINT) * indices.size();
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA indexData;

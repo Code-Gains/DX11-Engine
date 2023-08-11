@@ -17,13 +17,6 @@ struct PerObjectConstantBuffer
     float padding[3];
 };
 
-struct InstanceConstantBuffer
-{
-    DirectX::XMFLOAT4X4 worldMatrix;
-    int instanceType;
-    float padding[3];
-};
-
 struct CameraConstantBuffer
 {
     DirectX::XMFLOAT3 cameraPosition;

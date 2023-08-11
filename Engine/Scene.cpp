@@ -58,5 +58,5 @@ void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectCo
 	{
 		object->Render(deviceContext, perObjectConstantBuffer);
 	}
-	_instanceManager.RenderInstances(deviceContext, perObjectConstantBuffer);
+	_instanceManager.RenderInstances(deviceContext);
 }
