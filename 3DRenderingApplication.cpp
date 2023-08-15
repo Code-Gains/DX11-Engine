@@ -250,8 +250,8 @@ bool Rendering3DApplication::Load()
         }
     }*/
     auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
-    std::array<VertexPositionNormalUv, 24> vertices = cube->GetVertices();
-    std::array<UINT, 36> indices = cube->GetIndices();
+    std::vector<VertexPositionNormalUv> vertices = cube->GetVertices();
+    std::vector<UINT> indices = cube->GetIndices();
 
     _instanceRenderer.InitializeVertexBufferPool(_device.Get(), 0, vertices, indices);
     return true;

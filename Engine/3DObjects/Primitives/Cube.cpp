@@ -29,9 +29,9 @@ Cube::~Cube()
     }*/
 }
 
-std::array<VertexPositionNormalUv, 24> Cube::GetVertices()
+std::vector<VertexPositionNormalUv> Cube::GetVertices()
 {
-    return std::array<VertexPositionNormalUv, 24> {
+    return std::vector<VertexPositionNormalUv> {
         // Front
         VertexPositionNormalUv{ Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 1.0f} },
         VertexPositionNormalUv{ Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 1.0f} },
@@ -70,7 +70,7 @@ std::array<VertexPositionNormalUv, 24> Cube::GetVertices()
     };
 }
 
-std::array<UINT, 36> Cube::GetIndices()
+std::vector<UINT> Cube::GetIndices()
 {
     return {
         // Front

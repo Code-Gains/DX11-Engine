@@ -34,18 +34,14 @@ private:
 
 public:
     InstanceRenderer();
-
-    //template <typename VertexType, size_t VertexCount, size_t IndexCount>
-    //bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::array<VertexType, VertexCount>& vertices, std::array<UINT, IndexCount>& indices);
-
     void AddInstance(const InstanceConstantBuffer& instanceData, size_t bufferKey);
     void UpdateInstanceData(int instanceIndex, const InstanceConstantBuffer& newData);
     void RemoveInstance(int instanceIndex);
     void RenderInstances(ID3D11DeviceContext* deviceContext);
     int GetOwnershipCount() const override;
 
-    template <typename VertexType, size_t VertexCount, size_t IndexCount>
-    bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::array<VertexType, VertexCount>& vertices, std::array<UINT, IndexCount>& indices)
+    template <typename VertexType>
+    bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::vector<VertexType>& vertices, std::vector<UINT>& indices)
     {
         // Init Buffer Descriptions
         D3D11_BUFFER_DESC vertexBufferDesc;
