@@ -2,7 +2,6 @@
 #include <memory>
 #include <vector>
 #include "Object3D.hpp"
-#include "InstanceManager.hpp"
 
 class Scene
 {
@@ -24,6 +23,5 @@ public:
 
 private:
 	std::vector<std::unique_ptr<Object3D>> _objects;
-	InstanceManager _instanceManager;
 };
 

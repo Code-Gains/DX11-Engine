@@ -21,6 +21,7 @@
 #include "3DRenderingApplication.hpp"
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
+#include "InstanceRenderer.hpp"
 
 
 class Rendering3DApplication final : public Application
@@ -80,4 +81,5 @@ private:
     InstanceConstantBuffer _instanceConstantBufferData{};
 
     Scene _scene;
+    InstanceRenderer _instanceRenderer;
 };

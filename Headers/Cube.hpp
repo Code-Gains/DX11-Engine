@@ -1,14 +1,17 @@
 #pragma once
+#include "Definitions.hpp"
 #include <d3d11_2.h>
 #include "Object3D.hpp"
 #include "VertexType.hpp"
-#include "Definitions.hpp"
+#include <array>
 
 class Cube : public Object3D
 {
 private:
     WRL::ComPtr<ID3D11Buffer> _vertexBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _indexBuffer = nullptr;
+    std::array<VertexPositionNormalUv, 24> _vertices;
+    std::array<UINT, 36> _indices;
 
 public:
     Cube() {};
@@ -24,5 +27,8 @@ public:
     void Update(float deltaTime) override;
 
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
+
+    std::array<VertexPositionNormalUv, 24> GetVertices();
+    std::array<UINT, 36> GetIndices();
 };
 

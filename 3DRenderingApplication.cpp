@@ -233,10 +233,10 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-    /*auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
-    simulation->Initialize(_device.Get());
-    _scene.AddObject(std::move(simulation));*/
-    int gridSize = 10;
+    //auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
+    //simulation->Initialize(_device.Get());
+    //_scene.AddObject(std::move(simulation));
+    /*int gridSize = 10;
     for (int x = 0; x < gridSize; x++)
     {
         for (int y = 0; y < gridSize; y++)
@@ -248,7 +248,12 @@ bool Rendering3DApplication::Load()
                 _scene.AddObject(std::move(cube));
             }
         }
-    }
+    }*/
+    auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
+    std::array<VertexPositionNormalUv, 24> vertices = cube->GetVertices();
+    std::array<UINT, 36> indices = cube->GetIndices();
+
+    _instanceRenderer.InitializeVertexBufferPool(_device.Get(), 0, vertices, indices);
     return true;
 }
 
@@ -347,6 +352,7 @@ void Rendering3DApplication::Render()
     ImGui::Begin("Debug Info");
     ImGui::Text("FPS: %.2f", 1 / _deltaTime);
     ImGui::Text("Objects: %d", _scene.GetAllObjectCount());
+    ImGui::Text("Instances: %d", _instanceRenderer.GetOwnershipCount());
     ImGui::End();
 
     ImGui::Render();

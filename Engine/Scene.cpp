@@ -1,5 +1,4 @@
-#include <Scene.hpp>
-#include "../3DRenderingApplication.hpp"
+#include "Scene.hpp"
 
 Scene::Scene() {}
 
@@ -58,5 +57,4 @@ void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectCo
 	{
 		object->Render(deviceContext, perObjectConstantBuffer);
 	}
-	_instanceManager.RenderInstances(deviceContext);
 }
