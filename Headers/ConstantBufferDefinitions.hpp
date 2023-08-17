@@ -13,8 +13,6 @@ struct PerObjectConstantBuffer
 {
     DirectX::XMFLOAT4X4 modelMatrix;
     DirectX::XMFLOAT4X4 normalMatrix;
-    int instanceIndex;
-    float padding[3];
 };
 
 struct CameraConstantBuffer

@@ -8,11 +8,12 @@
 #include <unordered_map>
 #include <iostream>
 #include <array>
+#include <algorithm>
 
 
 struct InstanceConstantBuffer
 {
-    DirectX::XMFLOAT4X4 worldMatrix;
+    DirectX::XMMATRIX worldMatrix;
 };
 
 class InstanceRenderer : IDebuggable
@@ -26,7 +27,7 @@ public:
         UINT indexCount = 0;
         UINT instanceCount = 0;
         std::vector<InstanceConstantBuffer> instances;
-        std::vector<UINT> indices;
+        //std::vector<UINT> indices;
     };
 
 private:
@@ -37,12 +38,13 @@ public:
     void AddInstance(const InstanceConstantBuffer& instanceData, size_t bufferKey);
     void UpdateInstanceData(int instanceIndex, const InstanceConstantBuffer& newData);
     void RemoveInstance(int instanceIndex);
-    void RenderInstances(ID3D11DeviceContext* deviceContext);
+    void RenderInstances(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* _instanceConstantBuffer);
     int GetOwnershipCount() const override;
 
     template <typename VertexType>
     bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::vector<VertexType>& vertices, std::vector<UINT>& indices)
     {
+        std::cout << vertices.size() << std::endl;
         // Init Buffer Descriptions
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
@@ -82,6 +84,8 @@ public:
         }
 
         // Set Pool
+        newPool.vertexCount = vertices.size();
+        newPool.indexCount = indices.size();
         _vertexBufferPools[bufferKey] = newPool;
         return true;
     }

@@ -47,7 +47,7 @@ cbuffer PerObject : register(b4)
 
 cbuffer PerInstance : register(b5)
 {
-    PerInstanceData instanceData[1024]; // Max batch size
+    PerInstanceData instanceData[100]; // Max batch size
 };
 
 VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
@@ -55,8 +55,7 @@ VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
     VSOutput output = (VSOutput) 0;
 
     // Calculate the model-view-projection matrix
-    matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
-    //matrix world = mul(viewprojection, modelmatrix);
+    matrix world = mul(viewprojection, modelmatrix);
     output.Position = mul(world, float4(input.Position, 1.0));
     
     output.Uv = input.Uv;

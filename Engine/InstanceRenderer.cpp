@@ -1,4 +1,5 @@
 #include "InstanceRenderer.hpp"
+#include <Cube.hpp>
 
 InstanceRenderer::InstanceRenderer()
 {
@@ -59,6 +60,7 @@ void InstanceRenderer::AddInstance(const InstanceConstantBuffer& instanceData, s
     if (it != _vertexBufferPools.end())
     {
         it->second.instances.push_back(instanceData);
+        it->second.instanceCount++;
     }
 }
 
@@ -72,45 +74,53 @@ void InstanceRenderer::RemoveInstance(int instanceIndex)
 
 }
 
-void InstanceRenderer::RenderInstances(ID3D11DeviceContext* deviceContext)
+void InstanceRenderer::RenderInstances(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
     for (const auto& vertexBufferPair : _vertexBufferPools)
     {
         const VertexBufferPool& vertexBufferPool = vertexBufferPair.second;
-        for (const auto& instance : vertexBufferPool.instances)
+        //std::cout << vertexBufferPool.vertexCount << std::endl;
+        //for (const auto& instance : vertexBufferPool.instances)
+        //{
+        //    // update cbuffers with instance data
+        //}
+        auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
+        D3D11_MAPPED_SUBRESOURCE perObjectMappedResource;
+        DirectX::XMMATRIX modelMatrix = cube->transform.GetWorldMatrix();
+        DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
+
+        DirectX::XMFLOAT4X4 modelMatrixToPass;
+        DirectX::XMFLOAT4X4 normalMatrixToPass;
+
+        XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
+        XMStoreFloat4x4(&normalMatrixToPass, modelMatrix);
+
+        deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &perObjectMappedResource);
+        memcpy(perObjectMappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
+        memcpy((char*)perObjectMappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
+        deviceContext->Unmap(perObjectConstantBuffer, 0);
+
+        size_t batchSize = 1024; // hardcode to test
+        size_t instancesRendered = 0;
+        while(instancesRendered < vertexBufferPool.instanceCount)
         {
-            // update cbuffers with instance data
+            size_t instancesToRender = min(batchSize, vertexBufferPool.instanceCount - instancesRendered);
+
+            D3D11_MAPPED_SUBRESOURCE instanceMappedResource;
+
+            deviceContext->Map(instanceConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &instanceMappedResource);
+            memcpy(instanceMappedResource.pData, vertexBufferPool.instances.data() + instancesRendered, sizeof(DirectX::XMMATRIX) * instancesToRender);
+            deviceContext->Unmap(instanceConstantBuffer, 0);
+
+            UINT stride = sizeof(VertexPositionNormalUv);
+            UINT offset = 0;
+
+            deviceContext->IASetVertexBuffers(0, 1, vertexBufferPool.vertexBuffer.GetAddressOf(), &stride, &offset);
+            deviceContext->IASetIndexBuffer(vertexBufferPool.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+            deviceContext->DrawIndexedInstanced(vertexBufferPool.indexCount, instancesToRender, 0, 0, 0);
+            instancesRendered += instancesToRender;
         }
-        // transfer cbuffer to GPU
-        // draw instanced?
-        deviceContext->DrawIndexedInstanced(vertexBufferPool.indexCount, vertexBufferPool.instanceCount, 0, 0, 0);
-        // clean up
     }
-
-
-
-    //D3D11_MAPPED_SUBRESOURCE mappedResource;
-    //DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
-    //DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
-
-    //DirectX::XMFLOAT4X4 modelMatrixToPass;
-    //DirectX::XMFLOAT4X4 normalMatrixToPass;
-
-    //XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
-    //XMStoreFloat4x4(&normalMatrixToPass, modelMatrix);
-
-
-    //deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    //memcpy(mappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
-    //memcpy((char*)mappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
-    //deviceContext->Unmap(perObjectConstantBuffer, 0);
-
-    //// Set the vertex and index buffers, and draw the cube
-    //UINT stride = sizeof(VertexPositionNormalUv);
-    //UINT offset = 0;
-    //deviceContext->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
-    //deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-    //deviceContext->DrawIndexed(ARRAYSIZE(indices), 0, 0);
 }
 
 int InstanceRenderer::GetOwnershipCount() const
