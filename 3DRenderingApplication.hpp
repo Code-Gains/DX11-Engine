@@ -30,6 +30,8 @@ public:
     Rendering3DApplication(const std::string& title);
     ~Rendering3DApplication() override;
 
+    bool isApplicationMinimized = false;
+
 protected:
     bool Initialize() override;
     bool Load() override;
