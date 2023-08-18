@@ -16,6 +16,7 @@ struct InstanceConstantBuffer
     DirectX::XMMATRIX worldMatrix;
 };
 
+
 class InstanceRenderer : IDebuggable
 {
 public:
@@ -49,7 +50,7 @@ public:
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
         vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-        vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * vertices.size();
+        vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertices.size();
         vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vertexBufferDesc.CPUAccessFlags = 0;
         vertexBufferDesc.MiscFlags = 0;

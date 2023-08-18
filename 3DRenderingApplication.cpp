@@ -243,7 +243,7 @@ bool Rendering3DApplication::Load()
 
 
     _instanceRenderer.InitializeVertexBufferPool(_device.Get(), 0, vertices, indices);
-    int gridSize = 100;
+    int gridSize = 10;
     for (int x = 0; x < gridSize; x++)
     {
         for (int y = 0; y < gridSize; y++)
