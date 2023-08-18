@@ -45,13 +45,13 @@ public:
     void RemoveInstance(int instanceIndex);
     int GetOwnershipCount() const override;
 
-    template <typename VertexType>
-    bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::vector<VertexType>& vertices, std::vector<UINT>& indices, DirectX::XMMATRIX& modelMatrix)
+    template <typename TVertexType>
+    bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices, const DirectX::XMMATRIX& modelMatrix)
     {
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
         vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-        vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertices.size();
+        vertexBufferDesc.ByteWidth = sizeof(TVertexType) * vertices.size();
         vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vertexBufferDesc.CPUAccessFlags = 0;
         vertexBufferDesc.MiscFlags = 0;
@@ -59,7 +59,7 @@ public:
         D3D11_BUFFER_DESC indexBufferDesc;
         ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
         indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        indexBufferDesc.ByteWidth = sizeof(uint32_t) * indices.size();
+        indexBufferDesc.ByteWidth = sizeof(UINT) * indices.size();
         indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
         // Create buffers
@@ -93,7 +93,7 @@ public:
         return true;
     }
 
-    template<typename VertexType>
+    template<typename TVertexType>
     void RenderInstances(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
     {
         for (const auto& vertexBufferPair : _vertexBufferPools)
@@ -139,7 +139,7 @@ public:
                 deviceContext->Unmap(instanceConstantBuffer, 0);
 
                 // Draw
-                UINT stride = sizeof(VertexType);
+                UINT stride = sizeof(TVertexType);
                 UINT offset = 0;
 
                 deviceContext->IASetVertexBuffers(0, 1, vertexBufferPool.vertexBuffer.GetAddressOf(), &stride, &offset);
