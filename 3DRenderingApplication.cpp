@@ -233,8 +233,7 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 600.0f);
-    simulation->Initialize(_device.Get());
+    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
     _scene.AddObject(std::move(simulation));
 
     //auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
@@ -243,7 +242,7 @@ bool Rendering3DApplication::Load()
     //DirectX::XMMATRIX modelMatrix = cubeTemp->transform.GetWorldMatrix();
 
 
-    //_instanceRenderer.InitializeVertexBufferPool(_device.Get(), 0, vertices, indices, modelMatrix);
+    //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices, modelMatrix);
     //int gridSize = 10;
     //for (int x = 0; x < gridSize; x++)
     //{

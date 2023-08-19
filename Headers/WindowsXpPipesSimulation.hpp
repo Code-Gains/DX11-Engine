@@ -19,7 +19,10 @@ struct GridCell
 {
     enum Type { EMPTY, PIPE_STRAIGHT, PIPE_CORNER };
     Type type;
-    std::shared_ptr<Object3D> pipe = nullptr;
+    enum InstanceBufferKey { CYLINDER, SPHERE, INVALID };
+    InstanceBufferKey bufferKey = INVALID;
+    int instanceIndex = -1;
+    int modelMatrixIndex = -1;
 };
 
 class WindowsXpPipesSimulation : public Object3D 
@@ -36,7 +39,10 @@ public:
 private:
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     std::vector<std::vector<std::vector<GridCell>>> _grid;
-    std::vector<std::shared_ptr<Object3D>> _pipes;
+    std::vector<Transform> _pipeTransforms;
+
+    int _straightCount = 0;
+    int _cornerCount = 0;
 
     Int3 _dimensions;
 

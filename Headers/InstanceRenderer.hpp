@@ -21,7 +21,7 @@ struct InstanceConstantBuffer
 class InstanceRenderer : IDebuggable
 {
 public:
-    struct VertexBufferPool
+    struct InstancePool
     {
         WRL::ComPtr<ID3D11Buffer> vertexBuffer = nullptr;
         UINT vertexCount = 0;
@@ -36,20 +36,20 @@ public:
     };
 
 private:
-    std::unordered_map<size_t, VertexBufferPool> _vertexBufferPools;
+    std::unordered_map<int, InstancePool> _instancePools;
     int _batchSize = 256;
 public:
     InstanceRenderer(int batchSize = 256);
-    void AddInstance(const InstanceConstantBuffer& instanceData, size_t bufferKey);
-    void UpdateInstanceData(int instanceIndex, const InstanceConstantBuffer& newData);
-    void RemoveInstance(int instanceIndex);
+    void AddInstance(const InstanceConstantBuffer& instanceData, int bufferKey);
+    void UpdateInstanceData(int bufferKey, int instanceIndex, const InstanceConstantBuffer& newData);
+    void RemoveInstance(int bufferKey, int instanceIndex);
     int GetOwnershipCount() const override;
 
 
     void RemoveAllInstances();
 
     template <typename TVertexType>
-    bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices, const DirectX::XMMATRIX& modelMatrix)
+    bool InitializeInstancePool(ID3D11Device* device, int bufferKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices, const DirectX::XMMATRIX& modelMatrix)
     {
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
@@ -66,7 +66,7 @@ public:
         indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
         // Create buffers
-        VertexBufferPool newPool;
+        InstancePool newPool;
 
         D3D11_SUBRESOURCE_DATA vertexData;
         ZeroMemory(&vertexData, sizeof(vertexData));
@@ -92,18 +92,18 @@ public:
         newPool.vertexCount = vertices.size();
         newPool.indexCount = indices.size();
         newPool.modelMatrix = modelMatrix;
-        _vertexBufferPools[bufferKey] = newPool;
+        _instancePools[bufferKey] = newPool;
         return true;
     }
 
     template<typename TVertexType>
     void RenderInstances(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
     {
-        for (const auto& vertexBufferPair : _vertexBufferPools)
+        for (const auto& vertexBufferPair : _instancePools)
         {
-            const VertexBufferPool& vertexBufferPool = vertexBufferPair.second;
+            const InstancePool& instancePool = vertexBufferPair.second;
             // FLOAT4X4 storage
-            DirectX::XMMATRIX modelMatrix = vertexBufferPool.modelMatrix;
+            DirectX::XMMATRIX modelMatrix = instancePool.modelMatrix;
             DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
 
             DirectX::XMFLOAT4X4 modelMatrixToPass;
@@ -125,9 +125,9 @@ public:
             deviceContext->Unmap(perObjectConstantBuffer, 0);
 
             int instancesRendered = 0;
-            while (instancesRendered < vertexBufferPool.instanceCount)
+            while (instancesRendered < instancePool.instanceCount)
             {
-                int instancesToRender = min(_batchSize, vertexBufferPool.instanceCount - instancesRendered);
+                int instancesToRender = min(_batchSize, instancePool.instanceCount - instancesRendered);
 
                 // Binding per instance data
                 D3D11_MAPPED_SUBRESOURCE instanceMappedResource;
@@ -137,16 +137,16 @@ public:
                     std::cerr << "Could not map instance data!\n";
                     return;
                 }
-                memcpy(instanceMappedResource.pData, vertexBufferPool.instances.data() + instancesRendered, sizeof(DirectX::XMMATRIX) * instancesToRender);
+                memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(DirectX::XMMATRIX) * instancesToRender);
                 deviceContext->Unmap(instanceConstantBuffer, 0);
 
                 // Draw
                 UINT stride = sizeof(TVertexType);
                 UINT offset = 0;
 
-                deviceContext->IASetVertexBuffers(0, 1, vertexBufferPool.vertexBuffer.GetAddressOf(), &stride, &offset);
-                deviceContext->IASetIndexBuffer(vertexBufferPool.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-                deviceContext->DrawIndexedInstanced(vertexBufferPool.indexCount, instancesToRender, 0, 0, 0);
+                deviceContext->IASetVertexBuffers(0, 1, instancePool.vertexBuffer.GetAddressOf(), &stride, &offset);
+                deviceContext->IASetIndexBuffer(instancePool.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+                deviceContext->DrawIndexedInstanced(instancePool.indexCount, instancesToRender, 0, 0, 0);
 
                 instancesRendered += instancesToRender;
             }
