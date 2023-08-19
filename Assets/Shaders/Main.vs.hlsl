@@ -47,7 +47,7 @@ cbuffer PerObject : register(b4)
 
 cbuffer PerInstance : register(b5)
 {
-    PerInstanceData instanceData[1024]; // Max batch size
+    PerInstanceData instanceData[256]; // Max batch size
 };
 
 VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
