@@ -338,7 +338,7 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
     GridCell::Type type = GridCell::EMPTY;
     GridCell::InstanceBufferKey bufferKey = GridCell::INVALID;
     int instanceIndex = -1;
-    int bb, aa;
+
     switch (pipeType)
     {
         case GridCell::PIPE_STRAIGHT:
@@ -346,16 +346,12 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
             type = GridCell::PIPE_STRAIGHT;
             bufferKey = GridCell::CYLINDER;
             instanceIndex = _straightCount;
-            bb = (bufferKey == GridCell::CYLINDER) ? 0 : 1;
-            std::cout << DirectX::XMVectorGetY(pipeObject->transform.GetWorldMatrix().r[1]) << " " << bb << std::endl;
             break;
         case GridCell::PIPE_CORNER:
             pipeObject = std::make_unique<Sphere>(GetCellWorldPosition(cellPosition));
             type = GridCell::PIPE_CORNER;
             bufferKey = GridCell::SPHERE;
             instanceIndex = _cornerCount;
-            aa = (bufferKey == GridCell::CYLINDER) ? 0 : 1;
-            std::cout << DirectX::XMVectorGetY(pipeObject->transform.GetWorldMatrix().r[1]) << " " << aa << std::endl;
             break;
         default:
             return;
@@ -370,8 +366,6 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
     gridCell.modelMatrixIndex = _pipeTransforms.size();
 
     Transform transform = pipeObject->transform;
-    /*int tiplog = (bufferKey == GridCell::CYLINDER) ? 0 : 1;
-    std::cout << DirectX::XMVectorGetY(worldMatrix.r[1])<<" " << tiplog << std::endl;*/
 
     _pipeTransforms.push_back(transform);
     if (bufferKey == GridCell::CYLINDER)
@@ -389,25 +383,6 @@ void WindowsXpPipesSimulation::ExtendCellPipe(GridCell& gridCell, const Directio
     float oldLength = transform.scale.y;
     float newLength = oldLength + length;
     transform.scale.y *= (newLength / oldLength);
-    //DirectX::XMMATRIX& pipeMatrix = _pipeModelMatrices[gridCell.modelMatrixIndex];
-    //float oldLength = DirectX::XMVectorGetY(pipeMatrix.r[1]);
-    //float newLength = oldLength + length;
-
-    //float previousScaleY = DirectX::XMVectorGetY(DirectX::XMVector3Length(pipeMatrix.r[1]));
-    //float newScaleY = newLength / oldLength; // This should be a direct ratio
-
-    ////std::cout << oldLength << std::endl;
-    ///*std::cout << previousScaleY << std::endl;
-    //std::cout << newScaleY << std::endl;*/
-
-    //DirectX::XMMATRIX scaling = DirectX::XMMatrixScaling(1.0f, newScaleY, 1.0f);
-    //pipeMatrix = pipeMatrix * scaling;
-
-    ////// Create a scaling matrix only along the Y-axis
-    ////DirectX::XMMATRIX scaling = DirectX::XMMatrixScaling(1.0f, newScaleY, 1.0f);
-
-    ////// Apply the scaling transformation to the pipeMatrix
-    ////pipeMatrix = pipeMatrix * scaling;
 
     switch (direction)
     {
@@ -432,8 +407,7 @@ void WindowsXpPipesSimulation::ExtendCellPipe(GridCell& gridCell, const Directio
     default:
         throw std::invalid_argument("Invalid direction");
     }
-    //if(gridCell.bufferKey == GridCell::SPHERE)
-    //_pipeModelMatrices[gridCell.modelMatrixIndex] = pipeMatrix;
+
     _pipeTransforms[gridCell.modelMatrixIndex] = transform;
     _instanceRenderer.UpdateInstanceData(gridCell.bufferKey, gridCell.instanceIndex, InstanceConstantBuffer(transform.GetWorldMatrix()));
 }

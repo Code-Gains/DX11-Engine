@@ -32,13 +32,8 @@ Cylinder::Cylinder(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& r
     transform.position = position;
     transform.rotation = rotation;
     transform.scale = scale;
-    std::cout << transform << std::endl;
     _vertices = GenerateVertices(0.5f, 1, 30); // parameterise this
     _indices = GenerateIndices(30);
-
-    //int bb = 
-    std::cout << DirectX::XMVectorGetY(transform.GetWorldMatrix().r[1]) << std::endl;
-    //std::cout << << std::endl;
 }
 Cylinder::~Cylinder()
 {
