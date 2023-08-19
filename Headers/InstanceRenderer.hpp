@@ -45,6 +45,9 @@ public:
     void RemoveInstance(int instanceIndex);
     int GetOwnershipCount() const override;
 
+
+    void RemoveAllInstances();
+
     template <typename TVertexType>
     bool InitializeVertexBufferPool(ID3D11Device* device, size_t bufferKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices, const DirectX::XMMATRIX& modelMatrix)
     {
@@ -99,7 +102,6 @@ public:
         for (const auto& vertexBufferPair : _vertexBufferPools)
         {
             const VertexBufferPool& vertexBufferPool = vertexBufferPair.second;
-
             // FLOAT4X4 storage
             DirectX::XMMATRIX modelMatrix = vertexBufferPool.modelMatrix;
             DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));

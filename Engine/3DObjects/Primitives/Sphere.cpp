@@ -2,24 +2,24 @@
 
 Sphere::Sphere()
 {
-    _vertexBuffer = nullptr;
-    _indexBuffer = nullptr;
+    _vertices = GenerateVertices(0.5f, 30, 30);
+    _indices = GenerateIndices(30, 30);
 }
 
 Sphere::Sphere(DirectX::XMFLOAT3 position)
 {
-    _vertexBuffer = nullptr;
-    _indexBuffer = nullptr;
     transform.position = position;
+    _vertices = GenerateVertices(0.5f, 30, 30);
+    _indices = GenerateIndices(30, 30);
 }
 
 Sphere::~Sphere()
 {
 }
 
-void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalUv>& vertices)
+std::vector<VertexPositionNormalUv> Sphere::GenerateVertices(float radius, int numSlices, int numStacks) const
 {
-    vertices.clear();
+    std::vector<VertexPositionNormalUv> vertices;
 
     // Iterate over latitude and longitude
     for (int i = 0; i <= numStacks; ++i) {
@@ -48,11 +48,12 @@ void Sphere::GenerateSphereVertices(float radius, int numSlices, int numStacks, 
             });
         }
     }
+    return vertices;
 }
 
-void Sphere::GenerateSphereIndices(int numSlices, int numStacks, std::vector<uint32_t>&indices)
+std::vector<UINT> Sphere::GenerateIndices(int numSlices, int numStacks) const
 {
-    indices.clear();
+    std::vector<UINT> indices;
 
     for (int i = 0; i < numStacks; ++i) {
         for (int j = 0; j < numSlices; ++j) {
@@ -68,36 +69,41 @@ void Sphere::GenerateSphereIndices(int numSlices, int numStacks, std::vector<uin
             indices.push_back(first + 1);
         }
     }
+
+    return indices;
+}
+
+std::vector<VertexPositionNormalUv> Sphere::GetVertices() const
+{
+    return _vertices;
+}
+
+std::vector<UINT> Sphere::GetIndices() const
+{
+    return _indices;
 }
 
 bool Sphere::Initialize(ID3D11Device* device)
 {
-
-    std::vector<VertexPositionNormalUv> vertices;
-    GenerateSphereVertices(0.5f, 30, 30, vertices);
-
-    std::vector<UINT> indices;
-    GenerateSphereIndices(30, 30, indices);
-
     D3D11_BUFFER_DESC vertexBufferDesc;
     ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
     vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * vertices.size();
+    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * _vertices.size();
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA vertexData;
-    vertexData.pSysMem = vertices.data();
+    vertexData.pSysMem = _vertices.data();
     HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexData, _vertexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
     D3D11_BUFFER_DESC indexBufferDesc;
     ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(UINT) * indices.size();
+    indexBufferDesc.ByteWidth = sizeof(UINT) * _indices.size();
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA indexData;
-    indexData.pSysMem = indices.data();
+    indexData.pSysMem = _indices.data();
     hr = device->CreateBuffer(&indexBufferDesc, &indexData, _indexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
@@ -109,7 +115,7 @@ void Sphere::Update(float deltaTime)
 
 }
 
-void Sphere::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
+void Sphere::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();

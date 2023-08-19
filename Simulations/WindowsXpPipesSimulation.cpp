@@ -12,18 +12,30 @@ WindowsXpPipesSimulation::~WindowsXpPipesSimulation() {}
 
 bool WindowsXpPipesSimulation::Initialize(ID3D11Device* device)
 {
+    auto cylinder = Cylinder(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), false);
+    std::vector<VertexPositionNormalUv> cylinderVertices = cylinder.GetVertices();
+    std::vector<UINT> cylinderIndices = cylinder.GetIndices();
+    DirectX::XMMATRIX cylinderModelMatrix = cylinder.transform.GetWorldMatrix();
+    _instanceRenderer.InitializeVertexBufferPool<VertexPositionNormalUv>(device, 0, cylinderVertices, cylinderIndices, cylinderModelMatrix);
+
+    auto sphere = Sphere(DirectX::XMFLOAT3{ 0, 0, 0 });
+    std::vector<VertexPositionNormalUv> sphereVertices = sphere.GetVertices();
+    std::vector<UINT> sphereIndices = sphere.GetIndices();
+    DirectX::XMMATRIX sphereModelMatrix = sphere.transform.GetWorldMatrix();
+    _instanceRenderer.InitializeVertexBufferPool<VertexPositionNormalUv>(device, 1, sphereVertices, sphereIndices, sphereModelMatrix);
+
     return true;
 }
 
-void WindowsXpPipesSimulation::Reset(const Int3& dimensions, const float simulationSpeed)
+void WindowsXpPipesSimulation::Reset(const Int3& dimensions, float simulationSpeed)
 {
     _timeUntilNextSegment = 1 / simulationSpeed;
     _currentDirection = Direction::PositiveY;
     _currentPosition = Int3(0, 0, 0);
 
     _pipes.clear();
-
     _grid.clear();
+
     _grid.resize(dimensions.x);
     for (int x = 0; x < _dimensions.x; ++x)
     {
@@ -34,9 +46,14 @@ void WindowsXpPipesSimulation::Reset(const Int3& dimensions, const float simulat
             _grid[x][y].clear();
             _grid[x][y].resize(dimensions.z);
             for (int z = 0; z < _dimensions.z; ++z)
+            {
                 _grid[x][y][z].type = GridCell::EMPTY;
+                _grid[x][y][z].pipe = nullptr;
+            }
         }
     }
+
+    _instanceRenderer.RemoveAllInstances();
 
     CreatePipeAtCell(_currentPosition, _currentDirection, GridCell::PIPE_STRAIGHT);
     _timeUntilNextSegment = 1 / simulationSpeed;
@@ -114,10 +131,16 @@ void WindowsXpPipesSimulation::Update(float deltaTime)
     }
 }
 
-void WindowsXpPipesSimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
+void WindowsXpPipesSimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
-    for (auto& pipeObject : _pipes)
-        pipeObject->Render(deviceContext, perObjectConstantBuffer);
+    //for (auto& pipeObject : _pipes)
+            //pipeObject->Render(deviceContext, perObjectConstantBuffer, instanceConstantBuffer);
+    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(deviceContext, perObjectConstantBuffer, instanceConstantBuffer);
+}
+
+int WindowsXpPipesSimulation::GetOwnershipCount() const
+{
+    return _pipes.size();
 }
 
 GridCell WindowsXpPipesSimulation::GetCell(const Int3& position) const {
@@ -310,6 +333,8 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
 {
     std::shared_ptr<Object3D> pipeObject = nullptr;
     GridCell::Type type = GridCell::EMPTY;
+    int instanceType = 0;
+
     switch (pipeType)
     {
         case GridCell::PIPE_STRAIGHT:
@@ -319,6 +344,7 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
         case GridCell::PIPE_CORNER:
             pipeObject = std::make_shared<Sphere>(GetCellWorldPosition(cellPosition));
             type = GridCell::PIPE_CORNER;
+            instanceType = 1;
             break;
         case GridCell::EMPTY:
             break;
@@ -331,6 +357,8 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
     _pipes.push_back(pipeObject);
     _grid[cellPosition.x][cellPosition.y][cellPosition.z].pipe = pipeObject;
     _grid[cellPosition.x][cellPosition.y][cellPosition.z].type = type;
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(pipeObject->transform.GetWorldMatrix()), instanceType);
+
 }
 
 void WindowsXpPipesSimulation::ExtendCellPipe(GridCell& gridCell, const Direction direction, const float length)

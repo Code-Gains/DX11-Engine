@@ -147,7 +147,7 @@ void Cube::Update(float deltaTime)
  
 }
 
-void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
+void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;

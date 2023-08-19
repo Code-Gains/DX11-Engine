@@ -27,6 +27,17 @@ void InstanceRenderer::RemoveInstance(int instanceIndex)
 
 }
 
+void InstanceRenderer::RemoveAllInstances()
+{
+    for (auto& vertexBufferPair : _vertexBufferPools)
+    {
+        VertexBufferPool& vertexBufferPool = vertexBufferPair.second;
+        vertexBufferPool.instances.clear();
+        vertexBufferPool.instanceCount = 0;
+    }
+}
+
+
 int InstanceRenderer::GetOwnershipCount() const
 {
     int totalCount = 0;

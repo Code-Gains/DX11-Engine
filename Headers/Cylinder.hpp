@@ -13,6 +13,10 @@ private:
     WRL::ComPtr<ID3D11Buffer> _vertexBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _indexBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceBuffer = nullptr;
+
+    std::vector<VertexPositionNormalUv> _vertices;
+    std::vector<UINT> _indices;
+
     bool _caps;
 
 public:
@@ -24,14 +28,16 @@ public:
 
     virtual ~Cylinder();
 
-    void GenerateCylinderVertices(float radius, float height, int numSlices, std::vector<VertexPositionNormalUv>& vertices);
-    void GenerateCylinderIndices(int numSlices, std::vector<uint32_t>& indices);
+    std::vector<VertexPositionNormalUv> GenerateVertices(float radius, float height, int numSlices) const;
+    std::vector<UINT> GenerateIndices(int numSlices) const;
+
+    std::vector<VertexPositionNormalUv> GetVertices() const;
+    std::vector<UINT> GetIndices() const;
 
     bool Initialize(ID3D11Device* device) override;
-
     void Update(float deltaTime) override;
-
-    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
+    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;
+    int GetOwnershipCount() const override { return 0; };
 };
 
 

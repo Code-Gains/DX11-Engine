@@ -12,6 +12,7 @@
 #include "Cylinder.hpp"
 #include "Cube.hpp"
 #include "Object3D.hpp"
+#include "InstanceRenderer.hpp"
 
 
 struct GridCell
@@ -51,14 +52,16 @@ private:
 
     float _timeUntilNextSegment;
 
+    InstanceRenderer _instanceRenderer;
+
 public:
     WindowsXpPipesSimulation(const WRL::ComPtr<ID3D11Device>& device, const Int3& dimensions, const float simulationSpeed = 1.0f);
     virtual ~WindowsXpPipesSimulation();
 
     bool Initialize(ID3D11Device* device) override;
     void Update(float deltaTime) override;
-    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
-    void Reset(const Int3& dimensions, const float simulationSpeed);
+    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;
+    int GetOwnershipCount() const override;
 
     GridCell GetCell(const Int3& position) const;
     Int3 GetNextCell(const Int3& currentPosition, const Direction currentDirection) const;
@@ -72,4 +75,5 @@ public:
     void ExtendCellPipe(GridCell& gridCell, const Direction direction, const float length);
     void CreatePipeAtCell(const Int3& cellPosition, const WindowsXpPipesSimulation::Direction direction, GridCell::Type pipeType);
     void ResetTurnProbability();
+    void Reset(const Int3& dimensions, float simulationSpeed);
 };
