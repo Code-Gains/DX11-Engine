@@ -99,31 +99,9 @@ public:
     template<typename TVertexType>
     void RenderInstances(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
     {
-        for (const auto& vertexBufferPair : _instancePools)
+        for (const auto& instancePoolPair : _instancePools)
         {
             const InstancePool& instancePool = vertexBufferPair.second;
-            // FLOAT4X4 storage
-            DirectX::XMMATRIX modelMatrix = instancePool.modelMatrix;
-            DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
-
-            DirectX::XMFLOAT4X4 modelMatrixToPass;
-            DirectX::XMFLOAT4X4 normalMatrixToPass;
-
-            XMStoreFloat4x4(&modelMatrixToPass, modelMatrix);
-            XMStoreFloat4x4(&normalMatrixToPass, normalMatrix);
-
-            // Binding per object data
-            D3D11_MAPPED_SUBRESOURCE perObjectMappedResource;
-            HRESULT hr = deviceContext->Map(perObjectConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &perObjectMappedResource);
-            if (FAILED(hr))
-            {
-                std::cerr << "Could not map object data!\n";
-                return;
-            }
-            memcpy(perObjectMappedResource.pData, &modelMatrixToPass, sizeof(modelMatrixToPass));
-            memcpy((char*)perObjectMappedResource.pData + sizeof(modelMatrixToPass), &normalMatrixToPass, sizeof(normalMatrixToPass));
-            deviceContext->Unmap(perObjectConstantBuffer, 0);
-
             int instancesRendered = 0;
             while (instancesRendered < instancePool.instanceCount)
             {

@@ -221,7 +221,7 @@ void Rendering3DApplication::CreateConstantBuffers()
     desc.ByteWidth = sizeof(PerObjectConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
 
-    desc.ByteWidth = sizeof(InstanceConstantBuffer) * 1024;
+    desc.ByteWidth = sizeof(InstanceConstantBuffer) * 256;
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
 

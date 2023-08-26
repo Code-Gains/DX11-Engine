@@ -39,11 +39,11 @@ cbuffer PerFrame : register(b0)
     matrix viewprojection;
 };
 
-cbuffer PerObject : register(b4)
-{
-    matrix modelmatrix;
-    matrix normalMatrix;
-};
+//cbuffer PerObject : register(b4)
+//{
+//    matrix modelmatrix;
+//    matrix normalMatrix;
+//};
 
 cbuffer PerInstance : register(b5)
 {
@@ -62,10 +62,10 @@ VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
     output.Uv = input.Uv;
     
     // Transform the normal
-    output.Normal = mul(input.Normal, (float3x3) normalMatrix);
+    output.Normal = mul(input.Normal, (float3x3) instanceData[instanceID].worldMatrix);
     
     // Calculate the world position
-    output.PositionWorld = mul(float4(input.Position, 1.0), modelmatrix).xyz;
+    output.PositionWorld = mul(float4(input.Position, 1.0), instanceData[instanceID].worldMatrix).xyz;
     
     return output;
 }
