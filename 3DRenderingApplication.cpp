@@ -357,8 +357,14 @@ void Rendering3DApplication::Update()
 
 void Rendering3DApplication::Render()
 {
-    if (isApplicationMinimized)
-        return;
+    //if (isApplicationMinimized)
+        //return;
+
+    static int framesPassed = 0;
+    static float totalDeltaTime = 0;
+
+    framesPassed++;
+    totalDeltaTime += _deltaTime;
 
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
@@ -367,6 +373,7 @@ void Rendering3DApplication::Render()
     static int counter = 0;
     ImGui::Begin("Debug Info");
     ImGui::Text("FPS: %.2f", 1 / _deltaTime);
+    ImGui::Text("AVG_FPS: %.2f", framesPassed / totalDeltaTime);
 
     PROCESS_MEMORY_COUNTERS_EX pmc;
     if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
