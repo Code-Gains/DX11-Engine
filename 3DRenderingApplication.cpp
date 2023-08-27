@@ -233,17 +233,18 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
+
     auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
     _scene.AddObject(std::move(simulation));
 
-    //auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
-    //std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
-    //std::vector<UINT> indices = cubeTemp->GetIndices();
-    //DirectX::XMMATRIX modelMatrix = cubeTemp->transform.GetWorldMatrix();
+   /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
+    std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
+    std::vector<UINT> indices = cubeTemp->GetIndices();
+    DirectX::XMMATRIX modelMatrix = cubeTemp->transform.GetWorldMatrix();*/
 
 
     //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices, modelMatrix);
-    //int gridSize = 10;
+    //int gridSize = 100;
     //for (int x = 0; x < gridSize; x++)
     //{
     //    for (int y = 0; y < gridSize; y++)
@@ -294,46 +295,33 @@ void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
     Application::OnResize(width, height);
 
     if (width <= 0 || height <= 0)
-    {
-        // Application is minimized
         isApplicationMinimized = true;
-
-        // Release any resources related to rendering
-        ID3D11RenderTargetView* nullRTV = nullptr;
-        _deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
-        _deviceContext->Flush();
-
-        DestroySwapchainResources();
-
-        // You might also want to pause the rendering loop or do other relevant tasks when minimized.
-
-        return;
-    }
     else
-    {
-        // Application is not minimized
         isApplicationMinimized = false;
 
-        // Restore rendering resources and recreate swapchain resources if necessary
+    Application::OnResize(width, height);
 
-        if (FAILED(_swapChain->ResizeBuffers(
-            0,
-            width,
-            height,
-            DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM,
-            0)))
-        {
-            std::cerr << "D3D11: Failed to recreate swapchain buffers\n";
-            return;
-        }
+    ID3D11RenderTargetView* nullRTV = nullptr;
+    _deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
+    _deviceContext->Flush();
 
-        CreateSwapchainResources();
+    DestroySwapchainResources();
 
-        _depthTarget.Reset();
-        CreateDepthStencilView();
-
-        // You might also want to resume the rendering loop or do other relevant tasks when restored from minimized state.
+    if (FAILED(_swapChain->ResizeBuffers(
+        0,
+        width,
+        height,
+        DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM,
+        0)))
+    {
+        std::cerr << "D3D11: Failed to recreate swapchain buffers\n";
+        return;
     }
+
+    CreateSwapchainResources();
+
+    _depthTarget.Reset();
+    CreateDepthStencilView();
 }
 
 void Rendering3DApplication::Update()

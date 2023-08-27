@@ -101,7 +101,10 @@ public:
     {
         for (const auto& instancePoolPair : _instancePools)
         {
-            const InstancePool& instancePool = vertexBufferPair.second;
+            const InstancePool& instancePool = instancePoolPair.second;
+
+            // if we ever needed, bind the PerObjectData here
+
             int instancesRendered = 0;
             while (instancesRendered < instancePool.instanceCount)
             {

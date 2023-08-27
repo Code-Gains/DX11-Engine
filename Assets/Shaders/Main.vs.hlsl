@@ -29,19 +29,19 @@ struct Light
     float4 lightSpecular;
 };
 
-struct PerInstanceData
-{
-    float4x4 worldMatrix;
-};
-
 cbuffer PerFrame : register(b0)
 {
     matrix viewprojection;
 };
 
+struct PerInstanceData
+{
+    float4x4 worldMatrix;
+};
+
 //cbuffer PerObject : register(b4)
 //{
-//    matrix modelmatrix;
+//    matrix modelMatrix;
 //    matrix normalMatrix;
 //};
 
@@ -56,16 +56,18 @@ VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
 
     // Calculate the model-view-projection matrix
     matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
-    //matrix world = mul(viewprojection, modelmatrix);
+    //matrix world = mul(viewprojection, modelMatrix);
     output.Position = mul(world, float4(input.Position, 1.0));
     
     output.Uv = input.Uv;
     
     // Transform the normal
-    output.Normal = mul(input.Normal, (float3x3) instanceData[instanceID].worldMatrix);
+    output.Normal = mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix);
+    //output.Normal = mul(input.Normal, (float3x3)modelMatrix);
     
     // Calculate the world position
     output.PositionWorld = mul(float4(input.Position, 1.0), instanceData[instanceID].worldMatrix).xyz;
+    //output.PositionWorld = mul(float4(input.Position, 1.0), modelMatrix).xyz;
     
     return output;
 }
