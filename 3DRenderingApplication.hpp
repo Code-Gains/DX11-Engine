@@ -6,8 +6,10 @@
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#include "imgui_impl_win32.h"
+#include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
+
+#include <Psapi.h>
 
 #include "Definitions.hpp"
 #include "Application.hpp"
@@ -21,6 +23,7 @@
 #include "3DRenderingApplication.hpp"
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
+#include "InstanceRenderer.hpp"
 
 
 class Rendering3DApplication final : public Application
@@ -28,6 +31,8 @@ class Rendering3DApplication final : public Application
 public:
     Rendering3DApplication(const std::string& title);
     ~Rendering3DApplication() override;
+
+    bool isApplicationMinimized = false;
 
 protected:
     bool Initialize() override;
@@ -80,4 +85,5 @@ private:
     InstanceConstantBuffer _instanceConstantBufferData{};
 
     Scene _scene;
+    InstanceRenderer _instanceRenderer;
 };

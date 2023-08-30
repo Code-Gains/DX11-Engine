@@ -10,8 +10,10 @@
 class Sphere : public Object3D
 {
 private:
-    WRL::ComPtr<ID3D11Buffer> _vertexBuffer;
-    WRL::ComPtr<ID3D11Buffer> _indexBuffer;
+    WRL::ComPtr<ID3D11Buffer> _vertexBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _indexBuffer = nullptr;
+    std::vector<VertexPositionNormalUv> _vertices;
+    std::vector<UINT> _indices;
 
 public:
     Sphere();
@@ -20,13 +22,16 @@ public:
 
     virtual ~Sphere();
 
-    void GenerateSphereVertices(float radius, int numSlices, int numStacks, std::vector<VertexPositionNormalUv>& vertices);
-    void GenerateSphereIndices(int numSlices, int numStacks, std::vector<uint32_t>& indices);
+
+    std::vector<VertexPositionNormalUv> GenerateVertices(float radius, int numSlices, int numStacks) const;
+    std::vector<UINT> GenerateIndices(int numSlices, int numStacks) const;
+
+    std::vector<VertexPositionNormalUv> GetVertices() const;
+    std::vector<UINT> GetIndices() const;
 
     bool Initialize(ID3D11Device* device) override;
-
     void Update(float deltaTime) override;
-
-    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) override;
+    void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;
+    int GetOwnershipCount() const override { return 0; };
 };
 

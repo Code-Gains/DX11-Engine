@@ -78,7 +78,7 @@
     <ClCompile Include="Engine\Vectors\IntVectors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\InstanceManager.cpp">
+    <ClCompile Include="Engine\InstanceRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -259,10 +259,13 @@
     <ClInclude Include="Headers\PhongMaterial.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\InstanceManager.hpp">
+    <ClInclude Include="Headers\InstanceRenderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\ConstantBufferDefinitions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Logging.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

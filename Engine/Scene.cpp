@@ -1,5 +1,5 @@
-#include <Scene.hpp>
-#include "../3DRenderingApplication.hpp"
+#include "Scene.hpp"
+#include <iostream>
 
 Scene::Scene() {}
 
@@ -29,19 +29,25 @@ const std::vector<std::unique_ptr<Object3D>>& Scene::GetObjects() const
 	return _objects;
 }
 
-const std::vector<Object3D*> Scene::GetAllObjects() const {
-	std::vector<Object3D*> allObjects;
+//const std::vector<Object3D*> Scene::GetAllObjects() const {
+//	std::vector<Object3D*> allObjects;
+//
+//	for (const auto& object : _objects) {
+//		auto objectObjects = object->GetAllObjects();
+//		allObjects.insert(allObjects.end(), objectObjects.begin(), objectObjects.end());
+//	}
+//
+//	return allObjects;
+//}
 
-	for (const auto& object : _objects) {
-		auto objectObjects = object->GetAllObjects();
-		allObjects.insert(allObjects.end(), objectObjects.begin(), objectObjects.end());
+int Scene::GetOwnershipCount() const
+{
+	int totalCount = 0;
+	for (auto& object : _objects)
+	{
+		totalCount += object->GetOwnershipCount();
 	}
-
-	return allObjects;
-}
-
-const int Scene::GetAllObjectCount() const {
-	return _objects.size();
+	return totalCount;
 }
 
 void Scene::Update(float _deltaTime)
@@ -52,11 +58,10 @@ void Scene::Update(float _deltaTime)
 	}
 }
 
-void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
+void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
 	for (auto& object : _objects)
 	{
-		object->Render(deviceContext, perObjectConstantBuffer);
+		object->Render(deviceContext, perObjectConstantBuffer, instanceConstantBuffer);
 	}
-	_instanceManager.RenderInstances(deviceContext, perObjectConstantBuffer);
 }

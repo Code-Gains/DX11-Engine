@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Transform.hpp"
+#include "Logging.hpp"
 
 enum class PropertyType
 {
@@ -14,7 +15,7 @@ public:
     virtual ~Property() {}
 };
 
-class Object3D
+class Object3D : public IDebuggable
 {
     std::vector<Property> _properties;
 public:
@@ -28,17 +29,17 @@ public:
 
     virtual void Update(float deltaTime) = 0;
 
-    virtual void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer) = 0;
+    virtual void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) = 0;
 
-    virtual std::vector<Object3D*> GetAllObjects();
+    //virtual std::vector<Object3D*> GetAllObjects();
 
 };
 
-class CompositeObject3D: public Object3D
-{
-protected:
-    std::vector<Object3D*> _children;
-
-public:
-    virtual std::vector<Object3D*> GetAllObjects();
-};
+//class CompositeObject3D: public Object3D
+//{
+//protected:
+//    std::vector<Object3D*> _children;
+//
+//public:
+//    virtual std::vector<Object3D*> GetAllObjects();
+//};

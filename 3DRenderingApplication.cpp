@@ -221,7 +221,7 @@ void Rendering3DApplication::CreateConstantBuffers()
     desc.ByteWidth = sizeof(PerObjectConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
 
-    desc.ByteWidth = sizeof(InstanceConstantBuffer);
+    desc.ByteWidth = sizeof(InstanceConstantBuffer) * 256;
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
 
@@ -233,22 +233,32 @@ bool Rendering3DApplication::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 60.0f);
-    simulation->Initialize(_device.Get());
+
+    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
     _scene.AddObject(std::move(simulation));
-    /*int gridSize = 10;
-    for (int x = 0; x < gridSize; x++)
-    {
-        for (int y = 0; y < gridSize; y++)
-        {
-            for (int z = 0; z < gridSize; z++)
-            {
-                auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
-                cube->Initialize(_device.Get());
-                _scene.AddObject(std::move(cube));
-            }
-        }
-    }*/
+
+   /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
+    std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
+    std::vector<UINT> indices = cubeTemp->GetIndices();
+    DirectX::XMMATRIX modelMatrix = cubeTemp->transform.GetWorldMatrix();*/
+
+
+    //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices, modelMatrix);
+    //int gridSize = 100;
+    //for (int x = 0; x < gridSize; x++)
+    //{
+    //    for (int y = 0; y < gridSize; y++)
+    //    {
+    //        for (int z = 0; z < gridSize; z++)
+    //        {
+    //            auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
+    //            //cube->Initialize(_device.Get());
+    //            //_scene.AddObject(std::move(cube));
+    //            _instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
+    //        }
+    //    }
+    //}
+    ////_instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
     return true;
 }
 
@@ -280,10 +290,15 @@ void Rendering3DApplication::DestroySwapchainResources()
     _renderTarget.Reset();
 }
 
-void Rendering3DApplication::OnResize(
-    const int32_t width,
-    const int32_t height)
+void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
 {
+    Application::OnResize(width, height);
+
+    if (width <= 0 || height <= 0)
+        isApplicationMinimized = true;
+    else
+        isApplicationMinimized = false;
+
     Application::OnResize(width, height);
 
     ID3D11RenderTargetView* nullRTV = nullptr;
@@ -311,6 +326,9 @@ void Rendering3DApplication::OnResize(
 
 void Rendering3DApplication::Update()
 {
+    /*if (isApplicationMinimized)
+        return;*/
+
     Application::Update();
 
     using namespace DirectX;
@@ -319,7 +337,7 @@ void Rendering3DApplication::Update()
 
     XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
 
-    XMMATRIX view = XMMatrixLookAtRH(camPos, { 10.0f, 10.0f, 10.0f }, { 0,1,0,1 });
+    XMMATRIX view = XMMatrixLookAtRH(camPos, { 15.0f, 15.0f, 15.0f }, { 0,1,0,1 });
     XMMATRIX proj = XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
@@ -339,6 +357,15 @@ void Rendering3DApplication::Update()
 
 void Rendering3DApplication::Render()
 {
+    //if (isApplicationMinimized)
+        //return;
+
+    static int framesPassed = 0;
+    static float totalDeltaTime = 0;
+
+    framesPassed++;
+    totalDeltaTime += _deltaTime;
+
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
@@ -346,7 +373,16 @@ void Rendering3DApplication::Render()
     static int counter = 0;
     ImGui::Begin("Debug Info");
     ImGui::Text("FPS: %.2f", 1 / _deltaTime);
-    ImGui::Text("Objects: %d", _scene.GetAllObjectCount());
+    ImGui::Text("AVG_FPS: %.2f", framesPassed / totalDeltaTime);
+
+    PROCESS_MEMORY_COUNTERS_EX pmc;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
+    {
+        SIZE_T virtualMemoryUsed = pmc.PrivateUsage;
+        ImGui::Text("RAM: %.2f MB", virtualMemoryUsed / (1024.0f * 1024.0f));
+    }
+
+    ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount());
     ImGui::End();
 
     ImGui::Render();
@@ -417,7 +453,8 @@ void Rendering3DApplication::Render()
     memcpy(mappedResource.pData, &_materialConstantBufferData, sizeof(MaterialConstantBuffer));
     _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
 
-    _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get());
+    _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
+    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

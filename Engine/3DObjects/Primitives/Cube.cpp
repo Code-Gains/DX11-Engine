@@ -29,69 +29,75 @@ Cube::~Cube()
     }*/
 }
 
-static constexpr VertexPositionNormalUv vertices[] = {
-    //Front
-    {Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 0.0f}},
-    {Position{  0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 0.0f}},
+std::vector<VertexPositionNormalUv> Cube::GetVertices()
+{
+    return std::vector<VertexPositionNormalUv> {
+        // Front
+        VertexPositionNormalUv{ Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 0.0f} },
+        VertexPositionNormalUv{ Position{  0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 0.0f} },
 
-    //Back
-    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 0.0f}},
-    {Position{  0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 0.0f}},
+        // Back
+        VertexPositionNormalUv{ Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 0.0f} },
+        VertexPositionNormalUv{ Position{  0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 0.0f} },
 
-    //Top
-    {Position{ -0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, 0.5f, 0.5f }, Normal{  0.0f, 1.0f, 0.0f }, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Uv{0.0f, 0.0f}},
-    {Position{  0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f }, Uv{1.0f, 0.0f}},
+        // Top
+        VertexPositionNormalUv{ Position{ -0.5f, 0.5f, 0.5f },  Normal{  0.0f, 1.0f, 0.0f }, Uv{0.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{  0.5f, 0.5f, 0.5f },  Normal{  0.0f, 1.0f, 0.0f }, Uv{1.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f },  Uv{0.0f, 0.0f} },
+        VertexPositionNormalUv{ Position{  0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f },  Uv{1.0f, 0.0f} },
 
-    //Bottom
-    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Uv{0.0f, 1.0f}},
-    {Position{  0.5f, -0.5f, 0.5f }, Normal{  0.0f, -1.0f, 0.0f }, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Uv{0.0f, 0.0f}},
-    {Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f }, Uv{1.0f, 0.0f}},
+        // Bottom
+        VertexPositionNormalUv{ Position{ -0.5f, -0.5f, 0.5f },  Normal{  0.0f, -1.0f, 0.0f }, Uv{0.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{  0.5f, -0.5f, 0.5f },  Normal{  0.0f, -1.0f, 0.0f }, Uv{1.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f },  Uv{0.0f, 0.0f} },
+        VertexPositionNormalUv{ Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f },  Uv{1.0f, 0.0f} },
 
-    //Left
-    {Position{ -0.5f, -0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Uv{0.0f, 1.0f}},
-    {Position{ -0.5f, -0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f}},
-    {Position{ -0.5f,  0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f }, Uv{0.0f, 0.0f}},
-    {Position{ -0.5f,  0.5f, 0.5f }, Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}},
+        // Left
+        VertexPositionNormalUv{ Position{ -0.5f, -0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f },  Uv{0.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f, -0.5f, 0.5f },  Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f,  0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f },  Uv{0.0f, 0.0f} },
+        VertexPositionNormalUv{ Position{ -0.5f,  0.5f, 0.5f },  Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f} },
 
-    //Right
-    {Position{ 0.5f, -0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Uv{0.0f, 1.0f}},
-    {Position{ 0.5f, -0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f}},
-    {Position{ 0.5f,  0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f }, Uv{0.0f, 0.0f}},
-    {Position{ 0.5f,  0.5f, 0.5f }, Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}},
-};
+        // Right
+        VertexPositionNormalUv{ Position{ 0.5f, -0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f },  Uv{0.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ 0.5f, -0.5f, 0.5f },  Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f} },
+        VertexPositionNormalUv{ Position{ 0.5f,  0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f },  Uv{0.0f, 0.0f} },
+        VertexPositionNormalUv{ Position{ 0.5f,  0.5f, 0.5f },  Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f} },
+    };
+}
 
-static constexpr uint32_t indices[] = {
-    //Front
-    0, 1, 2,
-    2, 1, 3,
+std::vector<UINT> Cube::GetIndices()
+{
+    return {
+        // Front
+        0, 1, 2,
+        2, 1, 3,
 
-    //Back
-    4, 5, 6,
-    6, 5, 7,
+        // Back
+        4, 5, 6,
+        6, 5, 7,
 
-    //Top
-    8, 9, 10,
-    10, 9, 11,
+        // Top
+        8, 9, 10,
+        10, 9, 11,
 
-    //Bottom
-    12, 13, 14,
-    14, 13, 15,
+        // Bottom
+        12, 13, 14,
+        14, 13, 15,
 
-    //Left
-    16, 17, 18,
-    18, 17, 19,
+        // Left
+        16, 17, 18,
+        18, 17, 19,
 
-    //Right
-    20, 21, 22,
-    22, 21, 23,
-};
+        // Right
+        20, 21, 22,
+        22, 21, 23,
+    };
+}
 
 
 //static const D3D11_INPUT_ELEMENT_DESC  s_inputElementDesc[] =
@@ -103,30 +109,32 @@ static constexpr uint32_t indices[] = {
 
 bool Cube::Initialize(ID3D11Device* device)
 {
-
+    // Create and initialize the vertex buffer
+    _vertices =  GetVertices();
     D3D11_BUFFER_DESC vertexBufferDesc;
-    ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc)); // not sure if this is needed, I just created it
+    ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
     vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * ARRAYSIZE(vertices);
+    vertexBufferDesc.ByteWidth = sizeof(VertexPositionNormalUv) * _vertices.size();
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;  // Don't set D3D11_CPU_ACCESS_WRITE for a D3D11_USAGE_DEFAULT resource
     vertexBufferDesc.MiscFlags = 0;  // We don't need any flags for now https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ne-d3d11-d3d11_resource_misc_flag
 
 
     D3D11_SUBRESOURCE_DATA vertexData;
-    vertexData.pSysMem = vertices;
+    vertexData.pSysMem = _vertices.data();
     HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexData, _vertexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
     // Create and initialize the index buffer
+    _indices = GetIndices();
     D3D11_BUFFER_DESC indexBufferDesc;
     ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(uint32_t) * ARRAYSIZE(indices);
+    indexBufferDesc.ByteWidth = sizeof(uint32_t) * _indices.size();
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA indexData;
-    indexData.pSysMem = indices;
+    indexData.pSysMem = _indices.data();
     hr = device->CreateBuffer(&indexBufferDesc, &indexData, _indexBuffer.GetAddressOf());
     if (FAILED(hr)) return false;
 
@@ -139,8 +147,9 @@ void Cube::Update(float deltaTime)
  
 }
 
-void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer)
+void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
+
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     DirectX::XMMATRIX modelMatrix = transform.GetWorldMatrix();
     DirectX::XMMATRIX normalMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, modelMatrix));
@@ -162,5 +171,5 @@ void Cube::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectCon
     UINT offset = 0;
     deviceContext->IASetVertexBuffers(0, 1, _vertexBuffer.GetAddressOf(), &stride, &offset);
     deviceContext->IASetIndexBuffer(_indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-    deviceContext->DrawIndexed(ARRAYSIZE(indices), 0, 0);
+    deviceContext->DrawIndexed(_indices.size(), 0, 0);
 }

@@ -34,28 +34,40 @@ cbuffer PerFrame : register(b0)
     matrix viewprojection;
 };
 
-cbuffer PerObject : register(b4)
+struct PerInstanceData
 {
-    matrix modelmatrix;
-    matrix normalMatrix;
-    uint instanceIndex;
+    float4x4 worldMatrix;
 };
 
-VSOutput Main(VSInput input)
+//cbuffer PerObject : register(b4)
+//{
+//    matrix modelMatrix;
+//    matrix normalMatrix;
+//};
+
+cbuffer PerInstance : register(b5)
+{
+    PerInstanceData instanceData[256]; // Max batch size
+};
+
+VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
 {
     VSOutput output = (VSOutput) 0;
 
     // Calculate the model-view-projection matrix
-    matrix world = mul(viewprojection, modelmatrix);
+    matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
+    //matrix world = mul(viewprojection, modelMatrix);
     output.Position = mul(world, float4(input.Position, 1.0));
     
     output.Uv = input.Uv;
     
     // Transform the normal
-    output.Normal = mul(input.Normal, (float3x3) normalMatrix);
+    output.Normal = mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix);
+    //output.Normal = mul(input.Normal, (float3x3)modelMatrix);
     
     // Calculate the world position
-    output.PositionWorld = mul(float4(input.Position, 1.0), modelmatrix).xyz;
+    output.PositionWorld = mul(float4(input.Position, 1.0), instanceData[instanceID].worldMatrix).xyz;
+    //output.PositionWorld = mul(float4(input.Position, 1.0), modelMatrix).xyz;
     
     return output;
 }
