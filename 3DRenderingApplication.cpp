@@ -326,8 +326,8 @@ void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
 
 void Rendering3DApplication::Update()
 {
-    if (isApplicationMinimized)
-        return;
+    /*if (isApplicationMinimized)
+        return;*/
 
     Application::Update();
 
