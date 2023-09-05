@@ -239,11 +239,10 @@ bool Rendering3DApplication::Load()
 
    /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
     std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
-    std::vector<UINT> indices = cubeTemp->GetIndices();
-    DirectX::XMMATRIX modelMatrix = cubeTemp->transform.GetWorldMatrix();*/
+    std::vector<UINT> indices = cubeTemp->GetIndices();*/
 
 
-    //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices, modelMatrix);
+    //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
     //int gridSize = 100;
     //for (int x = 0; x < gridSize; x++)
     //{

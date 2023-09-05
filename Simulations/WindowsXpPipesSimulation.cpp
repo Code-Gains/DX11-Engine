@@ -16,14 +16,12 @@ bool WindowsXpPipesSimulation::Initialize(ID3D11Device* device)
     auto cylinder = Cylinder(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), false);
     std::vector<VertexPositionNormalUv> cylinderVertices = cylinder.GetVertices();
     std::vector<UINT> cylinderIndices = cylinder.GetIndices();
-    DirectX::XMMATRIX cylinderModelMatrix = cylinder.transform.GetWorldMatrix();
-    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 0, cylinderVertices, cylinderIndices, cylinderModelMatrix);
+    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 0, cylinderVertices, cylinderIndices);
 
     auto sphere = Sphere(DirectX::XMFLOAT3{ 0, 0, 0 });
     std::vector<VertexPositionNormalUv> sphereVertices = sphere.GetVertices();
     std::vector<UINT> sphereIndices = sphere.GetIndices();
-    DirectX::XMMATRIX sphereModelMatrix = sphere.transform.GetWorldMatrix();
-    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 1, sphereVertices, sphereIndices, sphereModelMatrix);
+    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 1, sphereVertices, sphereIndices);
 
     return true;
 }
@@ -50,7 +48,7 @@ void WindowsXpPipesSimulation::Reset(const Int3& dimensions, float simulationSpe
                 gridCell.type = GridCell::EMPTY;
                 gridCell.instanceIndex = -1;
                 gridCell.modelMatrixIndex = -1;
-                gridCell.bufferKey = GridCell::INVALID;
+                gridCell.poolKey = GridCell::INVALID;
                 
             }
         }
@@ -336,7 +334,7 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
 {
     std::unique_ptr<Object3D> pipeObject = nullptr;
     GridCell::Type type = GridCell::EMPTY;
-    GridCell::InstanceBufferKey bufferKey = GridCell::INVALID;
+    GridCell::InstanceBufferKey poolKey = GridCell::INVALID;
     int instanceIndex = -1;
 
     switch (pipeType)
@@ -344,13 +342,13 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
         case GridCell::PIPE_STRAIGHT:
             pipeObject = std::make_unique<Cylinder>(GetCellWorldPosition(cellPosition), GetRotationByDirection(direction), DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), false);
             type = GridCell::PIPE_STRAIGHT;
-            bufferKey = GridCell::CYLINDER;
+            poolKey = GridCell::CYLINDER;
             instanceIndex = _straightCount;
             break;
         case GridCell::PIPE_CORNER:
             pipeObject = std::make_unique<Sphere>(GetCellWorldPosition(cellPosition));
             type = GridCell::PIPE_CORNER;
-            bufferKey = GridCell::SPHERE;
+            poolKey = GridCell::SPHERE;
             instanceIndex = _cornerCount;
             break;
         default:
@@ -361,19 +359,19 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
 
     GridCell& gridCell = _grid[cellPosition.x][cellPosition.y][cellPosition.z];
     gridCell.type = type;
-    gridCell.bufferKey = bufferKey;
+    gridCell.poolKey = poolKey;
     gridCell.instanceIndex = instanceIndex;
     gridCell.modelMatrixIndex = _pipeTransforms.size();
 
     Transform transform = pipeObject->transform;
 
     _pipeTransforms.push_back(transform);
-    if (bufferKey == GridCell::CYLINDER)
+    if (poolKey == GridCell::CYLINDER)
         _straightCount++;
     else
         _cornerCount++;
 
-    _instanceRenderer.AddInstance(InstanceConstantBuffer(transform.GetWorldMatrix()), bufferKey);
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(transform.GetWorldMatrix()), poolKey);
 
 }
 
@@ -409,7 +407,7 @@ void WindowsXpPipesSimulation::ExtendCellPipe(GridCell& gridCell, const Directio
     }
 
     _pipeTransforms[gridCell.modelMatrixIndex] = transform;
-    _instanceRenderer.UpdateInstanceData(gridCell.bufferKey, gridCell.instanceIndex, InstanceConstantBuffer(transform.GetWorldMatrix()));
+    _instanceRenderer.UpdateInstanceData(gridCell.poolKey, gridCell.instanceIndex, InstanceConstantBuffer(transform.GetWorldMatrix()));
 }
 
 WindowsXpPipesSimulation::Direction WindowsXpPipesSimulation::GenerateDirection(const std::vector<Direction>& availableDirections, Direction currentDirection, const float turnProbability) const

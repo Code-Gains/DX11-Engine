@@ -29,8 +29,6 @@ public:
         WRL::ComPtr<ID3D11Buffer> indexBuffer = nullptr;
         UINT indexCount = 0;
 
-        DirectX::XMMATRIX modelMatrix;
-
         std::vector<InstanceConstantBuffer> instances;
         UINT instanceCount = 0;
     };
@@ -39,17 +37,17 @@ private:
     std::unordered_map<int, InstancePool> _instancePools;
     int _batchSize = 256;
 public:
-    InstanceRenderer(int batchSize = 256);
-    void AddInstance(const InstanceConstantBuffer& instanceData, int bufferKey);
-    void UpdateInstanceData(int bufferKey, int instanceIndex, const InstanceConstantBuffer& newData);
-    void RemoveInstance(int bufferKey, int instanceIndex);
+    InstanceRenderer(int batchSize = 10);
+    void AddInstance(const InstanceConstantBuffer& instanceData, int poolKey);
+    void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
+    void RemoveInstance(int poolKey, int instanceIndex);
     int GetOwnershipCount() const override;
 
 
     void RemoveAllInstances();
 
     template <typename TVertexType>
-    bool InitializeInstancePool(ID3D11Device* device, int bufferKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices, const DirectX::XMMATRIX& modelMatrix)
+    bool InitializeInstancePool(ID3D11Device* device, int poolKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices)
     {
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
@@ -91,8 +89,7 @@ public:
         // Set pool
         newPool.vertexCount = vertices.size();
         newPool.indexCount = indices.size();
-        newPool.modelMatrix = modelMatrix;
-        _instancePools[bufferKey] = newPool;
+        _instancePools[poolKey] = newPool;
         return true;
     }
 

@@ -39,12 +39,6 @@ struct PerInstanceData
     float4x4 worldMatrix;
 };
 
-//cbuffer PerObject : register(b4)
-//{
-//    matrix modelMatrix;
-//    matrix normalMatrix;
-//};
-
 cbuffer PerInstance : register(b5)
 {
     PerInstanceData instanceData[256]; // Max batch size

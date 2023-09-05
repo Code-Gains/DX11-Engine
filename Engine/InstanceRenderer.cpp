@@ -7,9 +7,9 @@ InstanceRenderer::InstanceRenderer(int batchSize) : _batchSize(batchSize)
 }
 
 
-void InstanceRenderer::AddInstance(const InstanceConstantBuffer& instanceData, int bufferKey)
+void InstanceRenderer::AddInstance(const InstanceConstantBuffer& instanceData, int poolKey)
 {
-    auto it = _instancePools.find(bufferKey);
+    auto it = _instancePools.find(poolKey);
     if (it != _instancePools.end())
     {
         it->second.instances.push_back(instanceData);
@@ -17,25 +17,25 @@ void InstanceRenderer::AddInstance(const InstanceConstantBuffer& instanceData, i
     }
 }
 
-void InstanceRenderer::UpdateInstanceData(int bufferKey, int instanceIndex, const InstanceConstantBuffer& newData)
+void InstanceRenderer::UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData)
 {
-    if (_instancePools.find(bufferKey) != _instancePools.end())
+    if (_instancePools.find(poolKey) != _instancePools.end())
     {
-        if (instanceIndex >= 0 && instanceIndex < _instancePools[bufferKey].instances.size())
+        if (instanceIndex >= 0 && instanceIndex < _instancePools[poolKey].instances.size())
         {
-            _instancePools[bufferKey].instances[instanceIndex] = newData;
+            _instancePools[poolKey].instances[instanceIndex] = newData;
         }
     }
 }
 
-void InstanceRenderer::RemoveInstance(int bufferKey, int instanceIndex)
+void InstanceRenderer::RemoveInstance(int poolKey, int instanceIndex)
 {
-    if (_instancePools.find(bufferKey) != _instancePools.end())
+    if (_instancePools.find(poolKey) != _instancePools.end())
     {
-        if (instanceIndex >= 0 && instanceIndex < _instancePools[bufferKey].instanceCount)
+        if (instanceIndex >= 0 && instanceIndex < _instancePools[poolKey].instanceCount)
         {
-            _instancePools[bufferKey].instances.erase(_instancePools[bufferKey].instances.begin() + instanceIndex);
-            _instancePools[bufferKey].instanceCount--;
+            _instancePools[poolKey].instances.erase(_instancePools[poolKey].instances.begin() + instanceIndex);
+            _instancePools[poolKey].instanceCount--;
         }
     }
 }

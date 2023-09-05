@@ -20,7 +20,7 @@ struct GridCell
     enum Type { EMPTY, PIPE_STRAIGHT, PIPE_CORNER };
     Type type;
     enum InstanceBufferKey { CYLINDER, SPHERE, INVALID };
-    InstanceBufferKey bufferKey = INVALID;
+    InstanceBufferKey poolKey = INVALID;
     int instanceIndex = -1;
     int modelMatrixIndex = -1;
 };
