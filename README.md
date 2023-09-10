@@ -12,4 +12,4 @@ I have plans to add **Vulkan** and **DirectX12** support in the future, but for 
 I don't really have guidelines for contributions yet, however you are free to fork the repository, make some improvements and open a pull request. Just have in mind that I will be able to freely edit, merge or close the pull requests you make. I might have to come up with a different solution if interest in the project increases.
 
 ## Latest showcase:
-![DX11-Engine_XiNp0gowhu](https://github.com/Code-Gains/DX11-Engine/assets/22920179/5b3d7b15-538c-4b3a-975f-5f5b58a38321)
+![DX11-Engine_K94QO0cU9F](https://github.com/Code-Gains/DX11-Engine/assets/22920179/db71a23f-f3da-4914-9f17-6d20a321fcba)
