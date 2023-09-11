@@ -21,7 +21,7 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderCollection.cpp">
+    <ClCompile Include="Engine\Shaders\ShaderCollection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="3DRenderingApplication.cpp">
@@ -220,13 +220,13 @@
     <ClInclude Include="Headers\Definitions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderCollection.hpp">
+    <ClInclude Include="Headers\ShaderCollection.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\VertexType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="3DRenderingApplication.hpp">
+    <ClInclude Include="Headers\3DRenderingApplication.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\Object3D.hpp">

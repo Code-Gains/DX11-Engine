@@ -1,5 +1,4 @@
 #include "Cylinder.hpp"
-#include <iostream>
 
 Cylinder::Cylinder(): _caps(true)
 {

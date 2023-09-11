@@ -18,7 +18,9 @@ private:
 public:
     Sphere();
 
-    Sphere(DirectX::XMFLOAT3 position);
+    Sphere(const DirectX::XMFLOAT3& position);
+    Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation);
+    Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale);
 
     virtual ~Sphere();
 

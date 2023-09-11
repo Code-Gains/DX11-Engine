@@ -234,30 +234,45 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
-    _scene.AddObject(std::move(simulation));
+    //auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
+    //auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3 {0, 0, 0});
+
+    auto sphere1 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+
+    std::vector<VertexPositionNormalUv> vertices = sphere1->GetVertices();
+    std::vector<UINT> indices = sphere1->GetIndices();
+
+    _instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere1->transform.GetWorldMatrix()), 0);
+
+    auto sphere2 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2->transform.GetWorldMatrix()), 0);
+
+
+
+   /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
+    _scene.AddObject(std::move(simulation));*/
 
    /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
     std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
     std::vector<UINT> indices = cubeTemp->GetIndices();*/
 
 
-    //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
-    //int gridSize = 100;
-    //for (int x = 0; x < gridSize; x++)
-    //{
-    //    for (int y = 0; y < gridSize; y++)
-    //    {
-    //        for (int z = 0; z < gridSize; z++)
-    //        {
-    //            auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
-    //            //cube->Initialize(_device.Get());
-    //            //_scene.AddObject(std::move(cube));
-    //            _instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
-    //        }
-    //    }
-    //}
-    ////_instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
+   // _instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
+   // int gridSize = 100;
+   // for (int x = 0; x < gridSize; x++)
+   // {
+   //     for (int y = 0; y < gridSize; y++)
+   //     {
+   //         for (int z = 0; z < gridSize; z++)
+   //         {
+   //             auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
+   //             _instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
+   //             //cube->Initialize(_device.Get());
+   //             //_scene.AddObject(std::move(cube));
+   //         }
+   //     }
+   // }
     return true;
 }
 
@@ -332,15 +347,104 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static XMFLOAT3 _cameraPosition = { -15.0f, 15.0f, 15.0f };
+    float cameraMoveSpeed = 10.0f;
+    float cameraRotationSpeed = 5.0f;
 
-    XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
+    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 15.0f };
+    static XMFLOAT3 cameraRotation = { 0.0f,  Constants::DegreesToRadians(180), 0.0f };
 
-    XMMATRIX view = XMMatrixLookAtRH(camPos, { 15.0f, 15.0f, 15.0f }, { 0,1,0,1 });
+
+    // Camera Movement
+
+    if (GetAsyncKeyState('W') & 0x8000) 
+    {
+        // Move camera forward
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+    if (GetAsyncKeyState('S') & 0x8000) 
+    {
+        // Move camera backward
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+    if (GetAsyncKeyState('A') & 0x8000) 
+    {
+        // Move camera left
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + right * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+    if (GetAsyncKeyState('D') & 0x8000) 
+    {
+        // Move camera right
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) - right * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+
+
+    static float lastMouseX = 0.0f;
+    static float lastMouseY = 0.0f;
+
+    bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+    static bool wasRightMouseDown = false; // Keep track of previous right mouse button state
+    POINT cursorPos;
+    GetCursorPos(&cursorPos);
+    ScreenToClient(glfwGetWin32Window(GetWindow()), &cursorPos);
+    int mouseX = cursorPos.x;
+    int mouseY = cursorPos.y;
+
+    if (isRightMouseDown) {
+        if (!wasRightMouseDown) {
+            // Right mouse button was just pressed, initialize previous mouse position
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+
+        // Calculate the change in mouse position since the last frame
+        int deltaX = mouseX - lastMouseX;
+        int deltaY = mouseY - lastMouseY;
+
+        // Update the camera rotation based on the change in mouse position
+        cameraRotation.y -= deltaX * cameraRotationSpeed * _deltaTime;
+        cameraRotation.x += deltaY * cameraRotationSpeed * _deltaTime;
+
+        // Clamp pitch to prevent camera flipping
+        cameraRotation.x = max(-XM_PIDIV2, min(XM_PIDIV2, cameraRotation.x));
+
+        // Update the previous mouse position
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+    }
+
+    wasRightMouseDown = isRightMouseDown;
+
+    XMVECTOR camPos = XMLoadFloat3(&cameraPosition);
+
+    XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+
+    // Calculate the forward, right, and up vectors
+    XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
+    XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+    XMVECTOR up = XMVector3TransformCoord(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rotationMatrix);
+
+    // Calculate the new camera target
+    XMVECTOR cameraTarget = XMVectorAdd(XMLoadFloat3(&cameraPosition), forward);
+
+    // Create the view matrix
+    XMMATRIX view = XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
+
     XMMATRIX proj = XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
-        100.0f);
+        100);
     XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
     XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 
@@ -385,7 +489,7 @@ void Rendering3DApplication::Render()
     ImGui::End();
 
     ImGui::Render();
-    float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;
 
