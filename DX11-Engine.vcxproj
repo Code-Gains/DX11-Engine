@@ -166,6 +166,7 @@
     <ClCompile Include="Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp" />
+    <ClCompile Include="Engine\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -314,6 +315,7 @@
     <ClInclude Include="Headers\VertexType.hpp" />
     <ClInclude Include="Headers\Sphere.hpp" />
     <ClInclude Include="Headers\WindowsXpPipesSimulation.hpp" />
+    <ClInclude Include="Headers\PhysicsBody.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

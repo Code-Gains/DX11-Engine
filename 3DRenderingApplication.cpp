@@ -485,7 +485,7 @@ void Rendering3DApplication::Render()
         ImGui::Text("RAM: %.2f MB", virtualMemoryUsed / (1024.0f * 1024.0f));
     }
 
-    ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount());
+    ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount() + _instanceRenderer.GetOwnershipCount());
     ImGui::End();
 
     ImGui::Render();
