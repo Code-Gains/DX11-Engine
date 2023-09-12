@@ -17,6 +17,7 @@
 #include "Cube.hpp"
 #include "Sphere.hpp"
 #include "Cylinder.hpp"
+#include "Rectangle3D.hpp"
 #include "WindowsXpPipesSimulation.hpp"
 #include "Scene.hpp"
 #include "PhongMaterial.hpp"

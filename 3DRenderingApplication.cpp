@@ -237,7 +237,7 @@ bool Rendering3DApplication::Load()
     //auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
     //auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3 {0, 0, 0});
 
-    auto sphere1 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+   /* auto sphere1 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
 
     std::vector<VertexPositionNormalUv> vertices = sphere1->GetVertices();
     std::vector<UINT> indices = sphere1->GetIndices();
@@ -246,7 +246,15 @@ bool Rendering3DApplication::Load()
     _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere1->transform.GetWorldMatrix()), 0);
 
     auto sphere2 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
-    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2->transform.GetWorldMatrix()), 0);
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2->transform.GetWorldMatrix()), 0);*/
+
+    auto rectangle = std::make_unique<Rectangle3D>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+    std::vector<VertexPositionNormalUv> vertices = rectangle->GetVertices();
+    std::vector<UINT> indices = rectangle->GetIndices();
+    _instanceRenderer.InitializeInstancePool(_device.Get(), 1, vertices, indices);
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle->transform.GetWorldMatrix()), 1);
+
+
 
 
 
@@ -489,7 +497,7 @@ void Rendering3DApplication::Render()
     ImGui::End();
 
     ImGui::Render();
-    float clearColor[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+    float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;
 
