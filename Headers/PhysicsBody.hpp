@@ -10,6 +10,8 @@ public:
 	PhysicsBody(float mass, const DirectX::XMFLOAT3& velocity, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale);
 
 	void ApplyForce(const DirectX::XMFLOAT3& force);
-	void Update(float deltaTime);
+	void SetAcceleration(const DirectX::XMFLOAT3& acceleration);
+	void UpdatePhysics(float deltaTime);
+	void SetVelocity(const DirectX::XMFLOAT3 velocity);
 };
 

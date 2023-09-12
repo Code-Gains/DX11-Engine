@@ -10,6 +10,8 @@ namespace Constants
     {
         return DegreesToRadiansConst * degrees;
     }
+
+    const double G = 6.67430e-11;
 }
 
 #endif

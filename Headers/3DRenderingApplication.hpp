@@ -25,6 +25,7 @@
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 #include "InstanceRenderer.hpp"
+#include "PlanetarySimulation.hpp"
 
 
 class Rendering3DApplication final : public Application

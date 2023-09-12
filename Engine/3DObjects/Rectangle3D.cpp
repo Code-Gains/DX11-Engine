@@ -1,6 +1,14 @@
 #include "Rectangle3D.hpp"
 
-#include <Cube.hpp>
+
+Rectangle3D::Rectangle3D() : PhysicsBody(
+    1.0f,
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    DirectX::XMFLOAT3{ 1.0f, 1.0f, 0.0f, })
+{
+}
 
 Rectangle3D::Rectangle3D(const DirectX::XMFLOAT3& position) : Rectangle3D(position, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f })
 {
@@ -10,7 +18,12 @@ Rectangle3D::Rectangle3D(const DirectX::XMFLOAT3& position, const DirectX::XMFLO
 {
 }
 
-Rectangle3D::Rectangle3D(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
+Rectangle3D::Rectangle3D(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale) : PhysicsBody(
+    1.0f,
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    position,
+    rotation,
+    scale)
 {
     transform.position = position;
     transform.rotation = rotation;
@@ -52,7 +65,6 @@ std::vector<UINT> Rectangle3D::GetIndices()
     };
 }
 
-
 bool Rectangle3D::Initialize(ID3D11Device* device)
 {
     // Create and initialize the vertex buffer
@@ -90,7 +102,7 @@ bool Rectangle3D::Initialize(ID3D11Device* device)
 
 void Rectangle3D::Update(float deltaTime)
 {
-
+    
 }
 
 void Rectangle3D::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
