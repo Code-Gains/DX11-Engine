@@ -256,7 +256,7 @@ bool Rendering3DApplication::Load()
 
 
 
-     auto simulation = std::make_unique<PlanetarySimulation>(_device);
+     auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 1000);
     _scene.AddObject(std::move(simulation));
 
    /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
