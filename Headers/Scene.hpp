@@ -18,6 +18,7 @@ public:
 	const std::vector<Object3D*> GetAllObjects() const;
 
 	void Update(float _deltaTime);
+	void PeriodicUpdate(float _deltaTime);
 	void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer);
 	int GetOwnershipCount() const override;
 

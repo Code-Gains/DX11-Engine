@@ -97,6 +97,7 @@ void Application::Run()
             continue;
         }
         Update();
+        PeriodicUpdate();
         Render();
     }
 }
@@ -132,9 +133,14 @@ void Application::Update()
 
     std::chrono::duration<double, std::milli> timeSpan = (_currentTime - oldTime);
     _deltaTime = static_cast<float>(timeSpan.count() / 1000.0);
+    _periodicDeltaTime += _deltaTime;
     glfwPollEvents();
 }
 
+void Application::PeriodicUpdate()
+{
+
+}
 
 
 //#include "Application.hpp"

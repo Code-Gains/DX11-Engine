@@ -37,6 +37,7 @@ public:
 
     bool Initialize(ID3D11Device* device) override;
     void Update(float deltaTime) override;
+    void PeriodicUpdate(float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;
     int GetOwnershipCount() const override;
 

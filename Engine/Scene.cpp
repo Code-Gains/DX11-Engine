@@ -58,6 +58,14 @@ void Scene::Update(float _deltaTime)
 	}
 }
 
+void Scene::PeriodicUpdate(float _deltaTime)
+{
+	for (auto& object : _objects)
+	{
+		object->PeriodicUpdate(_deltaTime);
+	}
+}
+
 void Scene::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
 	for (auto& object : _objects)

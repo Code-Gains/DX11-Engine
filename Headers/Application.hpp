@@ -29,6 +29,7 @@ protected:
     virtual void Cleanup();
     virtual void Render() = 0;
     virtual void Update();
+    virtual void PeriodicUpdate();
 
     [[nodiscard]] GLFWwindow* GetWindow() const;
     [[nodiscard]] int32_t GetWindowWidth() const;
@@ -37,6 +38,8 @@ protected:
     int32_t _width = 0;
     int32_t _height = 0;
     float _deltaTime = 0.016f;
+    float _periodicDeltaTime = 0;
+    const float _periodicUpdatePeriod = 0.016f;
     GLFWwindow* _window = nullptr;
 private:
     std::chrono::high_resolution_clock::time_point _currentTime;

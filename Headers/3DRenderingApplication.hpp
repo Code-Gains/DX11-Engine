@@ -43,6 +43,7 @@ protected:
         int32_t width,
         int32_t height) override;
     void Update() override;
+    void PeriodicUpdate() override;
     void Render() override;
 
 private:

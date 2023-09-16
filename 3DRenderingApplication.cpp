@@ -469,6 +469,15 @@ void Rendering3DApplication::Update()
 
 }
 
+void Rendering3DApplication::PeriodicUpdate()
+{
+    if (_periodicDeltaTime > _periodicUpdatePeriod)
+    {
+        _scene.PeriodicUpdate(_periodicDeltaTime);
+        _periodicDeltaTime = 0;
+    }
+}
+
 void Rendering3DApplication::Render()
 {
     //if (isApplicationMinimized)
@@ -573,6 +582,6 @@ void Rendering3DApplication::Render()
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    _swapChain->Present(2, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
+    _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 
 }

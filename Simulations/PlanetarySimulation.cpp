@@ -29,7 +29,7 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 	// Set up simulation
 
 	float fixedDistance = 30.0f;
-	int particleCount = 1000000;
+	int particleCount = 10000;
 	DirectX::XMFLOAT3 center = sphere.transform.position;
 
 	for (int particleIndex = 0; particleIndex < particleCount; particleIndex++)
@@ -41,7 +41,7 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 		//std::cout << randomDirection.x << " " << randomDirection.y << " " << randomDirection.z << std::endl;
 		//float velocityMagnitude = GetInitialVelocityMagnitude(1000000.0f, fixedDistance);
 		//std::cout << velocityMagnitude << std::endl;
-		float velocityMagnitude = 3.5f;
+		float velocityMagnitude = 2.5f;
 		rectangle = Rectangle3D(DirectX::XMFLOAT3{ randomPoint.x, randomPoint.y, randomPoint.z }, GetRandomRotation(), DirectX::XMFLOAT3{1, 1, 1});
 		_instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle.transform.GetWorldMatrix()), 1);
 		DirectX::XMFLOAT3 initialVelocity { randomDirection.x * velocityMagnitude, randomDirection.y * velocityMagnitude, randomDirection.z * velocityMagnitude };
@@ -79,6 +79,15 @@ void PlanetarySimulation::Update(float deltaTime)
 	//std::cout << _bodies.size() << std::endl;
 
 	// simulate gravity
+		// loop through planets
+		// calculate attraction between planet and other planets and change and change force
+		// calculate attraction between [bodies and planet and other bodies and change force
+
+}
+
+void PlanetarySimulation::PeriodicUpdate(float deltaTime)
+{
+	//std::cout << "updating" << std::endl;
 	int planetIndex = 0;
 	for (const auto& planet : _planets)
 	{
@@ -104,10 +113,6 @@ void PlanetarySimulation::Update(float deltaTime)
 		}
 		planetIndex++;
 	}
-		// loop through planets
-		// calculate attraction between planet and other planets and change and change force
-		// calculate attraction between [bodies and planet and other bodies and change force
-
 }
 
 void PlanetarySimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
