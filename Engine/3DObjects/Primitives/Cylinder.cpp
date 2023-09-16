@@ -1,5 +1,4 @@
 #include "Cylinder.hpp"
-#include <iostream>
 
 Cylinder::Cylinder(): _caps(true)
 {
@@ -116,8 +115,6 @@ std::vector<UINT> Cylinder::GenerateIndices(int numSlices) const
 
 std::vector<VertexPositionNormalUv> Cylinder::GetVertices() const
 {
-    if (_vertices.size() < 1)
-        std::cout << "Calling before Initialize()" << std::endl;
     return _vertices;
 }
 

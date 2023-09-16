@@ -163,9 +163,12 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Engine\Materials\PhongMaterial.cpp" />
-    <ClCompile Include="ShaderCollection.cpp" />
+    <ClCompile Include="Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp" />
+    <ClCompile Include="Engine\Physics\PhysicsBody.cpp" />
+    <ClCompile Include="Engine\3DObjects\Rectangle3D.cpp" />
+    <ClCompile Include="Simulations\PlanetarySimulation.cpp" />
     <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -300,7 +303,7 @@
     <ClInclude Include="Headers\Cube.hpp" />
     <ClInclude Include="Headers\IntVectors.hpp" />
     <ClInclude Include="Headers\Object3D.hpp" />
-    <ClInclude Include="3DRenderingApplication.hpp" />
+    <ClInclude Include="Headers\3DRenderingApplication.hpp" />
     <ClInclude Include="Headers\Application.hpp" />
     <ClInclude Include="Headers\Definitions.hpp" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
@@ -309,11 +312,14 @@
     <ClInclude Include="Headers\PhongMaterial.hpp" />
     <ClInclude Include="Headers\InstanceRenderer.hpp" />
     <ClInclude Include="Headers\Logging.hpp" />
-    <ClInclude Include="ShaderCollection.hpp" />
+    <ClInclude Include="Headers\ShaderCollection.hpp" />
     <ClInclude Include="Headers\Transform.hpp" />
     <ClInclude Include="Headers\VertexType.hpp" />
     <ClInclude Include="Headers\Sphere.hpp" />
     <ClInclude Include="Headers\WindowsXpPipesSimulation.hpp" />
+    <ClInclude Include="Headers\PhysicsBody.hpp" />
+    <ClInclude Include="Headers\Rectangle3D.hpp" />
+    <ClInclude Include="Headers\PlanetarySimulation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

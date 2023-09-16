@@ -17,6 +17,7 @@
 #include "Cube.hpp"
 #include "Sphere.hpp"
 #include "Cylinder.hpp"
+#include "Rectangle3D.hpp"
 #include "WindowsXpPipesSimulation.hpp"
 #include "Scene.hpp"
 #include "PhongMaterial.hpp"
@@ -24,6 +25,7 @@
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 #include "InstanceRenderer.hpp"
+#include "PlanetarySimulation.hpp"
 
 
 class Rendering3DApplication final : public Application
@@ -41,6 +43,7 @@ protected:
         int32_t width,
         int32_t height) override;
     void Update() override;
+    void PeriodicUpdate() override;
     void Render() override;
 
 private:

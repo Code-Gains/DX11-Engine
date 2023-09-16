@@ -115,6 +115,7 @@ public:
                     std::cerr << "Could not map instance data!\n";
                     return;
                 }
+
                 memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(DirectX::XMMATRIX) * instancesToRender);
                 deviceContext->Unmap(instanceConstantBuffer, 0);
 

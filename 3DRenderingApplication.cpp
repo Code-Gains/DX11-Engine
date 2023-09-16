@@ -234,30 +234,54 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
+    //auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
+    //auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3 {0, 0, 0});
+
+   /* auto sphere1 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+
+    std::vector<VertexPositionNormalUv> vertices = sphere1->GetVertices();
+    std::vector<UINT> indices = sphere1->GetIndices();
+
+    _instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere1->transform.GetWorldMatrix()), 0);
+
+    auto sphere2 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2->transform.GetWorldMatrix()), 0);*/
+
+   /* auto rectangle = std::make_unique<Rectangle3D>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+    std::vector<VertexPositionNormalUv> vertices = rectangle->GetVertices();
+    std::vector<UINT> indices = rectangle->GetIndices();
+    _instanceRenderer.InitializeInstancePool(_device.Get(), 1, vertices, indices);
+    _instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle->transform.GetWorldMatrix()), 1);*/
+
+
+
+     auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 1000);
     _scene.AddObject(std::move(simulation));
+
+   /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
+    _scene.AddObject(std::move(simulation));*/
 
    /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
     std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
     std::vector<UINT> indices = cubeTemp->GetIndices();*/
 
 
-    //_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
-    //int gridSize = 100;
-    //for (int x = 0; x < gridSize; x++)
-    //{
-    //    for (int y = 0; y < gridSize; y++)
-    //    {
-    //        for (int z = 0; z < gridSize; z++)
-    //        {
-    //            auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
-    //            //cube->Initialize(_device.Get());
-    //            //_scene.AddObject(std::move(cube));
-    //            _instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
-    //        }
-    //    }
-    //}
-    ////_instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
+   // _instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
+   // int gridSize = 100;
+   // for (int x = 0; x < gridSize; x++)
+   // {
+   //     for (int y = 0; y < gridSize; y++)
+   //     {
+   //         for (int z = 0; z < gridSize; z++)
+   //         {
+   //             auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
+   //             _instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
+   //             //cube->Initialize(_device.Get());
+   //             //_scene.AddObject(std::move(cube));
+   //         }
+   //     }
+   // }
     return true;
 }
 
@@ -332,26 +356,126 @@ void Rendering3DApplication::Update()
 
     using namespace DirectX;
 
-    static XMFLOAT3 _cameraPosition = { -15.0f, 15.0f, 15.0f };
+    float cameraMoveSpeed = 10.0f;
+    float cameraRotationSpeed = 5.0f;
 
-    XMVECTOR camPos = XMLoadFloat3(&_cameraPosition);
+    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 70.0f };
+    static XMFLOAT3 cameraRotation = { 0.0f,  Constants::DegreesToRadians(180), 0.0f };
 
-    XMMATRIX view = XMMatrixLookAtRH(camPos, { 15.0f, 15.0f, 15.0f }, { 0,1,0,1 });
+
+    // Camera Movement
+
+    if (GetAsyncKeyState('W') & 0x8000) 
+    {
+        // Move camera forward
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+    if (GetAsyncKeyState('S') & 0x8000) 
+    {
+        // Move camera backward
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+    if (GetAsyncKeyState('A') & 0x8000) 
+    {
+        // Move camera left
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + right * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+    if (GetAsyncKeyState('D') & 0x8000) 
+    {
+        // Move camera right
+        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+        XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) - right * cameraMoveSpeed * _deltaTime;
+        XMStoreFloat3(&cameraPosition, newPosition);
+    }
+
+
+    static float lastMouseX = 0.0f;
+    static float lastMouseY = 0.0f;
+
+    bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+    static bool wasRightMouseDown = false; // Keep track of previous right mouse button state
+    POINT cursorPos;
+    GetCursorPos(&cursorPos);
+    ScreenToClient(glfwGetWin32Window(GetWindow()), &cursorPos);
+    int mouseX = cursorPos.x;
+    int mouseY = cursorPos.y;
+
+    if (isRightMouseDown) {
+        if (!wasRightMouseDown) {
+            // Right mouse button was just pressed, initialize previous mouse position
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+        }
+
+        // Calculate the change in mouse position since the last frame
+        int deltaX = mouseX - lastMouseX;
+        int deltaY = mouseY - lastMouseY;
+
+        // Update the camera rotation based on the change in mouse position
+        cameraRotation.y -= deltaX * cameraRotationSpeed * _deltaTime;
+        cameraRotation.x += deltaY * cameraRotationSpeed * _deltaTime;
+
+        // Clamp pitch to prevent camera flipping
+        cameraRotation.x = max(-XM_PIDIV2, min(XM_PIDIV2, cameraRotation.x));
+
+        // Update the previous mouse position
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+    }
+
+    wasRightMouseDown = isRightMouseDown;
+
+    XMVECTOR camPos = XMLoadFloat3(&cameraPosition);
+
+    XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+
+    // Calculate the forward, right, and up vectors
+    XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
+    XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+    XMVECTOR up = XMVector3TransformCoord(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rotationMatrix);
+
+    // Calculate the new camera target
+    XMVECTOR cameraTarget = XMVectorAdd(XMLoadFloat3(&cameraPosition), forward);
+
+    // Create the view matrix
+    XMMATRIX view = XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
+
     XMMATRIX proj = XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
-        100.0f);
+        400);
     XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
     XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 
-    _lightConstantBufferData.Position = { -5.0f, 15.0f, 15.0f, 0.0f };
+    _lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
     _lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
     _lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
     _lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+    _cameraConstantBufferData.cameraPosition = cameraPosition;
+
     _scene.Update(_deltaTime);
 
 
+}
+
+void Rendering3DApplication::PeriodicUpdate()
+{
+    if (_periodicDeltaTime > _periodicUpdatePeriod)
+    {
+        _scene.PeriodicUpdate(_periodicDeltaTime);
+        _periodicDeltaTime = 0;
+    }
 }
 
 void Rendering3DApplication::Render()
@@ -381,7 +505,7 @@ void Rendering3DApplication::Render()
         ImGui::Text("RAM: %.2f MB", virtualMemoryUsed / (1024.0f * 1024.0f));
     }
 
-    ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount());
+    ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount() + _instanceRenderer.GetOwnershipCount());
     ImGui::End();
 
     ImGui::Render();
@@ -434,6 +558,7 @@ void Rendering3DApplication::Render()
     _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
     _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
 
+
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 
     _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -457,6 +582,6 @@ void Rendering3DApplication::Render()
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    _swapChain->Present(DXGI_SWAP_EFFECT_DISCARD, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
+    _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 
 }

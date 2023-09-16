@@ -13,12 +13,12 @@ WindowsXpPipesSimulation::~WindowsXpPipesSimulation() {}
 
 bool WindowsXpPipesSimulation::Initialize(ID3D11Device* device)
 {
-    auto cylinder = Cylinder(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), false);
+    auto cylinder = Cylinder(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), false);
     std::vector<VertexPositionNormalUv> cylinderVertices = cylinder.GetVertices();
     std::vector<UINT> cylinderIndices = cylinder.GetIndices();
     _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 0, cylinderVertices, cylinderIndices);
 
-    auto sphere = Sphere(DirectX::XMFLOAT3{ 0, 0, 0 });
+    auto sphere = Sphere(DirectX::XMFLOAT3( 0, 0, 0 ));
     std::vector<VertexPositionNormalUv> sphereVertices = sphere.GetVertices();
     std::vector<UINT> sphereIndices = sphere.GetIndices();
     _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 1, sphereVertices, sphereIndices);

@@ -6,9 +6,19 @@ Sphere::Sphere()
     _indices = GenerateIndices(30, 30);
 }
 
-Sphere::Sphere(DirectX::XMFLOAT3 position)
+Sphere::Sphere(const DirectX::XMFLOAT3& position) : Sphere(position, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f })
+{
+}
+
+Sphere::Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation): Sphere(position, rotation, DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f })
+{
+}
+
+Sphere::Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
 {
     transform.position = position;
+    transform.rotation = rotation;
+    transform.scale = scale;
     _vertices = GenerateVertices(0.5f, 30, 30);
     _indices = GenerateIndices(30, 30);
 }

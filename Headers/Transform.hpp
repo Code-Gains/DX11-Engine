@@ -16,5 +16,6 @@ public:
 	DirectX::XMMATRIX GetWorldMatrix() const;
 
 	friend std::ostream& operator<<(std::ostream& os, const Transform& transform);
+
 };
 
