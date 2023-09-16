@@ -4,7 +4,7 @@ I am building a DirectX11 graphics engine to learn the basics of graphics progra
 
 I am making a YouTube series along the way https://youtube.com/@Code_Gains
 ## Current project
-Current learning project is to create some sort of multithreaded variation of **Entity Component System** (ECS). I really want to utilize all the cores modern processors provide. The planned demo for this is a simulation of objects orbiting a plannet (as many as I possibly can run).
+Current learning project is to create some sort of multithreaded variation of **Entity Component System** (ECS). I really want to utilize all the cores modern processors provide. The planned demo for this is a simulation of objects orbiting a plannet that I will primarily use for benchmarks.
   
 I have plans to add **Vulkan** and **DirectX12** support in the future, but for now I am just doing whatever I feel like is challenging and fun for myself.
   
@@ -12,4 +12,4 @@ I have plans to add **Vulkan** and **DirectX12** support in the future, but for 
 I don't really have guidelines for contributions yet, however you are free to fork the repository, make some improvements and open a pull request. Just have in mind that I will be able to freely edit, merge or close the pull requests you make. I might have to come up with a different solution if interest in the project increases.
 
 ## Latest showcase:
-![DX11-Engine_K94QO0cU9F](https://github.com/Code-Gains/DX11-Engine/assets/22920179/db71a23f-f3da-4914-9f17-6d20a321fcba)
+![vlccut](https://github.com/Code-Gains/DX11-Engine/assets/22920179/bbd7de8c-3de3-4311-8016-75cd538b8ef9)
