@@ -27,12 +27,18 @@ class PlanetarySimulation : public Object3D
 	WRL::ComPtr<ID3D11Device> _device = nullptr;
     InstanceRenderer _instanceRenderer;
 	std::vector<Sphere> _planets;
-	std::vector<Rectangle3D> _bodies;
+	std::vector<Rectangle3D> _particles;
+
+    float _sunRadius;
+    float _particleRingRadius;
+    int _particleCount = 1000;
+    float _sunMass = 1000000.0f;
+    float _particleMass = 1000.0f;
     float _bodyRotationSpeed = 1.0f;
 
+
 public:
-    PlanetarySimulation() {};
-    PlanetarySimulation(const WRL::ComPtr<ID3D11Device>& device);
+    PlanetarySimulation(const WRL::ComPtr<ID3D11Device>& device, float sunRadius, float particleRingRadius, int particleCount, float sunMass = 1000000.0f, float particleMass = 1000.0f);
     virtual ~PlanetarySimulation();
 
     bool Initialize(ID3D11Device* device) override;

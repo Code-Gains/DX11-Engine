@@ -1,19 +1,30 @@
 #include "PlanetarySimulation.hpp"
 
-PlanetarySimulation::PlanetarySimulation(const WRL::ComPtr<ID3D11Device>& device) : _device(device)
+
+PlanetarySimulation::PlanetarySimulation(
+	const WRL::ComPtr<ID3D11Device>& device,
+	float sunRadius,
+	float particleRingRadius,
+	int particleCount,
+	float sunMass,
+	float particleMass) :
+		_device(device),
+		_sunRadius(sunRadius),
+		_particleRingRadius(particleRingRadius),
+		_particleCount(particleCount),_sunMass(sunMass),
+		_particleMass(particleMass)
 {
 	Initialize(device.Get());
 }
 
 PlanetarySimulation::~PlanetarySimulation()
 {
-
 }
 
 bool PlanetarySimulation::Initialize(ID3D11Device* device)
 {
 	// Set up instance renderer
-	auto sphere = Sphere(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 30, 30, 30 });
+	auto sphere = Sphere(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(_sunRadius, _sunRadius, _sunRadius));
 	std::vector<VertexPositionNormalUv> vertices = sphere.GetVertices();
 	std::vector<UINT> indices = sphere.GetIndices();
 
@@ -21,95 +32,61 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere.transform.GetWorldMatrix()), 0);
 	_planets.push_back(sphere);
 
-	auto rectangle = Rectangle3D(DirectX::XMFLOAT3{ 0, 30, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+	auto rectangle = Rectangle3D(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
 	vertices = rectangle.GetVertices();
 	indices = rectangle.GetIndices();
 	_instanceRenderer.InitializeInstancePool(_device.Get(), 1, vertices, indices);
 
 	// Set up simulation
-
-	float fixedDistance = 30.0f;
-	int particleCount = 10000;
 	DirectX::XMFLOAT3 center = sphere.transform.position;
 
-	for (int particleIndex = 0; particleIndex < particleCount; particleIndex++)
+	for (int particleIndex = 0; particleIndex < _particleCount; particleIndex++)
 	{
-		DirectX::XMFLOAT3 randomPoint = GetRandomPointAtDistance(center, fixedDistance);
-
-		//DirectX::XMFLOAT3 randomPoint(0, 0, 30);
+		DirectX::XMFLOAT3 randomPoint = GetRandomPointAtDistance(center, _particleRingRadius);
 		DirectX::XMFLOAT3 randomDirection = GetRandomDirectionAlongTheSurface(center, randomPoint);
-		//std::cout << randomDirection.x << " " << randomDirection.y << " " << randomDirection.z << std::endl;
 		//float velocityMagnitude = GetInitialVelocityMagnitude(1000000.0f, fixedDistance);
-		//std::cout << velocityMagnitude << std::endl;
 		float velocityMagnitude = 2.5f;
-		rectangle = Rectangle3D(DirectX::XMFLOAT3{ randomPoint.x, randomPoint.y, randomPoint.z }, GetRandomRotation(), DirectX::XMFLOAT3{1, 1, 1});
+
+		rectangle = Rectangle3D(DirectX::XMFLOAT3(randomPoint.x, randomPoint.y, randomPoint.z), GetRandomRotation(), DirectX::XMFLOAT3{ 1, 1, 1 });
 		_instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle.transform.GetWorldMatrix()), 1);
 		DirectX::XMFLOAT3 initialVelocity { randomDirection.x * velocityMagnitude, randomDirection.y * velocityMagnitude, randomDirection.z * velocityMagnitude };
-		//std::cout << initialVelocity.x << " " << initialVelocity.y << " " << initialVelocity.z << std::endl;
 		rectangle.SetVelocity(initialVelocity);
-		//rectangle.SetVelocity(DirectX::XMFLOAT3{ 0, 0, 0 });
-		_bodies.push_back(rectangle);
 
+		_particles.push_back(rectangle);
 	}
 
-	// Sun
-	// X amount of bodies
-	// All at a fixed abount from the surface of the sphere in a random direction
-	// Calculate and set the angular velocity based on the direction of travel
-	// Done?
-
-	/*_instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle.transform.GetWorldMatrix()), 1);
-	rectangle.SetVelocity(DirectX::XMFLOAT3{ 11.5f, 0.0f, 0.0f });
-	_bodies.push_back(rectangle);*/
 	return true;
 }
 
 void PlanetarySimulation::Update(float deltaTime)
 {
-	//static int skipsLeft = 1000;
-	//if (skipsLeft > 0)
-	//{
-	//	//std::cout << deltaTime << std::endl;
-	//	skipsLeft--;
-	//	return;
-	//}
-	//std::cout << deltaTime<< std::endl;
-	
-	//exit(0);
-	//std::cout << _bodies.size() << std::endl;
-
-	// simulate gravity
-		// loop through planets
-		// calculate attraction between planet and other planets and change and change force
-		// calculate attraction between [bodies and planet and other bodies and change force
-
 }
 
 void PlanetarySimulation::PeriodicUpdate(float deltaTime)
 {
-	//std::cout << "updating" << std::endl;
 	int planetIndex = 0;
 	for (const auto& planet : _planets)
 	{
-		int bodyIndex = 0;
-		for (auto& body : _bodies)
+		int particleIndex = 0;
+		for (auto& particle : _particles)
 		{
-			float distance = GetDistance(planet.transform.position, body.transform.position);
-			float forceMagnitude = GetForce(1000000.0f, 1000.0f, GetDistance(planet.transform.position, body.transform.position));
-			DirectX::XMVECTOR forceDirection = GetDirection(planet.transform.position, body.transform.position);
-			//std::cout << body.transform.position.x << " " << body.transform.position.y << " " << body.transform.position.z << std::endl;
+			float distance = GetDistance(planet.transform.position, particle.transform.position);
+			float forceMagnitude = GetForce(_sunMass, _particleMass, GetDistance(planet.transform.position, particle.transform.position));
+			DirectX::XMVECTOR forceDirection = GetDirection(planet.transform.position, particle.transform.position);
 			DirectX::XMFLOAT3 force;
 			DirectX::XMStoreFloat3(&force, forceDirection);
+
 			force.x = force.x * forceMagnitude;
 			force.y = force.y * forceMagnitude;
 			force.z = force.z * forceMagnitude;
-			//std::cout << force.x << " " << force.y << " " << force.z << " " << std::endl;
-			body.SetAcceleration(force);
-			body.UpdatePhysics(deltaTime);
-			body.Update(deltaTime);
-			//std::cout << body.transform.position.x << std::endl;
-			_instanceRenderer.UpdateInstanceData(1, bodyIndex, InstanceConstantBuffer(body.transform.GetWorldMatrix()));
-			bodyIndex++;
+
+			particle.SetAcceleration(force);
+			particle.UpdatePhysics(deltaTime);
+			particle.Update(deltaTime);
+
+			_instanceRenderer.UpdateInstanceData(1, particleIndex, InstanceConstantBuffer(particle.transform.GetWorldMatrix()));
+
+			particleIndex++;
 		}
 		planetIndex++;
 	}
@@ -122,7 +99,7 @@ void PlanetarySimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffe
 
 int PlanetarySimulation::GetOwnershipCount() const
 {
-	return _planets.size() + _bodies.size();
+	return _planets.size() + _particles.size();
 }
 
 float PlanetarySimulation::GetForce(float m1, float m2, float distance) const
@@ -138,11 +115,8 @@ float PlanetarySimulation::GetDistance(const DirectX::XMFLOAT3& p1, const Direct
 
 float PlanetarySimulation::GetInitialVelocityMagnitude(float mass, float distance) const
 {
-	// Calculate the gravitational acceleration at the given distance from the planet's center.
+	// likely wrong
 	float gravitationalAcceleration = Constants::G * mass / (distance * distance);
-
-	// Calculate the initial velocity magnitude for a circular orbit at this distance.
-	// This is based on the centripetal force formula: F = (mv^2) / r, where F is the gravitational force.
 	float velocityMagnitude = sqrtf(gravitationalAcceleration * distance);
 
 	return velocityMagnitude;
@@ -152,11 +126,11 @@ DirectX::XMFLOAT3 PlanetarySimulation::GetRandomPointAtDistance(const DirectX::X
 {
 	DirectX::XMFLOAT3 randomDirection = GetRandomUnitVector();
 
-	DirectX::XMFLOAT3 randomPoint(
+	DirectX::XMFLOAT3 randomPoint {
 		center.x + randomDirection.x * distance,
 		center.y + randomDirection.y * distance,
 		center.z + randomDirection.z * distance
-	);
+	};
 
 	return randomPoint;
 }
@@ -180,7 +154,9 @@ DirectX::XMFLOAT3 PlanetarySimulation::GetRandomUnitVector() const
 	return randomVector;
 }
 
-DirectX::XMFLOAT3 PlanetarySimulation::GetRandomDirectionAlongTheSurface(const DirectX::XMFLOAT3& center, const DirectX::XMFLOAT3& position) const {
+DirectX::XMFLOAT3 PlanetarySimulation::GetRandomDirectionAlongTheSurface(const DirectX::XMFLOAT3& center, const DirectX::XMFLOAT3& position) const
+{
+	// I dont know how this works, but I plan to find out
 	// Calculate the radius vector from center to position
 	DirectX::XMFLOAT3 radiusVector;
 	DirectX::XMStoreFloat3(&radiusVector, DirectX::XMVectorSubtract(DirectX::XMLoadFloat3(&position), DirectX::XMLoadFloat3(&center)));
@@ -223,9 +199,8 @@ DirectX::XMFLOAT3 PlanetarySimulation::GetRandomRotation() const
 	float y = dist(gen);
 	float z = dist(gen);
 
-	return DirectX::XMFLOAT3(x, y, z);
+	return DirectX::XMFLOAT3{ x, y, z };
 }
-
 
 DirectX::XMVECTOR PlanetarySimulation::GetDirection(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2) const
 {
