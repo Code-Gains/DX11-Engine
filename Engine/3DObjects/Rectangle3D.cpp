@@ -102,7 +102,13 @@ bool Rectangle3D::Initialize(ID3D11Device* device)
 
 void Rectangle3D::Update(float deltaTime)
 {
-    
+    constexpr float newRotationX = DirectX::XMConvertToRadians(45.0f);
+    constexpr float newRotationY = DirectX::XMConvertToRadians(30.0f);
+    //constexpr float newRotationZ = DirectX::XMConvertToRadians(60.0f);
+
+    transform.rotation.x += newRotationX * deltaTime * _rotationSpeed;
+    transform.rotation.y += newRotationY * deltaTime * _rotationSpeed;
+    //transform.rotation.z += newRotationZ * deltaTime * _rotationSpeed;
 }
 
 void Rectangle3D::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)

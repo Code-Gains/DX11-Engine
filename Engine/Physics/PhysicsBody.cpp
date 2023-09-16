@@ -26,6 +26,8 @@ void PhysicsBody::SetAcceleration(const DirectX::XMFLOAT3& acceleration)
 
 void PhysicsBody::UpdatePhysics(float deltaTime)
 {
+	//static float timeLeft = 1.0f / 60;
+	//if(timeLeft < 0)
 	//std::cout << _velocity.x << std::endl;
 	_velocity.x += _acceleration.x;
 	_velocity.y += _acceleration.y;

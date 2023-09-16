@@ -13,6 +13,7 @@ private:
     WRL::ComPtr<ID3D11Buffer> _indexBuffer = nullptr;
     std::vector<VertexPositionNormalUv> _vertices;
     std::vector<UINT> _indices;
+    float _rotationSpeed = 5.0f;
 
 public:
     Rectangle3D();

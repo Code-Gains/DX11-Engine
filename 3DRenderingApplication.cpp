@@ -359,7 +359,7 @@ void Rendering3DApplication::Update()
     float cameraMoveSpeed = 10.0f;
     float cameraRotationSpeed = 5.0f;
 
-    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 15.0f };
+    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 70.0f };
     static XMFLOAT3 cameraRotation = { 0.0f,  Constants::DegreesToRadians(180), 0.0f };
 
 
@@ -453,14 +453,16 @@ void Rendering3DApplication::Update()
     XMMATRIX proj = XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
         static_cast<float>(_width) / static_cast<float>(_height),
         0.1f,
-        100);
+        400);
     XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
     XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 
-    _lightConstantBufferData.Position = { -5.0f, 15.0f, 15.0f, 0.0f };
+    _lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
     _lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
     _lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
     _lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+    _cameraConstantBufferData.cameraPosition = cameraPosition;
 
     _scene.Update(_deltaTime);
 
@@ -547,6 +549,7 @@ void Rendering3DApplication::Render()
     _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
     _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
 
+
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 
     _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -570,6 +573,6 @@ void Rendering3DApplication::Render()
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-    _swapChain->Present(DXGI_SWAP_EFFECT_DISCARD, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
+    _swapChain->Present(2, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 
 }

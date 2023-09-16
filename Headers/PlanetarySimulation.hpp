@@ -8,6 +8,7 @@
 #include "Constants.hpp"
 #include "cmath"
 #include <DirectXMath.h>
+#include <random>
 
 //#include <IntVectors.hpp>
 //#include <memory>
@@ -41,5 +42,11 @@ public:
 
     float GetForce(float m1, float m2, float distance) const;
     float GetDistance(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2) const;
+    float GetInitialVelocityMagnitude(float mass, float distance) const;
+    DirectX::XMFLOAT3 GetRandomPointAtDistance(const DirectX::XMFLOAT3& center, float distance) const;
+    DirectX::XMFLOAT3 GetRandomUnitVector() const;
+    DirectX::XMFLOAT3 GetRandomDirectionAlongTheSurface(const DirectX::XMFLOAT3& center, const DirectX::XMFLOAT3& position) const;
+    DirectX::XMFLOAT3 GetRandomRotation() const;
     DirectX::XMVECTOR GetDirection(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2) const;
+
 };
