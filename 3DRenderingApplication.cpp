@@ -146,6 +146,20 @@ bool Rendering3DApplication::Initialize()
     ImGui_ImplGlfw_InitForOther(_window, true);
     ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
 
+    SYSTEM_INFO sysInfo;
+    FILETIME ftime, fsys, fuser;
+
+    GetSystemInfo(&sysInfo);
+    _numProcessors = sysInfo.dwNumberOfProcessors;
+
+    GetSystemTimeAsFileTime(&ftime);
+    memcpy(&_lastCPU, &ftime, sizeof(FILETIME));
+
+    _self = GetCurrentProcess();
+    GetProcessTimes(_self, &ftime, &ftime, &fsys, &fuser);
+    memcpy(&_lastSysCPU, &fsys, sizeof(FILETIME));
+    memcpy(&_lastUserCPU, &fuser, sizeof(FILETIME));
+
     return true;
 }
 
@@ -256,7 +270,7 @@ bool Rendering3DApplication::Load()
 
 
 
-     auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 1000);
+     auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 3000);
     _scene.AddObject(std::move(simulation));
 
    /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
@@ -345,6 +359,28 @@ void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
 
     _depthTarget.Reset();
     CreateDepthStencilView();
+}
+
+double Rendering3DApplication::GetCurrentCPUValue() {
+    FILETIME ftime, fsys, fuser;
+    ULARGE_INTEGER now, sys, user;
+    double percent;
+
+    GetSystemTimeAsFileTime(&ftime);
+    memcpy(&now, &ftime, sizeof(FILETIME));
+
+    GetProcessTimes(_self, &ftime, &ftime, &fsys, &fuser);
+    memcpy(&sys, &fsys, sizeof(FILETIME));
+    memcpy(&user, &fuser, sizeof(FILETIME));
+    percent = (sys.QuadPart - _lastSysCPU.QuadPart) +
+        (user.QuadPart - _lastUserCPU.QuadPart);
+    percent /= (now.QuadPart - _lastCPU.QuadPart);
+    percent /= _numProcessors;
+    _lastCPU = now;
+    _lastUserCPU = user;
+    _lastSysCPU = sys;
+
+    return percent * 100;
 }
 
 void Rendering3DApplication::Update()
@@ -483,32 +519,59 @@ void Rendering3DApplication::Render()
     //if (isApplicationMinimized)
         //return;
 
+    static const int frameBufferSize = 100;
+    static float frameDeltas[frameBufferSize] = { 0 };
+    static int frameIndex = 0;
+    static float framerate = 0;
     static int framesPassed = 0;
     static float totalDeltaTime = 0;
+    static float timeLeftUntilDebugInfo = 1;
+    static float cpuUsage = 0;
+    static SIZE_T virtualMemoryUsage = 0;
+    static float averageFramerate = 0;
 
     framesPassed++;
     totalDeltaTime += _deltaTime;
+    timeLeftUntilDebugInfo -= _deltaTime;
+
+    frameDeltas[frameIndex] = _deltaTime;
+    frameIndex = (frameIndex + 1) % frameBufferSize;
 
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
-
-    static int counter = 0;
     ImGui::Begin("Debug Info");
-    ImGui::Text("FPS: %.2f", 1 / _deltaTime);
-    ImGui::Text("AVG_FPS: %.2f", framesPassed / totalDeltaTime);
-
-    PROCESS_MEMORY_COUNTERS_EX pmc;
-    if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
+    if (timeLeftUntilDebugInfo <= 0)
     {
-        SIZE_T virtualMemoryUsed = pmc.PrivateUsage;
-        ImGui::Text("RAM: %.2f MB", virtualMemoryUsed / (1024.0f * 1024.0f));
+        float sumDeltaTimes = 0;
+        for (int i = 0; i < frameBufferSize; ++i) {
+            sumDeltaTimes += frameDeltas[i];
+        }
+        framerate = frameBufferSize / sumDeltaTimes;
+        averageFramerate = framesPassed / totalDeltaTime;
+        PROCESS_MEMORY_COUNTERS_EX pmc;
+        if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
+        {
+            virtualMemoryUsage = pmc.PrivateUsage;
+        }
+        cpuUsage = GetCurrentCPUValue();
+        timeLeftUntilDebugInfo = 1.0f;
     }
 
+    ImGui::Text("FPS [Last 100]: %.2f", framerate);
+    ImGui::Text("AVG FPS: %.2f", averageFramerate);
+    ImGui::Text("RAM: %.2f MB", virtualMemoryUsage / (1024.0f * 1024.0f));
+    if (cpuUsage >= 0.0f)
+        ImGui::Text("CPU Usage: %.2f%%", cpuUsage);
+    else
+    {
+        ImGui::Text("CPU Usage: N/A");
+    }
     ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount() + _instanceRenderer.GetOwnershipCount());
     ImGui::End();
-
     ImGui::Render();
+
+
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;

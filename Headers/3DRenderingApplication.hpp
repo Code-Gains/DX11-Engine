@@ -26,6 +26,8 @@
 #include "ConstantBufferDefinitions.hpp"
 #include "InstanceRenderer.hpp"
 #include "PlanetarySimulation.hpp"
+#include <pdh.h>
+
 
 
 class Rendering3DApplication final : public Application
@@ -48,12 +50,17 @@ protected:
 
 private:
 
+    ULARGE_INTEGER _lastCPU, _lastSysCPU, _lastUserCPU;
+    int _numProcessors;
+    HANDLE _self;
+
     void CreateRasterState();
     void CreateDepthStencilView();
     void CreateDepthState();
     void CreateConstantBuffers();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
+    double GetCurrentCPUValue();
 
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;

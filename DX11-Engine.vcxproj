@@ -136,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\;$(ProjectDir)Dependencies\DirectXTex\lib\Release;$(ProjectDir)Dependencies\FreeImage\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;DirectXTex.lib;FreeImaged.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pdh.lib;glfw3.lib;DirectXTex.lib;FreeImaged.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderType>
