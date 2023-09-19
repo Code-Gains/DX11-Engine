@@ -42,3 +42,10 @@ void PhysicsBody::SetVelocity(const DirectX::XMFLOAT3 velocity)
 {
 	_velocity = velocity;
 }
+
+void PhysicsBody::AddVelocity(const DirectX::XMFLOAT3 velocity)
+{
+	_velocity.x += velocity.x;
+	_velocity.y += velocity.y;
+	_velocity.z += velocity.z;
+}

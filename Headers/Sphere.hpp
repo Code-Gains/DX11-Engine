@@ -6,8 +6,9 @@
 #include "Constants.hpp"
 #include "VertexType.hpp"
 #include "Definitions.hpp"
+#include "PhysicsBody.hpp"
 
-class Sphere : public Object3D
+class Sphere : public PhysicsBody
 {
 private:
     WRL::ComPtr<ID3D11Buffer> _vertexBuffer = nullptr;

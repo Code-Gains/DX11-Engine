@@ -5,14 +5,11 @@ PlanetarySimulation::PlanetarySimulation(
 	const WRL::ComPtr<ID3D11Device>& device,
 	float sunRadius,
 	float particleRingRadius,
-	int particleCount,
-	float sunMass,
-	float particleMass) :
+	int particleCount) :
 		_device(device),
 		_sunRadius(sunRadius),
 		_particleRingRadius(particleRingRadius),
-		_particleCount(particleCount),_sunMass(sunMass),
-		_particleMass(particleMass)
+		_particleCount(particleCount)
 {
 	Initialize(device.Get());
 }
@@ -30,7 +27,18 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 
 	_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
 	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere.transform.GetWorldMatrix()), 0);
+	sphere.SetVelocity(DirectX::XMFLOAT3{ -40, 0, 0 });
 	_planets.push_back(sphere);
+
+	auto sphere2 = Sphere(DirectX::XMFLOAT3{ 0, 60, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(_sunRadius, _sunRadius, _sunRadius));
+	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2.transform.GetWorldMatrix()), 0);
+	sphere2.SetVelocity(DirectX::XMFLOAT3{ 40, 0, 0 });
+	_planets.push_back(sphere2);
+
+	auto sphere3 = Sphere(DirectX::XMFLOAT3{ 0, -120, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(_sunRadius, _sunRadius, _sunRadius));
+	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere3.transform.GetWorldMatrix()), 0);
+	sphere3.SetVelocity(DirectX::XMFLOAT3{ 20, 0, 0 });
+	_planets.push_back(sphere3);
 
 	auto rectangle = Rectangle3D(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
 	vertices = rectangle.GetVertices();
@@ -45,7 +53,7 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 		DirectX::XMFLOAT3 randomPoint = GetRandomPointAtDistance(center, _particleRingRadius);
 		DirectX::XMFLOAT3 randomDirection = GetRandomDirectionAlongTheSurface(center, randomPoint);
 		//float velocityMagnitude = GetInitialVelocityMagnitude(1000000.0f, fixedDistance);
-		float velocityMagnitude = 2.5f;
+		float velocityMagnitude = 20.0f;
 
 		rectangle = Rectangle3D(DirectX::XMFLOAT3(randomPoint.x, randomPoint.y, randomPoint.z), GetRandomRotation(), DirectX::XMFLOAT3{ 1, 1, 1 });
 		_instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle.transform.GetWorldMatrix()), 1);
@@ -64,23 +72,71 @@ void PlanetarySimulation::Update(float deltaTime)
 
 void PlanetarySimulation::PeriodicUpdate(float deltaTime)
 {
+	UpdateVelocities(deltaTime);
+	UpdateTransformations(deltaTime);
+}
+
+void PlanetarySimulation::UpdateVelocities(float deltaTime)
+{
 	int planetIndex = 0;
-	for (const auto& planet : _planets)
+	for (auto& planet : _planets)
 	{
+		for (int otherPlanetIndex = planetIndex + 1; otherPlanetIndex < _planets.size(); otherPlanetIndex++)
+		{
+			float distance = GetDistance(planet.transform.position, _planets[otherPlanetIndex].transform.position);
+			float forceMagnitude = GetForce(_sunMass, _sunMass, GetDistance(planet.transform.position, _planets[otherPlanetIndex].transform.position));
+			DirectX::XMVECTOR forceDirection = GetDirection(planet.transform.position, _planets[otherPlanetIndex].transform.position);
+			DirectX::XMFLOAT3 velocity1;
+			DirectX::XMFLOAT3 velocity2;
+			DirectX::XMStoreFloat3(&velocity1, DirectX::XMVectorNegate(forceDirection));
+			DirectX::XMStoreFloat3(&velocity2, forceDirection);
+
+			velocity1.x *= forceMagnitude;
+			velocity1.y *= forceMagnitude;
+			velocity1.z *= forceMagnitude;
+
+			velocity2.x *= forceMagnitude;
+			velocity2.y *= forceMagnitude;
+			velocity2.z *= forceMagnitude;
+
+			//std::cout << velocity.x << std::endl;
+			planet.AddVelocity(velocity1);
+			_planets[otherPlanetIndex].AddVelocity(velocity2);
+		}
+
 		int particleIndex = 0;
 		for (auto& particle : _particles)
 		{
 			float distance = GetDistance(planet.transform.position, particle.transform.position);
 			float forceMagnitude = GetForce(_sunMass, _particleMass, GetDistance(planet.transform.position, particle.transform.position));
 			DirectX::XMVECTOR forceDirection = GetDirection(planet.transform.position, particle.transform.position);
-			DirectX::XMFLOAT3 force;
-			DirectX::XMStoreFloat3(&force, forceDirection);
+			DirectX::XMFLOAT3 velocity;
+			DirectX::XMStoreFloat3(&velocity, forceDirection);
 
-			force.x = force.x * forceMagnitude;
-			force.y = force.y * forceMagnitude;
-			force.z = force.z * forceMagnitude;
+			velocity.x *= forceMagnitude;
+			velocity.y *= forceMagnitude;
+			velocity.z *= forceMagnitude;
+			particle.AddVelocity(velocity);
 
-			particle.SetAcceleration(force);
+			particleIndex++;
+		}
+		planetIndex++;
+	}
+}
+
+void PlanetarySimulation::UpdateTransformations(float deltaTime)
+{
+	int planetIndex = 0;
+	for (auto& planet : _planets)
+	{
+		planet.UpdatePhysics(deltaTime);
+		planet.Update(deltaTime);
+
+		_instanceRenderer.UpdateInstanceData(0, planetIndex, InstanceConstantBuffer(planet.transform.GetWorldMatrix()));
+
+		int particleIndex = 0;
+		for (auto& particle : _particles)
+		{
 			particle.UpdatePhysics(deltaTime);
 			particle.Update(deltaTime);
 

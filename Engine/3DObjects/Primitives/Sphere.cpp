@@ -1,6 +1,11 @@
 #include <Sphere.hpp>
 
-Sphere::Sphere()
+Sphere::Sphere() : PhysicsBody(
+    1.0f,
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    DirectX::XMFLOAT3{ 1.0f, 1.0f, 0.0f, })
 {
     _vertices = GenerateVertices(0.5f, 30, 30);
     _indices = GenerateIndices(30, 30);
@@ -14,11 +19,13 @@ Sphere::Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotat
 {
 }
 
-Sphere::Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale)
+Sphere::Sphere(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& rotation, const DirectX::XMFLOAT3& scale) : PhysicsBody(
+    1.0f,
+    DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f, },
+    position,
+    rotation,
+    scale)
 {
-    transform.position = position;
-    transform.rotation = rotation;
-    transform.scale = scale;
     _vertices = GenerateVertices(0.5f, 30, 30);
     _indices = GenerateIndices(30, 30);
 }
