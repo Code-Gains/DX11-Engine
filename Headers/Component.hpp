@@ -1,8 +1,20 @@
 #pragma once
-#include "Component.hpp"
-class Component {
+#include <vector>
+class Component
+{
+	int _id;
+	int _componentSetId;
 public:
-    virtual ~Component() {}
+	int GetId() const;
+};
 
-    virtual void Update(const float deltaTime) {}
+/*
+* Component set specifies which components it has.
+*/
+class ComponentSet
+{
+	int _id;
+	std::vector<int> _componentIds;
+public:
+	int GetId() const;
 };

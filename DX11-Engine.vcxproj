@@ -145,6 +145,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\ECS\Component.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Vectors\IntVectors.cpp" />
     <ClCompile Include="Engine\InstanceRenderer.cpp" />
+    <ClCompile Include="Engine\ECS\Entity.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Engine\Materials\PhongMaterial.cpp" />
@@ -170,6 +172,7 @@
     <ClCompile Include="Engine\3DObjects\Rectangle3D.cpp" />
     <ClCompile Include="Simulations\PlanetarySimulation.cpp" />
     <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp" />
+    <ClCompile Include="Engine\ECS\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -297,6 +300,8 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\Component.hpp" />
+    <ClInclude Include="Headers\Entity.hpp" />
     <ClInclude Include="Headers\ConstantBufferDefinitions.hpp" />
     <ClInclude Include="Headers\Constants.hpp" />
     <ClInclude Include="Headers\Cylinder.hpp" />
@@ -320,6 +325,7 @@
     <ClInclude Include="Headers\PhysicsBody.hpp" />
     <ClInclude Include="Headers\Rectangle3D.hpp" />
     <ClInclude Include="Headers\PlanetarySimulation.hpp" />
+    <ClInclude Include="Headers\World.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />
