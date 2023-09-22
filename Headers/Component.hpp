@@ -16,5 +16,9 @@ class ComponentSet
 	int _id;
 	std::vector<int> _componentIds;
 public:
+	ComponentSet();
+	ComponentSet(const std::vector<int> componentIds);
+
 	int GetId() const;
+	std::vector<int> getComponentIds() const;
 };

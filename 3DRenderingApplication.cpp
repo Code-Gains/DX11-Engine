@@ -270,8 +270,8 @@ bool Rendering3DApplication::Load()
 
 
 
-     auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 1000);
-    _scene.AddObject(std::move(simulation));
+    /* auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 1000);
+    _scene.AddObject(std::move(simulation));*/
 
    /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
     _scene.AddObject(std::move(simulation));*/
@@ -296,6 +296,11 @@ bool Rendering3DApplication::Load()
    //         }
    //     }
    // }
+
+    auto componentSet1 = ComponentSet(std::vector<int> {0, 1, 2});
+    auto entity1 = _world.CreateEntity(componentSet1.getComponentIds());
+
+    std::cout << _world.GetEntityCount()<< std::endl;
     return true;
 }
 

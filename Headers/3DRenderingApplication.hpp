@@ -28,6 +28,10 @@
 #include "PlanetarySimulation.hpp"
 #include <pdh.h>
 
+#include "World.hpp"
+#include "Component.hpp"
+#include "Entity.hpp"
+
 
 
 class Rendering3DApplication final : public Application
@@ -94,6 +98,7 @@ private:
     PerObjectConstantBuffer _perObjectConstantBufferData{};
     InstanceConstantBuffer _instanceConstantBufferData{};
 
+    World _world;
     Scene _scene;
     InstanceRenderer _instanceRenderer;
 };
