@@ -174,6 +174,7 @@
     <ClCompile Include="Engine\3DObjects\Rectangle3D.cpp" />
     <ClCompile Include="Engine\ECS\Components\MaterialComponent.cpp" />
     <ClCompile Include="Engine\ECS\Components\MeshComponent.cpp" />
+    <ClCompile Include="Engine\ECS\Systems\RenderingSystem.cpp" />
     <ClCompile Include="Simulations\PlanetarySimulation.cpp" />
     <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp" />
     <ClCompile Include="Engine\ECS\World.cpp" />
@@ -336,6 +337,7 @@
     <ClInclude Include="Headers\LightComponent.hpp" />
     <ClInclude Include="Headers\MaterialComponent.hpp" />
     <ClInclude Include="Headers\MeshComponent.hpp" />
+    <ClInclude Include="Headers\RenderingSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

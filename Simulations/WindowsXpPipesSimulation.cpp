@@ -1,27 +1,28 @@
 #include "WindowsXpPipesSimulation.hpp"
 
-WindowsXpPipesSimulation::WindowsXpPipesSimulation(const WRL::ComPtr<ID3D11Device>& device, const Int3& dimensions, const float simulationSpeed):
+WindowsXpPipesSimulation::WindowsXpPipesSimulation(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const Int3& dimensions, const float simulationSpeed):
 _device(device),
 _dimensions(dimensions),
 _simulationSpeed(simulationSpeed)
 {
-    Initialize(device.Get());
+    Initialize(device, deviceContext);
     Reset(dimensions, simulationSpeed);
 }
 
 WindowsXpPipesSimulation::~WindowsXpPipesSimulation() {}
 
-bool WindowsXpPipesSimulation::Initialize(ID3D11Device* device)
+bool WindowsXpPipesSimulation::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
+    _instanceRenderer = InstanceRenderer(device, deviceContext);
     auto cylinder = Cylinder(DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(0, 0, 0), DirectX::XMFLOAT3(0.5f, 1.0f, 0.5f), false);
     std::vector<VertexPositionNormalUv> cylinderVertices = cylinder.GetVertices();
     std::vector<UINT> cylinderIndices = cylinder.GetIndices();
-    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 0, cylinderVertices, cylinderIndices);
+    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(0, cylinderVertices, cylinderIndices);
 
     auto sphere = Sphere(DirectX::XMFLOAT3( 0, 0, 0 ));
     std::vector<VertexPositionNormalUv> sphereVertices = sphere.GetVertices();
     std::vector<UINT> sphereIndices = sphere.GetIndices();
-    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(device, 1, sphereVertices, sphereIndices);
+    _instanceRenderer.InitializeInstancePool<VertexPositionNormalUv>(1, sphereVertices, sphereIndices);
 
     return true;
 }
@@ -136,7 +137,7 @@ void WindowsXpPipesSimulation::Update(float deltaTime)
 
 void WindowsXpPipesSimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
-    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(deviceContext, perObjectConstantBuffer, instanceConstantBuffer);
+    _instanceRenderer.RenderInstances<VertexPositionNormalUv>();
 }
 
 int WindowsXpPipesSimulation::GetOwnershipCount() const

@@ -31,8 +31,6 @@ Rendering3DApplication::~Rendering3DApplication()
 {
     _deviceContext->Flush();
     _textureSrv.Reset();
-    _cubeIndices.Reset();
-    _cubeVertices.Reset();
     _perFrameConstantBuffer.Reset();
     _perObjectConstantBuffer.Reset();
     _instanceConstantBuffer.Reset();
@@ -232,11 +230,11 @@ void Rendering3DApplication::CreateConstantBuffers()
     desc.ByteWidth = sizeof(MaterialConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
 
-    desc.ByteWidth = sizeof(PerObjectConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
+    //desc.ByteWidth = sizeof(PerObjectConstantBuffer);
+    //_device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
 
-    desc.ByteWidth = sizeof(InstanceConstantBuffer) * 256;
-    _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
+    //desc.ByteWidth = sizeof(InstanceConstantBuffer) * 256;
+    //_device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
 
 bool Rendering3DApplication::Load()
@@ -270,10 +268,10 @@ bool Rendering3DApplication::Load()
 
 
 
-    /* auto simulation = std::make_unique<PlanetarySimulation>(_device, 30, 40, 1000);
-    _scene.AddObject(std::move(simulation));*/
+     auto simulation = std::make_unique<PlanetarySimulation>(_device.Get(),_deviceContext.Get(), 30, 40, 1000);
+    _scene.AddObject(std::move(simulation));
 
-   /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device, Int3(30, 30, 30), 1000.0f);
+   /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device.Get(), _deviceContext.Get(), Int3(30, 30, 30), 1000.0f);
     _scene.AddObject(std::move(simulation));*/
 
    /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
@@ -297,10 +295,13 @@ bool Rendering3DApplication::Load()
    //     }
    // }
 
-    auto componentSet1 = ComponentSet(std::vector<int> {0, 1, 2});
-    auto entity1 = _world.CreateEntity(componentSet1.getComponentIds());
+    //auto componentSet1 = ComponentSet(std::vector<int> {0, 1, 2});
+    //auto entity1 = _world.CreateEntity(componentSet1.getComponentIds());
 
-    std::cout << _world.GetEntityCount()<< std::endl;
+    //std::cout << _world.GetEntityCount()<< std::endl;
+    _world = World();
+    _world.Initialize(_device.Get(), _deviceContext.Get());
+    _world.LoadWorld();
     return true;
 }
 
@@ -400,7 +401,7 @@ void Rendering3DApplication::Update()
     float cameraMoveSpeed = 10.0f;
     float cameraRotationSpeed = 5.0f;
 
-    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 70.0f };
+    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 10.0f };
     static XMFLOAT3 cameraRotation = { 0.0f,  Constants::DegreesToRadians(180), 0.0f };
 
 
@@ -506,6 +507,7 @@ void Rendering3DApplication::Update()
     _cameraConstantBufferData.cameraPosition = cameraPosition;
 
     _scene.Update(_deltaTime);
+    _world.Update(_deltaTime);
 
 
 }
@@ -515,6 +517,7 @@ void Rendering3DApplication::PeriodicUpdate()
     if (_periodicDeltaTime > _periodicUpdatePeriod)
     {
         _scene.PeriodicUpdate(_periodicDeltaTime);
+        _world.PeriodicUpdate(_periodicDeltaTime);
         _periodicDeltaTime = 0;
     }
 }
@@ -614,17 +617,17 @@ void Rendering3DApplication::Render()
         _materialConstantBuffer.Get()
     };
 
-    ID3D11Buffer* constantPerObjectBuffers[2] = 
+    /*ID3D11Buffer* constantPerObjectBuffers[2] = 
     {
         _perObjectConstantBuffer.Get(),
         _instanceConstantBuffer.Get()
-    };
+    };*/
 
     _deviceContext->VSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-    _deviceContext->VSSetConstantBuffers(4, 2, constantPerObjectBuffers);
+    //_deviceContext->VSSetConstantBuffers(4, 2, constantPerObjectBuffers);
 
     _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-    _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
+   // _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
 
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -646,7 +649,8 @@ void Rendering3DApplication::Render()
     _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
 
     _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
-    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
+    _world.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
+    //_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

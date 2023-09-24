@@ -38,10 +38,11 @@ class PlanetarySimulation : public Object3D
 
 
 public:
-    PlanetarySimulation(const WRL::ComPtr<ID3D11Device>& device, float sunRadius, float particleRingRadius, int particleCount);
+    PlanetarySimulation(ID3D11Device* device, ID3D11DeviceContext* deviceContext, float sunRadius, float particleRingRadius, int particleCount);
     virtual ~PlanetarySimulation();
 
     bool Initialize(ID3D11Device* device) override;
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
     void Update(float deltaTime) override;
     void PeriodicUpdate(float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;

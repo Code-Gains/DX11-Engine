@@ -1,24 +1,45 @@
 #include "Component.hpp"
 
-int Component::GetId() const
+//ComponentSet::ComponentSet()
+//{
+//}
+//
+//ComponentSet::ComponentSet(const std::vector<int> componentIds) : _componentIds(componentIds)
+//{
+//}
+//
+//int ComponentSet::GetId() const
+//{
+//	return _id;
+//}
+//
+//std::vector<int> ComponentSet::getComponentIds() const
+//{
+//	return _componentIds;
+//}
+
+Component::Component()
 {
-	return _id;
 }
 
-ComponentSet::ComponentSet()
+Component::Component(Entity entity) : _entityIds(std::vector<int> {entity.GetId()})
 {
 }
 
-ComponentSet::ComponentSet(const std::vector<int> componentIds) : _componentIds(componentIds)
+Component::Component(int entityId) : _entityIds(std::vector<int> {entityId})
 {
 }
 
-int ComponentSet::GetId() const
+Component::Component(const std::vector<int>& _entityIds) : _entityIds(_entityIds)
 {
-	return _id;
 }
 
-std::vector<int> ComponentSet::getComponentIds() const
+void Component::AddEntity(int entityId)
 {
-	return _componentIds;
+	_entityIds.push_back(entityId);
+}
+
+void Component::AddEntity(Entity entity)
+{
+	_entityIds.push_back(entity.GetId());
 }

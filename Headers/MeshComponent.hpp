@@ -2,19 +2,19 @@
 #include <vector>
 #include <DirectXMath.h>
 
-#include "Component.hpp"
 #include "Definitions.hpp"
-
+#include "VertexType.hpp"
+#include "Component.hpp"
 
 class MeshComponent : public Component
 {
-	std::vector<DirectX::XMFLOAT3> _vertices;
+	std::vector<VertexPositionNormalUv> _vertices;
 	std::vector<UINT> _indices;
 public:
 	MeshComponent();
-	MeshComponent(const std::vector<DirectX::XMFLOAT3>& vertices, const std::vector<UINT>& indices);
+	MeshComponent(const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices);
 
-	std::vector<DirectX::XMFLOAT3> GetVertices() const;
+	std::vector<VertexPositionNormalUv> GetVertices() const;
 	std::vector<UINT> GetIndices() const;
 };
 

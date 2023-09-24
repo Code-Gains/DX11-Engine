@@ -74,8 +74,6 @@ private:
     WRL::ComPtr<ID3D11DepthStencilView> _depthTarget = nullptr;
     WRL::ComPtr<ID3D11RasterizerState> _rasterState = nullptr;
     WRL::ComPtr<ID3D11DepthStencilState> _depthState = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _cubeVertices = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _cubeIndices = nullptr;
     WRL::ComPtr<ID3D11Debug> _debug = nullptr;
 
     WRL::ComPtr<ID3D11SamplerState> _linearSamplerState = nullptr;

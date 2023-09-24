@@ -1,11 +1,45 @@
 #include "InstanceRenderer.hpp"
 #include <Cube.hpp>
 
+void InstanceRenderer::CreateConstantBuffers()
+{
+    D3D11_BUFFER_DESC desc{};
+    desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+    desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    /*desc.ByteWidth = sizeof(PerFrameConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
+
+    desc.ByteWidth = sizeof(CameraConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_cameraConstantBuffer);
+
+    desc.ByteWidth = sizeof(LightConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
+
+    desc.ByteWidth = sizeof(MaterialConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);*/
+
+    desc.ByteWidth = sizeof(PerObjectConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
+
+    desc.ByteWidth = sizeof(InstanceConstantBuffer) * _batchSize;
+    _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
+}
+
 InstanceRenderer::InstanceRenderer(int batchSize) : _batchSize(batchSize)
 {
 
 }
 
+
+InstanceRenderer::InstanceRenderer(ID3D11Device* device,
+    ID3D11DeviceContext* deviceContext,
+    int batchSize) : _device(device), _deviceContext(deviceContext)
+{
+    std::cout << device <<std::endl;
+    CreateConstantBuffers();
+}
 
 void InstanceRenderer::AddInstance(const InstanceConstantBuffer& instanceData, int poolKey)
 {

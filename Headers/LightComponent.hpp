@@ -1,6 +1,5 @@
 #pragma once
 #include <DirectXMath.h>
-
 #include "Component.hpp"
 
 class LightComponent : public Component

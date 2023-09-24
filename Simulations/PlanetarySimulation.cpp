@@ -2,7 +2,8 @@
 
 
 PlanetarySimulation::PlanetarySimulation(
-	const WRL::ComPtr<ID3D11Device>& device,
+	ID3D11Device* device,
+	ID3D11DeviceContext* deviceContext,
 	float sunRadius,
 	float particleRingRadius,
 	int particleCount) :
@@ -11,21 +12,24 @@ PlanetarySimulation::PlanetarySimulation(
 		_particleRingRadius(particleRingRadius),
 		_particleCount(particleCount)
 {
-	Initialize(device.Get());
+	Initialize(device, deviceContext);
 }
 
 PlanetarySimulation::~PlanetarySimulation()
 {
 }
 
-bool PlanetarySimulation::Initialize(ID3D11Device* device)
+bool PlanetarySimulation::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
+
 	// Set up instance renderer
+	_instanceRenderer = InstanceRenderer(device, deviceContext);
+
 	auto sphere = Sphere(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(_sunRadius, _sunRadius, _sunRadius));
 	std::vector<VertexPositionNormalUv> vertices = sphere.GetVertices();
 	std::vector<UINT> indices = sphere.GetIndices();
 
-	_instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
+	_instanceRenderer.InitializeInstancePool(0, vertices, indices);
 	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere.transform.GetWorldMatrix()), 0);
 	sphere.SetVelocity(DirectX::XMFLOAT3{ -40, 0, 0 });
 	_planets.push_back(sphere);
@@ -43,7 +47,7 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 	auto rectangle = Rectangle3D(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
 	vertices = rectangle.GetVertices();
 	indices = rectangle.GetIndices();
-	_instanceRenderer.InitializeInstancePool(_device.Get(), 1, vertices, indices);
+	_instanceRenderer.InitializeInstancePool(1, vertices, indices);
 
 	// Set up simulation
 	DirectX::XMFLOAT3 center = sphere.transform.position;
@@ -64,6 +68,11 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device)
 	}
 
 	return true;
+}
+
+bool PlanetarySimulation::Initialize(ID3D11Device* device)
+{
+	return false;
 }
 
 void PlanetarySimulation::Update(float deltaTime)
@@ -150,7 +159,7 @@ void PlanetarySimulation::UpdateTransformations(float deltaTime)
 
 void PlanetarySimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
-	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(deviceContext, perObjectConstantBuffer, instanceConstantBuffer);
+	_instanceRenderer.RenderInstances<VertexPositionNormalUv>();
 }
 
 int PlanetarySimulation::GetOwnershipCount() const

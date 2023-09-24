@@ -1,24 +1,31 @@
 #pragma once
 #include <vector>
+#include "Entity.hpp"
+
 class Component
 {
-	int _id;
-	int _componentSetId;
+	std::vector<int> _entityIds;
 public:
-	int GetId() const;
+	Component();
+	Component(Entity entity);
+	Component(int entityId);
+	Component(const std::vector<int>& _entityIds);
+
+	void AddEntity(int entityId);
+	void AddEntity(Entity entity);
 };
 
-/*
-* Component set specifies which components it has.
-*/
-class ComponentSet
-{
-	int _id;
-	std::vector<int> _componentIds;
-public:
-	ComponentSet();
-	ComponentSet(const std::vector<int> componentIds);
-
-	int GetId() const;
-	std::vector<int> getComponentIds() const;
-};
+///*
+//* Component set specifies which components it has.
+//*/
+//class ComponentSet
+//{
+//	int _id;
+//	std::vector<int> _componentIds;
+//public:
+//	ComponentSet();
+//	ComponentSet(const std::vector<int> componentIds);
+//
+//	int GetId() const;
+//	std::vector<int> getComponentIds() const;
+//};

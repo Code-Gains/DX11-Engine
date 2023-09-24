@@ -2,10 +2,8 @@
 
 Entity::Entity()
 {
-}
-
-Entity::Entity(int id) : _id(id)
-{
+	static int _nextId = 1;
+	_id = _nextId++;
 }
 
 int Entity::GetId() const
