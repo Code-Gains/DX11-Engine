@@ -8,7 +8,7 @@ void InstanceRenderer::CreateConstantBuffers()
     desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-    /*desc.ByteWidth = sizeof(PerFrameConstantBuffer);
+    desc.ByteWidth = sizeof(PerFrameConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
 
     desc.ByteWidth = sizeof(CameraConstantBuffer);
@@ -18,10 +18,10 @@ void InstanceRenderer::CreateConstantBuffers()
     _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
 
     desc.ByteWidth = sizeof(MaterialConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);*/
+    _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
 
-    desc.ByteWidth = sizeof(PerObjectConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
+    /*desc.ByteWidth = sizeof(PerObjectConstantBuffer);
+    _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);*/
 
     desc.ByteWidth = sizeof(InstanceConstantBuffer) * _batchSize;
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);

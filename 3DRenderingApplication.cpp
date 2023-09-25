@@ -213,28 +213,7 @@ void Rendering3DApplication::CreateDepthState()
 
 void Rendering3DApplication::CreateConstantBuffers()
 {
-    D3D11_BUFFER_DESC desc{};
-    desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
-    desc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_CONSTANT_BUFFER;
-    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-    desc.ByteWidth = sizeof(PerFrameConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_perFrameConstantBuffer);
-
-    desc.ByteWidth = sizeof(CameraConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_cameraConstantBuffer);
-
-    desc.ByteWidth = sizeof(LightConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
-
-    desc.ByteWidth = sizeof(MaterialConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
-
-    //desc.ByteWidth = sizeof(PerObjectConstantBuffer);
-    //_device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);
-
-    //desc.ByteWidth = sizeof(InstanceConstantBuffer) * 256;
-    //_device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
+    // remove later
 }
 
 bool Rendering3DApplication::Load()
@@ -268,7 +247,7 @@ bool Rendering3DApplication::Load()
 
 
 
-     auto simulation = std::make_unique<PlanetarySimulation>(_device.Get(),_deviceContext.Get(), 30, 40, 1000);
+    auto simulation = std::make_unique<PlanetarySimulation>(_device.Get(),_deviceContext.Get(), 30, 40, 1000);
     _scene.AddObject(std::move(simulation));
 
    /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device.Get(), _deviceContext.Get(), Int3(30, 30, 30), 1000.0f);
@@ -609,48 +588,8 @@ void Rendering3DApplication::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    ID3D11Buffer* constantPerFrameBuffers[4] = 
-    {
-        _perFrameConstantBuffer.Get(),
-        _cameraConstantBuffer.Get(),
-        _lightConstantBuffer.Get(),
-        _materialConstantBuffer.Get()
-    };
-
-    /*ID3D11Buffer* constantPerObjectBuffers[2] = 
-    {
-        _perObjectConstantBuffer.Get(),
-        _instanceConstantBuffer.Get()
-    };*/
-
-    _deviceContext->VSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-    //_deviceContext->VSSetConstantBuffers(4, 2, constantPerObjectBuffers);
-
-    _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-   // _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
-
-
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-
-    _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_perFrameConstantBufferData, sizeof(PerFrameConstantBuffer));
-    _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
-
-    _deviceContext->Map(_cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_cameraConstantBufferData, sizeof(CameraConstantBuffer));
-    _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
-
-    _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_lightConstantBufferData, sizeof(LightConstantBuffer));
-    _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
-
-    _deviceContext->Map(_materialConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    memcpy(mappedResource.pData, &_materialConstantBufferData, sizeof(MaterialConstantBuffer));
-    _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
-
     _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
-    _world.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
-    //_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
+    _world.Render(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, _materialConstantBufferData);
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

@@ -126,7 +126,7 @@ public:
 
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
-	void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer);
+	void Render(const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData);
 
 	bool LoadWorld(std::string fileName = "");
 };

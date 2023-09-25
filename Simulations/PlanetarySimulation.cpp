@@ -159,7 +159,7 @@ void PlanetarySimulation::UpdateTransformations(float deltaTime)
 
 void PlanetarySimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
-	_instanceRenderer.RenderInstances<VertexPositionNormalUv>();
+	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(PerFrameConstantBuffer(), CameraConstantBuffer(), LightConstantBuffer(), MaterialConstantBuffer());
 }
 
 int PlanetarySimulation::GetOwnershipCount() const

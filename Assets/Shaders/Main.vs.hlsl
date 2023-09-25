@@ -39,7 +39,7 @@ struct PerInstanceData
     float4x4 worldMatrix;
 };
 
-cbuffer PerInstance : register(b5)
+cbuffer PerInstance : register(b4)
 {
     PerInstanceData instanceData[256]; // Max batch size
 };

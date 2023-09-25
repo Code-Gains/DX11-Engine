@@ -79,11 +79,11 @@ void World::PeriodicUpdate(float deltaTime)
 {
 }
 
-void World::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
+void World::Render(const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData)
 {
 	//_renderingSystem.Render(deviceContext, perObjectConstantBuffer, instanceConstantBuffer,
 		//_transformComponents, _meshComponents, _materialComponents, _lightComponents);
-	_instanceRenderer.RenderInstances<VertexPositionNormalUv>();
+	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData, materialConstantBufferData);
 }
 
 bool World::LoadWorld(std::string fileName)

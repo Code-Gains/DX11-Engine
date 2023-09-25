@@ -46,7 +46,7 @@ private:
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
+    //WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
@@ -112,39 +112,45 @@ public:
     }
 
     template<typename TVertexType>
-    void RenderInstances()
+    void RenderInstances(const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData)
     {
-        //// ------------------------------------------------
-        //ID3D11Buffer* constantPerObjectBuffers[2] =
-        //{
-        //    _perObjectConstantBuffer.Get(),
-        //    _instanceConstantBuffer.Get()
-        //};
-        //_deviceContext->VSSetConstantBuffers(4, 2, constantPerObjectBuffers);
-        //_deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-        /*ID3D11Buffer* constantPerFrameBuffers[4] = 
+        _deviceContext->Map(_perFrameConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        memcpy(mappedResource.pData, &perFrameConstantBuffer, sizeof(PerFrameConstantBuffer));
+        _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
+
+        _deviceContext->Map(_cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
+        _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
+
+        _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        memcpy(mappedResource.pData, &lightConstantBufferData, sizeof(LightConstantBuffer));
+        _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
+
+        _deviceContext->Map(_materialConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        memcpy(mappedResource.pData, &materialConstantBufferData, sizeof(MaterialConstantBuffer));
+        _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
+
+        ID3D11Buffer* constantPerFrameBuffers[4] = 
         {
             _perFrameConstantBuffer.Get(),
             _cameraConstantBuffer.Get(),
             _lightConstantBuffer.Get(),
             _materialConstantBuffer.Get()
-        };*/
+        };
 
-        ID3D11Buffer* constantPerObjectBuffers[2] =
+        ID3D11Buffer* constantPerObjectBuffers[1] =
         {
-            _perObjectConstantBuffer.Get(),
             _instanceConstantBuffer.Get()
         };
 
-        //_deviceContext->VSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-        _deviceContext->VSSetConstantBuffers(4, 2, constantPerObjectBuffers);
+        _deviceContext->VSSetConstantBuffers(0, 4, constantPerFrameBuffers);
+        _deviceContext->VSSetConstantBuffers(4, 1, constantPerObjectBuffers);
 
-        ///_deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-        _deviceContext->PSSetConstantBuffers(4, 2, constantPerObjectBuffers);
+        _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
+        _deviceContext->PSSetConstantBuffers(4, 1, constantPerObjectBuffers);
 
-        // ------------------------------------------------
-        //std::cout << _instancePools.size() << std::endl;
         for (const auto& instancePoolPair : _instancePools)
         {
             const InstancePool& instancePool = instancePoolPair.second;
