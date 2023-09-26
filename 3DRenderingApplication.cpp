@@ -31,9 +31,6 @@ Rendering3DApplication::~Rendering3DApplication()
 {
     _deviceContext->Flush();
     _textureSrv.Reset();
-    _perFrameConstantBuffer.Reset();
-    _perObjectConstantBuffer.Reset();
-    _instanceConstantBuffer.Reset();
     _rasterState.Reset();
     _depthState.Reset();
     _depthTarget.Reset();
@@ -144,19 +141,7 @@ bool Rendering3DApplication::Initialize()
     ImGui_ImplGlfw_InitForOther(_window, true);
     ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
 
-    SYSTEM_INFO sysInfo;
-    FILETIME ftime, fsys, fuser;
-
-    GetSystemInfo(&sysInfo);
-    _numProcessors = sysInfo.dwNumberOfProcessors;
-
-    GetSystemTimeAsFileTime(&ftime);
-    memcpy(&_lastCPU, &ftime, sizeof(FILETIME));
-
-    _self = GetCurrentProcess();
-    GetProcessTimes(_self, &ftime, &ftime, &fsys, &fuser);
-    memcpy(&_lastSysCPU, &fsys, sizeof(FILETIME));
-    memcpy(&_lastUserCPU, &fuser, sizeof(FILETIME));
+    _resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
 
     return true;
 }
@@ -279,7 +264,8 @@ bool Rendering3DApplication::Load()
 
     //std::cout << _world.GetEntityCount()<< std::endl;
     _world = World();
-    _world.Initialize(_device.Get(), _deviceContext.Get());
+    _world.Initialize(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
+    _world.UpdateViewportDimensions(_width, _height);
     _world.LoadWorld();
     return true;
 }
@@ -346,28 +332,6 @@ void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
     CreateDepthStencilView();
 }
 
-double Rendering3DApplication::GetCurrentCPUValue() {
-    FILETIME ftime, fsys, fuser;
-    ULARGE_INTEGER now, sys, user;
-    double percent;
-
-    GetSystemTimeAsFileTime(&ftime);
-    memcpy(&now, &ftime, sizeof(FILETIME));
-
-    GetProcessTimes(_self, &ftime, &ftime, &fsys, &fuser);
-    memcpy(&sys, &fsys, sizeof(FILETIME));
-    memcpy(&user, &fuser, sizeof(FILETIME));
-    percent = (sys.QuadPart - _lastSysCPU.QuadPart) +
-        (user.QuadPart - _lastUserCPU.QuadPart);
-    percent /= (now.QuadPart - _lastCPU.QuadPart);
-    percent /= _numProcessors;
-    _lastCPU = now;
-    _lastUserCPU = user;
-    _lastSysCPU = sys;
-
-    return percent * 100;
-}
-
 void Rendering3DApplication::Update()
 {
     /*if (isApplicationMinimized)
@@ -375,120 +339,9 @@ void Rendering3DApplication::Update()
 
     Application::Update();
 
-    using namespace DirectX;
-
-    float cameraMoveSpeed = 10.0f;
-    float cameraRotationSpeed = 5.0f;
-
-    static XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 10.0f };
-    static XMFLOAT3 cameraRotation = { 0.0f,  Constants::DegreesToRadians(180), 0.0f };
-
-
-    // Camera Movement
-
-    if (GetAsyncKeyState('W') & 0x8000) 
-    {
-        // Move camera forward
-        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
-        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * _deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-    if (GetAsyncKeyState('S') & 0x8000) 
-    {
-        // Move camera backward
-        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), rotationMatrix);
-        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * _deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-    if (GetAsyncKeyState('A') & 0x8000) 
-    {
-        // Move camera left
-        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
-        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) + right * cameraMoveSpeed * _deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-    if (GetAsyncKeyState('D') & 0x8000) 
-    {
-        // Move camera right
-        XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
-        XMVECTOR newPosition = XMLoadFloat3(&cameraPosition) - right * cameraMoveSpeed * _deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-
-
-    static float lastMouseX = 0.0f;
-    static float lastMouseY = 0.0f;
-
-    bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
-    static bool wasRightMouseDown = false; // Keep track of previous right mouse button state
-    POINT cursorPos;
-    GetCursorPos(&cursorPos);
-    ScreenToClient(glfwGetWin32Window(GetWindow()), &cursorPos);
-    int mouseX = cursorPos.x;
-    int mouseY = cursorPos.y;
-
-    if (isRightMouseDown) {
-        if (!wasRightMouseDown) {
-            // Right mouse button was just pressed, initialize previous mouse position
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        }
-
-        // Calculate the change in mouse position since the last frame
-        int deltaX = mouseX - lastMouseX;
-        int deltaY = mouseY - lastMouseY;
-
-        // Update the camera rotation based on the change in mouse position
-        cameraRotation.y -= deltaX * cameraRotationSpeed * _deltaTime;
-        cameraRotation.x += deltaY * cameraRotationSpeed * _deltaTime;
-
-        // Clamp pitch to prevent camera flipping
-        cameraRotation.x = max(-XM_PIDIV2, min(XM_PIDIV2, cameraRotation.x));
-
-        // Update the previous mouse position
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
-    }
-
-    wasRightMouseDown = isRightMouseDown;
-
-    XMVECTOR camPos = XMLoadFloat3(&cameraPosition);
-
-    XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-
-    // Calculate the forward, right, and up vectors
-    XMVECTOR forward = XMVector3TransformCoord(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
-    XMVECTOR right = XMVector3TransformCoord(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
-    XMVECTOR up = XMVector3TransformCoord(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rotationMatrix);
-
-    // Calculate the new camera target
-    XMVECTOR cameraTarget = XMVectorAdd(XMLoadFloat3(&cameraPosition), forward);
-
-    // Create the view matrix
-    XMMATRIX view = XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
-
-    XMMATRIX proj = XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
-        static_cast<float>(_width) / static_cast<float>(_height),
-        0.1f,
-        400);
-    XMMATRIX viewProjection = XMMatrixMultiply(view, proj);
-    XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
-
-    _lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
-    _lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
-    _lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
-    _lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-    _cameraConstantBufferData.cameraPosition = cameraPosition;
-
+    _resourceMonitor.Update(_deltaTime);
     _scene.Update(_deltaTime);
     _world.Update(_deltaTime);
-
-
 }
 
 void Rendering3DApplication::PeriodicUpdate()
@@ -506,54 +359,11 @@ void Rendering3DApplication::Render()
     //if (isApplicationMinimized)
         //return;
 
-    static const int frameBufferSize = 100;
-    static float frameDeltas[frameBufferSize] = { 0 };
-    static int frameIndex = 0;
-    static float framerate = 0;
-    static int framesPassed = 0;
-    static float totalDeltaTime = 0;
-    static float timeLeftUntilDebugInfo = 1;
-    static float cpuUsage = 0;
-    static SIZE_T virtualMemoryUsage = 0;
-    static float averageFramerate = 0;
-
-    framesPassed++;
-    totalDeltaTime += _deltaTime;
-    timeLeftUntilDebugInfo -= _deltaTime;
-
-    frameDeltas[frameIndex] = _deltaTime;
-    frameIndex = (frameIndex + 1) % frameBufferSize;
-
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
-    ImGui::Begin("Debug Info");
-    if (timeLeftUntilDebugInfo <= 0)
-    {
-        float sumDeltaTimes = 0;
-        for (int i = 0; i < frameBufferSize; ++i) {
-            sumDeltaTimes += frameDeltas[i];
-        }
-        framerate = frameBufferSize / sumDeltaTimes;
-        averageFramerate = framesPassed / totalDeltaTime;
-        PROCESS_MEMORY_COUNTERS_EX pmc;
-        if (GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc)))
-        {
-            virtualMemoryUsage = pmc.PrivateUsage;
-        }
-        cpuUsage = GetCurrentCPUValue();
-        timeLeftUntilDebugInfo = 1.0f;
-    }
 
-    ImGui::Text("FPS [Last 100]: %.2f", framerate);
-    ImGui::Text("AVG FPS: %.2f", averageFramerate);
-    ImGui::Text("RAM: %.2f MB", virtualMemoryUsage / (1024.0f * 1024.0f));
-    if (cpuUsage >= 0.0f)
-        ImGui::Text("CPU Usage: %.2f%%", cpuUsage);
-    else
-    {
-        ImGui::Text("CPU Usage: N/A");
-    }
+    _resourceMonitor.Render();
     ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount() + _instanceRenderer.GetOwnershipCount());
     ImGui::End();
     ImGui::Render();
@@ -588,8 +398,8 @@ void Rendering3DApplication::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    _scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
-    _world.Render(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, _materialConstantBufferData);
+    //_scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
+    _world.Render();
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

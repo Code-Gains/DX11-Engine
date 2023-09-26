@@ -103,8 +103,17 @@
 #include "Cube.hpp"
 #include "VertexType.hpp"
 
+#include "MeshComponent.hpp"
+#include "Constants.hpp"
+
 class World
 {
+	// Application State
+	HWND _win32Window;
+
+	int32_t _viewportWidth;
+	int32_t _viewportHeight;
+
 	// Entities
 	std::vector<Entity> _entities;
 
@@ -118,16 +127,21 @@ class World
 	// Systems
 	RenderingSystem _renderingSystem;
 	InstanceRenderer _instanceRenderer;
+	LightConstantBuffer _lightConstantBufferData;
+	PerFrameConstantBuffer _perFrameConstantBufferData{};
+	CameraConstantBuffer _cameraConstantBufferData{};
 
 public:
 	World();
 
-	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	bool Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
-	void Render(const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData);
+	void Render();
 
 	bool LoadWorld(std::string fileName = "");
+
+	void UpdateViewportDimensions(int32_t width, int32_t height);
 };
 

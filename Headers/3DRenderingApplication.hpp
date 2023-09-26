@@ -31,6 +31,7 @@
 #include "World.hpp"
 #include "Component.hpp"
 #include "Entity.hpp"
+#include "ResourceMonitor.hpp"
 
 
 
@@ -53,10 +54,7 @@ protected:
     void Render() override;
 
 private:
-
-    ULARGE_INTEGER _lastCPU, _lastSysCPU, _lastUserCPU;
-    int _numProcessors;
-    HANDLE _self;
+    ResourceMonitor _resourceMonitor;
 
     void CreateRasterState();
     void CreateDepthStencilView();
@@ -64,7 +62,6 @@ private:
     void CreateConstantBuffers();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
-    double GetCurrentCPUValue();
 
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
@@ -80,21 +77,7 @@ private:
     WRL::ComPtr<ID3D11ShaderResourceView> _textureSrv = nullptr;
     WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
 
-    WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
-
     ShaderCollection _shaderCollection;
-
-    PerFrameConstantBuffer _perFrameConstantBufferData{};
-    CameraConstantBuffer _cameraConstantBufferData{};
-    LightConstantBuffer _lightConstantBufferData{};
-    MaterialConstantBuffer _materialConstantBufferData{};
-    PerObjectConstantBuffer _perObjectConstantBufferData{};
-    InstanceConstantBuffer _instanceConstantBufferData{};
 
     World _world;
     Scene _scene;

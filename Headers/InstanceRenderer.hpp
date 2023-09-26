@@ -46,7 +46,6 @@ private:
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
-    //WRL::ComPtr<ID3D11Buffer> _perObjectConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
