@@ -1,30 +1,73 @@
 #include "TransformComponent.hpp"
 
 TransformComponent::TransformComponent()
-    : position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
-    rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
-    scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f })
+    : _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
+    _rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
+    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f })
 {
 }
 
 TransformComponent::TransformComponent(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale)
-    : position(pos), rotation(rot), scale(scale)
+    : _position(pos), _rotation(rot), _scale(scale)
 {
+}
+
+void TransformComponent::SetPosition(const DirectX::XMFLOAT3& position)
+{
+    _position = position;
+    _isDirty = true;
+}
+
+void TransformComponent::SetRotation(const DirectX::XMFLOAT3& rotation)
+{
+    _rotation = rotation;
+    _isDirty = true;
+}
+
+void TransformComponent::SetScale(const DirectX::XMFLOAT3& scale)
+{
+    _scale = scale;
+    _isDirty = true;
+}
+
+DirectX::XMFLOAT3 TransformComponent::GetPosition() const
+{
+    return _position;
+}
+
+DirectX::XMFLOAT3 TransformComponent::GetRotation() const
+{
+    return _rotation;
+}
+
+DirectX::XMFLOAT3 TransformComponent::GetScale() const
+{
+    return _scale;
 }
 
 DirectX::XMMATRIX TransformComponent::GetWorldMatrix() const
 {
-    DirectX::XMMATRIX positionMatrix = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
-    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
-    DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
+    DirectX::XMMATRIX positionMatrix = DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z);
+    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(_rotation.x, _rotation.y, _rotation.z);
+    DirectX::XMMATRIX scaleMatrix = DirectX::XMMatrixScaling(_scale.x, _scale.y, _scale.z);
 
     return scaleMatrix * rotationMatrix * positionMatrix;
 }
 
+bool TransformComponent::IsDirty() const
+{
+    return _isDirty;
+}
+
+void TransformComponent::SetIsDirty(bool isDirty)
+{
+    _isDirty = IsDirty;
+}
+
 std::ostream& operator<<(std::ostream& os, const TransformComponent& transform)
 {
-    os << "Position: (" << transform.position.x << ", " << transform.position.y << ", " << transform.position.z << ")";
-    os << " Rotation: (" << transform.rotation.x << ", " << transform.rotation.y << ", " << transform.rotation.z << ")";
-    os << " Scale: (" << transform.scale.x << ", " << transform.scale.y << ", " << transform.scale.z << ")";
+    os << "Position: (" << transform.GetPosition().x << ", " << transform.GetPosition().y << ", " << transform.GetPosition().z << ")";
+    os << " Rotation: (" << transform.GetRotation().x << ", " << transform.GetRotation().y << ", " << transform.GetRotation().z << ")";
+    os << " Scale: (" << transform.GetScale().x << ", " << transform.GetScale().y << ", " << transform.GetScale().z << ")";
     return os;
 }
