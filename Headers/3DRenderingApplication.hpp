@@ -9,8 +9,6 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#include <Psapi.h>
-
 #include "Definitions.hpp"
 #include "Application.hpp"
 #include "ShaderCollection.hpp"
@@ -26,7 +24,6 @@
 #include "ConstantBufferDefinitions.hpp"
 #include "InstanceRenderer.hpp"
 #include "PlanetarySimulation.hpp"
-#include <pdh.h>
 
 #include "World.hpp"
 #include "Component.hpp"

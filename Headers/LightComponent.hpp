@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include "Component.hpp"
 
-class LightComponent : public Component
+class LightComponent
 {
     DirectX::XMFLOAT4 _position;
     DirectX::XMFLOAT4 _ambient;

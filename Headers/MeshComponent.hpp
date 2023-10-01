@@ -6,7 +6,7 @@
 #include "VertexType.hpp"
 #include "Component.hpp"
 
-class MeshComponent : public Component
+class MeshComponent
 {
 	std::vector<VertexPositionNormalUv> _vertices;
 	std::vector<UINT> _indices;

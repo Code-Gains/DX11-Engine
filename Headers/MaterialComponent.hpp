@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include "Component.hpp"
 
-class MaterialComponent : public Component
+class MaterialComponent
 {
     DirectX::XMFLOAT4 _ambient;
     DirectX::XMFLOAT4 _diffuse;

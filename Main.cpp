@@ -1,4 +1,6 @@
 #include "3DRenderingApplication.hpp"
+#include <string>
+#include <algorithm>
 
 int main(int argc, char* argv[])
 {

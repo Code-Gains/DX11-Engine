@@ -185,7 +185,7 @@ void World::Update(float deltaTime)
 
     //std::cout << _viewportWidth << " " << _viewportHeight << " " << &_win32Window << std::endl;
 
-	_renderingSystem.Update(deltaTime);
+	//_renderingSystem.Update(deltaTime);
 }
 
 void World::PeriodicUpdate(float deltaTime)
@@ -194,9 +194,52 @@ void World::PeriodicUpdate(float deltaTime)
 
 void World::Render()
 {
-	//_renderingSystem.Render(deviceContext, perObjectConstantBuffer, instanceConstantBuffer,
-		//_transformComponents, _meshComponents, _materialComponents, _lightComponents);
-	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
+    //auto renderableEntities = GetRenderableEntities(_transformComponentIndices, _meshComponentIndices, _materialComponentIndices);
+    //std::cout << renderableEntities.size() << std::endl;
+
+    //// Prepare instance pools
+    //for (const int entity : renderableEntities)
+    //{
+    //    int meshIndex = _meshComponentIndices[entity];
+    //    int transformIndex = _transformComponentIndices[entity];
+
+
+    //    int poolKey = meshIndex;
+    //    //auto& instancePool = _instancePools[poolKey];
+    //}
+
+	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
+}
+
+void World::AddRenderableInstanceInstance(const InstanceConstantBuffer& instanceData, int poolKey)
+{
+    auto it = _instancePools.find(poolKey);
+    if (it != _instancePools.end())
+    {
+        it->second.instances.push_back(instanceData);
+        it->second.instanceCount++;
+    }
+}
+
+std::vector<int> World::GetRenderableEntities(
+    const std::unordered_map<int, int>& transformIndices,
+    const std::unordered_map<int, int>& meshIndices,
+    const std::unordered_map<int, int>& materialIndices) const
+{
+    std::vector<int> entities;
+    for (const auto& [entity, meshIndex] : meshIndices) {
+        if (transformIndices.find(entity) != transformIndices.end() && materialIndices.find(entity) != materialIndices.end()) {
+            entities.push_back(entity);
+        }
+    }
+    return entities;
+}
+
+Entity World::CreateEntity()
+{
+    auto newEntity = Entity();
+    _entities.push_back(newEntity);
+    return newEntity;
 }
 
 bool World::LoadWorld(std::string fileName)
@@ -207,43 +250,85 @@ bool World::LoadWorld(std::string fileName)
 
 	// Create a few meshes, materials, a light source
 
-	auto entity = Entity();
+	auto blueCube = Entity();
+    auto redCube = Entity();
 
-	auto transformComponent = TransformComponent();
-	//transformComponent.AddEntity(entity);
-	_transformComponents.push_back(transformComponent);
+    auto transformComponent = TransformComponent(DirectX::XMFLOAT3 {-1, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+    AddComponent(blueCube.GetId(), transformComponent);
+
+    auto transformComponent2 = TransformComponent(DirectX::XMFLOAT3{ 1, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+    AddComponent(redCube.GetId(), transformComponent2);
 
 	auto cube = Cube();
 	auto meshComponent = MeshComponent(cube.GetVertices(), cube.GetIndices());
-	//meshComponent.AddEntity(entity);
-	_meshComponents.push_back(meshComponent);
+    AddComponent(blueCube.GetId(), meshComponent);
+    AddComponent(redCube.GetId(), meshComponent);
 
-	DirectX::XMFLOAT4 ambient{ 1.0f, 1.0f, 1.0f, 1.0f };
-	DirectX::XMFLOAT4 diffuse{ 1.0f, 1.0f, 1.0f, 1.0f };
-	DirectX::XMFLOAT4 specular{ 1.0f, 1.0f, 1.0f, 1.0f };
+
+	DirectX::XMFLOAT4 ambient{ 0.0f, 0.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT4 diffuse{ 0.0f, 0.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT4 specular{ 0.0f, 0.0f, 1.0f, 1.0f };
 	float shininess = 3;
+	auto blueMaterial = MaterialComponent(ambient, diffuse, specular, shininess);
 
+    ambient = { 1.0f, 0.0f, 0.0f, 1.0f };
+    diffuse = { 1.0f, 0.0f, 0.0f, 1.0f };
+    specular = { 1.0f, 0.0f, 0.0f, 1.0f };
+    auto redMaterial = MaterialComponent(ambient, diffuse, specular, shininess);
 
-	auto materialComponent = MaterialComponent(ambient, diffuse, specular, shininess);
-	//materialComponent.AddEntity(entity);
-	_materialComponents.push_back(materialComponent);
-
+    AddComponent(blueCube.GetId(), blueMaterial);
+    AddComponent(redCube.GetId(), redMaterial);
 
 
 	// Set up instance renderer
 	std::vector<VertexPositionNormalUv> vertices = cube.GetVertices();
 	std::vector<UINT> indices = cube.GetIndices();
 
-	_instanceRenderer.InitializeInstancePool(0, vertices, indices);
-	_instanceRenderer.AddInstance(InstanceConstantBuffer(cube.transform.GetWorldMatrix()), 0);
+    InstanceRenderer::InstancePool instancePool = _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(blueCube.GetId(), meshComponent);
+    _instancePools[0] = instancePool;
 
-	std::cout << entity.GetId() << std::endl;
+	//_instanceRenderer.InitializeInstancePool(0, vertices, indices);
+    AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent.GetWorldMatrix(), blueMaterial), 0);
+    AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent2.GetWorldMatrix(), redMaterial), 0);
+	//_instanceRenderer.AddInstance(InstanceConstantBuffer(cube.transform.GetWorldMatrix()), 0);
 
-	return false;
+	//std::cout << cubeEntity.GetId() << std::endl;
+
+	return true;
 }
 
 void World::UpdateViewportDimensions(int32_t width, int32_t height)
 {
 	_viewportWidth = width;
 	_viewportHeight = height;
+}
+
+void World::AddComponent(int entityId, const TransformComponent& component)
+{
+    _transformComponentIndices[entityId] = _transformComponents.size();
+    _transformComponents.push_back(component);
+}
+
+void World::AddComponent(int entityId, const MeshComponent& component)
+{
+    _meshComponentIndices[entityId] = _meshComponents.size();
+    _meshComponents.push_back(component);
+}
+
+void World::AddComponent(int entityId, const MaterialComponent& component)
+{
+    _materialComponentIndices[entityId] = _materialComponents.size();
+    _materialComponents.push_back(component);
+}
+
+void World::AddComponent(int entityId, const LightComponent& component)
+{
+    _lightComponentIndices[entityId] = _lightComponents.size();
+    _lightComponents.push_back(component);
+}
+
+void World::AddComponent(int entityId, const CameraComponent& component)
+{
+    _cameraComponentIndices[entityId] = _cameraComponents.size();
+    _cameraComponents.push_back(component);
 }

@@ -137,7 +137,8 @@ void WindowsXpPipesSimulation::Update(float deltaTime)
 
 void WindowsXpPipesSimulation::Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer)
 {
-    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(PerFrameConstantBuffer(), CameraConstantBuffer(), LightConstantBuffer(), MaterialConstantBuffer());
+    auto removeThisLater = std::unordered_map<int, InstanceRenderer::InstancePool>();
+    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(removeThisLater, PerFrameConstantBuffer(), CameraConstantBuffer(), LightConstantBuffer(), MaterialConstantBuffer());
 }
 
 int WindowsXpPipesSimulation::GetOwnershipCount() const

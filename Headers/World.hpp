@@ -106,6 +106,10 @@
 #include "MeshComponent.hpp"
 #include "Constants.hpp"
 
+//struct EntityGroup {
+//	std::vector<>
+//};
+
 class World
 {
 	// Application State
@@ -116,17 +120,41 @@ class World
 
 	// Entities
 	std::vector<Entity> _entities;
+	int _nextEntityId = 1;
 
 	// Storage
+	std::unordered_map<int, InstanceRenderer::InstancePool> _instancePools;
+
+	//std::vector<WRL::ComPtr<ID3D11Buffer>> _vertexBuffers;
+	//std::vector<WRL::ComPtr<ID3D11Buffer>> _indexBuffers;
+	//std::vector<std::vector<InstanceConstantBuffer>> _instances;
+
+	//UINT vertexCount = 0;
+	//WRL::ComPtr<ID3D11Buffer> indexBuffer = nullptr;
+	//UINT indexCount = 0;
+	//std::vector<InstanceConstantBuffer> instances;
+	//UINT instanceCount = 0;
+
+	// Storage -> Component Data
 	std::vector<TransformComponent> _transformComponents;
 	std::vector<MeshComponent> _meshComponents;
 	std::vector<MaterialComponent> _materialComponents;
 	std::vector<LightComponent> _lightComponents;
 	std::vector<CameraComponent> _cameraComponents;
 
+	// Storage -> Component Relations
+	// entityId -> componentIndex
+	std::unordered_map<int, int> _transformComponentIndices;
+	std::unordered_map<int, int> _meshComponentIndices;
+	std::unordered_map<int, int> _materialComponentIndices;
+	std::unordered_map<int, int> _lightComponentIndices;
+	std::unordered_map<int, int> _cameraComponentIndices;
+
 	// Systems
-	RenderingSystem _renderingSystem;
 	InstanceRenderer _instanceRenderer;
+
+
+	// Rendering Data
 	LightConstantBuffer _lightConstantBufferData;
 	PerFrameConstantBuffer _perFrameConstantBufferData{};
 	CameraConstantBuffer _cameraConstantBufferData{};
@@ -135,13 +163,65 @@ public:
 	World();
 
 	bool Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	void UpdateViewportDimensions(int32_t width, int32_t height);
+	bool LoadWorld(std::string fileName = "");
 
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
 	void Render();
 
-	bool LoadWorld(std::string fileName = "");
+	void AddRenderableInstanceInstance(const InstanceConstantBuffer& instanceData, int poolKey);
+	
+	std::vector<int> GetRenderableEntities(
+		const std::unordered_map<int, int>& transformIndices,
+		const std::unordered_map<int, int>& meshIndices,
+		const std::unordered_map<int, int>& materialIndices
+	) const;
 
-	void UpdateViewportDimensions(int32_t width, int32_t height);
+	Entity CreateEntity();
+
+	// Temporary templating
+
+	void AddComponent(int entityId, const TransformComponent& component);
+	void AddComponent(int entityId, const MeshComponent& component);
+	void AddComponent(int entityId, const MaterialComponent& component);
+	void AddComponent(int entityId, const LightComponent& component);
+	void AddComponent(int entityId, const CameraComponent& component);
 };
 
+
+//template<>
+//void World::AddComponent<TransformComponent>(int entityId, const TransformComponent& component)
+//{
+//	_transformComponents[entityId] = component;
+//}
+//
+//template<>
+//void World::AddComponent<MeshComponent>(int entityId, const MeshComponent& component)
+//{
+//	_meshComponents[entityId] = component;
+//}
+//
+//template<>
+//void World::AddComponent<MaterialComponent>(int entityId, const MaterialComponent& component)
+//{
+//	_materialComponents[entityId] = component;
+//}
+//
+//template<>
+//void World::AddComponent<LightComponent>(int entityId, const LightComponent& component)
+//{
+//	_lightComponents[entityId] = component;
+//}
+//
+//template<>
+//void World::AddComponent<CameraComponent>(int entityId, const CameraComponent& component)
+//{
+//	_cameraComponents[entityId] = component;
+//}
+
+//template<typename TComponent>
+//inline void World::AddComponent(int entityId, const TComponent& component)
+//{
+//	return; // probably useless?
+//}

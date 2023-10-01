@@ -1,9 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
 #include <iostream>
-#include "Component.hpp"
 
-class TransformComponent : public Component
+class TransformComponent
 {
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 rotation;

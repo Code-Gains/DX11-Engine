@@ -94,3 +94,13 @@ int InstanceRenderer::GetOwnershipCount() const
     }
     return totalCount;
 }
+
+InstanceConstantBuffer::InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix) : worldMatrix(worldMatrix)
+{
+}
+
+InstanceConstantBuffer::InstanceConstantBuffer(
+    const DirectX::XMMATRIX& worldMatrix,
+    const MaterialComponent& materialComponent) : worldMatrix(worldMatrix), material(materialComponent)
+{
+}

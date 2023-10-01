@@ -5,16 +5,24 @@
 #include "ConstantBufferDefinitions.hpp"
 #include "VertexType.hpp"
 #include "Logging.hpp"
+#include "Cube.hpp"
+#include "MeshComponent.hpp"
+#include "MaterialComponent.hpp"
+
 #include <unordered_map>
+#include <map>
 #include <iostream>
 #include <array>
 #include <algorithm>
-#include <Cube.hpp>
 
 
 struct InstanceConstantBuffer
 {
     DirectX::XMMATRIX worldMatrix;
+    MaterialComponent material;
+
+    InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
+    InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialComponent& materialComponent);
 };
 
 
@@ -110,8 +118,58 @@ public:
         return true;
     }
 
+    template <typename TVertexType>
+    InstancePool CreateInstancePool(int poolKey, const MeshComponent& meshComponent)
+    {
+        auto vertices = meshComponent.GetVertices();
+        auto indices = meshComponent.GetIndices();
+
+        D3D11_BUFFER_DESC vertexBufferDesc;
+        ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
+        vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+        vertexBufferDesc.ByteWidth = sizeof(TVertexType) * vertices.size(); // DANGEROUS, CHANGE TODO
+        vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        vertexBufferDesc.CPUAccessFlags = 0;
+        vertexBufferDesc.MiscFlags = 0;
+
+        D3D11_BUFFER_DESC indexBufferDesc;
+        ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
+        indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        indexBufferDesc.ByteWidth = sizeof(UINT) * indices.size();
+        indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+        // Create buffers
+        InstancePool newPool;
+
+        D3D11_SUBRESOURCE_DATA vertexData;
+        ZeroMemory(&vertexData, sizeof(vertexData));
+        vertexData.pSysMem = vertices.data();
+        HRESULT hr = _device->CreateBuffer(&vertexBufferDesc, &vertexData, newPool.vertexBuffer.GetAddressOf());
+        if (FAILED(hr))
+        {
+            std::cerr << "Could not create Vertex Buffer for a pool!\n";
+            //return nullptr;
+        }
+
+        D3D11_SUBRESOURCE_DATA indexData;
+        ZeroMemory(&indexData, sizeof(indexData));
+        indexData.pSysMem = indices.data();
+        hr = _device->CreateBuffer(&indexBufferDesc, &indexData, newPool.indexBuffer.GetAddressOf());
+        if (FAILED(hr))
+        {
+            std::cerr << "Could not create Index Buffer for a pool!\n";
+            //return nullptr;
+        }
+
+        // Set pool
+        newPool.vertexCount = vertices.size();
+        newPool.indexCount = indices.size();
+        //_instancePools[poolKey] = newPool;
+        return newPool;
+    }
+
     template<typename TVertexType>
-    void RenderInstances(const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData)
+    void RenderInstances(const std::unordered_map<int, InstancePool>& instancePools, const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -150,7 +208,7 @@ public:
         _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(4, 1, constantPerObjectBuffers);
 
-        for (const auto& instancePoolPair : _instancePools)
+        for (const auto& instancePoolPair : instancePools)
         {
             const InstancePool& instancePool = instancePoolPair.second;
 
@@ -170,7 +228,7 @@ public:
                     return;
                 }
 
-                memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(DirectX::XMMATRIX) * instancesToRender);
+                memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(InstanceConstantBuffer) * instancesToRender);
                 _deviceContext->Unmap(_instanceConstantBuffer.Get(), 0);
 
                 // Draw
