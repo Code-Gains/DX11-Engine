@@ -21,6 +21,7 @@ struct InstanceConstantBuffer
     DirectX::XMMATRIX worldMatrix;
     MaterialComponent material;
 
+    InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialComponent& materialComponent);
 };
@@ -38,6 +39,7 @@ public:
         UINT indexCount = 0;
 
         std::vector<InstanceConstantBuffer> instances;
+        std::unordered_map<int, size_t> entityIdToInstanceIndex;
         UINT instanceCount = 0;
     };
 
@@ -62,7 +64,7 @@ public:
     InstanceRenderer(int batchSize = 10);
     InstanceRenderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int batchSize = 10);
 
-    void AddInstance(const InstanceConstantBuffer& instanceData, int poolKey);
+    void AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
     void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
     void RemoveInstance(int poolKey, int instanceIndex);
 

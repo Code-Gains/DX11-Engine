@@ -169,8 +169,6 @@ public:
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
 	void Render();
-
-	void AddRenderableInstanceInstance(const InstanceConstantBuffer& instanceData, int poolKey);
 	
 	std::vector<int> GetRenderableEntities(
 		const std::unordered_map<int, int>& transformIndices,
@@ -187,6 +185,13 @@ public:
 	void AddComponent(int entityId, const MaterialComponent& component);
 	void AddComponent(int entityId, const LightComponent& component);
 	void AddComponent(int entityId, const CameraComponent& component);
+
+	void AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
+	void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
+	void RemoveInstance(int poolKey, int instanceIndex);
+	void RemoveAllInstances();
+
+	void UpdateDirtyRenderableTransforms();
 };
 
 

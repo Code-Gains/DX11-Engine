@@ -61,7 +61,7 @@ bool TransformComponent::IsDirty() const
 
 void TransformComponent::SetIsDirty(bool isDirty)
 {
-    _isDirty = IsDirty;
+    _isDirty = isDirty;
 }
 
 std::ostream& operator<<(std::ostream& os, const TransformComponent& transform)

@@ -186,6 +186,7 @@ void World::Update(float deltaTime)
     //std::cout << _viewportWidth << " " << _viewportHeight << " " << &_win32Window << std::endl;
 
 	//_renderingSystem.Update(deltaTime);
+    UpdateDirtyRenderableTransforms();
 }
 
 void World::PeriodicUpdate(float deltaTime)
@@ -207,18 +208,7 @@ void World::Render()
     //    int poolKey = meshIndex;
     //    //auto& instancePool = _instancePools[poolKey];
     //}
-
 	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
-}
-
-void World::AddRenderableInstanceInstance(const InstanceConstantBuffer& instanceData, int poolKey)
-{
-    auto it = _instancePools.find(poolKey);
-    if (it != _instancePools.end())
-    {
-        it->second.instances.push_back(instanceData);
-        it->second.instanceCount++;
-    }
 }
 
 std::vector<int> World::GetRenderableEntities(
@@ -288,8 +278,10 @@ bool World::LoadWorld(std::string fileName)
     _instancePools[0] = instancePool;
 
 	//_instanceRenderer.InitializeInstancePool(0, vertices, indices);
-    AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent.GetWorldMatrix(), blueMaterial), 0);
-    AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent2.GetWorldMatrix(), redMaterial), 0);
+    AddInstance(0, blueCube.GetId(), InstanceConstantBuffer(transformComponent.GetWorldMatrix(), blueMaterial));
+    AddInstance(0, redCube.GetId(), InstanceConstantBuffer(transformComponent2.GetWorldMatrix(), redMaterial));
+    //AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent.GetWorldMatrix(), blueMaterial), 0);
+    //AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent2.GetWorldMatrix(), redMaterial), 0);
 	//_instanceRenderer.AddInstance(InstanceConstantBuffer(cube.transform.GetWorldMatrix()), 0);
 
 	//std::cout << cubeEntity.GetId() << std::endl;
@@ -332,3 +324,94 @@ void World::AddComponent(int entityId, const CameraComponent& component)
     _cameraComponentIndices[entityId] = _cameraComponents.size();
     _cameraComponents.push_back(component);
 }
+
+
+void World::AddInstance(
+    int poolKey,
+    int entityId,
+    const InstanceConstantBuffer& instanceData)
+{
+    auto it = _instancePools.find(poolKey);
+    if (it != _instancePools.end())
+    {
+        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
+        it->second.instances.push_back(instanceData);
+        it->second.instanceCount++;
+    }
+}
+
+void World::UpdateInstanceData(
+    int poolKey,
+    int entityId,
+    const InstanceConstantBuffer& newData)
+{
+    if (_instancePools.find(poolKey) != _instancePools.end())
+    {
+        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
+        if (entityIdToInstances.find(entityId) != entityIdToInstances.end())
+        {
+            auto instanceIndex = entityIdToInstances[entityId];
+            _instancePools[poolKey].instances[instanceIndex] = newData;
+            return;
+        }
+        AddInstance(poolKey, entityId, newData);
+    }
+}
+
+void World::RemoveInstance(
+    int poolKey,
+    int entityId)
+{
+    if (_instancePools.find(poolKey) != _instancePools.end())
+    {
+        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
+        auto& instances = _instancePools[poolKey].instances;
+        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
+        {
+            auto instanceIndex = entityIdToInstance[entityId];
+            entityIdToInstance.erase(entityId);
+            instances.erase(instances.begin() + instanceIndex);
+            _instancePools[poolKey].instanceCount--;
+        }
+    }
+}
+
+void World::RemoveAllInstances()
+{
+    for (auto& instancePoolPair : _instancePools)
+    {
+        InstanceRenderer::InstancePool& instancePool = instancePoolPair.second;
+        instancePool.entityIdToInstanceIndex.clear();
+        instancePool.instances.clear();
+        instancePool.instanceCount = 0;
+    }
+}
+
+void World::UpdateDirtyRenderableTransforms()
+{
+    for (auto& entity : _entities)
+    {
+        if (_transformComponentIndices.find(entity.GetId()) == _transformComponentIndices.end())
+            return;
+        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
+            return;
+        if (_materialComponentIndices.find(entity.GetId()) == _materialComponentIndices.end())
+            return;
+
+        int transformIndex = _transformComponentIndices[entity.GetId()];
+        TransformComponent& transform = _transformComponents[transformIndex];
+        if (!transform.IsDirty())
+            return;
+
+        int materialIndex = _materialComponentIndices[entity.GetId()];
+        MaterialComponent& material = _materialComponents[materialIndex];
+
+
+        //InstanceRenderer::InstancePool& instancePool = _instancePools[0]; // temp for test
+
+        UpdateInstanceData(0, entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material));
+
+    }
+
+}
+

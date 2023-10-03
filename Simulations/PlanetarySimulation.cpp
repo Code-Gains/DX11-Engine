@@ -30,17 +30,17 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device, ID3D11DeviceContext* 
 	std::vector<UINT> indices = sphere.GetIndices();
 
 	_instanceRenderer.InitializeInstancePool(0, vertices, indices);
-	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere.transform.GetWorldMatrix()), 0);
+	_instanceRenderer.AddInstance(0, 0, InstanceConstantBuffer(sphere.transform.GetWorldMatrix()));
 	sphere.SetVelocity(DirectX::XMFLOAT3{ -40, 0, 0 });
 	_planets.push_back(sphere);
 
 	auto sphere2 = Sphere(DirectX::XMFLOAT3{ 0, 60, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(_sunRadius, _sunRadius, _sunRadius));
-	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2.transform.GetWorldMatrix()), 0);
+	_instanceRenderer.AddInstance(0, 0, InstanceConstantBuffer(sphere2.transform.GetWorldMatrix()));
 	sphere2.SetVelocity(DirectX::XMFLOAT3{ 40, 0, 0 });
 	_planets.push_back(sphere2);
 
 	auto sphere3 = Sphere(DirectX::XMFLOAT3{ 0, -120, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3(_sunRadius, _sunRadius, _sunRadius));
-	_instanceRenderer.AddInstance(InstanceConstantBuffer(sphere3.transform.GetWorldMatrix()), 0);
+	_instanceRenderer.AddInstance(0, 0, InstanceConstantBuffer(sphere3.transform.GetWorldMatrix()));
 	sphere3.SetVelocity(DirectX::XMFLOAT3{ 20, 0, 0 });
 	_planets.push_back(sphere3);
 
@@ -60,7 +60,7 @@ bool PlanetarySimulation::Initialize(ID3D11Device* device, ID3D11DeviceContext* 
 		float velocityMagnitude = 20.0f;
 
 		rectangle = Rectangle3D(DirectX::XMFLOAT3(randomPoint.x, randomPoint.y, randomPoint.z), GetRandomRotation(), DirectX::XMFLOAT3{ 1, 1, 1 });
-		_instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle.transform.GetWorldMatrix()), 1);
+		_instanceRenderer.AddInstance(1, 0, InstanceConstantBuffer(rectangle.transform.GetWorldMatrix()));
 		DirectX::XMFLOAT3 initialVelocity { randomDirection.x * velocityMagnitude, randomDirection.y * velocityMagnitude, randomDirection.z * velocityMagnitude };
 		rectangle.SetVelocity(initialVelocity);
 

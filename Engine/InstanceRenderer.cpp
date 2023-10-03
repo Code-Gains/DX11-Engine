@@ -20,9 +20,6 @@ void InstanceRenderer::CreateConstantBuffers()
     desc.ByteWidth = sizeof(MaterialConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
 
-    /*desc.ByteWidth = sizeof(PerObjectConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_perObjectConstantBuffer);*/
-
     desc.ByteWidth = sizeof(InstanceConstantBuffer) * _batchSize;
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
@@ -32,7 +29,6 @@ InstanceRenderer::InstanceRenderer(int batchSize) : _batchSize(batchSize)
 
 }
 
-
 InstanceRenderer::InstanceRenderer(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
     int batchSize) : _device(device), _deviceContext(deviceContext)
@@ -41,34 +37,41 @@ InstanceRenderer::InstanceRenderer(ID3D11Device* device,
     CreateConstantBuffers();
 }
 
-void InstanceRenderer::AddInstance(const InstanceConstantBuffer& instanceData, int poolKey)
+void InstanceRenderer::AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
     auto it = _instancePools.find(poolKey);
     if (it != _instancePools.end())
     {
+        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
         it->second.instances.push_back(instanceData);
         it->second.instanceCount++;
     }
 }
 
-void InstanceRenderer::UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData)
+void InstanceRenderer::UpdateInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
-        if (instanceIndex >= 0 && instanceIndex < _instancePools[poolKey].instances.size())
+        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
+        if(entityIdToInstances.find(entityId) != entityIdToInstances.end())
         {
+            auto instanceIndex = entityIdToInstances[entityId];
             _instancePools[poolKey].instances[instanceIndex] = newData;
         }
     }
 }
 
-void InstanceRenderer::RemoveInstance(int poolKey, int instanceIndex)
+void InstanceRenderer::RemoveInstance(int poolKey, int entityId)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
-        if (instanceIndex >= 0 && instanceIndex < _instancePools[poolKey].instanceCount)
+        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
+        auto& instances = _instancePools[poolKey].instances;
+        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
-            _instancePools[poolKey].instances.erase(_instancePools[poolKey].instances.begin() + instanceIndex);
+            auto instanceIndex = entityIdToInstance[entityId];
+            entityIdToInstance.erase(entityId);
+            instances.erase(instances.begin() + instanceIndex);
             _instancePools[poolKey].instanceCount--;
         }
     }
@@ -79,6 +82,7 @@ void InstanceRenderer::RemoveAllInstances()
     for (auto& instancePoolPair : _instancePools)
     {
         InstancePool& instancePool = instancePoolPair.second;
+        instancePool.entityIdToInstanceIndex.clear();
         instancePool.instances.clear();
         instancePool.instanceCount = 0;
     }
@@ -93,6 +97,10 @@ int InstanceRenderer::GetOwnershipCount() const
         totalCount += poolPair.second.instanceCount;
     }
     return totalCount;
+}
+
+InstanceConstantBuffer::InstanceConstantBuffer()
+{
 }
 
 InstanceConstantBuffer::InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix) : worldMatrix(worldMatrix)

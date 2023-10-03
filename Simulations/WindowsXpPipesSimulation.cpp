@@ -373,7 +373,7 @@ void WindowsXpPipesSimulation::CreatePipeAtCell(const Int3& cellPosition, const 
     else
         _cornerCount++;
 
-    _instanceRenderer.AddInstance(InstanceConstantBuffer(transform.GetWorldMatrix()), poolKey);
+    _instanceRenderer.AddInstance(poolKey, 0, InstanceConstantBuffer(transform.GetWorldMatrix()));
 
 }
 
