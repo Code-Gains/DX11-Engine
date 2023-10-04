@@ -250,7 +250,7 @@ bool World::LoadWorld(std::string fileName)
     AddComponent(redCube.GetId(), transformComponent2);
 
 	auto cube = Cube();
-	auto meshComponent = MeshComponent(cube.GetVertices(), cube.GetIndices());
+	auto meshComponent = MeshComponent(cube.GetVertices(), cube.GetIndices(), _nextPoolId);
     AddComponent(blueCube.GetId(), meshComponent);
     AddComponent(redCube.GetId(), meshComponent);
 
@@ -275,16 +275,10 @@ bool World::LoadWorld(std::string fileName)
 	std::vector<UINT> indices = cube.GetIndices();
 
     InstanceRenderer::InstancePool instancePool = _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(blueCube.GetId(), meshComponent);
-    _instancePools[0] = instancePool;
+    LinkRenderableInstancePool(instancePool);
 
-	//_instanceRenderer.InitializeInstancePool(0, vertices, indices);
-    AddInstance(0, blueCube.GetId(), InstanceConstantBuffer(transformComponent.GetWorldMatrix(), blueMaterial));
-    AddInstance(0, redCube.GetId(), InstanceConstantBuffer(transformComponent2.GetWorldMatrix(), redMaterial));
-    //AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent.GetWorldMatrix(), blueMaterial), 0);
-    //AddRenderableInstanceInstance(InstanceConstantBuffer(transformComponent2.GetWorldMatrix(), redMaterial), 0);
-	//_instanceRenderer.AddInstance(InstanceConstantBuffer(cube.transform.GetWorldMatrix()), 0);
-
-	//std::cout << cubeEntity.GetId() << std::endl;
+    _entities.push_back(blueCube);
+    _entities.push_back(redCube);
 
 	return true;
 }
@@ -325,8 +319,66 @@ void World::AddComponent(int entityId, const CameraComponent& component)
     _cameraComponents.push_back(component);
 }
 
+void World::RemoveComponent(int entityId, const TransformComponent& component)
+{
+    auto it = _transformComponentIndices.find(entityId);
+    if (it != _transformComponentIndices.end())
+    {
+        _transformComponentIndices.erase(it);
+    }
+}
 
-void World::AddInstance(
+void World::RemoveComponent(int entityId, const MeshComponent& component)
+{
+    auto it = _meshComponentIndices.find(entityId);
+    if (it != _meshComponentIndices.end())
+    {
+        _meshComponentIndices.erase(it);
+    }
+}
+
+void World::RemoveComponent(int entityId, const MaterialComponent& component)
+{
+    auto it = _materialComponentIndices.find(entityId);
+    if (it != _materialComponentIndices.end())
+    {
+        _materialComponentIndices.erase(it);
+    }
+}
+
+void World::RemoveComponent(int entityId, const LightComponent& component)
+{
+    auto it = _lightComponentIndices.find(entityId);
+    if (it != _lightComponentIndices.end())
+    {
+        _lightComponentIndices.erase(it);
+    }
+}
+
+void World::RemoveComponent(int entityId, const CameraComponent& component)
+{
+    auto it = _cameraComponentIndices.find(entityId);
+    if (it != _cameraComponentIndices.end())
+    {
+        _cameraComponentIndices.erase(it);
+    }
+}
+
+//void World::DeleteComponent(const TransformComponent& component)
+//{
+//    // in the indice map find where this component is
+//    // delete the actual component data
+//    // delete the indice
+//}
+
+
+void World::LinkRenderableInstancePool(const InstanceRenderer::InstancePool& instancePool)
+{
+    _instancePools[_nextPoolId] = instancePool;
+    _nextPoolId++;
+}
+
+void World::AddRenderableInstance(
     int poolKey,
     int entityId,
     const InstanceConstantBuffer& instanceData)
@@ -340,7 +392,7 @@ void World::AddInstance(
     }
 }
 
-void World::UpdateInstanceData(
+void World::UpdateRenderableInstanceData(
     int poolKey,
     int entityId,
     const InstanceConstantBuffer& newData)
@@ -354,11 +406,11 @@ void World::UpdateInstanceData(
             _instancePools[poolKey].instances[instanceIndex] = newData;
             return;
         }
-        AddInstance(poolKey, entityId, newData);
+        AddRenderableInstance(poolKey, entityId, newData);
     }
 }
 
-void World::RemoveInstance(
+void World::RemoveRenderableInstance(
     int poolKey,
     int entityId)
 {
@@ -376,7 +428,7 @@ void World::RemoveInstance(
     }
 }
 
-void World::RemoveAllInstances()
+void World::RemoveAllRenderableInstances()
 {
     for (auto& instancePoolPair : _instancePools)
     {
@@ -406,11 +458,12 @@ void World::UpdateDirtyRenderableTransforms()
         int materialIndex = _materialComponentIndices[entity.GetId()];
         MaterialComponent& material = _materialComponents[materialIndex];
 
+        int meshIndex = _meshComponentIndices[entity.GetId()];
+        MeshComponent& mesh = _meshComponents[meshIndex];
 
-        //InstanceRenderer::InstancePool& instancePool = _instancePools[0]; // temp for test
 
-        UpdateInstanceData(0, entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material));
-
+        // HERE FIX LATER
+        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material)); // MUST manage meshes
     }
 
 }

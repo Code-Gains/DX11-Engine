@@ -121,6 +121,7 @@ class World
 	// Entities
 	std::vector<Entity> _entities;
 	int _nextEntityId = 1;
+	int _nextPoolId = 1;
 
 	// Storage
 	std::unordered_map<int, InstanceRenderer::InstancePool> _instancePools;
@@ -160,73 +161,50 @@ class World
 	CameraConstantBuffer _cameraConstantBufferData{};
 
 public:
+	// World loading and application management
 	World();
-
 	bool Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void UpdateViewportDimensions(int32_t width, int32_t height);
 	bool LoadWorld(std::string fileName = "");
 
+	// Loops
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
 	void Render();
 	
-	std::vector<int> GetRenderableEntities(
-		const std::unordered_map<int, int>& transformIndices,
-		const std::unordered_map<int, int>& meshIndices,
-		const std::unordered_map<int, int>& materialIndices
-	) const;
-
+	// Entity-Component relations
 	Entity CreateEntity();
-
-	// Temporary templating
-
 	void AddComponent(int entityId, const TransformComponent& component);
 	void AddComponent(int entityId, const MeshComponent& component);
 	void AddComponent(int entityId, const MaterialComponent& component);
 	void AddComponent(int entityId, const LightComponent& component);
 	void AddComponent(int entityId, const CameraComponent& component);
 
-	void AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
-	void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-	void RemoveInstance(int poolKey, int instanceIndex);
-	void RemoveAllInstances();
+	void RemoveComponent(int entityId, const TransformComponent& component);
+	void RemoveComponent(int entityId, const MeshComponent& component);
+	void RemoveComponent(int entityId, const MaterialComponent& component);
+	void RemoveComponent(int entityId, const LightComponent& component);
+	void RemoveComponent(int entityId, const CameraComponent& component);
+
+	//void DeleteComponent(const TransformComponent& component);
+	//void DeleteComponent(const MeshComponent& component);
+	//void DeleteComponent(const MaterialComponent& component);
+	//void DeleteComponent(const LightComponent& component);
+	//void RemoveComponent(const CameraComponent& component);
+
+	// Instance Rendering System
+	void LinkRenderableInstancePool(const InstanceRenderer::InstancePool& instancePool);
+	void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
+	void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
+	void RemoveRenderableInstance(int poolKey, int instanceIndex);
+	void RemoveAllRenderableInstances();
 
 	void UpdateDirtyRenderableTransforms();
+
+	std::vector<int> GetRenderableEntities(
+		const std::unordered_map<int, int>& transformIndices,
+		const std::unordered_map<int, int>& meshIndices,
+		const std::unordered_map<int, int>& materialIndices
+	) const;
+
 };
-
-
-//template<>
-//void World::AddComponent<TransformComponent>(int entityId, const TransformComponent& component)
-//{
-//	_transformComponents[entityId] = component;
-//}
-//
-//template<>
-//void World::AddComponent<MeshComponent>(int entityId, const MeshComponent& component)
-//{
-//	_meshComponents[entityId] = component;
-//}
-//
-//template<>
-//void World::AddComponent<MaterialComponent>(int entityId, const MaterialComponent& component)
-//{
-//	_materialComponents[entityId] = component;
-//}
-//
-//template<>
-//void World::AddComponent<LightComponent>(int entityId, const LightComponent& component)
-//{
-//	_lightComponents[entityId] = component;
-//}
-//
-//template<>
-//void World::AddComponent<CameraComponent>(int entityId, const CameraComponent& component)
-//{
-//	_cameraComponents[entityId] = component;
-//}
-
-//template<typename TComponent>
-//inline void World::AddComponent(int entityId, const TComponent& component)
-//{
-//	return; // probably useless?
-//}
