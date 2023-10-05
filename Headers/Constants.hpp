@@ -4,9 +4,9 @@
 
 namespace Constants
 {
-    const float DegreesToRadiansConst = M_PI * 2.0f / 360.0f;
+    const double DegreesToRadiansConst = M_PI * 2.0 / 360.0;
 
-    inline float DegreesToRadians(float degrees)
+    inline double DegreesToRadians(double degrees)
     {
         return DegreesToRadiansConst * degrees;
     }

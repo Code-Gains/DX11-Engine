@@ -1,7 +1,7 @@
-#include "InstanceRenderer.hpp"
+#include "InstanceRendererSystem.hpp"
 #include <Cube.hpp>
 
-void InstanceRenderer::CreateConstantBuffers()
+void InstanceRendererSystem::CreateConstantBuffers()
 {
     D3D11_BUFFER_DESC desc{};
     desc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
@@ -24,12 +24,12 @@ void InstanceRenderer::CreateConstantBuffers()
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
 
-InstanceRenderer::InstanceRenderer(int batchSize) : _batchSize(batchSize)
+InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batchSize)
 {
 
 }
 
-InstanceRenderer::InstanceRenderer(ID3D11Device* device,
+InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
     int batchSize) : _device(device), _deviceContext(deviceContext)
 {
@@ -37,7 +37,7 @@ InstanceRenderer::InstanceRenderer(ID3D11Device* device,
     CreateConstantBuffers();
 }
 
-void InstanceRenderer::AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
+void InstanceRendererSystem::AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
     auto it = _instancePools.find(poolKey);
     if (it != _instancePools.end())
@@ -48,7 +48,7 @@ void InstanceRenderer::AddInstance(int poolKey, int entityId, const InstanceCons
     }
 }
 
-void InstanceRenderer::UpdateInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
+void InstanceRendererSystem::UpdateInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
@@ -61,7 +61,7 @@ void InstanceRenderer::UpdateInstanceData(int poolKey, int entityId, const Insta
     }
 }
 
-void InstanceRenderer::RemoveInstance(int poolKey, int entityId)
+void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
@@ -77,7 +77,7 @@ void InstanceRenderer::RemoveInstance(int poolKey, int entityId)
     }
 }
 
-void InstanceRenderer::RemoveAllInstances()
+void InstanceRendererSystem::RemoveAllInstances()
 {
     for (auto& instancePoolPair : _instancePools)
     {
@@ -89,7 +89,7 @@ void InstanceRenderer::RemoveAllInstances()
 }
 
 
-int InstanceRenderer::GetOwnershipCount() const
+int InstanceRendererSystem::GetOwnershipCount() const
 {
     int totalCount = 0;
     for (auto poolPair : _instancePools)

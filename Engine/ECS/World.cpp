@@ -1,64 +1,5 @@
 #include "World.hpp"
 
-//Entity World::CreateEntity(const std::vector<int>& componentSet)
-//{
-//	int entityId = _nextId;
-//	auto entity = Entity(entityId);
-//	_entities[entityId] = ComponentStorageShelf(ComponentSet(componentSet));
-//
-//	_nextId++;
-//	return entity;
-//}
-//
-//int World::DeleteEntity(int id)
-//{
-//	_entities.erase(id);
-//	return id;
-//}
-//
-//bool World::HasEntityComponent(int entityId, int componentId) const
-//{
-//	auto entityIterator = _entities.find(entityId);
-//
-//	if (entityIterator == _entities.end())
-//		return false;
-//
-//	int entityComponentSetId = entityIterator->first;
-//	return _uniqueComponentSets.count(entityComponentSetId) != 0;
-//}
-//
-//void World::UpdateEntities(float deltaTime)
-//{
-//}
-//
-//size_t World::GetEntityCount() const
-//{
-//	return _entities.size();
-//}
-//
-//ComponentStorage::ComponentStorage()
-//{
-//}
-//
-//ComponentStorage::ComponentStorage(size_t componentSize, size_t componentCount) : _componentSize(componentSize), _componentCount(componentCount)
-//{
-//}
-//
-//std::shared_ptr<void> ComponentStorage::GetElements() const
-//{
-//	return _elements;
-//}
-//
-//size_t ComponentStorage::GetComponentSize() const
-//{
-//	return _componentSize;
-//}
-//
-//size_t ComponentStorage::GetComponentCount() const
-//{
-//	return _componentCount;
-//}
-
 World::World()
 {
 }
@@ -71,7 +12,7 @@ bool World::Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceConte
 	_lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-	_instanceRenderer = InstanceRenderer(device, deviceContext);
+	_instanceRenderer = InstanceRendererSystem(device, deviceContext);
 	return true;
 }
 
@@ -84,7 +25,7 @@ void World::Update(float deltaTime)
     float cameraRotationSpeed = 5.0f;
 
     static DirectX::XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 10.0f };
-    static DirectX::XMFLOAT3 cameraRotation = { 0.0f,  Constants::DegreesToRadians(180), 0.0f };
+    static DirectX::XMFLOAT3 cameraRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
 
 
     // Camera Movement
@@ -183,9 +124,6 @@ void World::Update(float deltaTime)
 
     _cameraConstantBufferData.cameraPosition = cameraPosition;
 
-    //std::cout << _viewportWidth << " " << _viewportHeight << " " << &_win32Window << std::endl;
-
-	//_renderingSystem.Update(deltaTime);
     UpdateDirtyRenderableTransforms();
 }
 
@@ -195,19 +133,6 @@ void World::PeriodicUpdate(float deltaTime)
 
 void World::Render()
 {
-    //auto renderableEntities = GetRenderableEntities(_transformComponentIndices, _meshComponentIndices, _materialComponentIndices);
-    //std::cout << renderableEntities.size() << std::endl;
-
-    //// Prepare instance pools
-    //for (const int entity : renderableEntities)
-    //{
-    //    int meshIndex = _meshComponentIndices[entity];
-    //    int transformIndex = _transformComponentIndices[entity];
-
-
-    //    int poolKey = meshIndex;
-    //    //auto& instancePool = _instancePools[poolKey];
-    //}
 	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
 }
 
@@ -274,7 +199,7 @@ bool World::LoadWorld(std::string fileName)
 	std::vector<VertexPositionNormalUv> vertices = cube.GetVertices();
 	std::vector<UINT> indices = cube.GetIndices();
 
-    InstanceRenderer::InstancePool instancePool = _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(blueCube.GetId(), meshComponent);
+    InstanceRendererSystem::InstancePool instancePool = _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(blueCube.GetId(), meshComponent);
     LinkRenderableInstancePool(instancePool);
 
     _entities.push_back(blueCube);
@@ -364,15 +289,7 @@ void World::RemoveComponent(int entityId, const CameraComponent& component)
     }
 }
 
-//void World::DeleteComponent(const TransformComponent& component)
-//{
-//    // in the indice map find where this component is
-//    // delete the actual component data
-//    // delete the indice
-//}
-
-
-void World::LinkRenderableInstancePool(const InstanceRenderer::InstancePool& instancePool)
+void World::LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool)
 {
     _instancePools[_nextPoolId] = instancePool;
     _nextPoolId++;
@@ -432,7 +349,7 @@ void World::RemoveAllRenderableInstances()
 {
     for (auto& instancePoolPair : _instancePools)
     {
-        InstanceRenderer::InstancePool& instancePool = instancePoolPair.second;
+        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
         instancePool.entityIdToInstanceIndex.clear();
         instancePool.instances.clear();
         instancePool.instanceCount = 0;
@@ -461,8 +378,6 @@ void World::UpdateDirtyRenderableTransforms()
         int meshIndex = _meshComponentIndices[entity.GetId()];
         MeshComponent& mesh = _meshComponents[meshIndex];
 
-
-        // HERE FIX LATER
         UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material)); // MUST manage meshes
     }
 

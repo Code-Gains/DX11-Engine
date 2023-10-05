@@ -12,31 +12,20 @@
 #include "Definitions.hpp"
 #include "Application.hpp"
 #include "ShaderCollection.hpp"
-#include "Cube.hpp"
-#include "Sphere.hpp"
-#include "Cylinder.hpp"
-#include "Rectangle3D.hpp"
-#include "WindowsXpPipesSimulation.hpp"
 #include "Scene.hpp"
-#include "PhongMaterial.hpp"
-#include "3DRenderingApplication.hpp"
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
-#include "InstanceRenderer.hpp"
-#include "PlanetarySimulation.hpp"
 
 #include "World.hpp"
-#include "Component.hpp"
-#include "Entity.hpp"
 #include "ResourceMonitor.hpp"
 
 
 
-class Rendering3DApplication final : public Application
+class RenderingApplication3D final : public Application
 {
 public:
-    Rendering3DApplication(const std::string& title);
-    ~Rendering3DApplication() override;
+    RenderingApplication3D(const std::string& title);
+    ~RenderingApplication3D() override;
 
     bool isApplicationMinimized = false;
 
@@ -78,5 +67,4 @@ private:
 
     World _world;
     Scene _scene;
-    InstanceRenderer _instanceRenderer;
 };

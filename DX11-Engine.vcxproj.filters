@@ -24,7 +24,7 @@
     <ClCompile Include="Engine\Shaders\ShaderCollection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3DRenderingApplication.cpp">
+    <ClCompile Include="RenderingApplication3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3DObjects\Object3D.cpp">
@@ -43,9 +43,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3DObjects\Primitives\Cylinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Materials\PhongMaterial.cpp">
@@ -78,16 +75,13 @@
     <ClCompile Include="Engine\Vectors\IntVectors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\InstanceRenderer.cpp">
+    <ClCompile Include="Engine\InstanceRendererSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Physics\PhysicsBody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3DObjects\Rectangle3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Simulations\PlanetarySimulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\ECS\Entity.cpp">
@@ -265,7 +259,7 @@
     <ClInclude Include="Headers\VertexType.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\3DRenderingApplication.hpp">
+    <ClInclude Include="Headers\RenderingApplication3D.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\Object3D.hpp">
@@ -298,7 +292,7 @@
     <ClInclude Include="Headers\PhongMaterial.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\InstanceRenderer.hpp">
+    <ClInclude Include="Headers\InstanceRendererSystem.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Headers\ConstantBufferDefinitions.hpp">

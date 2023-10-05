@@ -27,7 +27,7 @@ struct InstanceConstantBuffer
 };
 
 
-class InstanceRenderer : IDebuggable
+class InstanceRendererSystem : IDebuggable
 {
 public:
     struct InstancePool
@@ -61,8 +61,8 @@ private:
     void CreateConstantBuffers();
 
 public:
-    InstanceRenderer(int batchSize = 10);
-    InstanceRenderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int batchSize = 10);
+    InstanceRendererSystem(int batchSize = 10);
+    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int batchSize = 10);
 
     void AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
     void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);

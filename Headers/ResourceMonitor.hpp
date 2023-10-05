@@ -20,7 +20,7 @@ class ResourceMonitor
     HANDLE _self;
 
 	ULARGE_INTEGER _lastCPU, _lastSysCPU, _lastUserCPU;
-    float _cpuUsage = 0;
+    double _cpuUsage = 0;
 	int _numProcessors;
 
     const int _frameBufferSize = 100;

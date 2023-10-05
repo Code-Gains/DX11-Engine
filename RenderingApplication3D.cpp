@@ -7,7 +7,7 @@
 #include <d3dcompiler.h>
 
 #include <iostream>
-#include "3DRenderingApplication.hpp"
+#include "RenderingApplication3D.hpp"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -22,12 +22,12 @@ inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const ch
     deviceResource->SetPrivateData(WKPDID_D3DDebugObjectName, TDebugNameLength - 1, debugName);
 }
 
-Rendering3DApplication::Rendering3DApplication(const std::string& title)
+RenderingApplication3D::RenderingApplication3D(const std::string& title)
     : Application(title)
 {
 }
 
-Rendering3DApplication::~Rendering3DApplication()
+RenderingApplication3D::~RenderingApplication3D()
 {
     _deviceContext->Flush();
     _textureSrv.Reset();
@@ -46,7 +46,7 @@ Rendering3DApplication::~Rendering3DApplication()
     _device.Reset();
 }
 
-bool Rendering3DApplication::Initialize()
+bool RenderingApplication3D::Initialize()
 {
     if (!Application::Initialize())
     {
@@ -146,7 +146,7 @@ bool Rendering3DApplication::Initialize()
     return true;
 }
 
-void Rendering3DApplication::CreateRasterState()
+void RenderingApplication3D::CreateRasterState()
 {
     D3D11_RASTERIZER_DESC rasterDesc{};
     rasterDesc.CullMode = D3D11_CULL_NONE;
@@ -155,7 +155,7 @@ void Rendering3DApplication::CreateRasterState()
     _device->CreateRasterizerState(&rasterDesc, &_rasterState);
 }
 
-void Rendering3DApplication::CreateDepthStencilView()
+void RenderingApplication3D::CreateDepthStencilView()
 {
     D3D11_TEXTURE2D_DESC texDesc{};
     texDesc.Height = GetWindowHeight();
@@ -186,7 +186,7 @@ void Rendering3DApplication::CreateDepthStencilView()
     texture->Release();
 }
 
-void Rendering3DApplication::CreateDepthState()
+void RenderingApplication3D::CreateDepthState()
 {
     D3D11_DEPTH_STENCIL_DESC depthDesc{};
     depthDesc.DepthEnable = TRUE;
@@ -196,13 +196,14 @@ void Rendering3DApplication::CreateDepthState()
     _device->CreateDepthStencilState(&depthDesc, &_depthState);
 }
 
-void Rendering3DApplication::CreateConstantBuffers()
+void RenderingApplication3D::CreateConstantBuffers()
 {
     // remove later
 }
 
-bool Rendering3DApplication::Load()
+bool RenderingApplication3D::Load()
 {
+    // TODO MOVE SHADER COLLECTION TO WORLD OR RENDERER
     ShaderCollectionDescriptor shaderDescriptor = {};
     shaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
     shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
@@ -210,67 +211,15 @@ bool Rendering3DApplication::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    //auto sphere = std::make_unique<Sphere>(DirectX::XMFLOAT3 {0, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
-    //auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3 {0, 0, 0});
-
-   /* auto sphere1 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
-
-    std::vector<VertexPositionNormalUv> vertices = sphere1->GetVertices();
-    std::vector<UINT> indices = sphere1->GetIndices();
-
-    _instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
-    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere1->transform.GetWorldMatrix()), 0);
-
-    auto sphere2 = std::make_unique<Sphere>(DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 3, 3, 3 });
-    _instanceRenderer.AddInstance(InstanceConstantBuffer(sphere2->transform.GetWorldMatrix()), 0);*/
-
-   /* auto rectangle = std::make_unique<Rectangle3D>(DirectX::XMFLOAT3{ 0, 4, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
-    std::vector<VertexPositionNormalUv> vertices = rectangle->GetVertices();
-    std::vector<UINT> indices = rectangle->GetIndices();
-    _instanceRenderer.InitializeInstancePool(_device.Get(), 1, vertices, indices);
-    _instanceRenderer.AddInstance(InstanceConstantBuffer(rectangle->transform.GetWorldMatrix()), 1);*/
-
-
-
-    auto simulation = std::make_unique<PlanetarySimulation>(_device.Get(),_deviceContext.Get(), 30, 40, 1000);
-    _scene.AddObject(std::move(simulation));
-
-   /* auto simulation = std::make_unique<WindowsXpPipesSimulation>(_device.Get(), _deviceContext.Get(), Int3(30, 30, 30), 1000.0f);
-    _scene.AddObject(std::move(simulation));*/
-
-   /*auto cubeTemp = std::make_unique<Cube>(DirectX::XMFLOAT3{ 0, 0, 0 });
-    std::vector<VertexPositionNormalUv> vertices = cubeTemp->GetVertices();
-    std::vector<UINT> indices = cubeTemp->GetIndices();*/
-
-
-   // _instanceRenderer.InitializeInstancePool(_device.Get(), 0, vertices, indices);
-   // int gridSize = 100;
-   // for (int x = 0; x < gridSize; x++)
-   // {
-   //     for (int y = 0; y < gridSize; y++)
-   //     {
-   //         for (int z = 0; z < gridSize; z++)
-   //         {
-   //             auto cube = std::make_unique<Cube>(DirectX::XMFLOAT3(x * 1.1, y * 1.1, z * 1.1));
-   //             _instanceRenderer.AddInstance(InstanceConstantBuffer(cube->transform.GetWorldMatrix()), 0);
-   //             //cube->Initialize(_device.Get());
-   //             //_scene.AddObject(std::move(cube));
-   //         }
-   //     }
-   // }
-
-    //auto componentSet1 = ComponentSet(std::vector<int> {0, 1, 2});
-    //auto entity1 = _world.CreateEntity(componentSet1.getComponentIds());
-
-    //std::cout << _world.GetEntityCount()<< std::endl;
     _world = World();
     _world.Initialize(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
     _world.UpdateViewportDimensions(_width, _height);
     _world.LoadWorld();
+
     return true;
 }
 
-bool Rendering3DApplication::CreateSwapchainResources()
+bool RenderingApplication3D::CreateSwapchainResources()
 {
     WRL::ComPtr<ID3D11Texture2D> backBuffer = nullptr;
     if (FAILED(_swapChain->GetBuffer(
@@ -293,12 +242,12 @@ bool Rendering3DApplication::CreateSwapchainResources()
     return true;
 }
 
-void Rendering3DApplication::DestroySwapchainResources()
+void RenderingApplication3D::DestroySwapchainResources()
 {
     _renderTarget.Reset();
 }
 
-void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
+void RenderingApplication3D::OnResize(const int32_t width, const int32_t height)
 {
     Application::OnResize(width, height);
 
@@ -332,7 +281,7 @@ void Rendering3DApplication::OnResize(const int32_t width, const int32_t height)
     CreateDepthStencilView();
 }
 
-void Rendering3DApplication::Update()
+void RenderingApplication3D::Update()
 {
     /*if (isApplicationMinimized)
         return;*/
@@ -344,7 +293,7 @@ void Rendering3DApplication::Update()
     _world.Update(_deltaTime);
 }
 
-void Rendering3DApplication::PeriodicUpdate()
+void RenderingApplication3D::PeriodicUpdate()
 {
     if (_periodicDeltaTime > _periodicUpdatePeriod)
     {
@@ -354,7 +303,7 @@ void Rendering3DApplication::PeriodicUpdate()
     }
 }
 
-void Rendering3DApplication::Render()
+void RenderingApplication3D::Render()
 {
     //if (isApplicationMinimized)
         //return;
@@ -364,7 +313,7 @@ void Rendering3DApplication::Render()
     ImGui::NewFrame();
 
     _resourceMonitor.Render();
-    ImGui::Text("Geometry instances: %d", _scene.GetOwnershipCount() + _instanceRenderer.GetOwnershipCount());
+    ImGui::Text("Geometry instances: N/A");
     ImGui::End();
     ImGui::Render();
 
@@ -398,7 +347,6 @@ void Rendering3DApplication::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    //_scene.Render(_deviceContext.Get(), _perObjectConstantBuffer.Get(), _instanceConstantBuffer.Get());
     _world.Render();
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
