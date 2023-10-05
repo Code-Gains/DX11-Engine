@@ -35,21 +35,11 @@ class World
 
 	// Entities
 	std::vector<Entity> _entities;
+
+	// Id Management
 	int _nextEntityId = 1;
+	int _nextComponentId = 1;
 	int _nextPoolId = 1;
-
-	// Storage
-	std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
-
-	//std::vector<WRL::ComPtr<ID3D11Buffer>> _vertexBuffers;
-	//std::vector<WRL::ComPtr<ID3D11Buffer>> _indexBuffers;
-	//std::vector<std::vector<InstanceConstantBuffer>> _instances;
-
-	//UINT vertexCount = 0;
-	//WRL::ComPtr<ID3D11Buffer> indexBuffer = nullptr;
-	//UINT indexCount = 0;
-	//std::vector<InstanceConstantBuffer> instances;
-	//UINT instanceCount = 0;
 
 	// Storage -> Component Data
 	std::vector<TransformComponent> _transformComponents;
@@ -57,6 +47,9 @@ class World
 	std::vector<MaterialComponent> _materialComponents;
 	std::vector<LightComponent> _lightComponents;
 	std::vector<CameraComponent> _cameraComponents;
+
+	// Storage -> Component Cache
+	std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
 
 	// Storage -> Component Relations
 	// entityId -> componentIndex
@@ -69,8 +62,7 @@ class World
 	// Systems
 	InstanceRendererSystem _instanceRenderer;
 
-
-	// Rendering Data
+	// HLSL Constant Buffer Data
 	LightConstantBuffer _lightConstantBufferData;
 	PerFrameConstantBuffer _perFrameConstantBufferData{};
 	CameraConstantBuffer _cameraConstantBufferData{};
@@ -108,6 +100,7 @@ public:
 	//void RemoveComponent(const CameraComponent& component);
 
 	// Instance Rendering System
+
 	void LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool);
 	void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
 	void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);

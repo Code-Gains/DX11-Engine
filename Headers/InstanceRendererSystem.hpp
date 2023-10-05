@@ -19,11 +19,11 @@
 struct InstanceConstantBuffer
 {
     DirectX::XMMATRIX worldMatrix;
-    MaterialComponent material;
+    MaterialConstantBuffer material;
 
     InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
-    InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialComponent& materialComponent);
+    InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer);
 };
 
 

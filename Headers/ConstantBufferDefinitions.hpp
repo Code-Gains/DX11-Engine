@@ -1,7 +1,6 @@
 #pragma once
 #include <d3d11_2.h>
 #include <DirectXMath.h>
-#include "PhongMaterial.hpp"
 
 
 struct PerFrameConstantBuffer

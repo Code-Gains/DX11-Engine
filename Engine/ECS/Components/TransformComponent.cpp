@@ -3,12 +3,13 @@
 TransformComponent::TransformComponent()
     : _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
     _rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
-    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f })
+    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f }),
+    ComponentIdentifier(0)
 {
 }
 
-TransformComponent::TransformComponent(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale)
-    : _position(pos), _rotation(rot), _scale(scale)
+TransformComponent::TransformComponent(int id, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale)
+    : _position(pos), _rotation(rot), _scale(scale), ComponentIdentifier(id)
 {
 }
 

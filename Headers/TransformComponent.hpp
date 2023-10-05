@@ -1,8 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
 #include <iostream>
+#include "ComponentIdentifier.hpp"
 
-class TransformComponent
+class TransformComponent : public ComponentIdentifier
 {
 	DirectX::XMFLOAT3 _position;
 	DirectX::XMFLOAT3 _rotation;
@@ -11,7 +12,7 @@ class TransformComponent
 
 public:
 	TransformComponent();
-	TransformComponent(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale);
+	TransformComponent(int id, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale);
 
 	void SetPosition(const DirectX::XMFLOAT3& position);
 	void SetRotation(const DirectX::XMFLOAT3& rotation);

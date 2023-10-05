@@ -145,8 +145,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\ECS\ComponentIdentifier.cpp" />
     <ClCompile Include="Engine\ECS\Components\CameraComponent.cpp" />
-    <ClCompile Include="Engine\ECS\Component.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
@@ -166,7 +166,6 @@
     <ClCompile Include="Engine\ECS\Components\LightComponent.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine\Scene.cpp" />
-    <ClCompile Include="Engine\Materials\PhongMaterial.cpp" />
     <ClCompile Include="Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp" />
@@ -305,8 +304,8 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\ComponentIdentifier.hpp" />
     <ClInclude Include="Headers\CameraComponent.hpp" />
-    <ClInclude Include="Headers\Component.hpp" />
     <ClInclude Include="Headers\Entity.hpp" />
     <ClInclude Include="Headers\ConstantBufferDefinitions.hpp" />
     <ClInclude Include="Headers\Constants.hpp" />
@@ -320,7 +319,6 @@
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="Headers\Scene.hpp" />
-    <ClInclude Include="Headers\PhongMaterial.hpp" />
     <ClInclude Include="Headers\InstanceRendererSystem.hpp" />
     <ClInclude Include="Headers\Logging.hpp" />
     <ClInclude Include="Headers\ShaderCollection.hpp" />

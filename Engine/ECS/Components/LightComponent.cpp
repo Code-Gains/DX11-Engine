@@ -1,14 +1,15 @@
 #include "LightComponent.hpp"
 
-LightComponent::LightComponent()
+LightComponent::LightComponent() : ComponentIdentifier(0)
 {
 }
 
 LightComponent::LightComponent(
+	int id,
 	const DirectX::XMFLOAT4& position,
 	const DirectX::XMFLOAT4& ambient,
 	const DirectX::XMFLOAT4& diffuse,
-	const DirectX::XMFLOAT4& specular) : _position(position), _ambient(ambient), _diffuse(diffuse), _specular(specular)
+	const DirectX::XMFLOAT4& specular) : _position(position), _ambient(ambient), _diffuse(diffuse), _specular(specular), ComponentIdentifier(id)
 {
 }
 

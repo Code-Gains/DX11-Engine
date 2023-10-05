@@ -168,14 +168,14 @@ bool World::LoadWorld(std::string fileName)
 	auto blueCube = Entity();
     auto redCube = Entity();
 
-    auto transformComponent = TransformComponent(DirectX::XMFLOAT3 {-1, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+    auto transformComponent = TransformComponent(_nextComponentId, DirectX::XMFLOAT3 {-1, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
     AddComponent(blueCube.GetId(), transformComponent);
 
-    auto transformComponent2 = TransformComponent(DirectX::XMFLOAT3{ 1, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
+    auto transformComponent2 = TransformComponent(_nextComponentId, DirectX::XMFLOAT3{ 1, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
     AddComponent(redCube.GetId(), transformComponent2);
 
 	auto cube = Cube();
-	auto meshComponent = MeshComponent(cube.GetVertices(), cube.GetIndices(), _nextPoolId);
+	auto meshComponent = MeshComponent(_nextComponentId, cube.GetVertices(), cube.GetIndices(), _nextPoolId);
     AddComponent(blueCube.GetId(), meshComponent);
     AddComponent(redCube.GetId(), meshComponent);
 
@@ -184,12 +184,12 @@ bool World::LoadWorld(std::string fileName)
 	DirectX::XMFLOAT4 diffuse{ 0.0f, 0.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT4 specular{ 0.0f, 0.0f, 1.0f, 1.0f };
 	float shininess = 3;
-	auto blueMaterial = MaterialComponent(ambient, diffuse, specular, shininess);
+	auto blueMaterial = MaterialComponent(_nextComponentId, ambient, diffuse, specular, shininess);
 
     ambient = { 1.0f, 0.0f, 0.0f, 1.0f };
     diffuse = { 1.0f, 0.0f, 0.0f, 1.0f };
     specular = { 1.0f, 0.0f, 0.0f, 1.0f };
-    auto redMaterial = MaterialComponent(ambient, diffuse, specular, shininess);
+    auto redMaterial = MaterialComponent(_nextComponentId, ambient, diffuse, specular, shininess);
 
     AddComponent(blueCube.GetId(), blueMaterial);
     AddComponent(redCube.GetId(), redMaterial);
@@ -378,7 +378,7 @@ void World::UpdateDirtyRenderableTransforms()
         int meshIndex = _meshComponentIndices[entity.GetId()];
         MeshComponent& mesh = _meshComponents[meshIndex];
 
-        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material)); // MUST manage meshes
+        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
     }
 
 }

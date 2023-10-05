@@ -109,6 +109,6 @@ InstanceConstantBuffer::InstanceConstantBuffer(const DirectX::XMMATRIX& worldMat
 
 InstanceConstantBuffer::InstanceConstantBuffer(
     const DirectX::XMMATRIX& worldMatrix,
-    const MaterialComponent& materialComponent) : worldMatrix(worldMatrix), material(materialComponent)
+    const MaterialConstantBuffer& materialConstantBuffer) : worldMatrix(worldMatrix), material(materialConstantBuffer)
 {
 }

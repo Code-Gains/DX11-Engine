@@ -1,13 +1,14 @@
 #include "MeshComponent.hpp"
 
-MeshComponent::MeshComponent()
+MeshComponent::MeshComponent() : ComponentIdentifier(0)
 {
 }
 
 MeshComponent::MeshComponent(
+	int id,
 	const std::vector<VertexPositionNormalUv>& vertices,
 	const std::vector<UINT>& indices, int instancePoolIndex) : 
-	_vertices(vertices), _indices(indices), _instancePoolIndex(instancePoolIndex)
+	_vertices(vertices), _indices(indices), _instancePoolIndex(instancePoolIndex), ComponentIdentifier(id)
 {
 }
 
