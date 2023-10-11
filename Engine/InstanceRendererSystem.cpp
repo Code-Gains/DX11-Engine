@@ -33,7 +33,6 @@ InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
     int batchSize) : _device(device), _deviceContext(deviceContext)
 {
-    std::cout << device <<std::endl;
     CreateConstantBuffers();
 }
 
