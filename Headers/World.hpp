@@ -17,13 +17,10 @@
 
 #include "Cube.hpp"
 #include "VertexType.hpp"
-
-#include "MeshComponent.hpp"
 #include "Constants.hpp"
 
-//struct EntityGroup {
-//	std::vector<>
-//};
+// temp includes for demo
+#include <random>
 
 class World
 {
@@ -92,12 +89,6 @@ public:
 	void RemoveComponent(int entityId, const MaterialComponent& component);
 	void RemoveComponent(int entityId, const LightComponent& component);
 	void RemoveComponent(int entityId, const CameraComponent& component);
-
-	//void DeleteComponent(const TransformComponent& component);
-	//void DeleteComponent(const MeshComponent& component);
-	//void DeleteComponent(const MaterialComponent& component);
-	//void DeleteComponent(const LightComponent& component);
-	//void RemoveComponent(const CameraComponent& component);
 
 	// Instance Rendering System
 

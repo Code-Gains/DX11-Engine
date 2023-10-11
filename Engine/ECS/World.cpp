@@ -161,49 +161,55 @@ bool World::LoadWorld(std::string fileName)
 {
 	if(fileName != "")
 	{
+        // handle files later
 	}
 
-	// Create a few meshes, materials, a light source
+    std::mt19937 gen(std::random_device{}());
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-	auto blueCube = Entity();
-    auto redCube = Entity();
+    int width = 10;
+    int height = 10;
+    float spacing = 1.5f;
 
-    auto transformComponent = TransformComponent(_nextComponentId, DirectX::XMFLOAT3 {-1, 0, 0}, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
-    AddComponent(blueCube.GetId(), transformComponent);
-
-    auto transformComponent2 = TransformComponent(_nextComponentId, DirectX::XMFLOAT3{ 1, 0, 0 }, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 });
-    AddComponent(redCube.GetId(), transformComponent2);
-
-	auto cube = Cube();
-	auto meshComponent = MeshComponent(_nextComponentId, cube.GetVertices(), cube.GetIndices(), _nextPoolId);
-    AddComponent(blueCube.GetId(), meshComponent);
-    AddComponent(redCube.GetId(), meshComponent);
+    auto templateCube = Cube();
+    auto templateMeshComponent = MeshComponent(_nextComponentId, templateCube.GetVertices(), templateCube.GetIndices(), _nextPoolId);
+    InstanceRendererSystem::InstancePool instancePool = 
+        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(_nextPoolId, templateMeshComponent);
 
 
-	DirectX::XMFLOAT4 ambient{ 0.0f, 0.0f, 1.0f, 1.0f };
-	DirectX::XMFLOAT4 diffuse{ 0.0f, 0.0f, 1.0f, 1.0f };
-	DirectX::XMFLOAT4 specular{ 0.0f, 0.0f, 1.0f, 1.0f };
-	float shininess = 3;
-	auto blueMaterial = MaterialComponent(_nextComponentId, ambient, diffuse, specular, shininess);
+    for (int column = 0; column < width; column++)
+    {
+        for (int row = 0; row < height; row++)
+        {
+            auto cubeEntity = Entity();
 
-    ambient = { 1.0f, 0.0f, 0.0f, 1.0f };
-    diffuse = { 1.0f, 0.0f, 0.0f, 1.0f };
-    specular = { 1.0f, 0.0f, 0.0f, 1.0f };
-    auto redMaterial = MaterialComponent(_nextComponentId, ambient, diffuse, specular, shininess);
+            DirectX::XMFLOAT3 position{
+                column * spacing - (width * spacing) / 2 + spacing / 2,
+                row * spacing - (height * spacing) / 2 + spacing / 2,
+                0.0f
+            };
 
-    AddComponent(blueCube.GetId(), blueMaterial);
-    AddComponent(redCube.GetId(), redMaterial);
+            auto transformComponent = TransformComponent(_nextComponentId,
+                position, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 }
+            );
+            AddComponent(cubeEntity.GetId(), transformComponent);
 
+            auto meshComponent = MeshComponent(_nextComponentId, templateCube.GetVertices(), templateCube.GetIndices(), _nextPoolId);
+            AddComponent(cubeEntity.GetId(), meshComponent);
 
-	// Set up instance renderer
-	std::vector<VertexPositionNormalUv> vertices = cube.GetVertices();
-	std::vector<UINT> indices = cube.GetIndices();
+            DirectX::XMFLOAT4 ambient{ dist(gen), dist(gen), dist(gen), 1.0f};
+            DirectX::XMFLOAT4 diffuse{ dist(gen), dist(gen), dist(gen), 1.0f };
+            DirectX::XMFLOAT4 specular{ dist(gen), dist(gen), dist(gen), 1.0f };
+            float shininess = 3.0f;
 
-    InstanceRendererSystem::InstancePool instancePool = _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(blueCube.GetId(), meshComponent);
+            auto materialComponent = MaterialComponent(_nextComponentId, ambient, diffuse, specular, shininess);
+            AddComponent(cubeEntity.GetId(), materialComponent);
+
+            _entities.push_back(cubeEntity);
+        }
+    }
+
     LinkRenderableInstancePool(instancePool);
-
-    _entities.push_back(blueCube);
-    _entities.push_back(redCube);
 
 	return true;
 }
