@@ -61,10 +61,10 @@ private:
     InstanceRenderer _instanceRenderer;
 
 public:
-    WindowsXpPipesSimulation(const WRL::ComPtr<ID3D11Device>& device, const Int3& dimensions, const float simulationSpeed = 1.0f);
+    WindowsXpPipesSimulation(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const Int3& dimensions, const float simulationSpeed = 1.0f);
     virtual ~WindowsXpPipesSimulation();
 
-    bool Initialize(ID3D11Device* device) override;
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
     void Update(float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;
     int GetOwnershipCount() const override;

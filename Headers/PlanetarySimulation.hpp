@@ -33,19 +33,23 @@ class PlanetarySimulation : public Object3D
     float _particleRingRadius;
     int _particleCount = 1000;
     float _sunMass = 1000000.0f;
-    float _particleMass = 1000.0f;
+    float _particleMass = 100000.0f;
     float _bodyRotationSpeed = 1.0f;
 
 
 public:
-    PlanetarySimulation(const WRL::ComPtr<ID3D11Device>& device, float sunRadius, float particleRingRadius, int particleCount, float sunMass = 1000000.0f, float particleMass = 1000.0f);
+    PlanetarySimulation(ID3D11Device* device, ID3D11DeviceContext* deviceContext, float sunRadius, float particleRingRadius, int particleCount);
     virtual ~PlanetarySimulation();
 
     bool Initialize(ID3D11Device* device) override;
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
     void Update(float deltaTime) override;
     void PeriodicUpdate(float deltaTime) override;
     void Render(ID3D11DeviceContext* deviceContext, ID3D11Buffer* perObjectConstantBuffer, ID3D11Buffer* instanceConstantBuffer) override;
     int GetOwnershipCount() const override;
+
+    void UpdateVelocities(float deltaTime);
+    void UpdateTransformations(float deltaTime);
 
     float GetForce(float m1, float m2, float distance) const;
     float GetDistance(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2) const;

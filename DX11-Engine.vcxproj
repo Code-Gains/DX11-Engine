@@ -145,6 +145,8 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\ECS\ComponentIdentifier.cpp" />
+    <ClCompile Include="Engine\ECS\Components\CameraComponent.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
@@ -156,20 +158,25 @@
     <ClCompile Include="Engine\3DObjects\Primitives\Cylinder.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Cube.cpp" />
     <ClCompile Include="Engine\3DObjects\Object3D.cpp" />
-    <ClCompile Include="3DRenderingApplication.cpp" />
+    <ClCompile Include="RenderingApplication3D.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Vectors\IntVectors.cpp" />
-    <ClCompile Include="Engine\InstanceRenderer.cpp" />
+    <ClCompile Include="Engine\InstanceRendererSystem.cpp" />
+    <ClCompile Include="Engine\ECS\Entity.cpp" />
+    <ClCompile Include="Engine\ECS\Components\LightComponent.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Engine\Scene.cpp" />
-    <ClCompile Include="Engine\Materials\PhongMaterial.cpp" />
     <ClCompile Include="Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Engine\Transform.cpp" />
     <ClCompile Include="Engine\3DObjects\Primitives\Sphere.cpp" />
     <ClCompile Include="Engine\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Engine\3DObjects\Rectangle3D.cpp" />
-    <ClCompile Include="Simulations\PlanetarySimulation.cpp" />
-    <ClCompile Include="Simulations\WindowsXpPipesSimulation.cpp" />
+    <ClCompile Include="Engine\ECS\Components\MaterialComponent.cpp" />
+    <ClCompile Include="Engine\ECS\Components\MeshComponent.cpp" />
+    <ClCompile Include="Engine\ECS\Systems\RenderingSystem.cpp" />
+    <ClCompile Include="Engine\ResourceMonitor.cpp" />
+    <ClCompile Include="Engine\ECS\World.cpp" />
+    <ClCompile Include="Engine\ECS\Components\TransformComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -297,20 +304,22 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\ComponentIdentifier.hpp" />
+    <ClInclude Include="Headers\CameraComponent.hpp" />
+    <ClInclude Include="Headers\Entity.hpp" />
     <ClInclude Include="Headers\ConstantBufferDefinitions.hpp" />
     <ClInclude Include="Headers\Constants.hpp" />
     <ClInclude Include="Headers\Cylinder.hpp" />
     <ClInclude Include="Headers\Cube.hpp" />
     <ClInclude Include="Headers\IntVectors.hpp" />
     <ClInclude Include="Headers\Object3D.hpp" />
-    <ClInclude Include="Headers\3DRenderingApplication.hpp" />
+    <ClInclude Include="Headers\RenderingApplication3D.hpp" />
     <ClInclude Include="Headers\Application.hpp" />
     <ClInclude Include="Headers\Definitions.hpp" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
     <ClInclude Include="Dependencies\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
     <ClInclude Include="Headers\Scene.hpp" />
-    <ClInclude Include="Headers\PhongMaterial.hpp" />
-    <ClInclude Include="Headers\InstanceRenderer.hpp" />
+    <ClInclude Include="Headers\InstanceRendererSystem.hpp" />
     <ClInclude Include="Headers\Logging.hpp" />
     <ClInclude Include="Headers\ShaderCollection.hpp" />
     <ClInclude Include="Headers\Transform.hpp" />
@@ -320,6 +329,13 @@
     <ClInclude Include="Headers\PhysicsBody.hpp" />
     <ClInclude Include="Headers\Rectangle3D.hpp" />
     <ClInclude Include="Headers\PlanetarySimulation.hpp" />
+    <ClInclude Include="Headers\World.hpp" />
+    <ClInclude Include="Headers\TransformComponent.hpp" />
+    <ClInclude Include="Headers\LightComponent.hpp" />
+    <ClInclude Include="Headers\MaterialComponent.hpp" />
+    <ClInclude Include="Headers\MeshComponent.hpp" />
+    <ClInclude Include="Headers\RenderingSystem.hpp" />
+    <ClInclude Include="Headers\ResourceMonitor.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

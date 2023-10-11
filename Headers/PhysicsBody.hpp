@@ -13,5 +13,6 @@ public:
 	void SetAcceleration(const DirectX::XMFLOAT3& acceleration);
 	void UpdatePhysics(float deltaTime);
 	void SetVelocity(const DirectX::XMFLOAT3 velocity);
+	void AddVelocity(const DirectX::XMFLOAT3 velocity);
 };
 
