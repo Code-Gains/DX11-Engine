@@ -50,18 +50,19 @@ std::vector<VertexPositionNormalUv> Cylinder::GenerateVertices(float radius, flo
 
         if (_caps)
         {
+            // Top cap
             vertices.push_back({
                 {radius * cosPhi, height / 2, radius * sinPhi},  // Position
                 {0, 1, 0},                                       // Normal
-                {cosPhi, sinPhi}                                  // Uv
-            });
+                {cosPhi * 0.5f + 0.5f, sinPhi * 0.5f + 0.5f}     // Uv
+                });
 
             // Bottom cap
             vertices.push_back({
                 {radius * cosPhi, -height / 2, radius * sinPhi}, // Position
                 {0, -1, 0},                                      // Normal
-                {cosPhi, sinPhi}                                  // Uv
-            });
+                {cosPhi * 0.5f + 0.5f, sinPhi * 0.5f + 0.5f}     // Uv
+                });
         }
 
         // Side top
@@ -78,38 +79,58 @@ std::vector<VertexPositionNormalUv> Cylinder::GenerateVertices(float radius, flo
             {(float)i / numSlices, 0.0f}                      // Uv
         });
     }
+
+    if (_caps)
+    {
+        // Top center vertex
+        vertices.push_back({
+            {0, height / 2, 0},  // Position
+            {0, 1, 0},           // Normal
+            {0.5f, 0.5f}         // UV
+            });
+
+        // Bottom center vertex
+        vertices.push_back({
+            {0, -height / 2, 0}, // Position
+            {0, -1, 0},          // Normal
+            {0.5f, 0.5f}         // UV
+            });
+    }
     return vertices;
 }
 
 std::vector<UINT> Cylinder::GenerateIndices(int numSlices) const
 {
     std::vector<UINT> indices;
-
-    int vertexOffset = (_caps) ? 4 : 2;  // offset 4 if caps are enabled, else 2
+    int vertexOffset = (_caps) ? 4 : 2;
 
     for (int i = 0; i < numSlices; ++i) {
         // Side
-        indices.push_back(i * vertexOffset);
-        indices.push_back(((i + 1) % numSlices) * vertexOffset);
-        indices.push_back(i * vertexOffset + 1);
+        indices.push_back(i * vertexOffset + 2);
+        indices.push_back(i * vertexOffset + 3);
+        indices.push_back(((i + 1) % numSlices) * vertexOffset + 2);
 
-        indices.push_back(i * vertexOffset + 1);
-        indices.push_back(((i + 1) % numSlices) * vertexOffset);
-        indices.push_back(((i + 1) % numSlices) * vertexOffset + 1);
+        indices.push_back(((i + 1) % numSlices) * vertexOffset + 2);
+        indices.push_back(i * vertexOffset + 3);
+        indices.push_back(((i + 1) % numSlices) * vertexOffset + 3);
 
         if (_caps)
         {
+            int topCenterIndex = numSlices * vertexOffset;
+            int bottomCenterIndex = numSlices * vertexOffset + 1;
+
             // Top cap
             indices.push_back(i * 4);
             indices.push_back(((i + 1) % numSlices) * 4);
-            indices.push_back(numSlices * 4);  // Center vertex
+            indices.push_back(topCenterIndex);
 
             // Bottom cap
             indices.push_back(i * 4 + 1);
-            indices.push_back(numSlices * 4 + 1);  // Center vertex
+            indices.push_back(bottomCenterIndex);
             indices.push_back(((i + 1) % numSlices) * 4 + 1);
         }
     }
+
     return indices;
 }
 

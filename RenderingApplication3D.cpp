@@ -149,7 +149,7 @@ bool RenderingApplication3D::Initialize()
 void RenderingApplication3D::CreateRasterState()
 {
     D3D11_RASTERIZER_DESC rasterDesc{};
-    rasterDesc.CullMode = D3D11_CULL_NONE;
+    rasterDesc.CullMode = D3D11_CULL_BACK;
     rasterDesc.FillMode = D3D11_FILL_SOLID;
 
     _device->CreateRasterizerState(&rasterDesc, &_rasterState);
