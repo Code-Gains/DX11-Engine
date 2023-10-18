@@ -294,9 +294,14 @@ void World::RemoveTransformComponent(int entityId)
     auto it = _transformComponentIndices.find(entityId);
     if (it != _transformComponentIndices.end())
     {
-       // _transformComponents.erase(_transformComponents.begin() + it->second);
-        //_transformComponentIndices.erase(it);
-        _freeTransforms.push_back(it->second);
+        auto transformIndex = it->second;
+        for (auto& pair : _transformComponentIndices)
+        {
+            if (pair.second > transformIndex)
+                pair.second--;
+        }
+        _transformComponents.erase(_transformComponents.begin() + it->second);
+        _transformComponentIndices.erase(it);
     }
 }
 
@@ -305,9 +310,14 @@ void World::RemoveMeshComponent(int entityId)
     auto it = _meshComponentIndices.find(entityId);
     if (it != _meshComponentIndices.end())
     {
-       /* _meshComponents.erase(_meshComponents.begin() + it->second);
-        _meshComponentIndices.erase(it);*/
-        _freeMeshes.push_back(it->second);
+        auto meshIndex = it->second;
+        for (auto& pair : _meshComponentIndices)
+        {
+            if (pair.second > meshIndex)
+                pair.second--;
+        }
+        _meshComponents.erase(_meshComponents.begin() + it->second);
+        _meshComponentIndices.erase(it);
     }
 }
 
@@ -316,9 +326,12 @@ void World::RemoveMaterialComponent(int entityId)
     auto it = _materialComponentIndices.find(entityId);
     if (it != _materialComponentIndices.end())
     {
-        /*_materialComponents.erase(_materialComponents.begin() + it->second);
-        _materialComponentIndices.erase(it);*/
-        _freeMaterials.push_back(it->second);
+        auto materialIndex = it->second;
+        for (auto& pair : _materialComponentIndices)
+            if (pair.second > materialIndex)
+                pair.second--;
+        _materialComponents.erase(_materialComponents.begin() + it->second);
+        _materialComponentIndices.erase(it);
     }
 }
 
@@ -327,9 +340,12 @@ void World::RemoveLightComponent(int entityId)
     auto it = _lightComponentIndices.find(entityId);
     if (it != _lightComponentIndices.end())
     {
-        /*_lightComponents.erase(_lightComponents.begin() + it->second);
-        _lightComponentIndices.erase(it);*/
-        _freeLights.push_back(it->second);
+        auto lightIndex = it->second;
+        for (auto& pair : _lightComponentIndices)
+            if (pair.second > lightIndex)
+                pair.second--;
+        _lightComponents.erase(_lightComponents.begin() + it->second);
+        _lightComponentIndices.erase(it);
     }
 }
 
@@ -338,9 +354,12 @@ void World::RemoveCameraComponent(int entityId)
     auto it = _cameraComponentIndices.find(entityId);
     if (it != _cameraComponentIndices.end())
     {
-        /*_cameraComponents.erase(_cameraComponents.begin() + it->second);
-        _cameraComponentIndices.erase(it);*/
-        _freeCameras.push_back(it->second);
+        auto cameraIndex = it->second;
+        for (auto& pair : _cameraComponentIndices)
+            if (pair.second > cameraIndex)
+                pair.second--;
+        _cameraComponents.erase(_cameraComponents.begin() + it->second);
+        _cameraComponentIndices.erase(it);
     }
 }
 
@@ -421,7 +440,6 @@ void World::RemoveRenderableInstance(
     auto zeroedMatrix = DirectX::XMMatrixSet(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
-        std::cout << _instancePools[0].instances.size() << std::endl;
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
         auto& instances = _instancePools[poolKey].instances;
         auto& freeInstances = _instancePools[poolKey].freeInstances;
@@ -437,6 +455,13 @@ void World::RemoveRenderableInstance(
             //{
             //    // COMPACT
             //}
+            for (auto& pair : entityIdToInstance)
+            {
+                if (pair.second > instanceIndex)
+                {
+                    pair.second--;
+                }
+            }
             entityIdToInstance.erase(entityId);
             instances.erase(instances.begin() + instanceIndex);
             _instancePools[poolKey].instanceCount--;

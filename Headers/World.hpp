@@ -38,11 +38,7 @@ class World
 
 	// Entities
 	std::vector<Entity> _entities;
-
-	// Id Management
 	int _nextEntityId = 1;
-	int _nextComponentId = 1;
-	int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
 
 	// Storage -> Component Data
 	std::vector<TransformComponent> _transformComponents;
@@ -50,6 +46,7 @@ class World
 	std::vector<MaterialComponent> _materialComponents;
 	std::vector<LightComponent> _lightComponents;
 	std::vector<CameraComponent> _cameraComponents;
+	int _nextComponentId = 1;
 
 	// Storage -> Component Cache
 	std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
@@ -70,6 +67,7 @@ class World
 
 	// Systems
 	InstanceRendererSystem _instanceRenderer;
+	int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
 
 	// HLSL Constant Buffer Data
 	LightConstantBuffer _lightConstantBufferData;
