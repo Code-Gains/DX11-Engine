@@ -161,7 +161,7 @@
     <ClCompile Include="RenderingApplication3D.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Engine\Vectors\IntVectors.cpp" />
-    <ClCompile Include="Engine\InstanceRendererSystem.cpp" />
+    <ClCompile Include="Engine\ECS\Systems\InstanceRendererSystem.cpp" />
     <ClCompile Include="Engine\ECS\Entity.cpp" />
     <ClCompile Include="Engine\ECS\Components\LightComponent.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -173,10 +173,10 @@
     <ClCompile Include="Engine\3DObjects\Rectangle3D.cpp" />
     <ClCompile Include="Engine\ECS\Components\MaterialComponent.cpp" />
     <ClCompile Include="Engine\ECS\Components\MeshComponent.cpp" />
-    <ClCompile Include="Engine\ECS\Systems\RenderingSystem.cpp" />
     <ClCompile Include="Engine\ResourceMonitor.cpp" />
     <ClCompile Include="Engine\ECS\World.cpp" />
     <ClCompile Include="Engine\ECS\Components\TransformComponent.cpp" />
+    <ClCompile Include="Engine\EngineUI\WorldHierarchy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -336,6 +336,7 @@
     <ClInclude Include="Headers\MeshComponent.hpp" />
     <ClInclude Include="Headers\RenderingSystem.hpp" />
     <ClInclude Include="Headers\ResourceMonitor.hpp" />
+    <ClInclude Include="Headers\WorldHierarchy.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

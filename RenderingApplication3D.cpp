@@ -308,15 +308,13 @@ void RenderingApplication3D::Render()
     //if (isApplicationMinimized)
         //return;
 
+
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
 
     _resourceMonitor.Render();
-    ImGui::Text("Geometry instances: N/A");
-    ImGui::End();
-    ImGui::Render();
-
+    //ImGui::Text("Geometry instances: N/A");
 
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -349,6 +347,8 @@ void RenderingApplication3D::Render()
 
     _world.Render();
 
+    ImGui::End();
+    ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
