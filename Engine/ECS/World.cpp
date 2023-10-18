@@ -182,11 +182,12 @@ std::vector<int> World::GetRenderableEntities(
 void World::AddEntity(Entity entity)
 {
     _entities.push_back(entity);
+    _nextEntityId++;
 }
 
-Entity World::CreateEntity()
+Entity World::CreateEntity(int id)
 {
-    auto newEntity = Entity();
+    auto newEntity = Entity(id);
     _entities.push_back(newEntity);
     return newEntity;
 }
@@ -415,10 +416,7 @@ void World::AddRenderableInstance(
     }
 }
 
-void World::UpdateRenderableInstanceData(
-    int poolKey,
-    int entityId,
-    const InstanceConstantBuffer& newData)
+void World::UpdateRenderableInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
@@ -437,7 +435,6 @@ void World::RemoveRenderableInstance(
     int poolKey,
     int entityId)
 {
-    auto zeroedMatrix = DirectX::XMMatrixSet(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
@@ -448,13 +445,6 @@ void World::RemoveRenderableInstance(
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];
-            //instances[instanceIndex].worldMatrix = zeroedMatrix;
-            //freeInstances.push_back(instanceIndex);
-            //freeInstanceCount++;
-            //if ((float)freeInstanceCount / instanceCount > _deadDataCompactionTreshold)
-            //{
-            //    // COMPACT
-            //}
             for (auto& pair : entityIdToInstance)
             {
                 if (pair.second > instanceIndex)
@@ -485,16 +475,17 @@ void World::UpdateDirtyRenderableTransforms()
     for (auto& entity : _entities)
     {
         if (_transformComponentIndices.find(entity.GetId()) == _transformComponentIndices.end())
-            return;
-        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
-            return;
-        if (_materialComponentIndices.find(entity.GetId()) == _materialComponentIndices.end())
-            return;
+            continue;
 
         int transformIndex = _transformComponentIndices[entity.GetId()];
         TransformComponent& transform = _transformComponents[transformIndex];
         if (!transform.IsDirty())
-            return;
+            continue;
+
+        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
+            continue;
+        if (_materialComponentIndices.find(entity.GetId()) == _materialComponentIndices.end())
+            continue;
 
         int materialIndex = _materialComponentIndices[entity.GetId()];
         MaterialComponent& material = _materialComponents[materialIndex];
@@ -503,6 +494,7 @@ void World::UpdateDirtyRenderableTransforms()
         MeshComponent& mesh = _meshComponents[meshIndex];
 
         UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
+        transform.SetIsDirty(false);
     }
 
 }

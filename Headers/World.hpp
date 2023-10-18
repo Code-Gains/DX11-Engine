@@ -98,7 +98,7 @@ public:
 	
 	// Entity-Component relations
 	void AddEntity(Entity entityId);
-	Entity CreateEntity();
+	Entity CreateEntity(int id);
 	void RemoveEntity(int id);
 
 	void AddComponent(int entityId, const TransformComponent& component);
