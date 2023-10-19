@@ -46,6 +46,38 @@ void WorldHierarchy::Render()
 	{
 		deleteSelected = true;
 	}
+
+	static DirectX::XMFLOAT3 selectedPosition = { 0.0f, 0.0f, 0.0f };
+	static DirectX::XMFLOAT3 selectedRotation = { 0.0f, 0.0f, 0.0f };
+	static DirectX::XMFLOAT3 selectedScale = { 1.0f, 1.0f, 1.0f };
+	if (selected != _entityToName.end())
+	{
+		auto transform = _world->GetTransformComponent(selected->first);
+		if (transform)
+		{
+			selectedPosition = transform->GetPosition();
+			selectedRotation = transform->GetRotation();
+			selectedScale = transform->GetScale();
+		}
+		if (ImGui::TreeNode("Transform"))
+		{
+			if (ImGui::DragFloat3("Position", &selectedPosition.x, 0.1f))
+			{
+				transform->SetPosition(selectedPosition);
+			}
+			if (ImGui::DragFloat3("Rotation", &selectedRotation.x, 0.1f))
+			{
+				transform->SetRotation(selectedRotation);
+			}
+			if (ImGui::DragFloat3("Scale", &selectedScale.x, 0.1f))
+			{
+				transform->SetScale(selectedScale);
+			}
+			ImGui::TreePop();
+
+		}
+	}
+
 	ImGui::Text("Entities");
 	if (ImGui::BeginTable("EntityTable", 1, ImGuiTableFlags_Borders))
 	{
@@ -66,7 +98,9 @@ void WorldHierarchy::Render()
 	if (deleteSelected)
 	{
 		auto selectedEntityId = selected->first;
-		_world->RemoveRenderableInstance(0, selectedEntityId);
+		auto mesh = _world->GetMeshComponent(selected->first);
+		if(mesh)
+			_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
 		_world->RemoveTransformComponent(selectedEntityId);
 		_world->RemoveMeshComponent(selectedEntityId);
 		_world->RemoveMaterialComponent(selectedEntityId);
@@ -83,14 +117,8 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
 	auto geometry = _world->CreateEntity(_world->GetNextEntityId());
-	static float posX = 1.0f;
-	auto transform = TransformComponent(
-		_world->GetNextComponentId(),
-		DirectX::XMFLOAT3{posX, posX, posX },
-		DirectX::XMFLOAT3{0.0f, 0.0f, 0.0f},
-		DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}
-	);
-	posX += 1;
+
+	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 
     auto mesh = MeshComponent::GetPrimitiveMeshComponent(_world->GetNextComponentId(), type);

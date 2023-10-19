@@ -60,24 +60,28 @@ MeshComponent MeshComponent::GetPrimitiveMeshComponent(int id, PrimitiveGeometry
 		{
 			auto cube = Cube();
 			auto meshComponent = MeshComponent(id, cube.GetVertices(), cube.GetIndices());
+			meshComponent.SetInstancePoolIndex((int)type);
 			return meshComponent;
 		}
 		case PrimitiveGeometryType3D::Sphere:
 		{
 			auto sphere = Sphere();
 			auto meshComponent = MeshComponent(id, sphere.GetVertices(), sphere.GetIndices());
+			meshComponent.SetInstancePoolIndex((int)type);
 			return meshComponent;
 		}
 		case PrimitiveGeometryType3D::Cylinder:
 		{
 			auto cylinder = Cylinder(true);
 			auto meshComponent = MeshComponent(id, cylinder.GetVertices(), cylinder.GetIndices());
+			meshComponent.SetInstancePoolIndex((int)type);
 			return meshComponent;
 		}
 		case PrimitiveGeometryType3D::Pipe:
 		{
 			auto pipe = Cylinder(false);
 			auto meshComponent = MeshComponent(id, pipe.GetVertices(), pipe.GetIndices());
+			meshComponent.SetInstancePoolIndex((int)type);
 			return meshComponent;
 		}
 		default:

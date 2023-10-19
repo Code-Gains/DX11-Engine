@@ -364,6 +364,33 @@ void World::RemoveCameraComponent(int entityId)
     }
 }
 
+TransformComponent* World::GetTransformComponent(int entityId)
+{
+    auto entityIdToComponentIndex = _transformComponentIndices.find(entityId);
+    if (entityIdToComponentIndex == _transformComponentIndices.end())
+        return nullptr;
+
+    return &_transformComponents[entityIdToComponentIndex->second];
+}
+
+MeshComponent* World::GetMeshComponent(int entityId)
+{
+    auto entityIdToComponentIndex = _meshComponentIndices.find(entityId);
+    if (entityIdToComponentIndex == _meshComponentIndices.end())
+        return nullptr;
+
+    return &_meshComponents[entityIdToComponentIndex->second];
+}
+
+MaterialComponent* World::GetMaterialComponent(int entityId)
+{
+    auto entityIdToComponentIndex = _materialComponentIndices.find(entityId);
+    if (entityIdToComponentIndex == _materialComponentIndices.end())
+        return nullptr;
+
+    return &_materialComponents[entityIdToComponentIndex->second];
+}
+
 void World::LinkEngineInstancePools()
 {
     auto cubeMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);

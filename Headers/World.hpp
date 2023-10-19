@@ -113,6 +113,12 @@ public:
 	void RemoveLightComponent(int entityId);
 	void RemoveCameraComponent(int entityId);
 
+	TransformComponent* GetTransformComponent(int entityId);
+	MeshComponent* GetMeshComponent(int entityId);
+	MaterialComponent* GetMaterialComponent(int entityId);
+	//LightComponent* GetLightComponent(int entityId);
+	//CameraComponent* GetCameraComponent(int entityId);
+
 	// Instance Rendering System
 
 	void LinkEngineInstancePools();
