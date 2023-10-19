@@ -506,22 +506,25 @@ void World::UpdateDirtyRenderableTransforms()
 
         int transformIndex = _transformComponentIndices[entity.GetId()];
         TransformComponent& transform = _transformComponents[transformIndex];
-        if (!transform.IsDirty())
-            continue;
 
-        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
-            continue;
         if (_materialComponentIndices.find(entity.GetId()) == _materialComponentIndices.end())
             continue;
 
         int materialIndex = _materialComponentIndices[entity.GetId()];
         MaterialComponent& material = _materialComponents[materialIndex];
 
+        if (!transform.IsDirty() && !material.IsDirty())
+            continue;
+
+        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
+            continue;
+
         int meshIndex = _meshComponentIndices[entity.GetId()];
         MeshComponent& mesh = _meshComponents[meshIndex];
 
         UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
         transform.SetIsDirty(false);
+        material.SetIsDirty(false);
     }
 
 }

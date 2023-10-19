@@ -50,6 +50,12 @@ void WorldHierarchy::Render()
 	static DirectX::XMFLOAT3 selectedPosition = { 0.0f, 0.0f, 0.0f };
 	static DirectX::XMFLOAT3 selectedRotation = { 0.0f, 0.0f, 0.0f };
 	static DirectX::XMFLOAT3 selectedScale = { 1.0f, 1.0f, 1.0f };
+
+	static DirectX::XMFLOAT4 selectedAmbient = { 1.0f, 1.0f, 1.0f, 1.0f };
+	static DirectX::XMFLOAT4 selectedDiffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+	static DirectX::XMFLOAT4 selectedSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
+	static float selectedShininess = 1.0f;
+
 	if (selected != _entityToName.end())
 	{
 		auto transform = _world->GetTransformComponent(selected->first);
@@ -74,7 +80,34 @@ void WorldHierarchy::Render()
 				transform->SetScale(selectedScale);
 			}
 			ImGui::TreePop();
-
+		}
+		auto material = _world->GetMaterialComponent(selected->first);
+		if (material)
+		{
+			selectedAmbient = material->GetAmbient();
+			selectedDiffuse = material->GetDiffuse();
+			selectedSpecular = material->GetSpecular();
+			selectedShininess = selectedShininess;
+		}
+		if (ImGui::TreeNode("Material"))
+		{
+			if (ImGui::DragFloat4("Ambient", &selectedAmbient.x, 0.01f, 0.0f, 1.0f))
+			{
+				material->SetAmbient(selectedAmbient);
+			}
+			if (ImGui::DragFloat4("Diffuse", &selectedDiffuse.x, 0.01f, 0.0f, 1.0f))
+			{
+				material->SetDiffuse(selectedDiffuse);
+			}
+			if (ImGui::DragFloat4("Specular", &selectedSpecular.x, 0.01f, 0.0f, 1.0f))
+			{
+				material->SetSpecular(selectedSpecular);
+			}
+			if (ImGui::DragFloat("Shininess", &selectedShininess, 0.1f, 0.0f, 100.0f))
+			{
+				material->SetShininess(selectedShininess);
+			}
+			ImGui::TreePop();
 		}
 	}
 
@@ -87,7 +120,7 @@ void WorldHierarchy::Render()
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
 			auto name = item.second + " " + std::to_string(item.first);
-			if(ImGui::Selectable(name.c_str(), entityToName == selected))
+			if (ImGui::Selectable(name.c_str(), entityToName == selected))
 				selected = entityToName;
 			entityToName++;
 		}
@@ -99,7 +132,7 @@ void WorldHierarchy::Render()
 	{
 		auto selectedEntityId = selected->first;
 		auto mesh = _world->GetMeshComponent(selected->first);
-		if(mesh)
+		if (mesh)
 			_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
 		_world->RemoveTransformComponent(selectedEntityId);
 		_world->RemoveMeshComponent(selectedEntityId);
@@ -121,13 +154,13 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 
-    auto mesh = MeshComponent::GetPrimitiveMeshComponent(_world->GetNextComponentId(), type);
+	auto mesh = MeshComponent::GetPrimitiveMeshComponent(_world->GetNextComponentId(), type);
 	_world->AddComponent(geometry.GetId(), mesh);
 
-    auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
+	auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), material);
 
-    _world->AddEntity(geometry);
+	_world->AddEntity(geometry);
 	AddEntity(geometry.GetId(), name);
 
 	return geometry.GetId();
