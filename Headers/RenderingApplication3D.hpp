@@ -32,9 +32,11 @@ public:
 protected:
     bool Initialize() override;
     bool Load() override;
+
     void OnResize(
         int32_t width,
         int32_t height) override;
+
     void Update() override;
     void PeriodicUpdate() override;
     void Render() override;

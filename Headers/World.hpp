@@ -13,11 +13,14 @@
 #include "LightComponent.hpp"
 #include "CameraComponent.hpp"
 #include "MeshComponent.hpp"
+
 #include "InstanceRendererSystem.hpp"
 
 #include "Cube.hpp"
 #include "VertexType.hpp"
 #include "Constants.hpp"
+
+#include "WorldHierarchy.hpp"
 
 // temp includes for demo
 #include <random>
@@ -30,13 +33,12 @@ class World
 	int32_t _viewportWidth;
 	int32_t _viewportHeight;
 
+	// Memory management settings
+	float _deadDataCompactionTreshold = 0.5f;
+
 	// Entities
 	std::vector<Entity> _entities;
-
-	// Id Management
 	int _nextEntityId = 1;
-	int _nextComponentId = 1;
-	int _nextPoolId = 1;
 
 	// Storage -> Component Data
 	std::vector<TransformComponent> _transformComponents;
@@ -44,6 +46,7 @@ class World
 	std::vector<MaterialComponent> _materialComponents;
 	std::vector<LightComponent> _lightComponents;
 	std::vector<CameraComponent> _cameraComponents;
+	int _nextComponentId = 1;
 
 	// Storage -> Component Cache
 	std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
@@ -56,13 +59,23 @@ class World
 	std::unordered_map<int, int> _lightComponentIndices;
 	std::unordered_map<int, int> _cameraComponentIndices;
 
+	std::vector<size_t> _freeTransforms;
+	std::vector<size_t> _freeMeshes;
+	std::vector<size_t> _freeMaterials;
+	std::vector<size_t> _freeLights;
+	std::vector<size_t> _freeCameras;
+
 	// Systems
 	InstanceRendererSystem _instanceRenderer;
+	int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
 
 	// HLSL Constant Buffer Data
 	LightConstantBuffer _lightConstantBufferData;
 	PerFrameConstantBuffer _perFrameConstantBufferData{};
 	CameraConstantBuffer _cameraConstantBufferData{};
+
+	// UI
+	WorldHierarchy _worldHierarchy;
 
 public:
 	// World loading and application management
@@ -75,27 +88,45 @@ public:
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
 	void Render();
+
+	int GetNextEntityId() const;
+	int GetNextComponentId() const;
+	int GetNextPoolId() const;
+
+	void IncrementEntityId();
+	void IncrementPoolId();
 	
 	// Entity-Component relations
-	Entity CreateEntity();
+	void AddEntity(Entity entityId);
+	Entity CreateEntity(int id);
+	void RemoveEntity(int id);
+
 	void AddComponent(int entityId, const TransformComponent& component);
 	void AddComponent(int entityId, const MeshComponent& component);
 	void AddComponent(int entityId, const MaterialComponent& component);
 	void AddComponent(int entityId, const LightComponent& component);
 	void AddComponent(int entityId, const CameraComponent& component);
 
-	void RemoveComponent(int entityId, const TransformComponent& component);
-	void RemoveComponent(int entityId, const MeshComponent& component);
-	void RemoveComponent(int entityId, const MaterialComponent& component);
-	void RemoveComponent(int entityId, const LightComponent& component);
-	void RemoveComponent(int entityId, const CameraComponent& component);
+	void RemoveTransformComponent(int entityId);
+	void RemoveMeshComponent(int entityId);
+	void RemoveMaterialComponent(int entityId);
+	void RemoveLightComponent(int entityId);
+	void RemoveCameraComponent(int entityId);
+
+	TransformComponent* GetTransformComponent(int entityId);
+	MeshComponent* GetMeshComponent(int entityId);
+	MaterialComponent* GetMaterialComponent(int entityId);
+	//LightComponent* GetLightComponent(int entityId);
+	//CameraComponent* GetCameraComponent(int entityId);
 
 	// Instance Rendering System
 
+	void LinkEngineInstancePools();
+	void LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool);
 	void LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool);
 	void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
 	void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-	void RemoveRenderableInstance(int poolKey, int instanceIndex);
+	void RemoveRenderableInstance(int poolKey, int entityId);
 	void RemoveAllRenderableInstances();
 
 	void UpdateDirtyRenderableTransforms();

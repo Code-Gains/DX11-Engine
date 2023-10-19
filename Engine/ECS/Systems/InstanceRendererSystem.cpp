@@ -62,16 +62,27 @@ void InstanceRendererSystem::UpdateInstanceData(int poolKey, int entityId, const
 
 void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 {
+    auto zeroedMatrix = DirectX::XMMatrixSet(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
         auto& instances = _instancePools[poolKey].instances;
+        auto& freeInstances = _instancePools[poolKey].freeInstances;
+        auto& instanceCount = _instancePools[poolKey].instanceCount;
+        auto& freeInstanceCount = _instancePools[poolKey].freeInstanceCount;
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];
-            entityIdToInstance.erase(entityId);
-            instances.erase(instances.begin() + instanceIndex);
-            _instancePools[poolKey].instanceCount--;
+            instances[instanceIndex].worldMatrix = zeroedMatrix;
+            freeInstances.push_back(instanceIndex);
+            freeInstanceCount++;
+            if ((float)freeInstanceCount / instanceCount > _compactingTreshold)
+            {
+                // COMPACT
+            }
+            //entityIdToInstance.erase(entityId);
+            //instances.erase(instances.begin() + instanceIndex);
+            //_instancePools[poolKey].instanceCount--;
         }
     }
 }

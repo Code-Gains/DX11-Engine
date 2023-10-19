@@ -12,6 +12,7 @@ class TransformComponent : public ComponentIdentifier
 
 public:
 	TransformComponent();
+	TransformComponent(int id);
 	TransformComponent(int id, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale);
 
 	void SetPosition(const DirectX::XMFLOAT3& position);

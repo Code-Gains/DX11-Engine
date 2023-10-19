@@ -1,10 +1,18 @@
 #include "TransformComponent.hpp"
 
-TransformComponent::TransformComponent()
-    : _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
+TransformComponent::TransformComponent() :
+    _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
     _rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
     _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f }),
     ComponentIdentifier(0)
+{
+}
+
+TransformComponent::TransformComponent(int id) :
+    _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
+    _rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
+    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f }),
+    ComponentIdentifier(id)
 {
 }
 
