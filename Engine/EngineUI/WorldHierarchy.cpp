@@ -16,6 +16,16 @@ void WorldHierarchy::Update(float deltaTime)
 void WorldHierarchy::Render()
 {
 	ImGui::Begin("World Hierarchy");
+	if (ImGui::Button("Save"))
+	{
+		_world->SaveWorld("./output.json");
+		// perform save
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Load"))
+	{
+		// perform save
+	}
 	if (ImGui::BeginMenu("Add"))
 	{
 		if (ImGui::BeginMenu("Primitives 3D"))
@@ -150,7 +160,6 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
 	auto geometry = _world->CreateEntity(_world->GetNextEntityId());
-
 	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 

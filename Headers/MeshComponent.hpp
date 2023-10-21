@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <DirectXMath.h>
+#include <cereal/cereal.hpp>
 
 #include "Definitions.hpp"
 #include "VertexType.hpp"
@@ -40,5 +41,11 @@ public:
 
 	static MeshComponent GetPrimitiveMeshComponent(PrimitiveGeometryType3D type);
 	static MeshComponent GetPrimitiveMeshComponent(int id, PrimitiveGeometryType3D type);
+
+	template<typename Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_vertices), CEREAL_NVP(_indices), CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_meshType));
+	}
 };
 

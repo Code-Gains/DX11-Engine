@@ -17,6 +17,7 @@
 #include "ConstantBufferDefinitions.hpp"
 
 #include "World.hpp"
+#include "Universe.hpp"
 #include "ResourceMonitor.hpp"
 
 
@@ -67,6 +68,7 @@ private:
 
     ShaderCollection _shaderCollection;
 
+    Universe _universe;
     World _world;
     Scene _scene;
 };

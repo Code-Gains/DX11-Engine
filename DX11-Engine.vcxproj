@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\;$(ProjectDir)Dependencies\imgui\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\;$(ProjectDir)Dependencies\imgui\include;$(ProjectDir)Dependencies\cereal;$(ProjectDir)Dependencies\cereal</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -127,7 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\;$(ProjectDir)Dependencies\imgui\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\glfw-3.3.8.bin.WIN64\include\;$(ProjectDir)Dependencies\DirectXTex\include\;$(ProjectDir)Dependencies\FreeImage\include\;$(ProjectDir)Headers\;$(ProjectDir)Dependencies\imgui\include;$(ProjectDir)Dependencies\cereal;$(ProjectDir)Dependencies\cereal</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -177,6 +177,7 @@
     <ClCompile Include="Engine\ECS\World.cpp" />
     <ClCompile Include="Engine\ECS\Components\TransformComponent.cpp" />
     <ClCompile Include="Engine\EngineUI\WorldHierarchy.cpp" />
+    <ClCompile Include="Engine\ECS\Universe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\docs\html\build_8dox.html" />
@@ -304,6 +305,7 @@
     <None Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\DirectXSerialization.hpp" />
     <ClInclude Include="Headers\ComponentIdentifier.hpp" />
     <ClInclude Include="Headers\CameraComponent.hpp" />
     <ClInclude Include="Headers\Entity.hpp" />
@@ -337,6 +339,8 @@
     <ClInclude Include="Headers\RenderingSystem.hpp" />
     <ClInclude Include="Headers\ResourceMonitor.hpp" />
     <ClInclude Include="Headers\WorldHierarchy.hpp" />
+    <ClInclude Include="Headers\ISerializeable.hpp" />
+    <ClInclude Include="Headers\Universe.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib" />

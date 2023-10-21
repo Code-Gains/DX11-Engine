@@ -92,6 +92,11 @@ MaterialComponent MaterialComponent::GetDefaultMaterialComponent(int id)
 	return material;
 }
 
+std::string MaterialComponent::Serialize()
+{
+	return std::string();
+}
+
 MaterialConstantBuffer::MaterialConstantBuffer()
 {
 }

@@ -1,17 +1,25 @@
 #include "World.hpp"
+#include "Universe.hpp"
 
 World::World()
 {
 }
 
-bool World::Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+World::~World()
+{
+}
+
+bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
     _win32Window = win32Window;
+    _universe = universe;
 	_lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
 	_lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
 	_lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+    std::cout << device << std::endl;
+    std::cout << deviceContext << std::endl;
 	_instanceRenderer = InstanceRendererSystem(device, deviceContext);
     _worldHierarchy = WorldHierarchy(this);
 	return true;
@@ -197,10 +205,10 @@ void World::RemoveEntity(int id)
 
 }
 
-bool World::LoadWorld(std::string fileName)
+bool World::LoadWorld(std::string filePath)
 {
     LinkEngineInstancePools();
-	if(fileName != "")
+	if(filePath != "")
 	{
         // handle files later
 	}
@@ -247,6 +255,12 @@ bool World::LoadWorld(std::string fileName)
     LinkRenderableInstancePool(instancePool);*/
 
 	return true;
+}
+
+bool World::SaveWorld(std::string filePath)
+{
+    _universe->SaveWorld(filePath);
+    return true;
 }
 
 void World::UpdateViewportDimensions(int32_t width, int32_t height)

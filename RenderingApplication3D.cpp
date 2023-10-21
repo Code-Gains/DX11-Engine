@@ -211,10 +211,9 @@ bool RenderingApplication3D::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    _world = World();
-    _world.Initialize(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
-    _world.UpdateViewportDimensions(_width, _height);
-    _world.LoadWorld();
+    _universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
+    _universe.UpdateViewportDimensions(_width, _height);
+    _universe.LoadWorld();
 
     return true;
 }
@@ -290,7 +289,8 @@ void RenderingApplication3D::Update()
 
     _resourceMonitor.Update(_deltaTime);
     _scene.Update(_deltaTime);
-    _world.Update(_deltaTime);
+    //_world.Update(_deltaTime);
+    _universe.Update(_deltaTime);
 }
 
 void RenderingApplication3D::PeriodicUpdate()
@@ -298,7 +298,8 @@ void RenderingApplication3D::PeriodicUpdate()
     if (_periodicDeltaTime > _periodicUpdatePeriod)
     {
         _scene.PeriodicUpdate(_periodicDeltaTime);
-        _world.PeriodicUpdate(_periodicDeltaTime);
+        //_world.PeriodicUpdate(_periodicDeltaTime);
+        _universe.PeriodicUpdate(_periodicDeltaTime);
         _periodicDeltaTime = 0;
     }
 }
@@ -345,7 +346,8 @@ void RenderingApplication3D::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    _world.Render();
+    //_world.Render();
+    _universe.Render();
 
     ImGui::End();
     ImGui::Render();
