@@ -53,7 +53,6 @@ private:
     // Instanced Rendering Resources
     std::unordered_map<int, InstancePool> _instancePools;
     int _batchSize = 256;
-    float _compactingTreshold = 0.8f;
 
     // Graphics Resources
     WRL::ComPtr<ID3D11Device> _device = nullptr;
@@ -178,7 +177,13 @@ public:
     }
 
     template<typename TVertexType>
-    void RenderInstances(const std::unordered_map<int, InstancePool>& instancePools, const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData)
+    void RenderInstances(
+        const std::unordered_map<int, InstancePool>& instancePools,
+        const PerFrameConstantBuffer& perFrameConstantBuffer,
+        const CameraConstantBuffer& cameraConstantBufferData,
+        const LightConstantBuffer& lightConstantBufferData,
+        const MaterialConstantBuffer& materialConstantBufferData
+    )
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 

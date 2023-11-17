@@ -25,6 +25,7 @@ public:
 	void Render();
 
 	void AddEntity(int entityId, std::string entityName);
+	void LinkEntities(std::vector<Entity> entities);
 
 	int CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name);
 

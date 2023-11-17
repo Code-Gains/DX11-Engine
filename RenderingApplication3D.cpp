@@ -213,7 +213,7 @@ bool RenderingApplication3D::Load()
 
     _universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
     _universe.UpdateViewportDimensions(_width, _height);
-    _universe.LoadWorld();
+    _universe.LoadNewWorld();
 
     return true;
 }

@@ -33,6 +33,7 @@ public:
 
 	void UpdateViewportDimensions(int32_t width, int32_t height);
 	bool LoadWorld(std::string filePath = "");
+	bool LoadNewWorld();
 	bool SaveWorld(std::string filePath);
 
 

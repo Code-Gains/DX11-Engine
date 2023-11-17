@@ -52,7 +52,7 @@ void Universe::UpdateViewportDimensions(int32_t width, int32_t height)
 	_world.UpdateViewportDimensions(width, height);
 }
 
-bool Universe::LoadWorld(std::string filePath)
+bool Universe::LoadNewWorld()
 {
 	_world = World();
 	_world.Initialize(this, _win32Window, _device.Get(), _deviceContext.Get());
@@ -60,6 +60,20 @@ bool Universe::LoadWorld(std::string filePath)
 	_world.LoadWorld();
 	//_worlds[0] = world;
 	return true;
+}
+
+bool Universe::LoadWorld(std::string filePath)
+{
+	std::ifstream is(filePath);
+	if (!is.is_open())
+		return false;  // Failed to open file
+
+	{
+		cereal::JSONInputArchive archive(is);
+		archive(CEREAL_NVP(_world));  // Deserializes the world
+	}
+
+	return true;  // Successfully deserialized
 }
 
 bool Universe::SaveWorld(std::string filePath)

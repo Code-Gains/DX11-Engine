@@ -88,6 +88,7 @@ public:
 	bool Initialize(Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void UpdateViewportDimensions(int32_t width, int32_t height);
 	bool LoadWorld(std::string filePath = "");
+	bool FinalizeLoading();
 	bool SaveWorld(std::string filePath);
 
 	// Loops
@@ -104,7 +105,6 @@ public:
 	
 	// Entity-Component relations
 	void AddEntity(Entity entityId);
-	Entity CreateEntity(int id);
 	void RemoveEntity(int id);
 
 	void AddComponent(int entityId, const TransformComponent& component);
@@ -146,7 +146,7 @@ public:
 
 
 	template <typename Archive>
-	void serialize(Archive& archive)
+	void save(Archive& archive) const
 	{
 		//// Entities
 		archive(CEREAL_NVP(_entities), CEREAL_NVP(_nextEntityId));
@@ -158,6 +158,48 @@ public:
 			CEREAL_NVP(_materialComponents),
 			CEREAL_NVP(_nextComponentId)
 		);
+
+		// Indices
+		archive(
+			CEREAL_NVP(_transformComponentIndices),
+			CEREAL_NVP(_meshComponentIndices),
+			CEREAL_NVP(_materialComponentIndices),
+			CEREAL_NVP(_nextComponentId)
+		);
+
+		//// Component Cache
+		//archive(_instancePools);
+
+		//// Systems
+		//archive(_nextPoolId);
+
+		//// Potentially buffers, but likely just re-create
+		//
+	}
+
+	template <typename Archive>
+	void load(Archive& archive)
+	{
+		//// Entities
+		archive(CEREAL_NVP(_entities), CEREAL_NVP(_nextEntityId));
+
+		// Components
+		archive(
+			CEREAL_NVP(_transformComponents),
+			CEREAL_NVP(_meshComponents),
+			CEREAL_NVP(_materialComponents),
+			CEREAL_NVP(_nextComponentId)
+		);
+
+		// Indices
+		archive(
+			CEREAL_NVP(_transformComponentIndices),
+			CEREAL_NVP(_meshComponentIndices),
+			CEREAL_NVP(_materialComponentIndices),
+			CEREAL_NVP(_nextComponentId)
+		);
+
+		FinalizeLoading();
 
 		//// Component Cache
 		//archive(_instancePools);

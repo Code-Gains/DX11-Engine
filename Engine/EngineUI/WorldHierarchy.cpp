@@ -19,12 +19,11 @@ void WorldHierarchy::Render()
 	if (ImGui::Button("Save"))
 	{
 		_world->SaveWorld("./output.json");
-		// perform save
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Load"))
 	{
-		// perform save
+		_world->LoadWorld("./output.json");
 	}
 	if (ImGui::BeginMenu("Add"))
 	{
@@ -157,9 +156,19 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 	_entityToName[entityId] = entityName;
 }
 
+void WorldHierarchy::LinkEntities(std::vector<Entity> entities)
+{
+	int i = 0;
+	for (const auto entity : entities)
+	{
+		AddEntity(entity.GetId(), std::to_string(i));
+		i++;
+	}
+}
+
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
-	auto geometry = _world->CreateEntity(_world->GetNextEntityId());
+	auto geometry = Entity(_world->GetNextEntityId());
 	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 

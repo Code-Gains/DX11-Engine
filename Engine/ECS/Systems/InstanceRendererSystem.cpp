@@ -76,10 +76,10 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
             instances[instanceIndex].worldMatrix = zeroedMatrix;
             freeInstances.push_back(instanceIndex);
             freeInstanceCount++;
-            if ((float)freeInstanceCount / instanceCount > _compactingTreshold)
-            {
-                // COMPACT
-            }
+            //if ((float)freeInstanceCount / instanceCount > _compactingTreshold)
+            //{
+            //    // COMPACT
+            //}
             //entityIdToInstance.erase(entityId);
             //instances.erase(instances.begin() + instanceIndex);
             //_instancePools[poolKey].instanceCount--;

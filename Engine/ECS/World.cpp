@@ -27,6 +27,8 @@ bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* devic
 
 void World::Update(float deltaTime)
 {
+    //std::cout << _entities.size() << std::endl;
+    //std::cout << _nextComponentId << std::endl;
     _worldHierarchy.Update(deltaTime);
 
     // DirectX namespace contains overloads for vector and float multiplication
@@ -193,13 +195,6 @@ void World::AddEntity(Entity entity)
     _nextEntityId++;
 }
 
-Entity World::CreateEntity(int id)
-{
-    auto newEntity = Entity(id);
-    _entities.push_back(newEntity);
-    return newEntity;
-}
-
 void World::RemoveEntity(int id)
 {
 
@@ -210,8 +205,10 @@ bool World::LoadWorld(std::string filePath)
     LinkEngineInstancePools();
 	if(filePath != "")
 	{
-        // handle files later
+        _universe->LoadWorld(filePath);
 	}
+
+    return true;
 
     /*std::mt19937 gen(std::random_device{}());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -253,8 +250,23 @@ bool World::LoadWorld(std::string filePath)
     }
 
     LinkRenderableInstancePool(instancePool);*/
+}
 
-	return true;
+bool World::FinalizeLoading()
+{
+    for (auto& transformComponent : _transformComponents)
+    {
+        transformComponent.SetIsDirty(true);
+    }
+    for (auto& materialComponents : _materialComponents)
+    {
+        materialComponents.SetIsDirty(true);
+    }
+
+    _worldHierarchy.LinkEntities(_entities);
+
+    std::cout << "finalizing" << std::endl;
+    return false;
 }
 
 bool World::SaveWorld(std::string filePath)
