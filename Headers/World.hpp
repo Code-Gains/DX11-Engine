@@ -6,11 +6,8 @@
 #include <d3d11_2.h>
 #include <DirectXMath.h>
 
-//#include <fstream>
-//#include <cereal/types/vector.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/unordered_map.hpp>
-//#include <cereal/archives/json.hpp>
 
 #include "Entity.hpp"
 
@@ -163,18 +160,13 @@ public:
 		archive(
 			CEREAL_NVP(_transformComponentIndices),
 			CEREAL_NVP(_meshComponentIndices),
-			CEREAL_NVP(_materialComponentIndices),
-			CEREAL_NVP(_nextComponentId)
+			CEREAL_NVP(_materialComponentIndices)
 		);
 
-		//// Component Cache
-		//archive(_instancePools);
-
-		//// Systems
-		//archive(_nextPoolId);
-
-		//// Potentially buffers, but likely just re-create
-		//
+		// UI
+		archive(
+			CEREAL_NVP(_worldHierarchy)
+		);
 	}
 
 	template <typename Archive>
@@ -195,19 +187,14 @@ public:
 		archive(
 			CEREAL_NVP(_transformComponentIndices),
 			CEREAL_NVP(_meshComponentIndices),
-			CEREAL_NVP(_materialComponentIndices),
-			CEREAL_NVP(_nextComponentId)
+			CEREAL_NVP(_materialComponentIndices)
+		);
+
+		// UI
+		archive(
+			CEREAL_NVP(_worldHierarchy)
 		);
 
 		FinalizeLoading();
-
-		//// Component Cache
-		//archive(_instancePools);
-
-		//// Systems
-		//archive(_nextPoolId);
-
-		//// Potentially buffers, but likely just re-create
-		//
 	}
 };

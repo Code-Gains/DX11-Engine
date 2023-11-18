@@ -18,8 +18,6 @@ bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* devic
 	_lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
 	_lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-    std::cout << device << std::endl;
-    std::cout << deviceContext << std::endl;
 	_instanceRenderer = InstanceRendererSystem(device, deviceContext);
     _worldHierarchy = WorldHierarchy(this);
 	return true;
@@ -27,8 +25,6 @@ bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* devic
 
 void World::Update(float deltaTime)
 {
-    //std::cout << _entities.size() << std::endl;
-    //std::cout << _nextComponentId << std::endl;
     _worldHierarchy.Update(deltaTime);
 
     // DirectX namespace contains overloads for vector and float multiplication
@@ -263,7 +259,7 @@ bool World::FinalizeLoading()
         materialComponents.SetIsDirty(true);
     }
 
-    _worldHierarchy.LinkEntities(_entities);
+    _worldHierarchy.SetWorld(this);
 
     std::cout << "finalizing" << std::endl;
     return false;

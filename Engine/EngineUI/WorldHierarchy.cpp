@@ -156,16 +156,6 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 	_entityToName[entityId] = entityName;
 }
 
-void WorldHierarchy::LinkEntities(std::vector<Entity> entities)
-{
-	int i = 0;
-	for (const auto entity : entities)
-	{
-		AddEntity(entity.GetId(), std::to_string(i));
-		i++;
-	}
-}
-
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
 	auto geometry = Entity(_world->GetNextEntityId());
@@ -182,6 +172,11 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	AddEntity(geometry.GetId(), name);
 
 	return geometry.GetId();
+}
+
+void WorldHierarchy::SetWorld(World* world)
+{
+	_world = world;
 }
 
 std::string WorldHierarchy::GetEntityName(int entityId) const
