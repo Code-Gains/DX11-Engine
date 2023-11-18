@@ -142,8 +142,8 @@ void World::PeriodicUpdate(float deltaTime)
 
 void World::Render()
 {
-    _worldHierarchy.Render();
 	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
+    _worldHierarchy.Render();
 }
 
 int World::GetNextEntityId() const
@@ -201,7 +201,7 @@ bool World::LoadWorld(std::string filePath)
     LinkEngineInstancePools();
 	if(filePath != "")
 	{
-        _universe->LoadWorld(filePath);
+        _universe->LoadWorldSingle(filePath);
 	}
 
     return true;
@@ -248,8 +248,18 @@ bool World::LoadWorld(std::string filePath)
     LinkRenderableInstancePool(instancePool);*/
 }
 
+bool World::PrepareLoading()
+{
+    _worldHierarchy.Clear();
+    return true;
+}
+
 bool World::FinalizeLoading()
 {
+    for (auto& instancePool : _instancePools)
+    {
+        instancePool.second.Clear();
+    }
     for (auto& transformComponent : _transformComponents)
     {
         transformComponent.SetIsDirty(true);
@@ -261,7 +271,6 @@ bool World::FinalizeLoading()
 
     _worldHierarchy.SetWorld(this);
 
-    std::cout << "finalizing" << std::endl;
     return false;
 }
 
@@ -488,9 +497,7 @@ void World::RemoveRenderableInstance(
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
         auto& instances = _instancePools[poolKey].instances;
-        auto& freeInstances = _instancePools[poolKey].freeInstances;
         auto& instanceCount = _instancePools[poolKey].instanceCount;
-        auto& freeInstanceCount = _instancePools[poolKey].freeInstanceCount;
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];

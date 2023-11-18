@@ -339,7 +339,6 @@
     <ClInclude Include="Headers\RenderingSystem.hpp" />
     <ClInclude Include="Headers\ResourceMonitor.hpp" />
     <ClInclude Include="Headers\WorldHierarchy.hpp" />
-    <ClInclude Include="Headers\ISerializeable.hpp" />
     <ClInclude Include="Headers\Universe.hpp" />
   </ItemGroup>
   <ItemGroup>

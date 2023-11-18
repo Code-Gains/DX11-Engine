@@ -340,9 +340,6 @@
     <ClInclude Include="Headers\WorldHierarchy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\ISerializeable.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\Universe.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -37,6 +37,8 @@ public:
 
 	std::string GetEntityName(int entityId) const;
 
+	void Clear();
+
 	template <typename Archive>
 	void serialize(Archive& archive)
 	{

@@ -85,6 +85,7 @@ public:
 	bool Initialize(Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void UpdateViewportDimensions(int32_t width, int32_t height);
 	bool LoadWorld(std::string filePath = "");
+	bool PrepareLoading();
 	bool FinalizeLoading();
 	bool SaveWorld(std::string filePath);
 

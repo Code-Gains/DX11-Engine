@@ -40,13 +40,14 @@ public:
 
         std::vector<InstanceConstantBuffer> instances;
         std::unordered_map<int, size_t> entityIdToInstanceIndex;
-        // When removing instances we zero their scale and mark them as free
-        // Adding new instances prioritizes filling the holes
-        // If we have 50% of dead data we compact the instances
-        // Meaning we remove all dead data and remap the entity ids to entity indexes
-        std::vector<size_t> freeInstances;
-        UINT freeInstanceCount = 0;
         UINT instanceCount = 0;
+
+        void Clear()
+        {
+            instances.clear();
+            entityIdToInstanceIndex.clear();
+            instanceCount = 0;
+        }
     };
 
 private:

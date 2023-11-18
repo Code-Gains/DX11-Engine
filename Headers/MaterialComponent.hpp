@@ -2,7 +2,6 @@
 #include <DirectXMath.h>
 #include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
-#include "ISerializeable.hpp"
 
 
 struct MaterialConstantBuffer
@@ -17,7 +16,7 @@ struct MaterialConstantBuffer
     MaterialConstantBuffer(const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float shininess);
 };
 
-class MaterialComponent : public ComponentIdentifier, public ISerializeable
+class MaterialComponent : public ComponentIdentifier
 {
     MaterialConstantBuffer _materialConstantBuffer;
     bool _isDirty = true;
@@ -42,8 +41,6 @@ public:
     MaterialConstantBuffer GetMaterialConstantBuffer() const;
 
     static MaterialComponent GetDefaultMaterialComponent(int id);
-
-    std::string Serialize() override;
 
     template<typename Archive>
     void serialize(Archive& archive)

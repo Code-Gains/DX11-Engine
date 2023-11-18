@@ -15,6 +15,9 @@ void WorldHierarchy::Update(float deltaTime)
 
 void WorldHierarchy::Render()
 {
+	static auto selected = _entityToName.end();
+
+	bool exitEarly = false;
 	ImGui::Begin("World Hierarchy");
 	if (ImGui::Button("Save"))
 	{
@@ -23,7 +26,10 @@ void WorldHierarchy::Render()
 	ImGui::SameLine();
 	if (ImGui::Button("Load"))
 	{
+		// Need some sort of prepare to load function TODO
+		selected = _entityToName.end();
 		_world->LoadWorld("./output.json");
+		exitEarly = true;
 	}
 	if (ImGui::BeginMenu("Add"))
 	{
@@ -49,7 +55,13 @@ void WorldHierarchy::Render()
 		}
 		ImGui::EndMenu();
 	}
-	static auto selected = _entityToName.end();
+
+	if (exitEarly)
+	{
+		ImGui::End();
+		return;
+	}
+
 	bool deleteSelected = false;
 	if (ImGui::Button("-"))
 	{
@@ -182,4 +194,9 @@ void WorldHierarchy::SetWorld(World* world)
 std::string WorldHierarchy::GetEntityName(int entityId) const
 {
 	return std::string();
+}
+
+void WorldHierarchy::Clear()
+{
+	_entityToName.clear();
 }

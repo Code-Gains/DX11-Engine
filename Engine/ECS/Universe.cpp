@@ -58,11 +58,10 @@ bool Universe::LoadNewWorld()
 	_world.Initialize(this, _win32Window, _device.Get(), _deviceContext.Get());
 	_world.UpdateViewportDimensions(_viewportWidth, _viewportHeight);
 	_world.LoadWorld();
-	//_worlds[0] = world;
 	return true;
 }
 
-bool Universe::LoadWorld(std::string filePath)
+bool Universe::LoadWorldSingle(std::string filePath)
 {
 	std::ifstream is(filePath);
 	if (!is.is_open())
