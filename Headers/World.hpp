@@ -19,7 +19,6 @@
 
 #include "InstanceRendererSystem.hpp"
 
-#include "Cube.hpp"
 #include "VertexType.hpp"
 #include "Constants.hpp"
 

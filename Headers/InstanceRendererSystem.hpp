@@ -5,7 +5,6 @@
 #include "ConstantBufferDefinitions.hpp"
 #include "VertexType.hpp"
 #include "Logging.hpp"
-#include "Cube.hpp"
 #include "MeshComponent.hpp"
 #include "MaterialComponent.hpp"
 

@@ -174,8 +174,10 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 
-	auto mesh = MeshComponent::GetPrimitiveMeshComponent(_world->GetNextComponentId(), type);
+	auto mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
+	mesh.SetId(geometry.GetId());
 	_world->AddComponent(geometry.GetId(), mesh);
+
 
 	auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), material);

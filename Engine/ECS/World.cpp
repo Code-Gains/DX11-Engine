@@ -424,26 +424,26 @@ MaterialComponent* World::GetMaterialComponent(int entityId)
 
 void World::LinkEngineInstancePools()
 {
-    auto cubeMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
-    int cubeIndex = (int)PrimitiveGeometryType3D::Cube;
+    auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
+    int cubeIndex = cubeMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool cubePool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
     LinkRenderableInstancePool(cubeIndex, cubePool);
 
-    auto sphereMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
-    int sphereIndex = (int)PrimitiveGeometryType3D::Sphere;
+    auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
+    int sphereIndex = sphereMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool spherePool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
     LinkRenderableInstancePool(sphereIndex, spherePool);
 
-    auto cylinderMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
-    int cylinderIndex = (int)PrimitiveGeometryType3D::Cylinder;
+    auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
+    int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool cylinderPool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
     LinkRenderableInstancePool(cylinderIndex, cylinderPool);
 
-    auto pipeMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
-    int pipeIndex = (int)PrimitiveGeometryType3D::Pipe;
+    auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
+    int pipeIndex = pipeMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool pipePool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
     LinkRenderableInstancePool(pipeIndex, pipePool);

@@ -1,5 +1,4 @@
 #include "InstanceRendererSystem.hpp"
-#include <Cube.hpp>
 
 void InstanceRendererSystem::CreateConstantBuffers()
 {
