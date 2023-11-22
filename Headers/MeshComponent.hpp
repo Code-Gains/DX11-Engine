@@ -21,7 +21,8 @@ class MeshComponent : public ComponentIdentifier
 	std::vector<VertexPositionNormalUv> _vertices;
 	std::vector<UINT> _indices;
 	int _instancePoolIndex;
-	int _meshType;
+	// Engine models use prefix Engine::
+	std::string _path;
 public:
 	MeshComponent();
 	MeshComponent(const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices);
@@ -33,6 +34,7 @@ public:
 	void SetIndices(const std::vector<UINT>& indices);
 	void SetComponentIdentifier(int id);
 	void SetInstancePoolIndex(int id);
+	void SetPath(std::string path);
 
 	std::vector<VertexPositionNormalUv> GetVertices() const;
 	std::vector<UINT> GetIndices() const;
@@ -52,10 +54,20 @@ public:
 	static std::vector<UINT> GetPrimitiveCylinderIndices(int numSlices);
 	static std::vector<UINT> GetPrimitivePipeIndices(int numSlices);
 
+	bool FinalizeLoading();
+
+
 	template<typename Archive>
-	void serialize(Archive& archive)
+	void save(Archive& archive) const
 	{
-		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_vertices), CEREAL_NVP(_indices), CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_meshType));
+		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
+	}
+
+	template<typename Archive>
+	void load(Archive& archive)
+	{
+		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
+		FinalizeLoading();
 	}
 };
 

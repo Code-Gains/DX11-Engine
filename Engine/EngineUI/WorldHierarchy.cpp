@@ -112,15 +112,15 @@ void WorldHierarchy::Render()
 		}
 		if (ImGui::TreeNode("Material"))
 		{
-			if (ImGui::DragFloat4("Ambient", &selectedAmbient.x, 0.01f, 0.0f, 1.0f))
+			if (ImGui::ColorPicker4("Ambient", &selectedAmbient.x))
 			{
 				material->SetAmbient(selectedAmbient);
 			}
-			if (ImGui::DragFloat4("Diffuse", &selectedDiffuse.x, 0.01f, 0.0f, 1.0f))
+			if (ImGui::ColorPicker4("Diffuse", &selectedDiffuse.x))
 			{
 				material->SetDiffuse(selectedDiffuse);
 			}
-			if (ImGui::DragFloat4("Specular", &selectedSpecular.x, 0.01f, 0.0f, 1.0f))
+			if (ImGui::ColorPicker4("Specular", &selectedSpecular.x))
 			{
 				material->SetSpecular(selectedSpecular);
 			}

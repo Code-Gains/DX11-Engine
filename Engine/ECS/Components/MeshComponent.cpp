@@ -42,6 +42,11 @@ void MeshComponent::SetInstancePoolIndex(int id)
 	_instancePoolIndex = id;
 }
 
+void MeshComponent::SetPath(std::string path)
+{
+    _path = path;
+}
+
 std::vector<VertexPositionNormalUv> MeshComponent::GetVertices() const
 {
 	return _vertices;
@@ -163,7 +168,7 @@ std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitiveSphereVertices(fl
                 {x * radius, y * radius, z * radius}, // Position
                 {x, y, z},                            // Normal
                 {u, v}                                // Uv
-                });
+            });
         }
     }
     return vertices;
@@ -353,4 +358,17 @@ std::vector<UINT> MeshComponent::GetPrimitivePipeIndices(int numSlices)
     }
 
     return indices;
+}
+
+bool MeshComponent::FinalizeLoading()
+{
+    if (_path != "")
+    {
+        // load the model
+        return true;
+    }
+
+    _vertices = MeshComponent::GetVertices((PrimitiveGeometryType3D)_instancePoolIndex);
+    _indices = MeshComponent::GetIndices((PrimitiveGeometryType3D)_instancePoolIndex);
+    return true;
 }

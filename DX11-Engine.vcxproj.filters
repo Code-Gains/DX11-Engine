@@ -262,9 +262,6 @@
     <ClInclude Include="Headers\Scene.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\WindowsXpPipesSimulation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\IntVectors.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

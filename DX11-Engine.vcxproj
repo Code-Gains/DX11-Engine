@@ -321,7 +321,6 @@
     <ClInclude Include="Headers\ShaderCollection.hpp" />
     <ClInclude Include="Headers\Transform.hpp" />
     <ClInclude Include="Headers\VertexType.hpp" />
-    <ClInclude Include="Headers\WindowsXpPipesSimulation.hpp" />
     <ClInclude Include="Headers\PhysicsBody.hpp" />
     <ClInclude Include="Headers\Rectangle3D.hpp" />
     <ClInclude Include="Headers\PlanetarySimulation.hpp" />
