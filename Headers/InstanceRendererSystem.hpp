@@ -5,7 +5,6 @@
 #include "ConstantBufferDefinitions.hpp"
 #include "VertexType.hpp"
 #include "Logging.hpp"
-#include "Cube.hpp"
 #include "MeshComponent.hpp"
 #include "MaterialComponent.hpp"
 
@@ -40,20 +39,20 @@ public:
 
         std::vector<InstanceConstantBuffer> instances;
         std::unordered_map<int, size_t> entityIdToInstanceIndex;
-        // When removing instances we zero their scale and mark them as free
-        // Adding new instances prioritizes filling the holes
-        // If we have 50% of dead data we compact the instances
-        // Meaning we remove all dead data and remap the entity ids to entity indexes
-        std::vector<size_t> freeInstances;
-        UINT freeInstanceCount = 0;
         UINT instanceCount = 0;
+
+        void Clear()
+        {
+            instances.clear();
+            entityIdToInstanceIndex.clear();
+            instanceCount = 0;
+        }
     };
 
 private:
     // Instanced Rendering Resources
     std::unordered_map<int, InstancePool> _instancePools;
     int _batchSize = 256;
-    float _compactingTreshold = 0.8f;
 
     // Graphics Resources
     WRL::ComPtr<ID3D11Device> _device = nullptr;
@@ -178,7 +177,13 @@ public:
     }
 
     template<typename TVertexType>
-    void RenderInstances(const std::unordered_map<int, InstancePool>& instancePools, const PerFrameConstantBuffer& perFrameConstantBuffer, const CameraConstantBuffer& cameraConstantBufferData, const LightConstantBuffer& lightConstantBufferData, const MaterialConstantBuffer& materialConstantBufferData)
+    void RenderInstances(
+        const std::unordered_map<int, InstancePool>& instancePools,
+        const PerFrameConstantBuffer& perFrameConstantBuffer,
+        const CameraConstantBuffer& cameraConstantBufferData,
+        const LightConstantBuffer& lightConstantBufferData,
+        const MaterialConstantBuffer& materialConstantBufferData
+    )
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 

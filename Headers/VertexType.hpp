@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include <cereal/cereal.hpp>
 
 enum class VertexType
 {
@@ -16,4 +17,10 @@ struct VertexPositionNormalUv
     Position position;
     Normal normal;
     Uv uv;
+
+    template <class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(CEREAL_NVP(position), CEREAL_NVP(normal), CEREAL_NVP(uv));
+    }
 };

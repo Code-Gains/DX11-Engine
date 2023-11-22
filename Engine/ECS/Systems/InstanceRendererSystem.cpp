@@ -1,5 +1,4 @@
 #include "InstanceRendererSystem.hpp"
-#include <Cube.hpp>
 
 void InstanceRendererSystem::CreateConstantBuffers()
 {
@@ -67,22 +66,11 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
         auto& instances = _instancePools[poolKey].instances;
-        auto& freeInstances = _instancePools[poolKey].freeInstances;
         auto& instanceCount = _instancePools[poolKey].instanceCount;
-        auto& freeInstanceCount = _instancePools[poolKey].freeInstanceCount;
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];
             instances[instanceIndex].worldMatrix = zeroedMatrix;
-            freeInstances.push_back(instanceIndex);
-            freeInstanceCount++;
-            if ((float)freeInstanceCount / instanceCount > _compactingTreshold)
-            {
-                // COMPACT
-            }
-            //entityIdToInstance.erase(entityId);
-            //instances.erase(instances.begin() + instanceIndex);
-            //_instancePools[poolKey].instanceCount--;
         }
     }
 }

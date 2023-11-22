@@ -1,12 +1,18 @@
 #include "World.hpp"
+#include "Universe.hpp"
 
 World::World()
 {
 }
 
-bool World::Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+World::~World()
+{
+}
+
+bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
     _win32Window = win32Window;
+    _universe = universe;
 	_lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
 	_lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
 	_lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -136,8 +142,8 @@ void World::PeriodicUpdate(float deltaTime)
 
 void World::Render()
 {
-    _worldHierarchy.Render();
 	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
+    _worldHierarchy.Render();
 }
 
 int World::GetNextEntityId() const
@@ -185,25 +191,20 @@ void World::AddEntity(Entity entity)
     _nextEntityId++;
 }
 
-Entity World::CreateEntity(int id)
-{
-    auto newEntity = Entity(id);
-    _entities.push_back(newEntity);
-    return newEntity;
-}
-
 void World::RemoveEntity(int id)
 {
 
 }
 
-bool World::LoadWorld(std::string fileName)
+bool World::LoadWorld(std::string filePath)
 {
     LinkEngineInstancePools();
-	if(fileName != "")
+	if(filePath != "")
 	{
-        // handle files later
+        _universe->LoadWorldSingle(filePath);
 	}
+
+    return true;
 
     /*std::mt19937 gen(std::random_device{}());
     std::uniform_real_distribution<float> dist(0.0f, 1.0f);
@@ -245,8 +246,38 @@ bool World::LoadWorld(std::string fileName)
     }
 
     LinkRenderableInstancePool(instancePool);*/
+}
 
-	return true;
+bool World::PrepareLoading()
+{
+    _worldHierarchy.Clear();
+    return true;
+}
+
+bool World::FinalizeLoading()
+{
+    for (auto& instancePool : _instancePools)
+    {
+        instancePool.second.Clear();
+    }
+    for (auto& transformComponent : _transformComponents)
+    {
+        transformComponent.SetIsDirty(true);
+    }
+    for (auto& materialComponents : _materialComponents)
+    {
+        materialComponents.SetIsDirty(true);
+    }
+
+    _worldHierarchy.SetWorld(this);
+
+    return false;
+}
+
+bool World::SaveWorld(std::string filePath)
+{
+    _universe->SaveWorld(filePath);
+    return true;
 }
 
 void World::UpdateViewportDimensions(int32_t width, int32_t height)
@@ -393,26 +424,26 @@ MaterialComponent* World::GetMaterialComponent(int entityId)
 
 void World::LinkEngineInstancePools()
 {
-    auto cubeMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
-    int cubeIndex = (int)PrimitiveGeometryType3D::Cube;
+    auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
+    int cubeIndex = cubeMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool cubePool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
     LinkRenderableInstancePool(cubeIndex, cubePool);
 
-    auto sphereMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
-    int sphereIndex = (int)PrimitiveGeometryType3D::Sphere;
+    auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
+    int sphereIndex = sphereMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool spherePool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
     LinkRenderableInstancePool(sphereIndex, spherePool);
 
-    auto cylinderMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
-    int cylinderIndex = (int)PrimitiveGeometryType3D::Cylinder;
+    auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
+    int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool cylinderPool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
     LinkRenderableInstancePool(cylinderIndex, cylinderPool);
 
-    auto pipeMesh = MeshComponent::GetPrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
-    int pipeIndex = (int)PrimitiveGeometryType3D::Pipe;
+    auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
+    int pipeIndex = pipeMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool pipePool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
     LinkRenderableInstancePool(pipeIndex, pipePool);
@@ -466,9 +497,7 @@ void World::RemoveRenderableInstance(
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
         auto& instances = _instancePools[poolKey].instances;
-        auto& freeInstances = _instancePools[poolKey].freeInstances;
         auto& instanceCount = _instancePools[poolKey].instanceCount;
-        auto& freeInstanceCount = _instancePools[poolKey].freeInstanceCount;
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];

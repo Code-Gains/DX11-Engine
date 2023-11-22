@@ -1,7 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
 #include <iostream>
+#include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
+#include "DirectXSerialization.hpp"
 
 class TransformComponent : public ComponentIdentifier
 {
@@ -28,5 +30,11 @@ public:
 	void SetIsDirty(bool isDirty);
 
 	friend std::ostream& operator<<(std::ostream& os, const TransformComponent& transform);
+
+	template <typename Archive>
+	void serialize(Archive& archive)
+	{
+		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_isDirty), CEREAL_NVP(_position), CEREAL_NVP(_rotation), CEREAL_NVP(_scale));
+	}
 };
 

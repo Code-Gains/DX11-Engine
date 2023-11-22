@@ -9,6 +9,10 @@
 #include <string>
 #include <iostream>
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/types/string.hpp>
+
 #include "TransformComponent.hpp"
 
 class World; // forward declaration
@@ -17,6 +21,7 @@ class WorldHierarchy
 {
 	World* _world = nullptr; // non owning
 	std::unordered_map<int, std::string> _entityToName;
+
 public:
 	WorldHierarchy();
 	WorldHierarchy(World* world);
@@ -28,6 +33,16 @@ public:
 
 	int CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name);
 
+	void SetWorld(World* world);
+
 	std::string GetEntityName(int entityId) const;
+
+	void Clear();
+
+	template <typename Archive>
+	void serialize(Archive& archive)
+	{
+		archive(CEREAL_NVP(_entityToName));
+	}
 };
 

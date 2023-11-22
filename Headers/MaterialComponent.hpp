@@ -1,5 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
+#include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
 
 
@@ -40,5 +41,18 @@ public:
     MaterialConstantBuffer GetMaterialConstantBuffer() const;
 
     static MaterialComponent GetDefaultMaterialComponent(int id);
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+        archive(
+            cereal::make_nvp("_id", GetId()),
+            CEREAL_NVP(_isDirty),
+            cereal::make_nvp("ambient", _materialConstantBuffer.ambient),
+            cereal::make_nvp("diffuse", _materialConstantBuffer.diffuse),
+            cereal::make_nvp("specular", _materialConstantBuffer.specular),
+            cereal::make_nvp("shininess", _materialConstantBuffer.shininess)
+        );
+    }
 };
 

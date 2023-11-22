@@ -15,7 +15,22 @@ void WorldHierarchy::Update(float deltaTime)
 
 void WorldHierarchy::Render()
 {
+	static auto selected = _entityToName.end();
+
+	bool exitEarly = false;
 	ImGui::Begin("World Hierarchy");
+	if (ImGui::Button("Save"))
+	{
+		_world->SaveWorld("./output.json");
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Load"))
+	{
+		// Need some sort of prepare to load function TODO
+		selected = _entityToName.end();
+		_world->LoadWorld("./output.json");
+		exitEarly = true;
+	}
 	if (ImGui::BeginMenu("Add"))
 	{
 		if (ImGui::BeginMenu("Primitives 3D"))
@@ -40,7 +55,13 @@ void WorldHierarchy::Render()
 		}
 		ImGui::EndMenu();
 	}
-	static auto selected = _entityToName.end();
+
+	if (exitEarly)
+	{
+		ImGui::End();
+		return;
+	}
+
 	bool deleteSelected = false;
 	if (ImGui::Button("-"))
 	{
@@ -91,15 +112,15 @@ void WorldHierarchy::Render()
 		}
 		if (ImGui::TreeNode("Material"))
 		{
-			if (ImGui::DragFloat4("Ambient", &selectedAmbient.x, 0.01f, 0.0f, 1.0f))
+			if (ImGui::ColorPicker4("Ambient", &selectedAmbient.x))
 			{
 				material->SetAmbient(selectedAmbient);
 			}
-			if (ImGui::DragFloat4("Diffuse", &selectedDiffuse.x, 0.01f, 0.0f, 1.0f))
+			if (ImGui::ColorPicker4("Diffuse", &selectedDiffuse.x))
 			{
 				material->SetDiffuse(selectedDiffuse);
 			}
-			if (ImGui::DragFloat4("Specular", &selectedSpecular.x, 0.01f, 0.0f, 1.0f))
+			if (ImGui::ColorPicker4("Specular", &selectedSpecular.x))
 			{
 				material->SetSpecular(selectedSpecular);
 			}
@@ -149,13 +170,14 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
-	auto geometry = _world->CreateEntity(_world->GetNextEntityId());
-
+	auto geometry = Entity(_world->GetNextEntityId());
 	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 
-	auto mesh = MeshComponent::GetPrimitiveMeshComponent(_world->GetNextComponentId(), type);
+	auto mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
+	mesh.SetId(geometry.GetId());
 	_world->AddComponent(geometry.GetId(), mesh);
+
 
 	auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), material);
@@ -166,7 +188,17 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	return geometry.GetId();
 }
 
+void WorldHierarchy::SetWorld(World* world)
+{
+	_world = world;
+}
+
 std::string WorldHierarchy::GetEntityName(int entityId) const
 {
 	return std::string();
+}
+
+void WorldHierarchy::Clear()
+{
+	_entityToName.clear();
 }

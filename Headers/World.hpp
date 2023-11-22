@@ -6,6 +6,9 @@
 #include <d3d11_2.h>
 #include <DirectXMath.h>
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/unordered_map.hpp>
+
 #include "Entity.hpp"
 
 #include "TransformComponent.hpp"
@@ -16,14 +19,12 @@
 
 #include "InstanceRendererSystem.hpp"
 
-#include "Cube.hpp"
 #include "VertexType.hpp"
 #include "Constants.hpp"
 
 #include "WorldHierarchy.hpp"
 
-// temp includes for demo
-#include <random>
+class Universe; // forward declaration
 
 class World
 {
@@ -32,6 +33,8 @@ class World
 
 	int32_t _viewportWidth;
 	int32_t _viewportHeight;
+
+	Universe* _universe;
 
 	// Memory management settings
 	float _deadDataCompactionTreshold = 0.5f;
@@ -59,12 +62,6 @@ class World
 	std::unordered_map<int, int> _lightComponentIndices;
 	std::unordered_map<int, int> _cameraComponentIndices;
 
-	std::vector<size_t> _freeTransforms;
-	std::vector<size_t> _freeMeshes;
-	std::vector<size_t> _freeMaterials;
-	std::vector<size_t> _freeLights;
-	std::vector<size_t> _freeCameras;
-
 	// Systems
 	InstanceRendererSystem _instanceRenderer;
 	int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
@@ -77,12 +74,19 @@ class World
 	// UI
 	WorldHierarchy _worldHierarchy;
 
+	// Friends
+	//friend class cereal::access;
+
 public:
 	// World loading and application management
 	World();
-	bool Initialize(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	~World();
+	bool Initialize(Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void UpdateViewportDimensions(int32_t width, int32_t height);
-	bool LoadWorld(std::string fileName = "");
+	bool LoadWorld(std::string filePath = "");
+	bool PrepareLoading();
+	bool FinalizeLoading();
+	bool SaveWorld(std::string filePath);
 
 	// Loops
 	void Update(float deltaTime);
@@ -98,7 +102,6 @@ public:
 	
 	// Entity-Component relations
 	void AddEntity(Entity entityId);
-	Entity CreateEntity(int id);
 	void RemoveEntity(int id);
 
 	void AddComponent(int entityId, const TransformComponent& component);
@@ -137,4 +140,61 @@ public:
 		const std::unordered_map<int, int>& materialIndices
 	) const;
 
+
+
+	template <typename Archive>
+	void save(Archive& archive) const
+	{
+		//// Entities
+		archive(CEREAL_NVP(_entities), CEREAL_NVP(_nextEntityId));
+
+		// Components
+		archive(
+			CEREAL_NVP(_transformComponents),
+			CEREAL_NVP(_meshComponents),
+			CEREAL_NVP(_materialComponents),
+			CEREAL_NVP(_nextComponentId)
+		);
+
+		// Indices
+		archive(
+			CEREAL_NVP(_transformComponentIndices),
+			CEREAL_NVP(_meshComponentIndices),
+			CEREAL_NVP(_materialComponentIndices)
+		);
+
+		// UI
+		archive(
+			CEREAL_NVP(_worldHierarchy)
+		);
+	}
+
+	template <typename Archive>
+	void load(Archive& archive)
+	{
+		//// Entities
+		archive(CEREAL_NVP(_entities), CEREAL_NVP(_nextEntityId));
+
+		// Components
+		archive(
+			CEREAL_NVP(_transformComponents),
+			CEREAL_NVP(_meshComponents),
+			CEREAL_NVP(_materialComponents),
+			CEREAL_NVP(_nextComponentId)
+		);
+
+		// Indices
+		archive(
+			CEREAL_NVP(_transformComponentIndices),
+			CEREAL_NVP(_meshComponentIndices),
+			CEREAL_NVP(_materialComponentIndices)
+		);
+
+		// UI
+		archive(
+			CEREAL_NVP(_worldHierarchy)
+		);
+
+		FinalizeLoading();
+	}
 };
