@@ -36,7 +36,5 @@ public:
 	bool LoadWorldSingle(std::string filePath = "");
 	bool LoadNewWorld();
 	bool SaveWorld(std::string filePath);
-
-
 };
 

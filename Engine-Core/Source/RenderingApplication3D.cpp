@@ -14,7 +14,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "FreeImaged.lib")
+//#pragma comment(lib, "FreeImaged.lib")
 
 template <UINT TDebugNameLength>
 inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const char(&debugName)[TDebugNameLength])

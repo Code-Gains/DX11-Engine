@@ -68,7 +68,7 @@ bool Universe::LoadWorldSingle(std::string filePath)
 		return false;  // Failed to open file
 
 	{
-		cereal::BinaryInputArchive archive(is);
+		cereal::JSONInputArchive archive(is);
 		archive(CEREAL_NVP(_world));  // Deserializes the world
 	}
 
@@ -82,7 +82,7 @@ bool Universe::SaveWorld(std::string filePath)
 		return false;  // Failed to open file
 
 	{
-		cereal::BinaryOutputArchive archive(os);
+		cereal::JSONOutputArchive archive(os);
 		archive(CEREAL_NVP(_world));  // Serializes the world
 	}
 
