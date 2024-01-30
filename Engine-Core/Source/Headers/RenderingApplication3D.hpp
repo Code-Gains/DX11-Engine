@@ -68,7 +68,7 @@ private:
 
     ShaderCollection _shaderCollection;
 
-    Universe _universe;
+    Universe _universe; // #TODO move outside and allow to subscribe with IEngineModule interface
     World _world;
     Scene _scene;
 };
