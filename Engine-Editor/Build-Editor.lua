@@ -26,10 +26,12 @@ project "Engine-Editor"
         "../Engine-Core/Source/DirectXTex/lib/Release/DirectXTex.lib"
     }
 
+
     postbuildcommands {
         '{COPY} "%{wks.location}/Assets/Shaders/*" "%{cfg.targetdir}/Assets/Shaders/"'
     }
 
+    debugdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
     targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
     objdir ("../Binaries/Intermediates/" .. OutputDir .. "/%{prj.name}")
 
