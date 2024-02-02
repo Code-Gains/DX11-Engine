@@ -16,8 +16,8 @@
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 
-#include "World.hpp"
-#include "Universe.hpp"
+//#include "World.hpp"
+//#include "Universe.hpp"
 #include "ResourceMonitor.hpp"
 
 class IEngineModule
@@ -34,7 +34,7 @@ public:
 class RenderingApplication3D final : public Application
 {
 public:
-    RenderingApplication3D(const std::string& title);
+    RenderingApplication3D(const std::string& title, std::vector<std::unique_ptr<IEngineModule>>& engineModules);
     ~RenderingApplication3D() override;
 
     bool isApplicationMinimized = false;
@@ -79,7 +79,7 @@ private:
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
 
-    Universe _universe; // #TODO move outside and allow to subscribe with IEngineModule interface
-    World _world;
+    //Universe _universe; // #TODO move outside and allow to subscribe with IEngineModule interface
+    //World _world;
     Scene _scene;
 };

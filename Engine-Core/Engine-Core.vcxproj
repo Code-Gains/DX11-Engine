@@ -165,10 +165,7 @@
     <ClInclude Include="Source\Headers\ShaderCollection.hpp" />
     <ClInclude Include="Source\Headers\Transform.hpp" />
     <ClInclude Include="Source\Headers\TransformComponent.hpp" />
-    <ClInclude Include="Source\Headers\Universe.hpp" />
     <ClInclude Include="Source\Headers\VertexType.hpp" />
-    <ClInclude Include="Source\Headers\World.hpp" />
-    <ClInclude Include="Source\Headers\WorldHierarchy.hpp" />
     <ClInclude Include="Source\cereal\cereal\access.hpp" />
     <ClInclude Include="Source\cereal\cereal\archives\adapters.hpp" />
     <ClInclude Include="Source\cereal\cereal\archives\binary.hpp" />
@@ -278,9 +275,6 @@
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
-    <ClCompile Include="Source\Engine\ECS\Universe.cpp" />
-    <ClCompile Include="Source\Engine\ECS\World.cpp" />
-    <ClCompile Include="Source\Engine\EngineUI\WorldHierarchy.cpp" />
     <ClCompile Include="Source\Engine\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Source\Engine\ResourceMonitor.cpp" />
     <ClCompile Include="Source\Engine\Scene.cpp" />

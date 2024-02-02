@@ -22,9 +22,6 @@
     <Filter Include="Engine\ECS\Systems">
       <UniqueIdentifier>{AC5CA585-9840-66DB-01A1-602EEDA3505D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\EngineUI">
-      <UniqueIdentifier>{3E791816-AA04-86DA-B315-09CF1F20E2DA}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Physics">
       <UniqueIdentifier>{4D76CF9F-3944-C3A5-22D8-33CC0E459F0A}</UniqueIdentifier>
     </Filter>
@@ -175,16 +172,7 @@
     <ClInclude Include="Source\Headers\TransformComponent.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Headers\Universe.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Headers\VertexType.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\World.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\WorldHierarchy.hpp">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\cereal\cereal\access.hpp">
@@ -507,15 +495,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\Universe.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\World.cpp">
-      <Filter>Engine\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EngineUI\WorldHierarchy.cpp">
-      <Filter>Engine\EngineUI</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Physics\PhysicsBody.cpp">
       <Filter>Engine\Physics</Filter>

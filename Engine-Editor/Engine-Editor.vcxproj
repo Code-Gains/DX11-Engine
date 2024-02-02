@@ -153,7 +153,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Universe.hpp" />
+    <ClInclude Include="Source\World.hpp" />
+    <ClInclude Include="Source\WorldHierarchy.hpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Universe.cpp" />
+    <ClCompile Include="Source\World.cpp" />
+    <ClCompile Include="Source\WorldHierarchy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine-Core\Engine-Core.vcxproj">

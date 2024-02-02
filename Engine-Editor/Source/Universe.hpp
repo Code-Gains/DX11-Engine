@@ -9,8 +9,9 @@
 #include <fstream>
 
 #include "World.hpp"
+#include "RenderingApplication3D.hpp"
 
-class Universe
+class Universe : public IEngineModule
 {
 	HWND _win32Window;
 	WRL::ComPtr<ID3D11Device> _device = nullptr;
@@ -26,6 +27,11 @@ public:
 	Universe();
 	Universe(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	~Universe();
+
+	virtual bool Initialize() override { return 0; };
+	virtual bool Load() override { return 0; }
+	virtual void Cleanup() override {};
+
 
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);

@@ -22,7 +22,7 @@ inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const ch
     deviceResource->SetPrivateData(WKPDID_D3DDebugObjectName, TDebugNameLength - 1, debugName);
 }
 
-RenderingApplication3D::RenderingApplication3D(const std::string& title)
+RenderingApplication3D::RenderingApplication3D(const std::string& title, std::vector<std::unique_ptr<IEngineModule>>& engineModules)
     : Application(title)
 {
 }
@@ -211,9 +211,9 @@ bool RenderingApplication3D::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    _universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
-    _universe.UpdateViewportDimensions(_width, _height);
-    _universe.LoadNewWorld();
+    //_universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
+    //_universe.UpdateViewportDimensions(_width, _height);
+    //_universe.LoadNewWorld();
 
     return true;
 }
@@ -290,7 +290,7 @@ void RenderingApplication3D::Update()
     _resourceMonitor.Update(_deltaTime);
     _scene.Update(_deltaTime);
     //_world.Update(_deltaTime);
-    _universe.Update(_deltaTime);
+    //_universe.Update(_deltaTime);
     for (const auto& engineModule : _engineModules)
     {
         engineModule->Update(_periodicDeltaTime);
@@ -303,7 +303,7 @@ void RenderingApplication3D::PeriodicUpdate()
     {
         _scene.PeriodicUpdate(_periodicDeltaTime);
         //_world.PeriodicUpdate(_periodicDeltaTime);
-        _universe.PeriodicUpdate(_periodicDeltaTime);
+        //_universe.PeriodicUpdate(_periodicDeltaTime);
         for (const auto& engineModule : _engineModules)
         {
             engineModule->PeriodicUpdate(_periodicDeltaTime);
@@ -355,7 +355,7 @@ void RenderingApplication3D::Render()
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     //_world.Render();
-    _universe.Render();
+    //_universe.Render();
     for (const auto& engineModule : _engineModules)
     {
         engineModule->Render();
