@@ -20,7 +20,16 @@
 #include "Universe.hpp"
 #include "ResourceMonitor.hpp"
 
-
+class IEngineModule
+{
+public:
+    virtual bool Initialize() = 0;
+    virtual bool Load() = 0;
+    virtual void Cleanup() = 0;
+    virtual void Render() = 0;
+    virtual void Update(float deltaTime) = 0;
+    virtual void PeriodicUpdate(float deltaTime) = 0;
+};
 
 class RenderingApplication3D final : public Application
 {
@@ -67,6 +76,8 @@ private:
     WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
 
     ShaderCollection _shaderCollection;
+
+    std::vector<std::unique_ptr<IEngineModule>> _engineModules;
 
     Universe _universe; // #TODO move outside and allow to subscribe with IEngineModule interface
     World _world;

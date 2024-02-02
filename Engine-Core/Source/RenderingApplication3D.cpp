@@ -291,6 +291,10 @@ void RenderingApplication3D::Update()
     _scene.Update(_deltaTime);
     //_world.Update(_deltaTime);
     _universe.Update(_deltaTime);
+    for (const auto& engineModule : _engineModules)
+    {
+        engineModule->Update(_periodicDeltaTime);
+    }
 }
 
 void RenderingApplication3D::PeriodicUpdate()
@@ -300,6 +304,10 @@ void RenderingApplication3D::PeriodicUpdate()
         _scene.PeriodicUpdate(_periodicDeltaTime);
         //_world.PeriodicUpdate(_periodicDeltaTime);
         _universe.PeriodicUpdate(_periodicDeltaTime);
+        for (const auto& engineModule : _engineModules)
+        {
+            engineModule->PeriodicUpdate(_periodicDeltaTime);
+        }
         _periodicDeltaTime = 0;
     }
 }
@@ -348,6 +356,10 @@ void RenderingApplication3D::Render()
 
     //_world.Render();
     _universe.Render();
+    for (const auto& engineModule : _engineModules)
+    {
+        engineModule->Render();
+    }
 
     ImGui::End();
     ImGui::Render();

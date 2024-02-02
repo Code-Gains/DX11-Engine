@@ -4,14 +4,6 @@
 #include <string>
 #include <chrono>
 
-class IEngineModule
-{
-    virtual void Initialize();
-    virtual void Render();
-    virtual void Update(float deltaTime);
-    virtual void PeriodicUpdate(float deltaTime);
-};
-
 // ReSharper disable once CppInconsistentNaming
 struct GLFWwindow;
 
@@ -52,8 +44,6 @@ protected:
 private:
     std::chrono::high_resolution_clock::time_point _currentTime;
     std::string _title;
-
-    std::vector<IEngineModule> _engineModules;
 };
 
 
