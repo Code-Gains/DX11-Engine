@@ -15,6 +15,9 @@ public:
 
     void Run();
 
+    [[nodiscard]] int32_t GetWindowWidth() const;
+    [[nodiscard]] int32_t GetWindowHeight() const;
+
 protected:
     static void HandleResize(
         GLFWwindow* window,
@@ -32,8 +35,6 @@ protected:
     virtual void PeriodicUpdate();
 
     [[nodiscard]] GLFWwindow* GetWindow() const;
-    [[nodiscard]] int32_t GetWindowWidth() const;
-    [[nodiscard]] int32_t GetWindowHeight() const;
 
     int32_t _width = 0;
     int32_t _height = 0;

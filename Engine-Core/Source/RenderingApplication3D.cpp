@@ -22,7 +22,7 @@ inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const ch
     deviceResource->SetPrivateData(WKPDID_D3DDebugObjectName, TDebugNameLength - 1, debugName);
 }
 
-RenderingApplication3D::RenderingApplication3D(const std::string& title, std::vector<std::unique_ptr<IEngineModule>>& engineModules)
+RenderingApplication3D::RenderingApplication3D(const std::string& title)
     : Application(title)
 {
 }
@@ -44,6 +44,37 @@ RenderingApplication3D::~RenderingApplication3D()
     _debug.Reset();
 #endif
     _device.Reset();
+}
+
+ID3D11Device* RenderingApplication3D::GetApplicationDevice()
+{
+    return _device.Get();
+}
+
+ID3D11DeviceContext* RenderingApplication3D::GetApplicationDeviceContext()
+{
+    return _deviceContext.Get();
+}
+
+HWND RenderingApplication3D::GetApplicationWindow()
+{
+    return glfwGetWin32Window(GetWindow());
+}
+
+void RenderingApplication3D::AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule)
+{
+    _engineModules.push_back(std::move(engineModule));
+    if (engineModule->GetGraphicsComponent())
+    {
+    }
+}
+
+void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules)
+{
+    for (auto&& engineModule : engineModules)
+    {
+        _engineModules.push_back(std::move(engineModule));
+    }
 }
 
 bool RenderingApplication3D::Initialize()
@@ -291,6 +322,7 @@ void RenderingApplication3D::Update()
     _scene.Update(_deltaTime);
     //_world.Update(_deltaTime);
     //_universe.Update(_deltaTime);
+    //std::cout << _engineModules.size();
     for (const auto& engineModule : _engineModules)
     {
         engineModule->Update(_periodicDeltaTime);

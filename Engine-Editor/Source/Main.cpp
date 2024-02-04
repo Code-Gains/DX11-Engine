@@ -1,4 +1,4 @@
-#include "Headers/RenderingApplication3D.hpp"
+#include "RenderingApplication3D.hpp"
 #include "Universe.hpp"
 #include <memory>
 #include <string>
@@ -6,11 +6,21 @@
 
 int main(int argc, char* argv[])
 {
+    RenderingApplication3D application("D3D11 Engine");
+    std::unique_ptr<IEngineModule> engineModule;
 
-    std::vector<std::unique_ptr<IEngineModule>> engineModules;
-    engineModules.push_back(std::make_unique<Universe>());
+    auto device = application.GetApplicationDevice();
+    auto deviceContext = application.GetApplicationDeviceContext();
 
-    RenderingApplication3D application("D3D11 Engine", engineModules);
+    engineModule = std::make_unique<Universe>(
+        application.GetApplicationWindow(),
+        device,
+        deviceContext,
+        static_cast<int>(application.GetWindowWidth()),
+        static_cast<int>(application.GetWindowHeight())
+    );
+
+    application.AddEngineModule(std::move(engineModule));
 
     application.Run();
 }
