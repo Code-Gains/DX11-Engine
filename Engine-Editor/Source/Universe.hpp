@@ -13,10 +13,11 @@
 
 class Universe : public IEngineModule
 {
-	std::unique_ptr<GraphicsComponent> _graphicsComponent;
-	//HWND _win32Window;
-	//WRL::ComPtr<ID3D11Device> _device = nullptr;
-	//WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
+	HWND _win32Window;
+	WRL::ComPtr<ID3D11Device> _device = nullptr;
+	WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
+	int _viewportWidth;
+	int _viewportHeight;
 
 	//std::map<int, World> _worlds;
 	World _world;
@@ -35,10 +36,6 @@ public:
 	virtual void Update(float deltaTime) override;
 	virtual void PeriodicUpdate(float deltaTime) override;
 	virtual void Render() override;
-
-	virtual GraphicsComponent* GetGraphicsComponent() const override { return _graphicsComponent.get(); }
-	virtual EngineModuleType GetEngineModuleType() const override { return EngineModuleType::Graphics; };
-
 
 	void UpdateViewportDimensions(int32_t width, int32_t height);
 	bool LoadWorldSingle(std::string filePath = "");

@@ -6,8 +6,11 @@ Universe::Universe()
 }
 
 Universe::Universe(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int viewportWidth, int viewportHeight)
-	: 
-	_graphicsComponent(std::make_unique<GraphicsComponent>(win32Window, device, deviceContext, viewportWidth, viewportHeight))
+	: _win32Window(win32Window),
+	_device(device),
+	_deviceContext(deviceContext),
+	_viewportWidth(viewportWidth),
+	_viewportHeight(viewportHeight)
 {
 	LoadNewWorld();
 }
@@ -41,8 +44,8 @@ void Universe::Render()
 
 void Universe::UpdateViewportDimensions(int32_t width, int32_t height)
 {
-	_graphicsComponent->SetWindowWidth(width);
-	_graphicsComponent->SetWindowHeight(height);
+	_viewportWidth = width;
+	_viewportHeight = height;
 	/*for (auto& pair : _worlds)
 	{
 		pair.second.UpdateViewportDimensions(width, height);
@@ -53,8 +56,8 @@ void Universe::UpdateViewportDimensions(int32_t width, int32_t height)
 bool Universe::LoadNewWorld()
 {
 	_world = World();
-	_world.Initialize(this, _graphicsComponent->GetWindow(), _graphicsComponent->GetDevice(), _graphicsComponent->GetDeviceContext());
-	_world.UpdateViewportDimensions(_graphicsComponent->GetWindowWidth(), _graphicsComponent->GetWindowHeight());
+	_world.Initialize(this, _win32Window, _device.Get(), _deviceContext.Get());
+	_world.UpdateViewportDimensions(_viewportWidth, _viewportHeight);
 	_world.LoadWorld();
 	return true;
 }
