@@ -71,6 +71,8 @@ public:
     RenderingApplication3D(const std::string& title);
     ~RenderingApplication3D() override;
 
+    bool Initialize() override;
+
     bool isApplicationMinimized = false;
 
     ID3D11Device* GetApplicationDevice();
@@ -81,7 +83,6 @@ public:
     void AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules);
 
 protected:
-    bool Initialize() override;
     bool Load() override;
 
     void OnResize(

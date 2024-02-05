@@ -7,6 +7,8 @@
 int main(int argc, char* argv[])
 {
     RenderingApplication3D application("D3D11 Engine");
+    application.Initialize();
+
     std::unique_ptr<IEngineModule> engineModule;
 
     auto device = application.GetApplicationDevice();

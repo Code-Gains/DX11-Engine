@@ -13,6 +13,7 @@ public:
     Application(const std::string& title);
     virtual ~Application();
 
+    virtual bool Initialize();
     void Run();
 
     [[nodiscard]] int32_t GetWindowWidth() const;
@@ -27,7 +28,6 @@ protected:
         int32_t width,
         int32_t height);
 
-    virtual bool Initialize();
     virtual bool Load() = 0;
     virtual void Cleanup();
     virtual void Render() = 0;

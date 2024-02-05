@@ -64,9 +64,9 @@ HWND RenderingApplication3D::GetApplicationWindow()
 void RenderingApplication3D::AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule)
 {
     _engineModules.push_back(std::move(engineModule));
-    if (engineModule->GetGraphicsComponent())
-    {
-    }
+    //if (engineModule->GetGraphicsComponent())
+    //{
+    //}
 }
 
 void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules)
