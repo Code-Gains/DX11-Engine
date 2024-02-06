@@ -10,13 +10,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Universe.cpp" />
+    <ClCompile Include="Source\World.cpp" />
+    <ClCompile Include="Source\WorldHierarchy.cpp" />
+    <ClCompile Include="Editor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Source\Assets\Shaders\Main.ps.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Source\Assets\Shaders\Main.vs.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
+    <ClInclude Include="Source\Universe.hpp" />
+    <ClInclude Include="Source\World.hpp" />
+    <ClInclude Include="Source\WorldHierarchy.hpp" />
+    <ClInclude Include="Editor.hpp" />
   </ItemGroup>
 </Project>
