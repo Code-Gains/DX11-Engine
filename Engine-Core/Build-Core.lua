@@ -10,7 +10,7 @@ project "Engine-Core"
    includedirs
    {
       "Source",
-      "Source/Headers",
+      "Source/include",
       "Source/cereal",
       "Source/imgui/include",
       "Source/glfw-3.3.8.bin.WIN64/include"

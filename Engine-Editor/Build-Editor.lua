@@ -13,7 +13,7 @@ project "Engine-Editor"
 
         -- Include Core
         "../Engine-Core/Source",
-        "../Engine-Core/Source/Headers",
+        "../Engine-Core/Source/include",
         "../Engine-Core/Source/cereal",
         "../Engine-Core/Source/imgui/include",
         "../Engine-Core/Source/glfw-3.3.8.bin.WIN64/include",

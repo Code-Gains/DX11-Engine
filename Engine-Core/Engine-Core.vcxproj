@@ -76,7 +76,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\Headers;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -94,7 +94,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\Headers;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -118,7 +118,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\Headers;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -141,31 +141,6 @@
     <ClInclude Include="Source\Application.hpp" />
     <ClInclude Include="Source\DirectXTex\include\DirectXTex.h" />
     <ClInclude Include="Source\FreeImage\include\FreeImage.h" />
-    <ClInclude Include="Source\Headers\CameraComponent.hpp" />
-    <ClInclude Include="Source\Headers\ComponentIdentifier.hpp" />
-    <ClInclude Include="Source\Headers\ConstantBufferDefinitions.hpp" />
-    <ClInclude Include="Source\Headers\Constants.hpp" />
-    <ClInclude Include="Source\Headers\Definitions.hpp" />
-    <ClInclude Include="Source\Headers\DirectXSerialization.hpp" />
-    <ClInclude Include="Source\Headers\Entity.hpp" />
-    <ClInclude Include="Source\Headers\InstanceRendererSystem.hpp" />
-    <ClInclude Include="Source\Headers\IntVectors.hpp" />
-    <ClInclude Include="Source\Headers\LightComponent.hpp" />
-    <ClInclude Include="Source\Headers\Logging.hpp" />
-    <ClInclude Include="Source\Headers\MaterialComponent.hpp" />
-    <ClInclude Include="Source\Headers\MeshComponent.hpp" />
-    <ClInclude Include="Source\Headers\Object3D.hpp" />
-    <ClInclude Include="Source\Headers\PhysicsBody.hpp" />
-    <ClInclude Include="Source\Headers\PlanetarySimulation.hpp" />
-    <ClInclude Include="Source\Headers\Rectangle3D.hpp" />
-    <ClInclude Include="Source\Headers\RenderingApplication3D.hpp" />
-    <ClInclude Include="Source\Headers\RenderingSystem.hpp" />
-    <ClInclude Include="Source\Headers\ResourceMonitor.hpp" />
-    <ClInclude Include="Source\Headers\Scene.hpp" />
-    <ClInclude Include="Source\Headers\ShaderCollection.hpp" />
-    <ClInclude Include="Source\Headers\Transform.hpp" />
-    <ClInclude Include="Source\Headers\TransformComponent.hpp" />
-    <ClInclude Include="Source\Headers\VertexType.hpp" />
     <ClInclude Include="Source\cereal\cereal\access.hpp" />
     <ClInclude Include="Source\cereal\cereal\archives\adapters.hpp" />
     <ClInclude Include="Source\cereal\cereal\archives\binary.hpp" />
@@ -262,6 +237,31 @@
     <ClInclude Include="Source\imgui\include\imstb_rectpack.h" />
     <ClInclude Include="Source\imgui\include\imstb_textedit.h" />
     <ClInclude Include="Source\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="Source\include\CameraComponent.hpp" />
+    <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
+    <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
+    <ClInclude Include="Source\include\Constants.hpp" />
+    <ClInclude Include="Source\include\Definitions.hpp" />
+    <ClInclude Include="Source\include\DirectXSerialization.hpp" />
+    <ClInclude Include="Source\include\Entity.hpp" />
+    <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
+    <ClInclude Include="Source\include\IntVectors.hpp" />
+    <ClInclude Include="Source\include\LightComponent.hpp" />
+    <ClInclude Include="Source\include\Logging.hpp" />
+    <ClInclude Include="Source\include\MaterialComponent.hpp" />
+    <ClInclude Include="Source\include\MeshComponent.hpp" />
+    <ClInclude Include="Source\include\Object3D.hpp" />
+    <ClInclude Include="Source\include\PhysicsBody.hpp" />
+    <ClInclude Include="Source\include\PlanetarySimulation.hpp" />
+    <ClInclude Include="Source\include\Rectangle3D.hpp" />
+    <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
+    <ClInclude Include="Source\include\RenderingSystem.hpp" />
+    <ClInclude Include="Source\include\ResourceMonitor.hpp" />
+    <ClInclude Include="Source\include\Scene.hpp" />
+    <ClInclude Include="Source\include\ShaderCollection.hpp" />
+    <ClInclude Include="Source\include\Transform.hpp" />
+    <ClInclude Include="Source\include\TransformComponent.hpp" />
+    <ClInclude Include="Source\include\VertexType.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp" />

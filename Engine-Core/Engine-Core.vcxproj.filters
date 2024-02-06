@@ -37,9 +37,6 @@
     <Filter Include="FreeImage\include">
       <UniqueIdentifier>{9D5ABE6B-0971-BC01-52E8-4723BE3D8D89}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers">
-      <UniqueIdentifier>{C196CD9C-2D76-4C38-368E-D70EA2ECB299}</UniqueIdentifier>
-    </Filter>
     <Filter Include="cereal">
       <UniqueIdentifier>{B1A331F6-9D45-5CCC-8600-70207241E31C}</UniqueIdentifier>
     </Filter>
@@ -91,6 +88,9 @@
     <Filter Include="imgui\include">
       <UniqueIdentifier>{73BF4D15-DF7F-C94B-A8BA-12C9143A0E28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.hpp" />
@@ -99,81 +99,6 @@
     </ClInclude>
     <ClInclude Include="Source\FreeImage\include\FreeImage.h">
       <Filter>FreeImage\include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\CameraComponent.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\ComponentIdentifier.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\ConstantBufferDefinitions.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Constants.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Definitions.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\DirectXSerialization.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Entity.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\InstanceRendererSystem.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\IntVectors.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\LightComponent.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Logging.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\MaterialComponent.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\MeshComponent.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Object3D.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\PhysicsBody.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\PlanetarySimulation.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Rectangle3D.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\RenderingApplication3D.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\RenderingSystem.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\ResourceMonitor.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Scene.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\ShaderCollection.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\Transform.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\TransformComponent.hpp">
-      <Filter>Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Headers\VertexType.hpp">
-      <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Source\cereal\cereal\access.hpp">
       <Filter>cereal\cereal</Filter>
@@ -462,6 +387,81 @@
     </ClInclude>
     <ClInclude Include="Source\imgui\include\imstb_truetype.h">
       <Filter>imgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\CameraComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ComponentIdentifier.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Constants.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Definitions.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\DirectXSerialization.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Entity.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\InstanceRendererSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\IntVectors.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\LightComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Logging.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\MaterialComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\MeshComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Object3D.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\PhysicsBody.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\PlanetarySimulation.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Rectangle3D.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\RenderingApplication3D.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\RenderingSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ResourceMonitor.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Scene.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ShaderCollection.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Transform.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\TransformComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\VertexType.hpp">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
