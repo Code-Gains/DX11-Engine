@@ -1,6 +1,6 @@
 # DX11-Engine
 
-# *The project is currently on a short break until I work out a plan for features, because I want the project to be be more serious and well structured.*
+# *The project is currently on a short break until I work out a plan for features, because I want the project to be more serious and well structured.*
 
 I am building a DirectX11 graphics engine to learn the basics of graphics programming. The project is setup in a way, that you can clone it, open the solution with VS2022 and run it.
 
