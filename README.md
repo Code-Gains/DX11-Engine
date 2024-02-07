@@ -1,12 +1,10 @@
 # DX11-Engine
 
-# *The project is currently on a short break until I work out a plan for features, because I want the project to be more serious and well structured.*
-
 I am building a DirectX11 graphics engine to learn the basics of graphics programming. The project is setup in a way, that you can clone it, open the solution with VS2022 and run it.
 
 I am making a YouTube series along the way https://youtube.com/@Code_Gains
 ## Current project
-Current learning project is to create some sort of multithreaded variation of **Entity Component System** (ECS). I really want to utilize all the cores modern processors provide. To avoid burn-out I am doing editor related work on the side alongside ECS improvements.
+Currently creating a list of features to implement. Along with features I will be changing the structure of the project to make it more maintanable.
   
 I have plans to add **Vulkan** and **DirectX12** support in the future, but for now I am just doing whatever I feel like is challenging and fun for myself.
   
