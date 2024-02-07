@@ -14,7 +14,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "FreeImaged.lib")
+//#pragma comment(lib, "FreeImaged.lib")
 
 template <UINT TDebugNameLength>
 inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const char(&debugName)[TDebugNameLength])
@@ -44,6 +44,37 @@ RenderingApplication3D::~RenderingApplication3D()
     _debug.Reset();
 #endif
     _device.Reset();
+}
+
+ID3D11Device* RenderingApplication3D::GetApplicationDevice()
+{
+    return _device.Get();
+}
+
+ID3D11DeviceContext* RenderingApplication3D::GetApplicationDeviceContext()
+{
+    return _deviceContext.Get();
+}
+
+HWND RenderingApplication3D::GetApplicationWindow()
+{
+    return glfwGetWin32Window(GetWindow());
+}
+
+void RenderingApplication3D::AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule)
+{
+    _engineModules.push_back(std::move(engineModule));
+    //if (engineModule->GetGraphicsComponent())
+    //{
+    //}
+}
+
+void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules)
+{
+    for (auto&& engineModule : engineModules)
+    {
+        _engineModules.push_back(std::move(engineModule));
+    }
 }
 
 bool RenderingApplication3D::Initialize()
@@ -211,9 +242,9 @@ bool RenderingApplication3D::Load()
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
 
-    _universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
-    _universe.UpdateViewportDimensions(_width, _height);
-    _universe.LoadNewWorld();
+    //_universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
+    //_universe.UpdateViewportDimensions(_width, _height);
+    //_universe.LoadNewWorld();
 
     return true;
 }
@@ -290,7 +321,12 @@ void RenderingApplication3D::Update()
     _resourceMonitor.Update(_deltaTime);
     _scene.Update(_deltaTime);
     //_world.Update(_deltaTime);
-    _universe.Update(_deltaTime);
+    //_universe.Update(_deltaTime);
+    //std::cout << _engineModules.size();
+    for (const auto& engineModule : _engineModules)
+    {
+        engineModule->Update(_periodicDeltaTime);
+    }
 }
 
 void RenderingApplication3D::PeriodicUpdate()
@@ -299,7 +335,11 @@ void RenderingApplication3D::PeriodicUpdate()
     {
         _scene.PeriodicUpdate(_periodicDeltaTime);
         //_world.PeriodicUpdate(_periodicDeltaTime);
-        _universe.PeriodicUpdate(_periodicDeltaTime);
+        //_universe.PeriodicUpdate(_periodicDeltaTime);
+        for (const auto& engineModule : _engineModules)
+        {
+            engineModule->PeriodicUpdate(_periodicDeltaTime);
+        }
         _periodicDeltaTime = 0;
     }
 }
@@ -347,7 +387,11 @@ void RenderingApplication3D::Render()
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     //_world.Render();
-    _universe.Render();
+    //_universe.Render();
+    for (const auto& engineModule : _engineModules)
+    {
+        engineModule->Render();
+    }
 
     ImGui::End();
     ImGui::Render();

@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Dist|x64">
+      <Configuration>Dist</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{11DC7661-7D91-EF56-0686-E92D723AE65A}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Engine-Core</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Debug\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug\Engine-Core\</IntDir>
+    <TargetName>Engine-Core</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Release\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release\Engine-Core\</IntDir>
+    <TargetName>Engine-Core</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Dist\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Dist\Engine-Core\</IntDir>
+    <TargetName>Engine-Core</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Application.hpp" />
+    <ClInclude Include="Source\DirectXTex\include\DirectXTex.h" />
+    <ClInclude Include="Source\FreeImage\include\FreeImage.h" />
+    <ClInclude Include="Source\cereal\cereal\access.hpp" />
+    <ClInclude Include="Source\cereal\cereal\archives\adapters.hpp" />
+    <ClInclude Include="Source\cereal\cereal\archives\binary.hpp" />
+    <ClInclude Include="Source\cereal\cereal\archives\json.hpp" />
+    <ClInclude Include="Source\cereal\cereal\archives\portable_binary.hpp" />
+    <ClInclude Include="Source\cereal\cereal\archives\xml.hpp" />
+    <ClInclude Include="Source\cereal\cereal\cereal.hpp" />
+    <ClInclude Include="Source\cereal\cereal\details\helpers.hpp" />
+    <ClInclude Include="Source\cereal\cereal\details\polymorphic_impl.hpp" />
+    <ClInclude Include="Source\cereal\cereal\details\polymorphic_impl_fwd.hpp" />
+    <ClInclude Include="Source\cereal\cereal\details\static_object.hpp" />
+    <ClInclude Include="Source\cereal\cereal\details\traits.hpp" />
+    <ClInclude Include="Source\cereal\cereal\details\util.hpp" />
+    <ClInclude Include="Source\cereal\cereal\external\base64.hpp" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\allocators.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\cursorstreamwrapper.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\document.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\encodedstream.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\encodings.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\error\en.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\error\error.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\filereadstream.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\filewritestream.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\fwd.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\itoa.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\meta.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\pow10.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\regex.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\stack.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\strtod.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\internal\swap.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\istreamwrapper.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\memorybuffer.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\memorystream.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\ostreamwrapper.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\pointer.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\prettywriter.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\rapidjson.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\reader.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\schema.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\stream.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\stringbuffer.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidjson\writer.h" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidxml\rapidxml.hpp" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="Source\cereal\cereal\external\rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="Source\cereal\cereal\macros.hpp" />
+    <ClInclude Include="Source\cereal\cereal\specialize.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\array.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\atomic.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\base_class.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\bitset.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\boost_variant.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\chrono.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\common.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\complex.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\concepts\pair_associative_container.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\deque.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\forward_list.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\functional.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\list.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\map.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\memory.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\optional.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\polymorphic.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\queue.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\set.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\stack.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\string.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\tuple.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\unordered_map.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\unordered_set.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\utility.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\valarray.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\variant.hpp" />
+    <ClInclude Include="Source\cereal\cereal\types\vector.hpp" />
+    <ClInclude Include="Source\cereal\cereal\version.hpp" />
+    <ClInclude Include="Source\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3.h" />
+    <ClInclude Include="Source\glfw-3.3.8.bin.WIN64\include\GLFW\glfw3native.h" />
+    <ClInclude Include="Source\imgui\include\imconfig.h" />
+    <ClInclude Include="Source\imgui\include\imgui.h" />
+    <ClInclude Include="Source\imgui\include\imgui_impl_dx11.h" />
+    <ClInclude Include="Source\imgui\include\imgui_impl_glfw.h" />
+    <ClInclude Include="Source\imgui\include\imgui_impl_win32.h" />
+    <ClInclude Include="Source\imgui\include\imgui_internal.h" />
+    <ClInclude Include="Source\imgui\include\imstb_rectpack.h" />
+    <ClInclude Include="Source\imgui\include\imstb_textedit.h" />
+    <ClInclude Include="Source\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="Source\include\CameraComponent.hpp" />
+    <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
+    <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
+    <ClInclude Include="Source\include\Constants.hpp" />
+    <ClInclude Include="Source\include\Definitions.hpp" />
+    <ClInclude Include="Source\include\DirectXSerialization.hpp" />
+    <ClInclude Include="Source\include\Entity.hpp" />
+    <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
+    <ClInclude Include="Source\include\IntVectors.hpp" />
+    <ClInclude Include="Source\include\LightComponent.hpp" />
+    <ClInclude Include="Source\include\Logging.hpp" />
+    <ClInclude Include="Source\include\MaterialComponent.hpp" />
+    <ClInclude Include="Source\include\MeshComponent.hpp" />
+    <ClInclude Include="Source\include\Object3D.hpp" />
+    <ClInclude Include="Source\include\PhysicsBody.hpp" />
+    <ClInclude Include="Source\include\PlanetarySimulation.hpp" />
+    <ClInclude Include="Source\include\Rectangle3D.hpp" />
+    <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
+    <ClInclude Include="Source\include\RenderingSystem.hpp" />
+    <ClInclude Include="Source\include\ResourceMonitor.hpp" />
+    <ClInclude Include="Source\include\Scene.hpp" />
+    <ClInclude Include="Source\include\ShaderCollection.hpp" />
+    <ClInclude Include="Source\include\Transform.hpp" />
+    <ClInclude Include="Source\include\TransformComponent.hpp" />
+    <ClInclude Include="Source\include\VertexType.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\Engine\3DObjects\Object3D.cpp" />
+    <ClCompile Include="Source\Engine\3DObjects\Rectangle3D.cpp" />
+    <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\CameraComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\MaterialComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\MeshComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
+    <ClCompile Include="Source\Engine\Physics\PhysicsBody.cpp" />
+    <ClCompile Include="Source\Engine\ResourceMonitor.cpp" />
+    <ClCompile Include="Source\Engine\Scene.cpp" />
+    <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
+    <ClCompile Include="Source\Engine\Transform.cpp" />
+    <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />
+    <ClCompile Include="Source\RenderingApplication3D.cpp" />
+    <ClCompile Include="Source\imgui\imgui.cpp" />
+    <ClCompile Include="Source\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Source\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Source\imgui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Source\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Source\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Source\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Source\imgui\imgui_widgets.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

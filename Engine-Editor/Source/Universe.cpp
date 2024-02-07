@@ -5,13 +5,14 @@ Universe::Universe()
 {
 }
 
-Universe::Universe(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
-	: _win32Window(win32Window), _device(device), _deviceContext(deviceContext)
+Universe::Universe(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int viewportWidth, int viewportHeight)
+	: _win32Window(win32Window),
+	_device(device),
+	_deviceContext(deviceContext),
+	_viewportWidth(viewportWidth),
+	_viewportHeight(viewportHeight)
 {
-}
-
-Universe::~Universe()
-{
+	LoadNewWorld();
 }
 
 void Universe::Update(float deltaTime)
@@ -68,7 +69,7 @@ bool Universe::LoadWorldSingle(std::string filePath)
 		return false;  // Failed to open file
 
 	{
-		cereal::BinaryInputArchive archive(is);
+		cereal::JSONInputArchive archive(is);
 		archive(CEREAL_NVP(_world));  // Deserializes the world
 	}
 
@@ -82,7 +83,7 @@ bool Universe::SaveWorld(std::string filePath)
 		return false;  // Failed to open file
 
 	{
-		cereal::BinaryOutputArchive archive(os);
+		cereal::JSONOutputArchive archive(os);
 		archive(CEREAL_NVP(_world));  // Serializes the world
 	}
 

@@ -22,7 +22,7 @@ Application::~Application()
 
 bool Application::Initialize()
 {
-    if (!glfwInit())
+    if (!glfwInit()) // #TODO move out to rendering application
     {
         std::cerr << "GLFW: Failed to initialize\n";
         return false;
@@ -80,10 +80,10 @@ void Application::Cleanup()
 
 void Application::Run()
 {
-    if (!Initialize())
-    {
-        return;
-    }
+    //if (!Initialize())
+    //{
+        //return;
+    //}
 
     if (!Load())
     {

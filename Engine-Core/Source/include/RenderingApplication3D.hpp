@@ -16,22 +16,43 @@
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 
-#include "World.hpp"
-#include "Universe.hpp"
+//#include "World.hpp"
+//#include "Universe.hpp"
 #include "ResourceMonitor.hpp"
 
 
 
+class IEngineModule
+{
+public:
+    virtual bool Initialize() = 0;
+    virtual bool Load() = 0;
+    virtual void Cleanup() = 0;
+    virtual void Render() = 0;
+    virtual void Update(float deltaTime) = 0;
+    virtual void PeriodicUpdate(float deltaTime) = 0;
+
+    virtual ~IEngineModule() = default;
+};
+//:)
 class RenderingApplication3D final : public Application
 {
 public:
     RenderingApplication3D(const std::string& title);
     ~RenderingApplication3D() override;
 
+    bool Initialize() override;
+
     bool isApplicationMinimized = false;
 
+    ID3D11Device* GetApplicationDevice();
+    ID3D11DeviceContext* GetApplicationDeviceContext();
+    HWND GetApplicationWindow();
+
+    void AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule);
+    void AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules);
+
 protected:
-    bool Initialize() override;
     bool Load() override;
 
     void OnResize(
@@ -68,7 +89,9 @@ private:
 
     ShaderCollection _shaderCollection;
 
-    Universe _universe;
-    World _world;
+    std::vector<std::unique_ptr<IEngineModule>> _engineModules;
+
+    //Universe _universe; // #TODO move outside and allow to subscribe with IEngineModule interface
+    //World _world;
     Scene _scene;
 };

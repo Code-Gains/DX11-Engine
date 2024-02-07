@@ -13,7 +13,11 @@ public:
     Application(const std::string& title);
     virtual ~Application();
 
+    virtual bool Initialize();
     void Run();
+
+    [[nodiscard]] int32_t GetWindowWidth() const;
+    [[nodiscard]] int32_t GetWindowHeight() const;
 
 protected:
     static void HandleResize(
@@ -24,7 +28,6 @@ protected:
         int32_t width,
         int32_t height);
 
-    virtual bool Initialize();
     virtual bool Load() = 0;
     virtual void Cleanup();
     virtual void Render() = 0;
@@ -32,8 +35,6 @@ protected:
     virtual void PeriodicUpdate();
 
     [[nodiscard]] GLFWwindow* GetWindow() const;
-    [[nodiscard]] int32_t GetWindowWidth() const;
-    [[nodiscard]] int32_t GetWindowHeight() const;
 
     int32_t _width = 0;
     int32_t _height = 0;
