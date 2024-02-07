@@ -31,7 +31,7 @@ void World::Update(float deltaTime)
     using namespace DirectX;
 
     float cameraMoveSpeed = 10.0f;
-    float cameraRotationSpeed = 5.0f;
+    float cameraRotationSpeed = 1.0f;
 
     static DirectX::XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 10.0f };
     static DirectX::XMFLOAT3 cameraRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
