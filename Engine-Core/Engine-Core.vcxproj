@@ -138,7 +138,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Application.hpp" />
     <ClInclude Include="Source\DirectXTex\include\DirectXTex.h" />
     <ClInclude Include="Source\FreeImage\include\FreeImage.h" />
     <ClInclude Include="Source\cereal\cereal\access.hpp" />
@@ -237,6 +236,7 @@
     <ClInclude Include="Source\imgui\include\imstb_rectpack.h" />
     <ClInclude Include="Source\imgui\include\imstb_textedit.h" />
     <ClInclude Include="Source\imgui\include\imstb_truetype.h" />
+    <ClInclude Include="Source\include\Application.hpp" />
     <ClInclude Include="Source\include\CameraComponent.hpp" />
     <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
@@ -244,6 +244,7 @@
     <ClInclude Include="Source\include\Definitions.hpp" />
     <ClInclude Include="Source\include\DirectXSerialization.hpp" />
     <ClInclude Include="Source\include\Entity.hpp" />
+    <ClInclude Include="Source\include\Heightmap.hpp" />
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
     <ClInclude Include="Source\include\IntVectors.hpp" />
     <ClInclude Include="Source\include\LightComponent.hpp" />
@@ -259,14 +260,20 @@
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
     <ClInclude Include="Source\include\Scene.hpp" />
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
+    <ClInclude Include="Source\include\Terrain.hpp" />
+    <ClInclude Include="Source\include\TerrainChunk.hpp" />
     <ClInclude Include="Source\include\Transform.hpp" />
     <ClInclude Include="Source\include\TransformComponent.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp" />
     <ClCompile Include="Source\Engine\3DObjects\Object3D.cpp" />
     <ClCompile Include="Source\Engine\3DObjects\Rectangle3D.cpp" />
+    <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp" />
+    <ClCompile Include="Source\Engine\3DObjects\TerrainChunk.cpp" />
+    <ClCompile Include="Source\Engine\Application\Application.cpp" />
+    <ClCompile Include="Source\Engine\Application\RenderingApplication3D.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp" />
@@ -281,7 +288,6 @@
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Transform.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />
-    <ClCompile Include="Source\RenderingApplication3D.cpp" />
     <ClCompile Include="Source\imgui\imgui.cpp" />
     <ClCompile Include="Source\imgui\imgui_demo.cpp" />
     <ClCompile Include="Source\imgui\imgui_draw.cpp" />

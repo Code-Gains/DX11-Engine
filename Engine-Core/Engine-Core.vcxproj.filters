@@ -13,6 +13,9 @@
     <Filter Include="Engine\3DObjects">
       <UniqueIdentifier>{0BD3889D-F7CB-A7EF-20FE-8C740C5687FB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Application">
+      <UniqueIdentifier>{1EA4C00C-0A88-8162-73E8-7BB55FEB6BE4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\ECS">
       <UniqueIdentifier>{A531F502-91E9-3650-FAF0-0FACE6C7D140}</UniqueIdentifier>
     </Filter>
@@ -93,7 +96,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Application.hpp" />
     <ClInclude Include="Source\DirectXTex\include\DirectXTex.h">
       <Filter>DirectXTex\include</Filter>
     </ClInclude>
@@ -388,6 +390,9 @@
     <ClInclude Include="Source\imgui\include\imstb_truetype.h">
       <Filter>imgui\include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\Application.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\CameraComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -407,6 +412,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\Entity.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Heightmap.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp">
@@ -454,6 +462,12 @@
     <ClInclude Include="Source\include\ShaderCollection.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\Terrain.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\TerrainChunk.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Transform.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -465,12 +479,26 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp">
+      <Filter>Engine\3DObjects</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\3DObjects\Object3D.cpp">
       <Filter>Engine\3DObjects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\3DObjects\Rectangle3D.cpp">
       <Filter>Engine\3DObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp">
+      <Filter>Engine\3DObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\3DObjects\TerrainChunk.cpp">
+      <Filter>Engine\3DObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Application\Application.cpp">
+      <Filter>Engine\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Application\RenderingApplication3D.cpp">
+      <Filter>Engine\Application</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp">
       <Filter>Engine\ECS</Filter>
@@ -514,7 +542,6 @@
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp">
       <Filter>Engine\Vectors</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RenderingApplication3D.cpp" />
     <ClCompile Include="Source\imgui\imgui.cpp">
       <Filter>imgui</Filter>
     </ClCompile>

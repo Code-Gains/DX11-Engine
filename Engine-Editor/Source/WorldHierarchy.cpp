@@ -51,6 +51,10 @@ void WorldHierarchy::Render()
 			{
 				CreatePrimitiveGeometry3D(PrimitiveGeometryType3D::Pipe, "Pipe");
 			}
+			else if (ImGui::MenuItem("Terrain"))
+			{
+				CreatePrimitiveGeometry3D(PrimitiveGeometryType3D::TerrainChunk, "Terrain");
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenu();

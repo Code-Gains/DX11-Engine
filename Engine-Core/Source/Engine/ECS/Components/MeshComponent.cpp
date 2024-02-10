@@ -81,6 +81,8 @@ std::vector<VertexPositionNormalUv> MeshComponent::GetVertices(PrimitiveGeometry
             return GetPrimitiveCylinderVertices(0.5f, 1, 30);
         case PrimitiveGeometryType3D::Pipe:
             return GetPrimitivePipeVertices(0.5f, 1, 30);
+        case PrimitiveGeometryType3D::TerrainChunk:
+            return GetPrimitiveTerrainChunkVertices(10.0f, 10.0f, 10, 10);
     }
 }
 
@@ -96,6 +98,8 @@ std::vector<UINT> MeshComponent::GetIndices(PrimitiveGeometryType3D type)
         return GetPrimitiveCylinderIndices(30);
     case PrimitiveGeometryType3D::Pipe:
         return GetPrimitivePipeIndices(30);
+    case PrimitiveGeometryType3D::TerrainChunk:
+        return GetPrimitiveTerrainChunkIndices(10.0f, 10.0f, 10, 10);
     }
 }
 
@@ -258,6 +262,34 @@ std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitivePipeVertices(floa
     return vertices;
 }
 
+std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitiveTerrainChunkVertices(float width, float height, int densityX, int densityY)
+{
+    float horizontalGap = width / densityX;
+    float verticalGap = height / densityY;
+
+    float halfWidth = width / 2;
+    float halfHeight = height / 2;
+
+    std::vector<VertexPositionNormalUv> vertices;
+    for (float currentHeight = 0.0f; currentHeight < width; currentHeight += verticalGap)
+    {
+
+        for (float currentWidth = 0.0f; currentWidth < width; currentWidth += horizontalGap)
+        {
+            float u = currentWidth / width;
+            float v = currentHeight / height;
+
+            vertices.push_back({
+                {currentWidth - halfWidth, 0.0f, currentHeight - halfHeight},  // Position
+                {0.0f, 1.0f, 0.0f},                                            // Normal
+                {u, v}                                                         // Uv
+            });
+        }
+    }
+    std::cout << vertices.size() << std::endl;
+    return vertices;
+}
+
 std::vector<UINT> MeshComponent::GetPrimitiveCubeIndices()
 {
     return {
@@ -357,6 +389,37 @@ std::vector<UINT> MeshComponent::GetPrimitivePipeIndices(int numSlices)
         indices.push_back(((i + 1) % numSlices) * vertexOffset + 3);
     }
 
+    return indices;
+}
+
+std::vector<UINT> MeshComponent::GetPrimitiveTerrainChunkIndices(float width, float height, int densityX, int densityY)
+{
+    //return std::vector<UINT>({ 0, 1, 10, 1, 11, 10 });
+    //return std::vector<UINT>({ 1, 11, 10 });
+    // 0 - 1
+    // | / |
+    // 2   3
+    std::vector<UINT> indices;
+
+    for (int y = 0; y < densityX - 1; y++)
+    {
+        for (int x = 0; x < densityY - 1; x++)
+        {
+            // ???
+            UINT topLeft = x * densityY + y;
+            UINT topRight = topLeft + 1;
+            UINT bottomLeft = (x + 1) * densityY + y;
+            UINT bottomRight = bottomLeft + 1;
+
+            indices.push_back(topLeft);
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+
+            indices.push_back(topRight);
+            indices.push_back(bottomRight);
+            indices.push_back(bottomLeft);
+        }
+    }
     return indices;
 }
 

@@ -13,7 +13,8 @@ enum class PrimitiveGeometryType3D
 	Cube,
 	Sphere,
 	Cylinder,
-	Pipe
+	Pipe,
+	TerrainChunk
 };
 
 class MeshComponent : public ComponentIdentifier
@@ -48,11 +49,13 @@ public:
 	static std::vector<VertexPositionNormalUv> GetPrimitiveSphereVertices(float radius, int numSlices, int numStacks);
 	static std::vector<VertexPositionNormalUv> GetPrimitiveCylinderVertices(float radius, float height, int numSlices);
 	static std::vector<VertexPositionNormalUv> GetPrimitivePipeVertices(float radius, float height, int numSlices);
+	static std::vector<VertexPositionNormalUv> GetPrimitiveTerrainChunkVertices(float width, float height, int densityX, int densityY);
 
 	static std::vector<UINT> GetPrimitiveCubeIndices();
 	static std::vector<UINT> GetPrimitiveSphereIndices(int numSlices, int numStacks);
 	static std::vector<UINT> GetPrimitiveCylinderIndices(int numSlices);
 	static std::vector<UINT> GetPrimitivePipeIndices(int numSlices);
+	static std::vector<UINT> GetPrimitiveTerrainChunkIndices(float width, float height, int densityX, int densityY);
 
 	bool FinalizeLoading();
 
