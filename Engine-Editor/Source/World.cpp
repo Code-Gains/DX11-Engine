@@ -13,10 +13,10 @@ bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* devic
 {
     _win32Window = win32Window;
     _universe = universe;
-	_lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
-	_lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
-	_lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
-	_lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
+	_lightConstantBufferData.Position = { -20.0f, 20.0f, 20.0f, 0.0f };
+	_lightConstantBufferData.Ambient = { 0.3f, 0.3f, 0.3f, 1.0f };
+	_lightConstantBufferData.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+	_lightConstantBufferData.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	_instanceRenderer = InstanceRendererSystem(device, deviceContext);
     _worldHierarchy = WorldHierarchy(this);
