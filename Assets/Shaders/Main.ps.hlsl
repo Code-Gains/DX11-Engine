@@ -19,14 +19,6 @@ cbuffer Light : register(b2)
     float4 lightSpecular;
 };
 
-cbuffer Material : register(b3)
-{
-    float4 matAmbient;
-    float4 matDiffuse;
-    float4 matSpecular;
-    float matShininess;
-};
-
 struct PSInput
 {
     float4 Position : SV_Position;

@@ -64,9 +64,6 @@ HWND RenderingApplication3D::GetApplicationWindow()
 void RenderingApplication3D::AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule)
 {
     _engineModules.push_back(std::move(engineModule));
-    //if (engineModule->GetGraphicsComponent())
-    //{
-    //}
 }
 
 void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules)
@@ -75,6 +72,136 @@ void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngin
     {
         _engineModules.push_back(std::move(engineModule));
     }
+}
+
+void RenderingApplication3D::LinkEngineInstancePools()
+{
+    auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
+    int cubeIndex = cubeMesh.GetInstancePoolIndex();
+    InstanceRendererSystem::InstancePool cubePool =
+        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
+    LinkRenderableInstancePool(cubeIndex, cubePool);
+
+    auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
+    int sphereIndex = sphereMesh.GetInstancePoolIndex();
+    InstanceRendererSystem::InstancePool spherePool =
+        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
+    LinkRenderableInstancePool(sphereIndex, spherePool);
+
+    auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
+    int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
+    InstanceRendererSystem::InstancePool cylinderPool =
+        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
+    LinkRenderableInstancePool(cylinderIndex, cylinderPool);
+
+    auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
+    int pipeIndex = pipeMesh.GetInstancePoolIndex();
+    InstanceRendererSystem::InstancePool pipePool =
+        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
+    LinkRenderableInstancePool(pipeIndex, pipePool);
+
+    auto terrainChunkMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::TerrainChunk);
+    int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
+    InstanceRendererSystem::InstancePool terrainChunkPool =
+        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
+    LinkRenderableInstancePool(terrainChunkIndex, terrainChunkPool);
+}
+
+void RenderingApplication3D::LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool)
+{
+    _instancePools[index] = instancePool;
+}
+
+void RenderingApplication3D::LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool)
+{
+    _instancePools[_nextPoolId] = instancePool;
+    _nextPoolId++;
+}
+
+void RenderingApplication3D::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
+{
+    auto it = _instancePools.find(poolKey);
+    if (it != _instancePools.end())
+    {
+        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
+        it->second.instances.push_back(instanceData);
+        it->second.instanceCount++;
+    }
+}
+
+// TODO fix to remove any references to entities
+void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
+{
+    if (_instancePools.find(poolKey) != _instancePools.end())
+    {
+        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
+        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
+        {
+            auto instanceIndex = entityIdToInstances[instanceId];
+            _instancePools[poolKey].instances[instanceIndex] = newData;
+            return;
+        }
+        AddRenderableInstance(poolKey, instanceId, newData);
+    }
+}
+
+void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
+{
+    if (_instancePools.find(poolKey) != _instancePools.end())
+    {
+        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
+        auto& instances = _instancePools[poolKey].instances;
+        auto& instanceCount = _instancePools[poolKey].instanceCount;
+        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
+        {
+            auto instanceIndex = entityIdToInstance[entityId];
+            for (auto& pair : entityIdToInstance)
+            {
+                if (pair.second > instanceIndex)
+                {
+                    pair.second--;
+                }
+            }
+            entityIdToInstance.erase(entityId);
+            instances.erase(instances.begin() + instanceIndex);
+            _instancePools[poolKey].instanceCount--;
+        }
+    }
+}
+
+void RenderingApplication3D::RemoveAllRenderableInstances()
+{
+    for (auto& instancePoolPair : _instancePools)
+    {
+        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
+        instancePool.entityIdToInstanceIndex.clear();
+        instancePool.instances.clear();
+        instancePool.instanceCount = 0;
+    }
+}
+
+void RenderingApplication3D::ClearAllInstancePools()
+{
+    for (auto& instancePool : _instancePools)
+    {
+        instancePool.second.Clear();
+    }
+}
+
+void RenderingApplication3D::SetLightConstantBuffer(const LightConstantBuffer& lightBuffer)
+{
+    _lightConstantBufferData.Position = lightBuffer.Position;
+    _lightConstantBufferData.Ambient = lightBuffer.Ambient;
+    _lightConstantBufferData.Diffuse = lightBuffer.Diffuse;
+    _lightConstantBufferData.Specular = lightBuffer.Specular;
+}
+void RenderingApplication3D::SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition)
+{
+    _cameraConstantBufferData.cameraPosition = cameraPosition;
+}
+void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection)
+{
+    DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 }
 
 bool RenderingApplication3D::Initialize()
@@ -159,7 +286,6 @@ bool RenderingApplication3D::Initialize()
     CreateRasterState();
     CreateDepthStencilView();
     CreateDepthState();
-    CreateConstantBuffers();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -173,6 +299,8 @@ bool RenderingApplication3D::Initialize()
     ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
 
     _resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
+    _instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
+    LinkEngineInstancePools();
 
     return true;
 }
@@ -227,11 +355,6 @@ void RenderingApplication3D::CreateDepthState()
     _device->CreateDepthStencilState(&depthDesc, &_depthState);
 }
 
-void RenderingApplication3D::CreateConstantBuffers()
-{
-    // remove later
-}
-
 bool RenderingApplication3D::Load()
 {
     // TODO MOVE SHADER COLLECTION TO WORLD OR RENDERER
@@ -241,10 +364,6 @@ bool RenderingApplication3D::Load()
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
-
-    //_universe = Universe(glfwGetWin32Window(GetWindow()), _device.Get(), _deviceContext.Get());
-    //_universe.UpdateViewportDimensions(_width, _height);
-    //_universe.LoadNewWorld();
 
     return true;
 }
@@ -319,10 +438,6 @@ void RenderingApplication3D::Update()
     Application::Update();
 
     _resourceMonitor.Update(_deltaTime);
-    _scene.Update(_deltaTime);
-    //_world.Update(_deltaTime);
-    //_universe.Update(_deltaTime);
-    //std::cout << _engineModules.size();
     for (const auto& engineModule : _engineModules)
     {
         engineModule->Update(_periodicDeltaTime);
@@ -333,9 +448,6 @@ void RenderingApplication3D::PeriodicUpdate()
 {
     if (_periodicDeltaTime > _periodicUpdatePeriod)
     {
-        _scene.PeriodicUpdate(_periodicDeltaTime);
-        //_world.PeriodicUpdate(_periodicDeltaTime);
-        //_universe.PeriodicUpdate(_periodicDeltaTime);
         for (const auto& engineModule : _engineModules)
         {
             engineModule->PeriodicUpdate(_periodicDeltaTime);
@@ -353,15 +465,13 @@ void RenderingApplication3D::Render()
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
-
     _resourceMonitor.Render();
-    //ImGui::Text("Geometry instances: N/A");
 
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     ID3D11RenderTargetView* nullRTV = nullptr;
 
-    //set to nullptr so we can clear properly
+
     _deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
 
     _deviceContext->ClearRenderTargetView(_renderTarget.Get(), clearColor);
@@ -386,8 +496,9 @@ void RenderingApplication3D::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    //_world.Render();
-    //_universe.Render();
+    // :)
+    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+
     for (const auto& engineModule : _engineModules)
     {
         engineModule->Render();
@@ -397,6 +508,6 @@ void RenderingApplication3D::Render()
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+    // TODO Fix not working without changing NVIDIA 3D settings
     _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
-
 }

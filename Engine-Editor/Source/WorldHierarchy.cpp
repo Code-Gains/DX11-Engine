@@ -153,7 +153,7 @@ void WorldHierarchy::Render()
 	}
 	ImGui::End();
 
-	if (deleteSelected)
+	if (deleteSelected && selected != _entityToName.end())
 	{
 		auto selectedEntityId = selected->first;
 		auto mesh = _world->GetMeshComponent(selected->first);

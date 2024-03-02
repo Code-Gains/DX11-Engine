@@ -25,7 +25,7 @@ struct PerInstanceData
     Material material;
 };
 
-cbuffer PerInstance : register(b4)
+cbuffer PerInstance : register(b3)
 {
     PerInstanceData instanceData[256]; // Max batch size
 };

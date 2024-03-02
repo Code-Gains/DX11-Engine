@@ -80,11 +80,6 @@ void Application::Cleanup()
 
 void Application::Run()
 {
-    //if (!Initialize())
-    //{
-        //return;
-    //}
-
     if (!Load())
     {
         return;
