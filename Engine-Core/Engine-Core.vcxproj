@@ -262,6 +262,7 @@
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
     <ClInclude Include="Source\include\Terrain.hpp" />
     <ClInclude Include="Source\include\TerrainChunk.hpp" />
+    <ClInclude Include="Source\include\TerrainComponent.hpp" />
     <ClInclude Include="Source\include\Transform.hpp" />
     <ClInclude Include="Source\include\TransformComponent.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
@@ -279,6 +280,7 @@
     <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\MaterialComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\MeshComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\TerrainComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />

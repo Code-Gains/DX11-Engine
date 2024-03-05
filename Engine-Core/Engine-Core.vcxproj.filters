@@ -468,6 +468,9 @@
     <ClInclude Include="Source\include\TerrainChunk.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\TerrainComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Transform.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -513,6 +516,9 @@
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Components\MeshComponent.cpp">
+      <Filter>Engine\ECS\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Components\TerrainComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp">

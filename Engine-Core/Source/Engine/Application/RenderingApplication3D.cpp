@@ -100,7 +100,7 @@ void RenderingApplication3D::LinkEngineInstancePools()
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
     LinkRenderableInstancePool(pipeIndex, pipePool);
 
-    auto terrainChunkMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::TerrainChunk);
+    auto terrainChunkMesh = MeshComponent::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk);
     int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
     InstanceRendererSystem::InstancePool terrainChunkPool =
         _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);

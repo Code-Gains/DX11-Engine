@@ -10,9 +10,9 @@ class Heightmap
 
 public:
 	Heightmap(unsigned int width, unsigned int height);
+	Heightmap(const std::vector<std::vector<float>>& heights);
 
 	float GetHeight(unsigned int x, unsigned int y) const;
-
 	void SetHeight(unsigned int x, unsigned int y, float height);
 
 	void SaveToFile() const;

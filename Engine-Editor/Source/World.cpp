@@ -280,6 +280,13 @@ void World::AddComponent(int entityId, const CameraComponent& component)
     _nextComponentId++;
 }
 
+void World::AddComponent(int entityId, const TerrainComponent& component)
+{
+    _terrainComponentIndices[entityId] = _terrainComponents.size();
+    _terrainComponents.push_back(component);
+    _nextComponentId++;
+}
+
 void World::RemoveTransformComponent(int entityId)
 {
     auto it = _transformComponentIndices.find(entityId);
@@ -351,6 +358,20 @@ void World::RemoveCameraComponent(int entityId)
                 pair.second--;
         _cameraComponents.erase(_cameraComponents.begin() + it->second);
         _cameraComponentIndices.erase(it);
+    }
+}
+
+void World::RemoveTerrainComponent(int entityId)
+{
+    auto it = _terrainComponentIndices.find(entityId);
+    if (it != _terrainComponentIndices.end())
+    {
+        auto cameraIndex = it->second;
+        for (auto& pair : _terrainComponentIndices)
+            if (pair.second > cameraIndex)
+                pair.second--;
+        _terrainComponents.erase(_terrainComponents.begin() + it->second);
+        _terrainComponentIndices.erase(it);
     }
 }
 

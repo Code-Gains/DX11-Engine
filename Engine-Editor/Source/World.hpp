@@ -51,10 +51,8 @@ class World
 	std::vector<MaterialComponent> _materialComponents;
 	std::vector<LightComponent> _lightComponents;
 	std::vector<CameraComponent> _cameraComponents;
+	std::vector<TerrainComponent> _terrainComponents;
 	int _nextComponentId = 1;
-
-	// Storage -> Component Cache
-	//std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
 
 	// Storage -> Component Relations
 	// entityId -> componentIndex
@@ -63,6 +61,7 @@ class World
 	std::unordered_map<int, int> _materialComponentIndices;
 	std::unordered_map<int, int> _lightComponentIndices;
 	std::unordered_map<int, int> _cameraComponentIndices;
+	std::unordered_map<int, int> _terrainComponentIndices;
 
 	// Systems
 
@@ -87,10 +86,8 @@ public:
 
 	int GetNextEntityId() const;
 	int GetNextComponentId() const;
-	//int GetNextPoolId() const;
 
 	void IncrementEntityId();
-	//void IncrementPoolId();
 	
 	// Entity-Component relations
 	void AddEntity(Entity entityId);
@@ -101,12 +98,14 @@ public:
 	void AddComponent(int entityId, const MaterialComponent& component);
 	void AddComponent(int entityId, const LightComponent& component);
 	void AddComponent(int entityId, const CameraComponent& component);
+	void AddComponent(int entityId, const TerrainComponent& component);
 
 	void RemoveTransformComponent(int entityId);
 	void RemoveMeshComponent(int entityId);
 	void RemoveMaterialComponent(int entityId);
 	void RemoveLightComponent(int entityId);
 	void RemoveCameraComponent(int entityId);
+	void RemoveTerrainComponent(int entityId);
 
 	TransformComponent* GetTransformComponent(int entityId);
 	MeshComponent* GetMeshComponent(int entityId);
@@ -114,7 +113,7 @@ public:
 	//LightComponent* GetLightComponent(int entityId);
 	//CameraComponent* GetCameraComponent(int entityId);
 
-	// Instance Rendering System
+	// Instance Rendering System Methods
 	void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
 	void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
 	void RemoveRenderableInstance(int poolKey, int entityId);
@@ -128,7 +127,7 @@ public:
 		const std::unordered_map<int, int>& materialIndices
 	) const;
 
-
+	// ----- Serialization ----- //
 
 	template <typename Archive>
 	void save(Archive& archive) const
