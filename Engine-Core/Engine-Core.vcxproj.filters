@@ -25,9 +25,6 @@
     <Filter Include="Engine\ECS\Systems">
       <UniqueIdentifier>{AC5CA585-9840-66DB-01A1-602EEDA3505D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Physics">
-      <UniqueIdentifier>{4D76CF9F-3944-C3A5-22D8-33CC0E459F0A}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Shaders">
       <UniqueIdentifier>{B4970385-A065-F78A-89F9-67B17566D3EF}</UniqueIdentifier>
     </Filter>
@@ -435,18 +432,6 @@
     <ClInclude Include="Source\include\MeshComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Object3D.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\PhysicsBody.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\PlanetarySimulation.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\Rectangle3D.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\RenderingApplication3D.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -454,9 +439,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ResourceMonitor.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\Scene.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ShaderCollection.hpp">
@@ -474,9 +456,6 @@
     <ClInclude Include="Source\include\TerrainComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Transform.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\TransformComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -486,12 +465,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp">
-      <Filter>Engine\3DObjects</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\3DObjects\Object3D.cpp">
-      <Filter>Engine\3DObjects</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\3DObjects\Rectangle3D.cpp">
       <Filter>Engine\3DObjects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp">
@@ -533,23 +506,14 @@
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Physics\PhysicsBody.cpp">
-      <Filter>Engine\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\ResourceMonitor.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\Scene.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ShaderManager.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">
       <Filter>Engine\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\Transform.cpp">
-      <Filter>Engine</Filter>
+    <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp">
+      <Filter>Engine\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp">
       <Filter>Engine\Vectors</Filter>

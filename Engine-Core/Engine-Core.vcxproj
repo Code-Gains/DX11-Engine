@@ -251,27 +251,19 @@
     <ClInclude Include="Source\include\Logging.hpp" />
     <ClInclude Include="Source\include\MaterialComponent.hpp" />
     <ClInclude Include="Source\include\MeshComponent.hpp" />
-    <ClInclude Include="Source\include\Object3D.hpp" />
-    <ClInclude Include="Source\include\PhysicsBody.hpp" />
-    <ClInclude Include="Source\include\PlanetarySimulation.hpp" />
-    <ClInclude Include="Source\include\Rectangle3D.hpp" />
     <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
     <ClInclude Include="Source\include\RenderingSystem.hpp" />
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
-    <ClInclude Include="Source\include\Scene.hpp" />
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
     <ClInclude Include="Source\include\ShaderManager.hpp" />
     <ClInclude Include="Source\include\Terrain.hpp" />
     <ClInclude Include="Source\include\TerrainChunk.hpp" />
     <ClInclude Include="Source\include\TerrainComponent.hpp" />
-    <ClInclude Include="Source\include\Transform.hpp" />
     <ClInclude Include="Source\include\TransformComponent.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp" />
-    <ClCompile Include="Source\Engine\3DObjects\Object3D.cpp" />
-    <ClCompile Include="Source\Engine\3DObjects\Rectangle3D.cpp" />
     <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp" />
     <ClCompile Include="Source\Engine\3DObjects\TerrainChunk.cpp" />
     <ClCompile Include="Source\Engine\Application\Application.cpp" />
@@ -285,12 +277,9 @@
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
-    <ClCompile Include="Source\Engine\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Source\Engine\ResourceMonitor.cpp" />
-    <ClCompile Include="Source\Engine\Scene.cpp" />
-    <ClCompile Include="Source\Engine\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
-    <ClCompile Include="Source\Engine\Transform.cpp" />
+    <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />
     <ClCompile Include="Source\imgui\imgui.cpp" />
     <ClCompile Include="Source\imgui\imgui_demo.cpp" />

@@ -12,8 +12,6 @@
 #include "Definitions.hpp"
 #include "Application.hpp"
 #include "ShaderCollection.hpp"
-#include "Scene.hpp"
-#include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 
 #include "ResourceMonitor.hpp"
