@@ -34,7 +34,7 @@ RenderingApplication3D::~RenderingApplication3D()
     _rasterState.Reset();
     _depthState.Reset();
     _depthTarget.Reset();
-    _shaderCollection.Destroy();
+    _shaderManager.Destroy();
     DestroySwapchainResources();
     _swapChain.Reset();
     _dxgiFactory.Reset();
@@ -363,8 +363,10 @@ bool RenderingApplication3D::Load()
     shaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
     shaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
-    _shaderCollection = ShaderCollection::CreateShaderCollection(shaderDescriptor, _device.Get());
+    _shaderManager = ShaderManager(_device.Get());
+    _shaderManager.LoadShaderCollection(L"Main", shaderDescriptor);
 
+    std::cout << "Core Loading Complete!\n";
     return true;
 }
 
@@ -428,6 +430,7 @@ void RenderingApplication3D::OnResize(const int32_t width, const int32_t height)
 
     _depthTarget.Reset();
     CreateDepthStencilView();
+    //std::cout << "Application Resized! " << width << ";" << height << std::endl;
 }
 
 void RenderingApplication3D::Update()
@@ -481,7 +484,7 @@ void RenderingApplication3D::Render()
 
     _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    _shaderCollection.ApplyToContext(_deviceContext.Get());
+    _shaderManager.ApplyToContext(L"Main", _deviceContext.Get());
 
     D3D11_VIEWPORT viewport = {
         0.0f,

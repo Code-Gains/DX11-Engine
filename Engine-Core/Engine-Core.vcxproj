@@ -260,6 +260,7 @@
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
     <ClInclude Include="Source\include\Scene.hpp" />
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
+    <ClInclude Include="Source\include\ShaderManager.hpp" />
     <ClInclude Include="Source\include\Terrain.hpp" />
     <ClInclude Include="Source\include\TerrainChunk.hpp" />
     <ClInclude Include="Source\include\TerrainComponent.hpp" />
@@ -287,6 +288,7 @@
     <ClCompile Include="Source\Engine\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Source\Engine\ResourceMonitor.cpp" />
     <ClCompile Include="Source\Engine\Scene.cpp" />
+    <ClCompile Include="Source\Engine\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Transform.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />

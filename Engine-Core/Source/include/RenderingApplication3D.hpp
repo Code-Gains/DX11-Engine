@@ -18,6 +18,7 @@
 
 #include "ResourceMonitor.hpp"
 #include "InstanceRendererSystem.hpp"
+#include <ShaderManager.hpp>
 
 
 
@@ -83,7 +84,6 @@ private:
     void CreateRasterState();
     void CreateDepthStencilView();
     void CreateDepthState();
-    void CreateConstantBuffers();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
 
@@ -101,7 +101,7 @@ private:
     WRL::ComPtr<ID3D11ShaderResourceView> _textureSrv = nullptr;
     WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
 
-    ShaderCollection _shaderCollection;
+    ShaderManager _shaderManager;
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
 

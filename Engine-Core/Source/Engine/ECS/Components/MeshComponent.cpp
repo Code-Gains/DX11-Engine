@@ -320,10 +320,7 @@ std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitiveTerrainChunkVerti
             });
         }
     }
-    for (auto& vertex : vertices)
-    {
-        std::cout << vertex.position.y << std::endl;
-    }
+
     return vertices;
 }
 

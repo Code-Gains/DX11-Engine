@@ -462,6 +462,9 @@
     <ClInclude Include="Source\include\ShaderCollection.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\ShaderManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Terrain.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -537,6 +540,9 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Scene.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ShaderManager.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">
