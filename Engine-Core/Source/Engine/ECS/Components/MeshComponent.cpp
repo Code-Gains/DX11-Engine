@@ -25,11 +25,13 @@ MeshComponent::MeshComponent(
 void MeshComponent::SetVertices(const std::vector<VertexPositionNormalUv>& vertices)
 {
 	_vertices = vertices;
+    _isDirty = true;
 }
 
 void MeshComponent::SetIndices(const std::vector<UINT>& indices)
 {
 	_indices = indices;
+    _isDirty = true;
 }
 
 void MeshComponent::SetComponentIdentifier(int id)
@@ -62,14 +64,41 @@ int MeshComponent::GetInstancePoolIndex() const
 	return _instancePoolIndex;
 }
 
+bool MeshComponent::IsDirty() const
+{
+    return _isDirty;
+}
+
+void MeshComponent::SetIsDirty(bool isDirty)
+{
+    _isDirty = isDirty;
+}
+
 MeshComponent MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D type)
 {
-    MeshComponent mesh = MeshComponent(GetVertices(type), GetIndices(type));
+    MeshComponent mesh = MeshComponent(GetPrimitiveMeshVertices(type), GetPrimitiveMeshIndices(type));
     mesh.SetInstancePoolIndex((int)type);
     return mesh;
 }
 
-std::vector<VertexPositionNormalUv> MeshComponent::GetVertices(PrimitiveGeometryType3D type)
+MeshComponent MeshComponent::GenerateTerrainMeshComponent(PrimitiveGeometryType3D type, const Heightmap* heightmap)
+{
+    MeshComponent mesh = MeshComponent(GetTerrainMeshVertices(heightmap), GetTerrainMeshIndices());
+    mesh.SetInstancePoolIndex((int)type);
+    return mesh;
+}
+
+std::vector<VertexPositionNormalUv> MeshComponent::GetTerrainMeshVertices(const Heightmap* heightmap = nullptr)
+{
+    return GetPrimitiveTerrainChunkVertices(10.0f, 10.0f, 10, 10, heightmap);
+}
+
+std::vector<UINT> MeshComponent::GetTerrainMeshIndices()
+{
+    return GetPrimitiveTerrainChunkIndices(10.0f, 10.0f, 10, 10);
+}
+
+std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitiveMeshVertices(PrimitiveGeometryType3D type)
 {
     switch (type)
     {
@@ -81,10 +110,12 @@ std::vector<VertexPositionNormalUv> MeshComponent::GetVertices(PrimitiveGeometry
             return GetPrimitiveCylinderVertices(0.5f, 1, 30);
         case PrimitiveGeometryType3D::Pipe:
             return GetPrimitivePipeVertices(0.5f, 1, 30);
+        //case PrimitiveGeometryType3D::TerrainChunk:
+            //return GetPrimitiveTerrainChunkVertices(10.0f, 10.0f, 10, 10);
     }
 }
 
-std::vector<UINT> MeshComponent::GetIndices(PrimitiveGeometryType3D type)
+std::vector<UINT> MeshComponent::GetPrimitiveMeshIndices(PrimitiveGeometryType3D type)
 {
     switch (type)
     {
@@ -96,6 +127,8 @@ std::vector<UINT> MeshComponent::GetIndices(PrimitiveGeometryType3D type)
         return GetPrimitiveCylinderIndices(30);
     case PrimitiveGeometryType3D::Pipe:
         return GetPrimitivePipeIndices(30);
+    //case PrimitiveGeometryType3D::TerrainChunk:
+        //return GetPrimitiveTerrainChunkIndices(10.0f, 10.0f, 10, 10);
     }
 }
 
@@ -258,6 +291,39 @@ std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitivePipeVertices(floa
     return vertices;
 }
 
+std::vector<VertexPositionNormalUv> MeshComponent::GetPrimitiveTerrainChunkVertices(float width, float height, int densityX, int densityY, const Heightmap* heightmap = nullptr)
+{
+    float horizontalGap = width / densityX;
+    float verticalGap = height / densityY;
+
+    float halfWidth = width / 2;
+    float halfHeight = height / 2;
+
+    std::vector<VertexPositionNormalUv> vertices;
+    for (float y = 0.0f; y < width; y += verticalGap)
+    {
+
+        for (float x = 0.0f; x < width; x += horizontalGap)
+        {
+            float u = x / width;
+            float v = y / height;
+
+            float vertexHeight = 0.0f;
+            if (heightmap != nullptr)
+                vertexHeight = heightmap->GetHeight(x, y);
+
+
+            vertices.push_back({
+                {x - halfWidth, vertexHeight, y - halfHeight},   // Position
+                {0.0f, 1.0f, 0.0f},                              // Normal
+                {u, v}                                           // Uv
+            });
+        }
+    }
+
+    return vertices;
+}
+
 std::vector<UINT> MeshComponent::GetPrimitiveCubeIndices()
 {
     return {
@@ -360,6 +426,37 @@ std::vector<UINT> MeshComponent::GetPrimitivePipeIndices(int numSlices)
     return indices;
 }
 
+std::vector<UINT> MeshComponent::GetPrimitiveTerrainChunkIndices(float width, float height, int densityX, int densityY)
+{
+    //return std::vector<UINT>({ 0, 1, 10, 1, 11, 10 });
+    //return std::vector<UINT>({ 1, 11, 10 });
+    // 0 - 1
+    // | / |
+    // 2   3
+    std::vector<UINT> indices;
+
+    for (int y = 0; y < densityX - 1; y++)
+    {
+        for (int x = 0; x < densityY - 1; x++)
+        {
+            // ???
+            UINT topLeft = x * densityY + y;
+            UINT topRight = topLeft + 1;
+            UINT bottomLeft = (x + 1) * densityY + y;
+            UINT bottomRight = bottomLeft + 1;
+
+            indices.push_back(topLeft);
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+
+            indices.push_back(topRight);
+            indices.push_back(bottomRight);
+            indices.push_back(bottomLeft);
+        }
+    }
+    return indices;
+}
+
 bool MeshComponent::FinalizeLoading()
 {
     if (_path != "")
@@ -368,7 +465,7 @@ bool MeshComponent::FinalizeLoading()
         return true;
     }
 
-    _vertices = MeshComponent::GetVertices((PrimitiveGeometryType3D)_instancePoolIndex);
-    _indices = MeshComponent::GetIndices((PrimitiveGeometryType3D)_instancePoolIndex);
+    _vertices = MeshComponent::GetPrimitiveMeshVertices((PrimitiveGeometryType3D)_instancePoolIndex);
+    _indices = MeshComponent::GetPrimitiveMeshIndices((PrimitiveGeometryType3D)_instancePoolIndex);
     return true;
 }

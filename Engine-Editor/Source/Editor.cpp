@@ -16,6 +16,7 @@ void Editor::Run()
 
     engineModule = std::make_unique<Universe>(
         application.GetApplicationWindow(),
+        &application,
         device,
         deviceContext,
         static_cast<int>(application.GetWindowWidth()),

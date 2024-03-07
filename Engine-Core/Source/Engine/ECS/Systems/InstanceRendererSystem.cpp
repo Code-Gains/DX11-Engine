@@ -16,9 +16,6 @@ void InstanceRendererSystem::CreateConstantBuffers()
     desc.ByteWidth = sizeof(LightConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
 
-    desc.ByteWidth = sizeof(MaterialConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_materialConstantBuffer);
-
     desc.ByteWidth = sizeof(InstanceConstantBuffer) * _batchSize;
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }

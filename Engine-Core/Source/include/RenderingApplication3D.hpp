@@ -16,9 +16,9 @@
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 
-//#include "World.hpp"
-//#include "Universe.hpp"
 #include "ResourceMonitor.hpp"
+#include "InstanceRendererSystem.hpp"
+#include <ShaderManager.hpp>
 
 
 
@@ -34,7 +34,7 @@ public:
 
     virtual ~IEngineModule() = default;
 };
-//:)
+
 class RenderingApplication3D final : public Application
 {
 public:
@@ -51,6 +51,21 @@ public:
 
     void AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule);
     void AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules);
+
+    // Instance Rendering System
+    void LinkEngineInstancePools();
+    void LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool);
+    void LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool);
+    void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
+    void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
+    void RemoveRenderableInstance(int poolKey, int entityId);
+    void RemoveAllRenderableInstances();
+    void ClearAllInstancePools();
+
+    // Renderer Constant Buffers
+    void SetLightConstantBuffer(const LightConstantBuffer& lightBuffer);
+    void SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition);
+    void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
 
 protected:
     bool Load() override;
@@ -69,7 +84,6 @@ private:
     void CreateRasterState();
     void CreateDepthStencilView();
     void CreateDepthState();
-    void CreateConstantBuffers();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
 
@@ -87,11 +101,18 @@ private:
     WRL::ComPtr<ID3D11ShaderResourceView> _textureSrv = nullptr;
     WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
 
-    ShaderCollection _shaderCollection;
+    ShaderManager _shaderManager;
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
 
-    //Universe _universe; // #TODO move outside and allow to subscribe with IEngineModule interface
-    //World _world;
-    Scene _scene;
+    // --- Rendering Systems --- //
+    std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
+    int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
+    InstanceRendererSystem _instanceRenderer;
+
+    // HLSL Constant Buffer Data
+    LightConstantBuffer _lightConstantBufferData{};
+    PerFrameConstantBuffer _perFrameConstantBufferData{};
+    CameraConstantBuffer _cameraConstantBufferData{};
+    // -------------------------//
 };

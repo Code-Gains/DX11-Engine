@@ -9,16 +9,19 @@ World::~World()
 {
 }
 
-bool World::Initialize(Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+bool World::Initialize(RenderingApplication3D* renderingApplication, Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
     _win32Window = win32Window;
+    _renderingApplication = renderingApplication;
     _universe = universe;
-	_lightConstantBufferData.Position = { -50.0f, 150.0f, 150.0f, 0.0f };
-	_lightConstantBufferData.Ambient = { 0.4f, 0.4f, 0.4f, 1.0f };
-	_lightConstantBufferData.Diffuse = { 0.5f, 0.5f, 0.5f, 1.0f };
-	_lightConstantBufferData.Specular = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-	_instanceRenderer = InstanceRendererSystem(device, deviceContext);
+    LightConstantBuffer lightConstantBuffer;
+    lightConstantBuffer.Position = { -20.0f, 20.0f, 20.0f, 0.0f };
+    lightConstantBuffer.Ambient = { 0.3f, 0.3f, 0.3f, 1.0f };
+    lightConstantBuffer.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+	lightConstantBuffer.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
+    _renderingApplication->SetLightConstantBuffer(lightConstantBuffer);
+
     _worldHierarchy = WorldHierarchy(this);
 	return true;
 }
@@ -30,10 +33,10 @@ void World::Update(float deltaTime)
     // DirectX namespace contains overloads for vector and float multiplication
     using namespace DirectX;
 
-    float cameraMoveSpeed = 10.0f;
+    float cameraMoveSpeed = 1.0f;
     float cameraRotationSpeed = 1.0f;
 
-    static DirectX::XMFLOAT3 cameraPosition = { 0.0f, 0.0f, 10.0f };
+    static DirectX::XMFLOAT3 cameraPosition = { 0.0f, 3.0f, 10.0f };
     static DirectX::XMFLOAT3 cameraRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
 
 
@@ -124,14 +127,16 @@ void World::Update(float deltaTime)
     // Create the view matrix
     DirectX::XMMATRIX view = DirectX::XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
 
-    DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovRH(Constants::DegreesToRadians(90),
+    DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovRH(
+        Constants::DegreesToRadians(90),
         static_cast<float>(_viewportWidth) / static_cast<float>(_viewportHeight),
         0.1f,
-        400);
-    DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
-    DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
+        400
+    );
 
-    _cameraConstantBufferData.cameraPosition = cameraPosition;
+    DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
+    _renderingApplication->SetPerFrameConstantBuffer(viewProjection);
+    _renderingApplication->SetCameraConstantBuffer(cameraPosition);
 
     UpdateDirtyRenderableTransforms();
 }
@@ -142,7 +147,6 @@ void World::PeriodicUpdate(float deltaTime)
 
 void World::Render()
 {
-	_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData, MaterialConstantBuffer());
     _worldHierarchy.Render();
 }
 
@@ -156,20 +160,20 @@ int World::GetNextComponentId() const
     return _nextComponentId;
 }
 
-int World::GetNextPoolId() const
-{
-    return _nextPoolId;
-}
+//int World::GetNextPoolId() const
+//{
+//    return _nextPoolId;
+//}
 
 void World::IncrementEntityId()
 {
     _nextEntityId++;
 }
 
-void World::IncrementPoolId()
-{
-    _nextPoolId;
-}
+//void World::IncrementPoolId()
+//{
+//    _nextPoolId;
+//}
 
 std::vector<int> World::GetRenderableEntities(
     const std::unordered_map<int, int>& transformIndices,
@@ -198,54 +202,12 @@ void World::RemoveEntity(int id)
 
 bool World::LoadWorld(std::string filePath)
 {
-    LinkEngineInstancePools();
 	if(filePath != "")
 	{
         _universe->LoadWorldSingle(filePath);
 	}
 
     return true;
-
-    /*std::mt19937 gen(std::random_device{}());
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
-
-    int width = 10;
-    int height = 10;
-    float spacing = 1.5f;*/
-
-   /* for (int column = 0; column < width; column++)
-    {
-        for (int row = 0; row < height; row++)
-        {
-            auto cubeEntity = Entity();
-
-            DirectX::XMFLOAT3 position{
-                column * spacing - (width * spacing) / 2 + spacing / 2,
-                row * spacing - (height * spacing) / 2 + spacing / 2,
-                0.0f
-            };
-
-            auto transformComponent = TransformComponent(_nextComponentId,
-                position, DirectX::XMFLOAT3{ 0, 0, 0 }, DirectX::XMFLOAT3{ 1, 1, 1 }
-            );
-            AddComponent(cubeEntity.GetId(), transformComponent);
-
-            auto meshComponent = MeshComponent(_nextComponentId, templateCube.GetVertices(), templateCube.GetIndices(), _nextPoolId);
-            AddComponent(cubeEntity.GetId(), meshComponent);
-
-            DirectX::XMFLOAT4 ambient{ dist(gen), dist(gen), dist(gen), 1.0f};
-            DirectX::XMFLOAT4 diffuse{ dist(gen), dist(gen), dist(gen), 1.0f };
-            DirectX::XMFLOAT4 specular{ dist(gen), dist(gen), dist(gen), 1.0f };
-            float shininess = 3.0f;
-
-            auto materialComponent = MaterialComponent(_nextComponentId, ambient, diffuse, specular, shininess);
-            AddComponent(cubeEntity.GetId(), materialComponent);
-
-            _entities.push_back(cubeEntity);
-        }
-    }
-
-    LinkRenderableInstancePool(instancePool);*/
 }
 
 bool World::PrepareLoading()
@@ -256,10 +218,7 @@ bool World::PrepareLoading()
 
 bool World::FinalizeLoading()
 {
-    for (auto& instancePool : _instancePools)
-    {
-        instancePool.second.Clear();
-    }
+    _renderingApplication->ClearAllInstancePools();
     for (auto& transformComponent : _transformComponents)
     {
         transformComponent.SetIsDirty(true);
@@ -318,6 +277,13 @@ void World::AddComponent(int entityId, const CameraComponent& component)
 {
     _cameraComponentIndices[entityId] = _cameraComponents.size();
     _cameraComponents.push_back(component);
+    _nextComponentId++;
+}
+
+void World::AddComponent(int entityId, const TerrainComponent& component)
+{
+    _terrainComponentIndices[entityId] = _terrainComponents.size();
+    _terrainComponents.push_back(component);
     _nextComponentId++;
 }
 
@@ -395,6 +361,20 @@ void World::RemoveCameraComponent(int entityId)
     }
 }
 
+void World::RemoveTerrainComponent(int entityId)
+{
+    auto it = _terrainComponentIndices.find(entityId);
+    if (it != _terrainComponentIndices.end())
+    {
+        auto cameraIndex = it->second;
+        for (auto& pair : _terrainComponentIndices)
+            if (pair.second > cameraIndex)
+                pair.second--;
+        _terrainComponents.erase(_terrainComponents.begin() + it->second);
+        _terrainComponentIndices.erase(it);
+    }
+}
+
 TransformComponent* World::GetTransformComponent(int entityId)
 {
     auto entityIdToComponentIndex = _transformComponentIndices.find(entityId);
@@ -422,108 +402,24 @@ MaterialComponent* World::GetMaterialComponent(int entityId)
     return &_materialComponents[entityIdToComponentIndex->second];
 }
 
-void World::LinkEngineInstancePools()
+void World::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
-    auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
-    int cubeIndex = cubeMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool cubePool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
-    LinkRenderableInstancePool(cubeIndex, cubePool);
-
-    auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
-    int sphereIndex = sphereMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool spherePool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
-    LinkRenderableInstancePool(sphereIndex, spherePool);
-
-    auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
-    int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool cylinderPool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
-    LinkRenderableInstancePool(cylinderIndex, cylinderPool);
-
-    auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
-    int pipeIndex = pipeMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool pipePool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
-    LinkRenderableInstancePool(pipeIndex, pipePool);
-}
-
-void World::LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool)
-{
-    _instancePools[index] = instancePool;
-}
-
-void World::LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool)
-{
-    _instancePools[_nextPoolId] = instancePool;
-    _nextPoolId++;
-}
-
-void World::AddRenderableInstance(
-    int poolKey,
-    int entityId,
-    const InstanceConstantBuffer& instanceData)
-{
-    auto it = _instancePools.find(poolKey);
-    if (it != _instancePools.end())
-    {
-        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
-        it->second.instances.push_back(instanceData);
-        it->second.instanceCount++;
-    }
+    _renderingApplication->AddRenderableInstance(poolKey, entityId, instanceData);
 }
 
 void World::UpdateRenderableInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
 {
-    if (_instancePools.find(poolKey) != _instancePools.end())
-    {
-        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-        if (entityIdToInstances.find(entityId) != entityIdToInstances.end())
-        {
-            auto instanceIndex = entityIdToInstances[entityId];
-            _instancePools[poolKey].instances[instanceIndex] = newData;
-            return;
-        }
-        AddRenderableInstance(poolKey, entityId, newData);
-    }
+    _renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
 }
 
-void World::RemoveRenderableInstance(
-    int poolKey,
-    int entityId)
+void World::RemoveRenderableInstance(int poolKey, int entityId)
 {
-    if (_instancePools.find(poolKey) != _instancePools.end())
-    {
-        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
-        auto& instances = _instancePools[poolKey].instances;
-        auto& instanceCount = _instancePools[poolKey].instanceCount;
-        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
-        {
-            auto instanceIndex = entityIdToInstance[entityId];
-            for (auto& pair : entityIdToInstance)
-            {
-                if (pair.second > instanceIndex)
-                {
-                    pair.second--;
-                }
-            }
-            entityIdToInstance.erase(entityId);
-            instances.erase(instances.begin() + instanceIndex);
-            _instancePools[poolKey].instanceCount--;
-        }
-    }
+    _renderingApplication->RemoveRenderableInstance(poolKey, entityId);
 }
 
 void World::RemoveAllRenderableInstances()
 {
-    for (auto& instancePoolPair : _instancePools)
-    {
-        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
-        instancePool.entityIdToInstanceIndex.clear();
-        instancePool.instances.clear();
-        instancePool.instanceCount = 0;
-    }
+    _renderingApplication->RemoveAllRenderableInstances();
 }
 
 void World::UpdateDirtyRenderableTransforms()

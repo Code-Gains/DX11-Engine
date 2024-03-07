@@ -14,6 +14,7 @@
 class Universe : public IEngineModule
 {
 	HWND _win32Window;
+	RenderingApplication3D* _renderingApplication;
 	WRL::ComPtr<ID3D11Device> _device = nullptr;
 	WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
 	int _viewportWidth;
@@ -25,13 +26,12 @@ class Universe : public IEngineModule
 	friend class cereal::access;
 public:
 	Universe();
-	Universe(HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int viewportWidth, int viewportHeight);
+	Universe(HWND win32Window, RenderingApplication3D* renderingApplication,ID3D11Device* device, ID3D11DeviceContext* deviceContext, int viewportWidth, int viewportHeight);
 	virtual ~Universe() = default;
 
 	virtual bool Initialize() override { return 0; };
 	virtual bool Load() override { return 0; }
 	virtual void Cleanup() override {};
-
 
 	virtual void Update(float deltaTime) override;
 	virtual void PeriodicUpdate(float deltaTime) override;
@@ -42,4 +42,3 @@ public:
 	bool LoadNewWorld();
 	bool SaveWorld(std::string filePath);
 };
-

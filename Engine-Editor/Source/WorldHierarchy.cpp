@@ -51,6 +51,10 @@ void WorldHierarchy::Render()
 			{
 				CreatePrimitiveGeometry3D(PrimitiveGeometryType3D::Pipe, "Pipe");
 			}
+			else if (ImGui::MenuItem("Terrain"))
+			{
+				CreatePrimitiveGeometry3D(PrimitiveGeometryType3D::TerrainChunk, "Terrain");
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenu();
@@ -149,7 +153,7 @@ void WorldHierarchy::Render()
 	}
 	ImGui::End();
 
-	if (deleteSelected)
+	if (deleteSelected && selected != _entityToName.end())
 	{
 		auto selectedEntityId = selected->first;
 		auto mesh = _world->GetMeshComponent(selected->first);
@@ -174,10 +178,27 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	auto transform = TransformComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), transform);
 
-	auto mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
+	//temporary to check system
+	auto mesh = MeshComponent();
+
+	if (type == PrimitiveGeometryType3D::TerrainChunk)
+	{
+		std::vector<std::vector<float>> heights;
+		heights.resize(10);
+		for (unsigned int i = 0; i < 10; ++i) {
+			heights[i].resize(10, (float)i);
+		}
+		Heightmap heightmap = Heightmap(heights);
+		mesh = MeshComponent::GenerateTerrainMeshComponent(type, &heightmap);
+		auto terrain = TerrainComponent(geometry.GetId(), heightmap, &mesh);
+		terrain.SetId(geometry.GetId());
+		_world->AddComponent(geometry.GetId(), terrain);
+	}
+	else
+		mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
+
 	mesh.SetId(geometry.GetId());
 	_world->AddComponent(geometry.GetId(), mesh);
-
 
 	auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
 	_world->AddComponent(geometry.GetId(), material);

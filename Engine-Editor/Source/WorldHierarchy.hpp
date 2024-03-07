@@ -14,6 +14,7 @@
 #include <cereal/types/string.hpp>
 
 #include "TransformComponent.hpp"
+#include "TerrainComponent.hpp"
 
 class World; // forward declaration
 

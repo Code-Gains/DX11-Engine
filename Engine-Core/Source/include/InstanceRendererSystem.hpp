@@ -61,7 +61,6 @@ private:
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _materialConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
@@ -181,8 +180,7 @@ public:
         const std::unordered_map<int, InstancePool>& instancePools,
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const LightConstantBuffer& lightConstantBufferData,
-        const MaterialConstantBuffer& materialConstantBufferData
+        const LightConstantBuffer& lightConstantBufferData
     )
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -199,16 +197,11 @@ public:
         memcpy(mappedResource.pData, &lightConstantBufferData, sizeof(LightConstantBuffer));
         _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
 
-        _deviceContext->Map(_materialConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, &materialConstantBufferData, sizeof(MaterialConstantBuffer));
-        _deviceContext->Unmap(_materialConstantBuffer.Get(), 0);
-
-        ID3D11Buffer* constantPerFrameBuffers[4] = 
+        ID3D11Buffer* constantPerFrameBuffers[3] = 
         {
             _perFrameConstantBuffer.Get(),
             _cameraConstantBuffer.Get(),
             _lightConstantBuffer.Get(),
-            _materialConstantBuffer.Get()
         };
 
         ID3D11Buffer* constantPerObjectBuffers[1] =
@@ -216,11 +209,11 @@ public:
             _instanceConstantBuffer.Get()
         };
 
-        _deviceContext->VSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-        _deviceContext->VSSetConstantBuffers(4, 1, constantPerObjectBuffers);
+        _deviceContext->VSSetConstantBuffers(0, 3, constantPerFrameBuffers);
+        _deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
-        _deviceContext->PSSetConstantBuffers(0, 4, constantPerFrameBuffers);
-        _deviceContext->PSSetConstantBuffers(4, 1, constantPerObjectBuffers);
+        _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
+        _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
         for (const auto& instancePoolPair : instancePools)
         {
