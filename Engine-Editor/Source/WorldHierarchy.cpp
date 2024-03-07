@@ -195,7 +195,7 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 		_world->AddComponent(geometry.GetId(), terrain);
 	}
 	else
-		auto mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
+		mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
 
 	mesh.SetId(geometry.GetId());
 	_world->AddComponent(geometry.GetId(), mesh);
