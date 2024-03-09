@@ -24,7 +24,24 @@ public:
 	Archetype() {};
 	~Archetype() {};
 
-	void AddComponentType();
+	template<typename TComponent>
+	void AddComponent(Entity entity, TComponent component)
+	{
+		auto typeId = GetComponentTypeId<TComponent>();
+		if (_componentVectors.find(typeId) == _componentVectors.end())
+		{
+			_componentVectors[typeId] = std::make_unique<ComponentVector<TComponent>>();
+			// create a new vector in the archetype
+		}
+		// Retrieve component vector base and cast to component vector
+		auto& vector = static_cast<ComponentVector<TComponent>&>(*_componentVectors[typeId]);
+		
+
+
+		// find existing? if no then create new
+		// move entity to the archetype container
+		// add component to the entity in that archetype
+	}
 
 	template<typename TComponent>
 	ComponentVector<TComponent>* GetComponentVector();

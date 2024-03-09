@@ -23,7 +23,6 @@
 #include "Constants.hpp"
 #include "WorldHierarchy.hpp"
 #include "RenderingApplication3D.hpp"
-#include "ECS.hpp"
 
 class Universe; // forward declaration
 
@@ -52,7 +51,7 @@ class World
 	std::vector<LightComponent> _lightComponents;
 	std::vector<CameraComponent> _cameraComponents;
 	std::vector<TerrainComponent> _terrainComponents;
-	int _nextComponentId = 1;
+	//int _nextComponentId = 1;
 
 	// Storage -> Component Relations
 	// entityId -> componentIndex
@@ -64,7 +63,7 @@ class World
 	std::unordered_map<int, int> _terrainComponentIndices;
 
 
-	ECS _ecs;
+	//ECS _ecs;
 
 	//std::vector<Archetype> _archetypes;
 
@@ -124,8 +123,7 @@ public:
 	void PeriodicUpdate(float deltaTime);
 	void Render();
 
-	int GetNextEntityId() const;
-	int GetNextComponentId() const;
+	//int GetNextComponentId() const;
 
 	void IncrementEntityId();
 	

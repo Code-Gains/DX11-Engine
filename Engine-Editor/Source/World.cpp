@@ -150,17 +150,6 @@ void World::Render()
     _worldHierarchy.Render();
 }
 
-int World::GetNextEntityId() const
-{
-    //return _nextEntityId;
-    return _ecs.GetNextEntityId();
-}
-
-int World::GetNextComponentId() const
-{
-    return _nextComponentId;
-}
-
 //int World::GetNextPoolId() const
 //{
 //    return _nextPoolId;
@@ -192,7 +181,7 @@ std::vector<int> World::GetRenderableEntities(
 
 Entity World::CreateEntity()
 {
-    return _ecs.CreateEntity();
+    return _renderingApplication->CreateEntity();
 }
 
 void World::RemoveEntity(int id)
@@ -247,6 +236,7 @@ void World::UpdateViewportDimensions(int32_t width, int32_t height)
 
 void World::AddComponent(int entityId, const TransformComponent& component)
 {
+    _renderingApplication->AddComponent();
     _transformComponentIndices[entityId] = _transformComponents.size();
     _transformComponents.push_back(component);
     _nextComponentId++;

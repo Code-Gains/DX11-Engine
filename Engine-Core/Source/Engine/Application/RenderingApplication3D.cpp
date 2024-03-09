@@ -204,6 +204,11 @@ void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& 
     DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 }
 
+Entity RenderingApplication3D::CreateEntity()
+{
+    return _ecs.CreateEntity();
+}
+
 bool RenderingApplication3D::Initialize()
 {
     if (!Application::Initialize())

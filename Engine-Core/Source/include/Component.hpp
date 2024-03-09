@@ -6,6 +6,7 @@ public:
 	virtual ~IComponentVector() = default;
 };
 
+
 template<typename TComponent>
 class ComponentVector : public IComponentVector
 {
@@ -18,3 +19,9 @@ public:
 	ComponentVector() {};
 	~ComponentVector() {};
 };
+
+template<typename TComponent>
+std::type_index GetComponentTypeId()
+{
+	return std::type_index(typeid(TComponent));
+}

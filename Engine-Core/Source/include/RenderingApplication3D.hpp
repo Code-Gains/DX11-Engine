@@ -16,7 +16,8 @@
 
 #include "ResourceMonitor.hpp"
 #include "InstanceRendererSystem.hpp"
-#include <ShaderManager.hpp>
+#include "ShaderManager.hpp"
+#include "ECS.hpp"
 
 
 
@@ -65,6 +66,17 @@ public:
     void SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition);
     void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
 
+    // ----- ECS -----
+    
+    // Entities
+    Entity CreateEntity();
+
+    // Components
+    void AddComponent();
+
+    // Systems
+
+
 protected:
     bool Load() override;
 
@@ -102,6 +114,8 @@ private:
     ShaderManager _shaderManager;
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
+
+    ECS _ecs;
 
     // --- Rendering Systems --- //
     std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;

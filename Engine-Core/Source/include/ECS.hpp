@@ -29,10 +29,20 @@ public:
 
 	// Component Management
 	template<typename TComponent>
-	void AddComponent(Entity entity, TComponent component);
+	void AddComponent(Entity entity, TComponent component)
+	{
+		//auto typeId = GetComponentTypeId<TComponent>();
+		//if()
+		// find existing? if no then create new
+		// move entity to the archetype container
+		// add component to the entity in that archetype
+	}
 
 	template<typename TComponent>
-	void RemoveComponent(Entity entity);
+	void RemoveComponent(Entity entity)
+	{
+
+	}
 
 	// Systems
 
@@ -43,7 +53,7 @@ public:
 		_systems.emplace_back(system);
 		return *system;
 	}
-
+	
 	// Loops
 	void Render();
 	void Update(float deltaTime);
