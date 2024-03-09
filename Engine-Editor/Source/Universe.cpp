@@ -56,7 +56,6 @@ void Universe::UpdateViewportDimensions(int32_t width, int32_t height)
 
 bool Universe::LoadNewWorld()
 {
-	_world = World();
 	_world.Initialize(_renderingApplication,this, _win32Window, _device.Get(), _deviceContext.Get());
 	_world.UpdateViewportDimensions(_viewportWidth, _viewportHeight);
 	_world.LoadWorld();

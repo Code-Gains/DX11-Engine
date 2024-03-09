@@ -152,7 +152,8 @@ void World::Render()
 
 int World::GetNextEntityId() const
 {
-    return _nextEntityId;
+    //return _nextEntityId;
+    return _ecs.GetNextEntityId();
 }
 
 int World::GetNextComponentId() const
@@ -189,10 +190,9 @@ std::vector<int> World::GetRenderableEntities(
     return entities;
 }
 
-void World::AddEntity(Entity entity)
+Entity World::CreateEntity()
 {
-    _entities.push_back(entity);
-    _nextEntityId++;
+    return _ecs.CreateEntity();
 }
 
 void World::RemoveEntity(int id)
@@ -426,31 +426,30 @@ void World::UpdateDirtyRenderableTransforms()
 {
     for (auto& entity : _entities)
     {
-        if (_transformComponentIndices.find(entity.GetId()) == _transformComponentIndices.end())
+        if (_transformComponentIndices.find(entity) == _transformComponentIndices.end())
             continue;
 
-        int transformIndex = _transformComponentIndices[entity.GetId()];
+        int transformIndex = _transformComponentIndices[entity];
         TransformComponent& transform = _transformComponents[transformIndex];
 
-        if (_materialComponentIndices.find(entity.GetId()) == _materialComponentIndices.end())
+        if (_materialComponentIndices.find(entity) == _materialComponentIndices.end())
             continue;
 
-        int materialIndex = _materialComponentIndices[entity.GetId()];
+        int materialIndex = _materialComponentIndices[entity];
         MaterialComponent& material = _materialComponents[materialIndex];
 
         if (!transform.IsDirty() && !material.IsDirty())
             continue;
 
-        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
+        if (_meshComponentIndices.find(entity) == _meshComponentIndices.end())
             continue;
 
-        int meshIndex = _meshComponentIndices[entity.GetId()];
+        int meshIndex = _meshComponentIndices[entity];
         MeshComponent& mesh = _meshComponents[meshIndex];
 
-        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
+        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity, InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
         transform.SetIsDirty(false);
         material.SetIsDirty(false);
     }
-
 }
 

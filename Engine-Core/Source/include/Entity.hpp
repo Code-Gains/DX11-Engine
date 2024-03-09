@@ -1,16 +1,4 @@
 #pragma once
-class Entity
-{
-	int _id = 0;
-public:
-	Entity();
-	Entity(int id);
-	int GetId() const;
+#include <cstdint>
 
-	template <typename Archive>
-	void serialize(Archive& archive)
-	{
-		archive(_id);
-	}
-};
-
+using Entity = std::uint32_t;

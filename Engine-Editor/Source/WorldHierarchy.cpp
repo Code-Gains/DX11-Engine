@@ -174,9 +174,10 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
-	auto geometry = Entity(_world->GetNextEntityId());
+	//auto geometry = Entity(_world->GetNextEntityId());
+	auto geometry = _world->CreateEntity();
 	auto transform = TransformComponent(_world->GetNextComponentId());
-	_world->AddComponent(geometry.GetId(), transform);
+	_world->AddComponent(geometry, transform);
 
 	//temporary to check system
 	auto mesh = MeshComponent();
@@ -190,23 +191,23 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 		}
 		Heightmap heightmap = Heightmap(heights);
 		mesh = MeshComponent::GenerateTerrainMeshComponent(type, &heightmap);
-		auto terrain = TerrainComponent(geometry.GetId(), heightmap, &mesh);
-		terrain.SetId(geometry.GetId());
-		_world->AddComponent(geometry.GetId(), terrain);
+		auto terrain = TerrainComponent(geometry, heightmap, &mesh);
+		terrain.SetId(geometry);
+		_world->AddComponent(geometry, terrain);
 	}
 	else
 		mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
 
-	mesh.SetId(geometry.GetId());
-	_world->AddComponent(geometry.GetId(), mesh);
+	mesh.SetId(geometry);
+	_world->AddComponent(geometry, mesh);
 
 	auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
-	_world->AddComponent(geometry.GetId(), material);
+	_world->AddComponent(geometry, material);
 
-	_world->AddEntity(geometry);
-	AddEntity(geometry.GetId(), name);
+	//_world->AddEntity(geometry);
+	AddEntity(geometry, name);
 
-	return geometry.GetId();
+	return geometry;
 }
 
 void WorldHierarchy::SetWorld(World* world)

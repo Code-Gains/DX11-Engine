@@ -83,17 +83,6 @@ void InstanceRendererSystem::RemoveAllInstances()
     }
 }
 
-
-int InstanceRendererSystem::GetOwnershipCount() const
-{
-    int totalCount = 0;
-    for (auto poolPair : _instancePools)
-    {
-        totalCount += poolPair.second.instanceCount;
-    }
-    return totalCount;
-}
-
 InstanceConstantBuffer::InstanceConstantBuffer()
 {
 }

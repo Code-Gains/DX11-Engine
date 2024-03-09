@@ -7,6 +7,7 @@
 #include "Logging.hpp"
 #include "MeshComponent.hpp"
 #include "MaterialComponent.hpp"
+#include "System.hpp"
 
 #include <unordered_map>
 #include <map>
@@ -26,7 +27,7 @@ struct InstanceConstantBuffer
 };
 
 
-class InstanceRendererSystem : IDebuggable
+class InstanceRendererSystem : ISystem
 {
 public:
     struct InstancePool
@@ -73,10 +74,12 @@ public:
     void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
     void RemoveInstance(int poolKey, int instanceIndex);
 
-    int GetOwnershipCount() const override;
-
-
     void RemoveAllInstances();
+
+    void Render() override {};
+    void Update(float deltaTime) override {};
+    void PeriodicUpdate(float deltaTime) override {};
+
 
     template <typename TVertexType>
     bool InitializeInstancePool(int poolKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices)
