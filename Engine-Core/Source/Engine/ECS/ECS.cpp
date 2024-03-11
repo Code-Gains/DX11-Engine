@@ -1,5 +1,10 @@
 #include "ECS.hpp"
 
+Archetype& ECS::GetEntityArchetype(Entity entity) const
+{
+	// TODO: insert return statement here
+}
+
 Entity ECS::GetNextEntityId() const
 {
 	return _nextEntityId;

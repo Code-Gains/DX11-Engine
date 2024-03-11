@@ -8,8 +8,6 @@
 #include "Entity.hpp"
 #include "Component.hpp"
 
-constexpr size_t MAX_COMPONENTS = 64;
-using ComponentType = std::uint16_t;
 using ComponentSignature = std::bitset<MAX_COMPONENTS>;
 
 class Archetype

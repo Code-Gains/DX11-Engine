@@ -1,15 +1,17 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "Archetype.hpp"
 #include "System.hpp"
 #include "Entity.hpp"
 
 class ECS
 {
-	std::vector<Archetype> _archetypes;
 	std::vector<std::unique_ptr<ISystem>> _systems;
-	
+	std::unordered_map<ComponentSignature, Archetype> _signatureToArchetype;
+	std::unordered_map<Entity, ComponentSignature> _entityToSignature;
+
 	// ids
 	std::uint32_t _nextEntityId = 0;
 
@@ -20,6 +22,9 @@ public:
 
 	// Core Loops
 	// Add loops here
+
+	// Archetype Management
+	Archetype& GetEntityArchetype(Entity entity) const;
 
 	// Entity Management
 	Entity GetNextEntityId() const;
@@ -32,6 +37,9 @@ public:
 	void AddComponent(Entity entity, const TComponent& component) const
 	{
 		std::cout << "added in addedinecs" << std::endl;
+		// determine archetype wit new component
+		Archetype& archetype = GetEntityArchetype(entity);
+
 		//auto typeId = GetComponentTypeId<TComponent>();
 		//if()
 		// find existing? if no then create new
