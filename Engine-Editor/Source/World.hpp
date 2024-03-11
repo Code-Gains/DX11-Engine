@@ -129,21 +129,20 @@ public:
 	
 	// Entity-Component relations
 	Entity CreateEntity();
-	void RemoveEntity(int id);
 
-	void AddComponent(int entityId, const TransformComponent& component);
-	void AddComponent(int entityId, const MeshComponent& component);
-	void AddComponent(int entityId, const MaterialComponent& component);
-	void AddComponent(int entityId, const LightComponent& component);
-	void AddComponent(int entityId, const CameraComponent& component);
-	void AddComponent(int entityId, const TerrainComponent& component);
+	template<typename TComponent>
+	void AddComponent(Entity entity, const TComponent& component) const
+	{
+		_renderingApplication->AddComponent(entity, component);
+	}
 
-	void RemoveTransformComponent(int entityId);
-	void RemoveMeshComponent(int entityId);
-	void RemoveMaterialComponent(int entityId);
-	void RemoveLightComponent(int entityId);
-	void RemoveCameraComponent(int entityId);
-	void RemoveTerrainComponent(int entityId);
+	template<typename TComponent>
+	void RemoveComponent(Entity entity) const
+	{
+		_renderingApplication->RemoveComponent<TComponent>(entity);
+	}
+
+
 
 	TransformComponent* GetTransformComponent(int entityId);
 	MeshComponent* GetMeshComponent(int entityId);
@@ -177,8 +176,8 @@ public:
 		archive(
 			CEREAL_NVP(_transformComponents),
 			CEREAL_NVP(_meshComponents),
-			CEREAL_NVP(_materialComponents),
-			CEREAL_NVP(_nextComponentId)
+			CEREAL_NVP(_materialComponents)
+			//CEREAL_NVP(_nextComponentId)
 		);
 
 		// Indices
@@ -204,8 +203,8 @@ public:
 		archive(
 			CEREAL_NVP(_transformComponents),
 			CEREAL_NVP(_meshComponents),
-			CEREAL_NVP(_materialComponents),
-			CEREAL_NVP(_nextComponentId)
+			CEREAL_NVP(_materialComponents)
+			//CEREAL_NVP(_nextComponentId)
 		);
 
 		// Indices

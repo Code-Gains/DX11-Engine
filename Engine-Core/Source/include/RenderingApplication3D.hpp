@@ -72,7 +72,17 @@ public:
     Entity CreateEntity();
 
     // Components
-    void AddComponent();
+    template<typename TComponent>
+    void AddComponent(Entity entity, const TComponent& component) const
+    {
+        return _ecs.AddComponent(entity, component);
+    }
+
+    template<typename TComponent>
+    void RemoveComponent(Entity entity) const
+    {
+        _ecs.RemoveComponent<TComponent>(entity);
+    }
 
     // Systems
 

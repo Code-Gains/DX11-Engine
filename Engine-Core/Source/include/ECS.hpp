@@ -29,8 +29,9 @@ public:
 
 	// Component Management
 	template<typename TComponent>
-	void AddComponent(Entity entity, TComponent component)
+	void AddComponent(Entity entity, const TComponent& component) const
 	{
+		std::cout << "added in addedinecs" << std::endl;
 		//auto typeId = GetComponentTypeId<TComponent>();
 		//if()
 		// find existing? if no then create new
@@ -39,7 +40,7 @@ public:
 	}
 
 	template<typename TComponent>
-	void RemoveComponent(Entity entity)
+	void RemoveComponent(Entity entity) const
 	{
 
 	}

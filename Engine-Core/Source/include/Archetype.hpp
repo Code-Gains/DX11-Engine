@@ -35,7 +35,7 @@ public:
 		}
 		// Retrieve component vector base and cast to component vector
 		auto& vector = static_cast<ComponentVector<TComponent>&>(*_componentVectors[typeId]);
-		
+		vector.AddComponent(entity, component);
 
 
 		// find existing? if no then create new

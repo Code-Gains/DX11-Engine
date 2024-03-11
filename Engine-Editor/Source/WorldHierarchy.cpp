@@ -159,9 +159,10 @@ void WorldHierarchy::Render()
 		auto mesh = _world->GetMeshComponent(selected->first);
 		if (mesh)
 			_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
-		_world->RemoveTransformComponent(selectedEntityId);
-		_world->RemoveMeshComponent(selectedEntityId);
-		_world->RemoveMaterialComponent(selectedEntityId);
+
+		_world->RemoveComponent<TransformComponent>(selectedEntityId);
+		_world->RemoveComponent<MeshComponent>(selectedEntityId);
+		_world->RemoveComponent<MaterialComponent>(selectedEntityId);
 		_entityToName.erase(selected);
 		selected = _entityToName.end();
 	}
