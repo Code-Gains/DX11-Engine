@@ -8,39 +8,38 @@
 #include "Entity.hpp"
 #include "Component.hpp"
 
-using ComponentSignature = std::bitset<MAX_COMPONENTS>;
-
 class Archetype
 {
 	//ComponentVector Container class - implement interfaces
 	// bitmask?
 	ComponentSignature _signature;
 	std::vector<Entity> _entities;
-	std::unordered_map<std::type_index, std::unique_ptr<IComponentVector>> _componentVectors;
+	std::unordered_map<ComponentType, std::unique_ptr<IComponentVector>> _typeToComponent;
 public:
 
 	Archetype() {};
+	Archetype(const ComponentSignature& signature);
 	~Archetype() {};
 
+	//IComponent& GetComponent(Entity entity, ComponentType componentType);
+
+	ComponentSignature GetSignature() const;
+	bool SignatureContainsBit(uint16_t bit) const;
+
 	template<typename TComponent>
-	void AddComponent(Entity entity, TComponent component)
+	void AddComponent(Entity entity, const TComponent& component, ComponentType componentType)
 	{
-		auto typeId = GetComponentTypeId<TComponent>();
-		if (_componentVectors.find(typeId) == _componentVectors.end())
+		if (_typeToComponent.find(componentType) == _typeToComponent.end())
 		{
-			_componentVectors[typeId] = std::make_unique<ComponentVector<TComponent>>();
-			// create a new vector in the archetype
+			_typeToComponent[componentType] = std::make_unique<ComponentVector<TComponent>>();
+			_signature.set(componentType, true);
 		}
+
 		// Retrieve component vector base and cast to component vector
-		auto& vector = static_cast<ComponentVector<TComponent>&>(*_componentVectors[typeId]);
+		auto& vector = static_cast<ComponentVector<TComponent>&>(*_typeToComponent[componentType]);
 		vector.AddComponent(entity, component);
-
-
-		// find existing? if no then create new
-		// move entity to the archetype container
-		// add component to the entity in that archetype
 	}
 
-	template<typename TComponent>
-	ComponentVector<TComponent>* GetComponentVector();
+	//template<typename TComponent>
+	//ComponentVector<TComponent>* GetComponentVector();
 };

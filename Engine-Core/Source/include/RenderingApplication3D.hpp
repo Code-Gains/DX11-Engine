@@ -73,7 +73,7 @@ public:
 
     // Components
     template<typename TComponent>
-    void AddComponent(Entity entity, const TComponent& component) const
+    void AddComponent(Entity entity, const TComponent& component)
     {
         return _ecs.AddComponent(entity, component);
     }

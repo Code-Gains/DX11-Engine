@@ -6,6 +6,7 @@
 #include "Definitions.hpp"
 #include "VertexType.hpp"
 #include "ComponentIdentifier.hpp"
+#include "Component.hpp"
 #include <Heightmap.hpp>
 
 
@@ -18,7 +19,7 @@ enum class PrimitiveGeometryType3D
 	TerrainChunk // TODO REMOVE FROM HERE ONLY FOR TESTING
 };
 
-class MeshComponent : public ComponentIdentifier
+class MeshComponent : public ComponentIdentifier, public IComponent
 {
 	std::vector<VertexPositionNormalUv> _vertices;
 	std::vector<UINT> _indices;

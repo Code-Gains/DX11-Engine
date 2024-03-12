@@ -2,7 +2,7 @@
 #include <DirectXMath.h>
 #include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
-
+#include "Component.hpp"
 
 struct MaterialConstantBuffer
 {
@@ -16,7 +16,7 @@ struct MaterialConstantBuffer
     MaterialConstantBuffer(const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float shininess);
 };
 
-class MaterialComponent : public ComponentIdentifier
+class MaterialComponent : public ComponentIdentifier, public IComponent
 {
     MaterialConstantBuffer _materialConstantBuffer;
     bool _isDirty = true;

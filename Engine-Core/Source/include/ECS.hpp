@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <optional>
 #include "Archetype.hpp"
 #include "System.hpp"
 #include "Entity.hpp"
@@ -9,7 +10,7 @@
 class ECS
 {
 	std::vector<std::unique_ptr<ISystem>> _systems;
-	std::unordered_map<ComponentSignature, Archetype> _signatureToArchetype;
+	std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 	std::unordered_map<Entity, ComponentSignature> _entityToSignature;
 
 	// ids
@@ -24,27 +25,67 @@ public:
 	// Add loops here
 
 	// Archetype Management
-	Archetype& GetEntityArchetype(Entity entity) const;
+	Archetype* GetEntityArchetype(Entity entity) const;
+	Archetype* GetSignatureArchetype(const ComponentSignature& signature) const;
 
 	// Entity Management
 	Entity GetNextEntityId() const;
+	const std::optional<ComponentSignature> GetEntitySignature(Entity entity) const;
+
+	void TransferEntityComponents(Entity entity, Archetype* from, Archetype* to)
+	{
+		for (ComponentType ct = 0; ct < MAX_COMPONENTS; ++ct)
+		{
+			if (from->GetSignature().test(ct))
+			{
+				//auto component = from.GetComponent(entity, ct);
+			}
+		}
+	}
 
 	Entity CreateEntity();
-	void DestroyEntity(Entity entity);
+	//void DestroyEntity(Entity entity);
 
 	// Component Management
 	template<typename TComponent>
-	void AddComponent(Entity entity, const TComponent& component) const
+	void AddComponent(Entity entity, const TComponent& component)
 	{
-		std::cout << "added in addedinecs" << std::endl;
-		// determine archetype wit new component
-		Archetype& archetype = GetEntityArchetype(entity);
+		// perform inheritance checks and get type
+		auto componentType = ComponentRegistry::GetComponentType<TComponent>();
 
-		//auto typeId = GetComponentTypeId<TComponent>();
-		//if()
-		// find existing? if no then create new
-		// move entity to the archetype container
-		// add component to the entity in that archetype
+		// check if entity already belongs to an archetype
+		auto signature = GetEntitySignature(entity);
+		if (!signature) // single component archetype
+		{
+			//std::cout << "added new in addedinecs" << std::endl;
+
+			auto newArchetype = std::make_unique<Archetype>();
+			newArchetype->AddComponent<TComponent>(entity, component, componentType);
+
+			auto newSignature = newArchetype->GetSignature();
+			_signatureToArchetype[newSignature] = std::move(newArchetype);
+			_entityToSignature[entity] = newSignature;
+			return;
+		}
+		// multiple component archetype
+		auto previousArchetype = GetSignatureArchetype(signature.value());
+
+		// check if the component we are adding currently exists in the archetype
+		if (previousArchetype->SignatureContainsBit(componentType))
+		{
+			previousArchetype->AddComponent<TComponent>(entity, component, componentType);
+			return;
+		}
+
+		// if this is a new type of component we will have to first remove the data from previous archetype
+		// create a new archetype based on the previous one
+		auto newArchetype = std::make_unique<Archetype>(previousArchetype->GetSignature());
+		TransferEntityComponents(entity, previousArchetype, newArchetype.get());
+		newArchetype->AddComponent<TComponent>(entity, component, componentType);
+
+		auto newSignature = newArchetype->GetSignature();
+		_signatureToArchetype[newSignature] = std::move(newArchetype);
+		_entityToSignature[entity] = newSignature;
 	}
 
 	template<typename TComponent>

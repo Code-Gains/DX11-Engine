@@ -9,9 +9,10 @@
 #include "VertexType.hpp"
 #include "ComponentIdentifier.hpp"
 #include "Heightmap.hpp"
+#include "Terrain.hpp"
 #include <MeshComponent.hpp>
 
-class TerrainComponent : public ComponentIdentifier
+class TerrainComponent : public ComponentIdentifier, public IComponent
 {
 	float _chunkWidth;
 	float _chunkHeight;
