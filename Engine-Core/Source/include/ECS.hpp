@@ -38,7 +38,11 @@ public:
 		{
 			if (from->GetSignature().test(ct))
 			{
-				//auto component = from.GetComponent(entity, ct);
+				auto fromVector = from->GetComponentVector(ct);
+				auto toVector = to->GetOrCreateComponentVector(ct);
+
+				if (fromVector && toVector)
+					fromVector->TransferComponent(entity, *toVector);
 			}
 		}
 	}
@@ -51,7 +55,7 @@ public:
 	void AddComponent(Entity entity, const TComponent& component)
 	{
 		// perform inheritance checks and get type
-		auto componentType = ComponentRegistry::GetComponentType<TComponent>();
+		auto componentType = ComponentRegistry::RegisterComponentType<TComponent>();
 
 		// check if entity already belongs to an archetype
 		auto signature = GetEntitySignature(entity);
@@ -59,7 +63,7 @@ public:
 		{
 			//std::cout << "added new in addedinecs" << std::endl;
 
-			auto newArchetype = std::make_unique<Archetype>();
+		    auto newArchetype = std::make_unique<Archetype>();
 			newArchetype->AddComponent<TComponent>(entity, component, componentType);
 
 			auto newSignature = newArchetype->GetSignature();
@@ -82,7 +86,6 @@ public:
 		auto newArchetype = std::make_unique<Archetype>(previousArchetype->GetSignature());
 		TransferEntityComponents(entity, previousArchetype, newArchetype.get());
 		newArchetype->AddComponent<TComponent>(entity, component, componentType);
-
 		auto newSignature = newArchetype->GetSignature();
 		_signatureToArchetype[newSignature] = std::move(newArchetype);
 		_entityToSignature[entity] = newSignature;

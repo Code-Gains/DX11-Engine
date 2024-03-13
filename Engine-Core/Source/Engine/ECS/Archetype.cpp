@@ -4,12 +4,14 @@ Archetype::Archetype(const ComponentSignature& signature) : _signature(signature
 {
 }
 
-//IComponent Archetype::GetComponent(Entity entity, ComponentType componentType)
-//{
-//	auto it = _typeToComponent.find(componentType);
-//	if(it != _typeToComponent.end())
-//		return it->second->
-//}
+IComponentVector* Archetype::GetComponentVector(ComponentType componentType)
+{
+	auto it = _typeToComponentVector.find(componentType);
+	if (it != _typeToComponentVector.end())
+		return it->second.get();
+
+	return nullptr;
+}
 
 ComponentSignature Archetype::GetSignature() const
 {
