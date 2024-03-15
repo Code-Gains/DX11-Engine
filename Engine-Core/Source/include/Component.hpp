@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <bitset>
 #include <functional>
+#include <optional>
 #include "Entity.hpp"
 
 constexpr size_t MAX_COMPONENTS = 64;
@@ -130,11 +131,51 @@ private:
 public:
 
     template<typename TComponent>
-    static ComponentType RegisterComponentType() {
+    static std::optional<ComponentType> GetComponentType() 
+    {
         static_assert(std::is_base_of<IComponent, TComponent>::value, "TComponent must inherit from Component!");
 
         auto type = std::type_index(typeid(TComponent));
-        if (_componentTypes.find(type) == _componentTypes.end()) {
+        if (_componentTypes.find(type) == _componentTypes.end())
+            return std::nullopt;
+
+        return _componentTypes[type];
+    }
+
+    template<typename... TComponents>
+    static std::optional<ComponentSignature> GetComponentArraySignature()
+    {
+        ComponentSignature signature;
+
+        // &signature captures the local variable and places it inside the scope
+        auto processComponent = [&signature](auto compTypeOpt) -> bool
+        {
+            if (!compTypeOpt)
+                return false;
+
+            // set the bit in the signature bitset
+            signature.set(*compTypeOpt);
+            return true;
+        };
+
+        // call GetComponentType for each value in TComponents and accumulate validations with &&
+        bool valid = (processComponent(GetComponentType<TComponents>()) && ...);
+
+        if (!valid) // return even if at least one component was failed to be identified
+            return std::nullopt;
+
+        // bitset was generated in processComponent
+        return signature;
+    }
+
+    template<typename TComponent>
+    static ComponentType GetOrRegisterComponentType()
+    {
+        static_assert(std::is_base_of<IComponent, TComponent>::value, "TComponent must inherit from Component!");
+
+        auto type = std::type_index(typeid(TComponent));
+        if (_componentTypes.find(type) == _componentTypes.end())
+        {
             ComponentType ct = _nextComponentType++;
             _componentTypes[type] = ct;
             _componentNames[type] = typeid(TComponent).name();
@@ -148,16 +189,19 @@ public:
         return _componentTypes[type];
     }
 
-    static std::function<std::unique_ptr<IComponentVector>()> GetFactoryFunction(ComponentType componentType) {
+    static std::function<std::unique_ptr<IComponentVector>()> GetFactoryFunction(ComponentType componentType)
+    {
         auto it = _vectorFactories.find(componentType);
-        if (it != _vectorFactories.end()) {
+        if (it != _vectorFactories.end())
+        {
             return it->second;
         }
 
         throw std::runtime_error("Could not find a factory for component vector");
     }
 
-    static size_t GetComponentCount() {
+    static size_t GetComponentCount()
+    {
         return _nextComponentType;
     }
 };

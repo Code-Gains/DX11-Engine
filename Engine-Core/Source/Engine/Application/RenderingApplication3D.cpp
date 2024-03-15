@@ -74,119 +74,75 @@ void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngin
     }
 }
 
-void RenderingApplication3D::LinkEngineInstancePools()
-{
-    auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
-    int cubeIndex = cubeMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool cubePool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
-    LinkRenderableInstancePool(cubeIndex, cubePool);
-
-    auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
-    int sphereIndex = sphereMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool spherePool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
-    LinkRenderableInstancePool(sphereIndex, spherePool);
-
-    auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
-    int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool cylinderPool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
-    LinkRenderableInstancePool(cylinderIndex, cylinderPool);
-
-    auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
-    int pipeIndex = pipeMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool pipePool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
-    LinkRenderableInstancePool(pipeIndex, pipePool);
-
-    auto terrainChunkMesh = MeshComponent::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk);
-    int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
-    InstanceRendererSystem::InstancePool terrainChunkPool =
-        _instanceRenderer.CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
-    LinkRenderableInstancePool(terrainChunkIndex, terrainChunkPool);
-}
-
-void RenderingApplication3D::LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool)
-{
-    _instancePools[index] = instancePool;
-}
-
-void RenderingApplication3D::LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool)
-{
-    _instancePools[_nextPoolId] = instancePool;
-    _nextPoolId++;
-}
-
-void RenderingApplication3D::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
-{
-    auto it = _instancePools.find(poolKey);
-    if (it != _instancePools.end())
-    {
-        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
-        it->second.instances.push_back(instanceData);
-        it->second.instanceCount++;
-    }
-}
-
-// TODO fix to remove any references to entities
-void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
-{
-    if (_instancePools.find(poolKey) != _instancePools.end())
-    {
-        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
-        {
-            auto instanceIndex = entityIdToInstances[instanceId];
-            _instancePools[poolKey].instances[instanceIndex] = newData;
-            return;
-        }
-        AddRenderableInstance(poolKey, instanceId, newData);
-    }
-}
-
-void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
-{
-    if (_instancePools.find(poolKey) != _instancePools.end())
-    {
-        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
-        auto& instances = _instancePools[poolKey].instances;
-        auto& instanceCount = _instancePools[poolKey].instanceCount;
-        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
-        {
-            auto instanceIndex = entityIdToInstance[entityId];
-            for (auto& pair : entityIdToInstance)
-            {
-                if (pair.second > instanceIndex)
-                {
-                    pair.second--;
-                }
-            }
-            entityIdToInstance.erase(entityId);
-            instances.erase(instances.begin() + instanceIndex);
-            _instancePools[poolKey].instanceCount--;
-        }
-    }
-}
-
-void RenderingApplication3D::RemoveAllRenderableInstances()
-{
-    for (auto& instancePoolPair : _instancePools)
-    {
-        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
-        instancePool.entityIdToInstanceIndex.clear();
-        instancePool.instances.clear();
-        instancePool.instanceCount = 0;
-    }
-}
-
-void RenderingApplication3D::ClearAllInstancePools()
-{
-    for (auto& instancePool : _instancePools)
-    {
-        instancePool.second.Clear();
-    }
-}
+//void RenderingApplication3D::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
+//{
+//    auto it = _instancePools.find(poolKey);
+//    if (it != _instancePools.end())
+//    {
+//        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
+//        it->second.instances.push_back(instanceData);
+//        it->second.instanceCount++;
+//    }
+//}
+//
+//// TODO fix to remove any references to entities
+//void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
+//{
+//    if (_instancePools.find(poolKey) != _instancePools.end())
+//    {
+//        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
+//        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
+//        {
+//            auto instanceIndex = entityIdToInstances[instanceId];
+//            _instancePools[poolKey].instances[instanceIndex] = newData;
+//            return;
+//        }
+//        AddRenderableInstance(poolKey, instanceId, newData);
+//    }
+//}
+//
+//void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
+//{
+//    if (_instancePools.find(poolKey) != _instancePools.end())
+//    {
+//        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
+//        auto& instances = _instancePools[poolKey].instances;
+//        auto& instanceCount = _instancePools[poolKey].instanceCount;
+//        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
+//        {
+//            auto instanceIndex = entityIdToInstance[entityId];
+//            for (auto& pair : entityIdToInstance)
+//            {
+//                if (pair.second > instanceIndex)
+//                {
+//                    pair.second--;
+//                }
+//            }
+//            entityIdToInstance.erase(entityId);
+//            instances.erase(instances.begin() + instanceIndex);
+//            _instancePools[poolKey].instanceCount--;
+//        }
+//    }
+//}
+//
+//void RenderingApplication3D::RemoveAllRenderableInstances()
+//{
+//    for (auto& instancePoolPair : _instancePools)
+//    {
+//        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
+//        instancePool.entityIdToInstanceIndex.clear();
+//        instancePool.instances.clear();
+//        instancePool.instanceCount = 0;
+//    }
+//}
+//
+//void RenderingApplication3D::ClearAllInstancePools()
+//{
+//    for (auto& instancePool : _instancePools)
+//    {
+//        instancePool.second.Clear();
+//    }
+//}
 
 void RenderingApplication3D::SetLightConstantBuffer(const LightConstantBuffer& lightBuffer)
 {
@@ -304,8 +260,7 @@ bool RenderingApplication3D::Initialize()
     ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
 
     _resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
-    _instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
-    LinkEngineInstancePools();
+    //LinkEngineInstancePools();
 
     return true;
 }
@@ -376,6 +331,9 @@ bool RenderingApplication3D::Load()
     _shaderManager = ShaderManager(_device.Get());
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
     _shaderManager.LoadShaderCollection(L"Terrain", mainShaderDescriptor);
+
+    //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
+    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get());
 
     std::cout << "Core Loading Complete!\n";
     return true;
@@ -511,7 +469,8 @@ void RenderingApplication3D::Render()
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     // :)
-    _instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+    //_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+    _ecs.Render();
 
     for (const auto& engineModule : _engineModules)
     {

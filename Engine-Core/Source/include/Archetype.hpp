@@ -39,6 +39,20 @@ public:
 
 	IComponentVector* GetComponentVector(ComponentType componentType);
 
+	template <typename TComponent>
+	IComponentVector* GetComponentVector()
+	{
+		ComponentType componentType = ComponentRegistry::GetComponentType<TComponent>();
+		if (!componentType)
+			return nullptr;
+
+		auto it = _typeToComponentVector.find(componentType);
+		if (it != _typeToComponentVector.end())
+			return it->second.get();
+
+		return nullptr;
+	}
+
 	IComponentVector* GetOrCreateComponentVector(ComponentType componentType)
 	{
 		auto it = _typeToComponentVector.find(componentType);

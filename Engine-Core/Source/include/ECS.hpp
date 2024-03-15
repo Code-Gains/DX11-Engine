@@ -13,22 +13,24 @@ class ECS
 	std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 	std::unordered_map<Entity, ComponentSignature> _entityToSignature;
 
-	// ids
+	// --- IDs ---
 	std::uint32_t _nextEntityId = 0;
 
 public:
-	// Constructors
+	// --- Constructors ---
 	ECS() {};
 	~ECS() {};
 
-	// Core Loops
-	// Add loops here
+	// --- Core Loops ---
+	void Render();
+	void Update(float deltaTime);
+	void PeriodicUpdate(float deltaTime);
 
-	// Archetype Management
+	// --- Archetype Management ---
 	Archetype* GetEntityArchetype(Entity entity) const;
 	Archetype* GetSignatureArchetype(const ComponentSignature& signature) const;
 
-	// Entity Management
+	// --- Entity Management ---
 	Entity GetNextEntityId() const;
 	const std::optional<ComponentSignature> GetEntitySignature(Entity entity) const;
 
@@ -43,6 +45,9 @@ public:
 
 				if (fromVector && toVector)
 					fromVector->TransferComponent(entity, *toVector);
+				else
+					throw std::runtime_error("Could not get or create component vectors!");
+
 			}
 		}
 	}
@@ -50,12 +55,13 @@ public:
 	Entity CreateEntity();
 	//void DestroyEntity(Entity entity);
 
-	// Component Management
+	// --- Component Management ---
 	template<typename TComponent>
 	void AddComponent(Entity entity, const TComponent& component)
 	{
+		std::cout << "Component has been added!\n";
 		// perform inheritance checks and get type
-		auto componentType = ComponentRegistry::RegisterComponentType<TComponent>();
+		auto componentType = ComponentRegistry::GetOrRegisterComponentType<TComponent>();
 
 		// check if entity already belongs to an archetype
 		auto signature = GetEntitySignature(entity);
@@ -81,8 +87,8 @@ public:
 			return;
 		}
 
-		// if this is a new type of component we will have to first remove the data from previous archetype
-		// create a new archetype based on the previous one
+		// we are adding a new type of component, we will have to first remove the data from previous archetype,
+		// then create a new archetype based on the previous one
 		auto newArchetype = std::make_unique<Archetype>(previousArchetype->GetSignature());
 		TransferEntityComponents(entity, previousArchetype, newArchetype.get());
 		newArchetype->AddComponent<TComponent>(entity, component, componentType);
@@ -97,7 +103,7 @@ public:
 
 	}
 
-	// Systems
+	// --- Systems ---
 
 	template<typename TSystem, typename... Args>
 	TSystem& AddSystem(Args&&... args)
@@ -106,9 +112,49 @@ public:
 		_systems.emplace_back(system);
 		return *system;
 	}
-	
-	// Loops
-	void Render();
-	void Update(float deltaTime);
-	void PeriodicUpdate(float deltaTime);
+	 
+	// --- Querying ---
+
+	// template is a list of component types <CT1, CT2, ... , CT(N)> (c++11 variadic templates)
+	template<typename... TComponents>
+	std::vector<std::tuple<std::vector<TComponents>*...>> QueryComponentVectors()
+	{
+		std::vector<std::tuple<std::vector<TComponents>*...>> results;
+
+		// pass the component list to component registry to try and generate a signature (c++17 fold expression)
+		auto querySignatureOpt = ComponentRegistry::GetComponentArraySignature<TComponents...>();
+
+		// early exit if signature has not been generated
+		if (!querySignatureOpt.has_value())
+			return results;
+
+		auto querySignature = querySignatureOpt.value();
+
+		// iterate through all archetypes and find the ones that include all components in signature
+		for (auto& [signature, archetype] : _signatureToArchetype)
+		{
+			// compare matching bits to the query
+			if ((signature & querySignature) == querySignature)
+			{
+				auto componentVectorsTuple = std::make_tuple(archetype->GetComponentVector<TComponents>()...);
+				// check if all vectors are present from the archetype might not need in release config
+
+
+				auto areAllVectorsNonNull = [](auto... vectors) -> bool
+				{
+					return (vectors && ...);
+				};
+
+				if (areAllVectorsNonNull(std::get<std::vector<TComponents>*>(componentVectorsTuple) ...))
+					results.push_back(componentVectorsTuple);
+			}
+		}
+
+		return results;
+	}
+
+	/*void GetEntitiesWithSignature(const ComponentSignature& querySignature)
+	{
+
+	}*/
 };

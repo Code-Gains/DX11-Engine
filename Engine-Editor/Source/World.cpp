@@ -202,7 +202,7 @@ bool World::PrepareLoading()
 
 bool World::FinalizeLoading()
 {
-    _renderingApplication->ClearAllInstancePools();
+    /*_renderingApplication->ClearAllInstancePools();
     for (auto& transformComponent : _transformComponents)
     {
         transformComponent.SetIsDirty(true);
@@ -212,7 +212,7 @@ bool World::FinalizeLoading()
         materialComponents.SetIsDirty(true);
     }
 
-    _worldHierarchy.SetWorld(this);
+    _worldHierarchy.SetWorld(this);*/
 
     return false;
 }
@@ -346,22 +346,22 @@ MaterialComponent* World::GetMaterialComponent(int entityId)
 
 void World::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
-    _renderingApplication->AddRenderableInstance(poolKey, entityId, instanceData);
+    //_renderingApplication->AddRenderableInstance(poolKey, entityId, instanceData);
 }
 
 void World::UpdateRenderableInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
 {
-    _renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
+    //_renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
 }
 
 void World::RemoveRenderableInstance(int poolKey, int entityId)
 {
-    _renderingApplication->RemoveRenderableInstance(poolKey, entityId);
+    //_renderingApplication->RemoveRenderableInstance(poolKey, entityId);
 }
 
 void World::RemoveAllRenderableInstances()
 {
-    _renderingApplication->RemoveAllRenderableInstances();
+    //_renderingApplication->RemoveAllRenderableInstances();
 }
 
 void World::UpdateDirtyRenderableTransforms()

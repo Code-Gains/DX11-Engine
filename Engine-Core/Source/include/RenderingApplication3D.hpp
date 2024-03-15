@@ -52,14 +52,14 @@ public:
     void AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules);
 
     // Instance Rendering System
-    void LinkEngineInstancePools();
+    /*void LinkEngineInstancePools();
     void LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool);
     void LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool);
     void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
     void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
     void RemoveRenderableInstance(int poolKey, int entityId);
     void RemoveAllRenderableInstances();
-    void ClearAllInstancePools();
+    void ClearAllInstancePools();*/
 
     // Renderer Constant Buffers
     void SetLightConstantBuffer(const LightConstantBuffer& lightBuffer);
@@ -128,9 +128,9 @@ private:
     ECS _ecs;
 
     // --- Rendering Systems --- //
-    std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
-    int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
-    InstanceRendererSystem _instanceRenderer;
+    //std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
+    //int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
+   // InstanceRendererSystem _instanceRenderer;
 
     // HLSL Constant Buffer Data
     LightConstantBuffer _lightConstantBufferData{};
