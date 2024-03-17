@@ -346,12 +346,12 @@ MaterialComponent* World::GetMaterialComponent(int entityId)
 
 void World::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
-    //_renderingApplication->AddRenderableInstance(poolKey, entityId, instanceData);
+    _renderingApplication->AddRenderableInstance(poolKey, entityId, instanceData);
 }
 
 void World::UpdateRenderableInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
 {
-    //_renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
+    _renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
 }
 
 void World::RemoveRenderableInstance(int poolKey, int entityId)

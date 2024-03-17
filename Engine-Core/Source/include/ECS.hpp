@@ -6,6 +6,9 @@
 #include "Archetype.hpp"
 #include "System.hpp"
 #include "Entity.hpp"
+#include "TransformComponent.hpp"
+#include "MaterialComponent.hpp"
+#include "MeshComponent.hpp"
 
 class ECS
 {
@@ -105,6 +108,23 @@ public:
 
 	// --- Systems ---
 
+	// this is slow, but I do not want to make another registry right now TODO make system registry
+	template<typename TSystem>
+	TSystem* GetSystem() const
+	{
+		for (const auto& system : _systems)
+		{
+			// atempt to cast into specific type
+			TSystem* castSystem = dynamic_cast<TSystem*>(system.get());
+
+			if (castSystem) // cast was successful
+				return castSystem;
+		}
+
+		// system of requested type was not found
+		return nullptr;
+	}
+
 	template<typename TSystem, typename... Args>
 	TSystem& AddSystem(Args&&... args)
 	{
@@ -117,9 +137,9 @@ public:
 
 	// template is a list of component types <CT1, CT2, ... , CT(N)> (c++11 variadic templates)
 	template<typename... TComponents>
-	std::vector<std::tuple<std::vector<TComponents>*...>> QueryComponentVectors()
+	std::vector<std::tuple<ComponentVector<TComponents>*...>> QueryComponentVectors()
 	{
-		std::vector<std::tuple<std::vector<TComponents>*...>> results;
+		std::vector<std::tuple<ComponentVector<TComponents>*...>> results;
 
 		// pass the component list to component registry to try and generate a signature (c++17 fold expression)
 		auto querySignatureOpt = ComponentRegistry::GetComponentArraySignature<TComponents...>();
@@ -136,17 +156,26 @@ public:
 			// compare matching bits to the query
 			if ((signature & querySignature) == querySignature)
 			{
-				auto componentVectorsTuple = std::make_tuple(archetype->GetComponentVector<TComponents>()...);
+				auto componentVectorsTuple = std::make_tuple(archetype->GetComponentVectorCast<TComponents>()...);
+				results.push_back(componentVectorsTuple);
+				//std::cout << componentVectorsTuple.size() << std::endl;
 				// check if all vectors are present from the archetype might not need in release config
 
 
-				auto areAllVectorsNonNull = [](auto... vectors) -> bool
+				/*auto areAllVectorsNonNull = [](auto... vectors) -> bool
 				{
 					return (vectors && ...);
-				};
+				};*/
 
-				if (areAllVectorsNonNull(std::get<std::vector<TComponents>*>(componentVectorsTuple) ...))
-					results.push_back(componentVectorsTuple);
+				//auto transformVector = std::vector<TransformComponent>();
+				//auto meshVector = std::vector<MeshComponent>();
+				//auto materialVector = std::vector<MaterialComponent>();
+
+
+				//auto componentVectorsTuple = std::make_tuple(&transformVector, &meshVector, &materialVector);
+
+				/*if (areAllVectorsNonNull(std::get<std::vector<TComponents>*>(componentVectorsTuple) ...))
+					results.push_back(componentVectorsTuple);*/
 			}
 		}
 

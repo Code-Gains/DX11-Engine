@@ -42,13 +42,27 @@ public:
 	template <typename TComponent>
 	IComponentVector* GetComponentVector()
 	{
-		ComponentType componentType = ComponentRegistry::GetComponentType<TComponent>();
-		if (!componentType)
+		auto componentTypeOpt = ComponentRegistry::GetComponentType<TComponent>();
+		if (!componentTypeOpt)
 			return nullptr;
 
-		auto it = _typeToComponentVector.find(componentType);
+		auto it = _typeToComponentVector.find(componentTypeOpt.value());
 		if (it != _typeToComponentVector.end())
 			return it->second.get();
+
+		return nullptr;
+	}
+
+	template <typename TComponent>
+	ComponentVector<TComponent>* GetComponentVectorCast()
+	{
+		auto componentTypeOpt = ComponentRegistry::GetComponentType<TComponent>();
+		if (!componentTypeOpt)
+			return nullptr;
+
+		auto it = _typeToComponentVector.find(componentTypeOpt.value());
+		if (it != _typeToComponentVector.end())
+			return static_cast<ComponentVector<TComponent>*>(it->second.get());
 
 		return nullptr;
 	}

@@ -27,32 +27,35 @@ InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batch
 
 InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
-    int batchSize) : _device(device), _deviceContext(deviceContext)
+    ECS* ecs,
+    int batchSize) : _device(device), _deviceContext(deviceContext), _ecs(ecs)
 {
     CreateConstantBuffers();
 }
 
-void InstanceRendererSystem::AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
+void InstanceRendererSystem::AddInstance(int poolKey, int instanceId, const InstanceConstantBuffer& instanceData)
 {
     auto it = _instancePools.find(poolKey);
     if (it != _instancePools.end())
     {
-        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
+        it->second.entityIdToInstanceIndex[instanceId] = it->second.instances.size();
         it->second.instances.push_back(instanceData);
         it->second.instanceCount++;
     }
 }
 
-void InstanceRendererSystem::UpdateInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
+void InstanceRendererSystem::UpdateInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
         auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-        if(entityIdToInstances.find(entityId) != entityIdToInstances.end())
+        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
         {
-            auto instanceIndex = entityIdToInstances[entityId];
+            auto instanceIndex = entityIdToInstances[instanceId];
             _instancePools[poolKey].instances[instanceIndex] = newData;
+            return;
         }
+        AddInstance(poolKey, instanceId, newData);
     }
 }
 
@@ -70,6 +73,16 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
             instances[instanceIndex].worldMatrix = zeroedMatrix;
         }
     }
+}
+
+void InstanceRendererSystem::UpdateDirtyInstances()
+{
+    // querry
+    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent, MaterialComponent>();
+    std::cout << componentQueryResult.size() << std::endl;
+
+    // iterate
+    // update
 }
 
 void InstanceRendererSystem::RemoveAllInstances()

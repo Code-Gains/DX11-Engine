@@ -1,14 +1,15 @@
 #pragma once
-#include <vector>
-#include <d3d11_2.h>
 #include "Definitions.hpp"
 #include "ConstantBufferDefinitions.hpp"
 #include "VertexType.hpp"
 #include "Logging.hpp"
 #include "MeshComponent.hpp"
 #include "MaterialComponent.hpp"
-#include "System.hpp"
+#include "TransformComponent.hpp"
+#include "ECS.hpp";
 
+#include <vector>
+#include <d3d11_2.h>
 #include <unordered_map>
 #include <map>
 #include <iostream>
@@ -51,6 +52,9 @@ public:
     };
 
 private:
+    // ECS
+    ECS* _ecs;
+
     // Instanced Rendering Resources
     std::unordered_map<int, InstancePool> _instancePools;
     int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
@@ -71,11 +75,12 @@ public:
     InstanceRendererSystem() {}
     ~InstanceRendererSystem() {}
     InstanceRendererSystem(int batchSize = 10);
-    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int batchSize = 10);
+    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ECS* ecs, int batchSize = 10);
 
-    void AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
-    void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-    void RemoveInstance(int poolKey, int instanceIndex);
+    void AddInstance(int poolKey, int instanceId, const InstanceConstantBuffer& instanceData);
+    void UpdateInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData);
+    void RemoveInstance(int poolKey, int instanceId);
+    void UpdateDirtyInstances();
 
     void RemoveAllInstances();
 
@@ -278,7 +283,6 @@ public:
 
     template<typename TVertexType>
     void RenderInstances(
-        const std::unordered_map<int, InstancePool>& instancePools,
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
         const LightConstantBuffer& lightConstantBufferData
@@ -316,7 +320,7 @@ public:
         _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
-        for (const auto& instancePoolPair : instancePools)
+        for (const auto& instancePoolPair : _instancePools)
         {
             const InstancePool& instancePool = instancePoolPair.second;
 

@@ -74,33 +74,35 @@ void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngin
     }
 }
 
-//void RenderingApplication3D::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
-//{
-//    auto it = _instancePools.find(poolKey);
-//    if (it != _instancePools.end())
-//    {
-//        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
-//        it->second.instances.push_back(instanceData);
-//        it->second.instanceCount++;
-//    }
-//}
-//
-//// TODO fix to remove any references to entities
-//void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
-//{
-//    if (_instancePools.find(poolKey) != _instancePools.end())
-//    {
-//        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-//        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
-//        {
-//            auto instanceIndex = entityIdToInstances[instanceId];
-//            _instancePools[poolKey].instances[instanceIndex] = newData;
-//            return;
-//        }
-//        AddRenderableInstance(poolKey, instanceId, newData);
-//    }
-//}
-//
+void RenderingApplication3D::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
+{
+    _instanceRenderer->AddInstance(poolKey, entityId, instanceData);
+    /*auto it = _instancePools.find(poolKey);
+    if (it != _instancePools.end())
+    {
+        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
+        it->second.instances.push_back(instanceData);
+        it->second.instanceCount++;
+    }*/
+}
+
+// TODO fix to remove any references to entities
+void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
+{
+    _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
+   /* if (_instancePools.find(poolKey) != _instancePools.end())
+    {
+        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
+        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
+        {
+            auto instanceIndex = entityIdToInstances[instanceId];
+            _instancePools[poolKey].instances[instanceIndex] = newData;
+            return;
+        }
+        AddRenderableInstance(poolKey, instanceId, newData);
+    }*/
+}
+
 //void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
 //{
 //    if (_instancePools.find(poolKey) != _instancePools.end())
@@ -135,7 +137,7 @@ void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngin
 //        instancePool.instanceCount = 0;
 //    }
 //}
-//
+
 //void RenderingApplication3D::ClearAllInstancePools()
 //{
 //    for (auto& instancePool : _instancePools)
@@ -333,7 +335,8 @@ bool RenderingApplication3D::Load()
     _shaderManager.LoadShaderCollection(L"Terrain", mainShaderDescriptor);
 
     //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
-    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get());
+    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_ecs);
+    _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
 
     std::cout << "Core Loading Complete!\n";
     return true;
@@ -470,6 +473,12 @@ void RenderingApplication3D::Render()
 
     // :)
     //_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+    //auto instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
+    _instanceRenderer->UpdateDirtyInstances();
+    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+    //if(instanceRenderer)
+        //std::cout << "instance renderer is active" << std::endl;
+
     _ecs.Render();
 
     for (const auto& engineModule : _engineModules)
