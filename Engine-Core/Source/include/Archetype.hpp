@@ -67,6 +67,20 @@ public:
 		return nullptr;
 	}
 
+	template <typename TComponent>
+	std::vector<TComponent>* GetComponentVectorCastRaw()
+	{
+		auto componentTypeOpt = ComponentRegistry::GetComponentType<TComponent>();
+		if (!componentTypeOpt)
+			return nullptr;
+
+		auto it = _typeToComponentVector.find(componentTypeOpt.value());
+		if (it != _typeToComponentVector.end())
+			return static_cast<std::vector<TComponent>*>(it->second.get().GetRawVector());
+
+		return nullptr;
+	}
+
 	IComponentVector* GetOrCreateComponentVector(ComponentType componentType)
 	{
 		auto it = _typeToComponentVector.find(componentType);

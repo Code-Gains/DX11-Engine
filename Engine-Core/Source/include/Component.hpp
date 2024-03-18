@@ -59,6 +59,21 @@ public:
         return _components.size();
     }
 
+    std::vector<TComponent>* GetRawVector()
+    {
+        return &_components;
+    }
+
+    const std::vector<TComponent>& GetRawVectorConst() const
+    {
+        return _components;
+    }
+
+    const std::unordered_map<Entity, size_t>& GetEntityToIndex() const
+    {
+        return _entityToIndex;
+    }
+
     void CloneComponent(Entity entity, IComponentVector& target) const override
     {
         auto it = _entityToIndex.find(entity);

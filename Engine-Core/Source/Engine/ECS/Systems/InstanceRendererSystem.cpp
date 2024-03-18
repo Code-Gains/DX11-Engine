@@ -77,11 +77,64 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 
 void InstanceRendererSystem::UpdateDirtyInstances()
 {
-    // querry
+    // querry returns a vector of tuples that contain component vectors
     auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent, MaterialComponent>();
-    std::cout << componentQueryResult.size() << std::endl;
-
     // iterate
+    for (auto& tuple : componentQueryResult)
+    {
+        // will need to optimize TODO
+        auto& transforms = std::get<0>(tuple);
+        auto& meshes = std::get<1>(tuple);
+        auto& materials = std::get<2>(tuple);
+
+        // all vectors should be the same length (ALWAYS!!! Otherwise it should result in a crash)
+
+        auto& rawTransforms = *transforms->GetRawVector();
+        auto& rawMeshes = *meshes->GetRawVector();
+        auto& rawMaterials = *materials->GetRawVector();
+
+        for (auto& entityToComponent : transforms->GetEntityToIndex())
+        {
+            auto idx = entityToComponent.second;
+            if (rawTransforms[idx].IsDirty() || rawMaterials[idx].IsDirty())
+            {
+                UpdateInstanceData(
+                    rawMeshes[idx].GetInstancePoolIndex(),
+                    idx,
+                    InstanceConstantBuffer(
+                        rawTransforms[idx].GetWorldMatrix(),
+                        rawMaterials[idx].GetMaterialConstantBuffer()
+                    ));
+                rawTransforms[idx].SetIsDirty(false);
+                rawMaterials[idx].SetIsDirty(false);
+            }
+        }
+    }
+
+    //if (_transformComponentIndices.find(entity) == _transformComponentIndices.end())
+    //    continue;
+
+    //int transformIndex = _transformComponentIndices[entity];
+    //TransformComponent& transform = _transformComponents[transformIndex];
+
+    //if (_materialComponentIndices.find(entity) == _materialComponentIndices.end())
+    //    continue;
+
+    //int materialIndex = _materialComponentIndices[entity];
+    //MaterialComponent& material = _materialComponents[materialIndex];
+
+    //if (!transform.IsDirty() && !material.IsDirty())
+    //    continue;
+
+    //if (_meshComponentIndices.find(entity) == _meshComponentIndices.end())
+    //    continue;
+
+    //int meshIndex = _meshComponentIndices[entity];
+    //MeshComponent& mesh = _meshComponents[meshIndex];
+
+    //UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity, InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
+    //transform.SetIsDirty(false);
+    //material.SetIsDirty(false);
     // update
 }
 

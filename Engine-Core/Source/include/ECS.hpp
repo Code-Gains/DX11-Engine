@@ -145,7 +145,7 @@ public:
 		auto querySignatureOpt = ComponentRegistry::GetComponentArraySignature<TComponents...>();
 
 		// early exit if signature has not been generated
-		if (!querySignatureOpt.has_value())
+		if (!querySignatureOpt)
 			return results;
 
 		auto querySignature = querySignatureOpt.value();
@@ -158,32 +158,37 @@ public:
 			{
 				auto componentVectorsTuple = std::make_tuple(archetype->GetComponentVectorCast<TComponents>()...);
 				results.push_back(componentVectorsTuple);
-				//std::cout << componentVectorsTuple.size() << std::endl;
-				// check if all vectors are present from the archetype might not need in release config
-
-
-				/*auto areAllVectorsNonNull = [](auto... vectors) -> bool
-				{
-					return (vectors && ...);
-				};*/
-
-				//auto transformVector = std::vector<TransformComponent>();
-				//auto meshVector = std::vector<MeshComponent>();
-				//auto materialVector = std::vector<MaterialComponent>();
-
-
-				//auto componentVectorsTuple = std::make_tuple(&transformVector, &meshVector, &materialVector);
-
-				/*if (areAllVectorsNonNull(std::get<std::vector<TComponents>*>(componentVectorsTuple) ...))
-					results.push_back(componentVectorsTuple);*/
 			}
 		}
-
 		return results;
 	}
 
-	/*void GetEntitiesWithSignature(const ComponentSignature& querySignature)
+	// template is a list of component types <CT1, CT2, ... , CT(N)> (c++11 variadic templates)
+	// raw returns std::vectors instead of Component vectors (no entity-component relations)
+	template<typename... TComponents>
+	std::vector<std::tuple<std::vector<TComponents>*...>> QueryComponentVectorsRaw()
 	{
+		std::vector<std::tuple<std::vector<TComponents>*...>> results;
 
-	}*/
+		// pass the component list to component registry to try and generate a signature (c++17 fold expression)
+		auto querySignatureOpt = ComponentRegistry::GetComponentArraySignature<TComponents...>();
+
+		// early exit if signature has not been generated
+		if (!querySignatureOpt)
+			return results;
+
+		auto querySignature = querySignatureOpt.value();
+
+		// iterate through all archetypes and find the ones that include all components in signature
+		for (auto& [signature, archetype] : _signatureToArchetype)
+		{
+			// compare matching bits to the query
+			if ((signature & querySignature) == querySignature)
+			{
+				auto componentVectorsTuple = std::make_tuple(archetype->GetComponentVectorCastRaw<TComponents>()...);
+				results.push_back(componentVectorsTuple);
+			}
+		}
+		return results;
+	}
 };

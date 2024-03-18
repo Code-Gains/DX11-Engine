@@ -337,6 +337,7 @@ bool RenderingApplication3D::Load()
     //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
     _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
+    _instanceRenderer->LinkEngineInstancePools();
 
     std::cout << "Core Loading Complete!\n";
     return true;
