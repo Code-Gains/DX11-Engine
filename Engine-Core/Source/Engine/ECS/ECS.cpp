@@ -40,9 +40,14 @@ Entity ECS::CreateEntity()
 
 void ECS::DestroyEntity(Entity entity)
 {
+	// clear component data
 	auto archetype = GetEntityArchetype(entity);
 	archetype->DestroyEntity(entity);
-	// remove from map
+
+	// clear mapping
+	auto it = _entityToSignature.find(entity);
+	if (it != _entityToSignature.end())
+		_entityToSignature.erase(it);
 }
 
 void ECS::Render()

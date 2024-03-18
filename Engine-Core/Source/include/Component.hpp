@@ -111,7 +111,7 @@ public:
             // if it's not the last element, swap with the last one for fast removal
             if (indexToRemove != _components.size() - 1) {
                 std::swap(_components[indexToRemove], _components.back());
-                // update the swapped component's index in _entityToIndex
+                // update the swapped component's index in _entityToIndex TODO simplify
                 auto entityOfLastComponent = std::find_if(_entityToIndex.begin(), _entityToIndex.end(),
                     [this, indexToRemove](const auto& pair) {
                         return pair.second == _components.size() - 1;
