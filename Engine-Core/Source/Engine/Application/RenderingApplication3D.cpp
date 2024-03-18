@@ -77,56 +77,21 @@ void RenderingApplication3D::AddEngineModules(std::vector<std::unique_ptr<IEngin
 void RenderingApplication3D::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
     _instanceRenderer->AddInstance(poolKey, entityId, instanceData);
-    /*auto it = _instancePools.find(poolKey);
-    if (it != _instancePools.end())
-    {
-        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
-        it->second.instances.push_back(instanceData);
-        it->second.instanceCount++;
-    }*/
 }
 
 // TODO fix to remove any references to entities
 void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
 {
     _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
-   /* if (_instancePools.find(poolKey) != _instancePools.end())
-    {
-        auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
-        {
-            auto instanceIndex = entityIdToInstances[instanceId];
-            _instancePools[poolKey].instances[instanceIndex] = newData;
-            return;
-        }
-        AddRenderableInstance(poolKey, instanceId, newData);
-    }*/
 }
 
-//void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
-//{
-//    if (_instancePools.find(poolKey) != _instancePools.end())
-//    {
-//        auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
-//        auto& instances = _instancePools[poolKey].instances;
-//        auto& instanceCount = _instancePools[poolKey].instanceCount;
-//        if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
-//        {
-//            auto instanceIndex = entityIdToInstance[entityId];
-//            for (auto& pair : entityIdToInstance)
-//            {
-//                if (pair.second > instanceIndex)
-//                {
-//                    pair.second--;
-//                }
-//            }
-//            entityIdToInstance.erase(entityId);
-//            instances.erase(instances.begin() + instanceIndex);
-//            _instancePools[poolKey].instanceCount--;
-//        }
-//    }
-//}
-//
+void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
+{
+    _ecs.DestroyEntity(entityId);
+    _instanceRenderer->RemoveInstance(poolKey, entityId);
+}
+
+
 //void RenderingApplication3D::RemoveAllRenderableInstances()
 //{
 //    for (auto& instancePoolPair : _instancePools)
@@ -165,6 +130,11 @@ void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& 
 Entity RenderingApplication3D::CreateEntity()
 {
     return _ecs.CreateEntity();
+}
+
+void RenderingApplication3D::DestroyEntity(Entity entity)
+{
+    _ecs.DestroyEntity(entity);
 }
 
 bool RenderingApplication3D::Initialize()

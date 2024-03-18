@@ -56,7 +56,7 @@ public:
 	}
 
 	Entity CreateEntity();
-	//void DestroyEntity(Entity entity);
+	void DestroyEntity(Entity entity);
 
 	// --- Component Management ---
 	template<typename TComponent>

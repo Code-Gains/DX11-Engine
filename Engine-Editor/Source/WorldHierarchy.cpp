@@ -83,7 +83,7 @@ void WorldHierarchy::Render()
 
 	if (selected != _entityToName.end())
 	{
-		auto transform = _world->GetTransformComponent(selected->first);
+		/*auto transform = _world->GetTransformComponent(selected->first);
 		if (transform)
 		{
 			selectedPosition = transform->GetPosition();
@@ -105,8 +105,8 @@ void WorldHierarchy::Render()
 				transform->SetScale(selectedScale);
 			}
 			ImGui::TreePop();
-		}
-		auto material = _world->GetMaterialComponent(selected->first);
+		}*/
+		/*auto material = _world->GetMaterialComponent(selected->first);
 		if (material)
 		{
 			selectedAmbient = material->GetAmbient();
@@ -133,7 +133,7 @@ void WorldHierarchy::Render()
 				material->SetShininess(selectedShininess);
 			}
 			ImGui::TreePop();
-		}
+		}*/
 	}
 
 	ImGui::Text("Entities");
@@ -156,9 +156,9 @@ void WorldHierarchy::Render()
 	if (deleteSelected && selected != _entityToName.end())
 	{
 		auto selectedEntityId = selected->first;
-		auto mesh = _world->GetMeshComponent(selected->first);
-		if (mesh)
-			_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
+		//auto mesh = _world->GetMeshComponent(selected->first);
+			//_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
+		_world->DestroyEntity(selectedEntityId);
 
 		_world->RemoveComponent<TransformComponent>(selectedEntityId);
 		_world->RemoveComponent<MeshComponent>(selectedEntityId);

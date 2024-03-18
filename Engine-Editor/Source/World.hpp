@@ -37,32 +37,6 @@ class World
 	RenderingApplication3D* _renderingApplication;
 	Universe* _universe;
 
-	// Memory management settings
-	float _deadDataCompactionTreshold = 0.5f;
-
-	// Entities
-	std::vector<Entity> _entities;
-	int _nextEntityId = 1;
-
-	// Storage -> Component Data
-	std::vector<TransformComponent> _transformComponents;
-	std::vector<MeshComponent> _meshComponents;
-	std::vector<MaterialComponent> _materialComponents;
-	std::vector<LightComponent> _lightComponents;
-	std::vector<CameraComponent> _cameraComponents;
-	std::vector<TerrainComponent> _terrainComponents;
-	//int _nextComponentId = 1;
-
-	// Storage -> Component Relations
-	// entityId -> componentIndex
-	std::unordered_map<int, int> _transformComponentIndices;
-	std::unordered_map<int, int> _meshComponentIndices;
-	std::unordered_map<int, int> _materialComponentIndices;
-	std::unordered_map<int, int> _lightComponentIndices;
-	std::unordered_map<int, int> _cameraComponentIndices;
-	std::unordered_map<int, int> _terrainComponentIndices;
-
-
 	//ECS _ecs;
 
 	//std::vector<Archetype> _archetypes;
@@ -123,9 +97,8 @@ public:
 	void PeriodicUpdate(float deltaTime);
 	void Render();
 
-	//int GetNextComponentId() const;
-
-	void IncrementEntityId();
+	// ECS
+	void DestroyEntity(Entity entity);
 	
 	// Entity-Component relations
 	Entity CreateEntity();
@@ -142,21 +115,10 @@ public:
 		_renderingApplication->RemoveComponent<TComponent>(entity);
 	}
 
-
-
-	TransformComponent* GetTransformComponent(int entityId);
-	MeshComponent* GetMeshComponent(int entityId);
-	MaterialComponent* GetMaterialComponent(int entityId);
-	//LightComponent* GetLightComponent(int entityId);
-	//CameraComponent* GetCameraComponent(int entityId);
-
-	// Instance Rendering System Methods
+	// ----- Instance Rendering System Methods -----
 	void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
 	void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
 	void RemoveRenderableInstance(int poolKey, int entityId);
-	void RemoveAllRenderableInstances();
-
-	void UpdateDirtyRenderableTransforms();
 
 	std::vector<int> GetRenderableEntities(
 		const std::unordered_map<int, int>& transformIndices,
@@ -164,60 +126,17 @@ public:
 		const std::unordered_map<int, int>& materialIndices
 	) const;
 
-	// ----- Serialization ----- //
+	// ----- Serialization -----
 
 	template <typename Archive>
 	void save(Archive& archive) const
 	{
-		// Entities
-		archive(CEREAL_NVP(_entities), CEREAL_NVP(_nextEntityId));
 
-		// Components
-		archive(
-			CEREAL_NVP(_transformComponents),
-			CEREAL_NVP(_meshComponents),
-			CEREAL_NVP(_materialComponents)
-			//CEREAL_NVP(_nextComponentId)
-		);
-
-		// Indices
-		archive(
-			CEREAL_NVP(_transformComponentIndices),
-			CEREAL_NVP(_meshComponentIndices),
-			CEREAL_NVP(_materialComponentIndices)
-		);
-
-		// UI
-		archive(
-			CEREAL_NVP(_worldHierarchy)
-		);
 	}
 
 	template <typename Archive>
 	void load(Archive& archive)
 	{
-		// Entities
-		archive(CEREAL_NVP(_entities), CEREAL_NVP(_nextEntityId));
-
-		// Components
-		archive(
-			CEREAL_NVP(_transformComponents),
-			CEREAL_NVP(_meshComponents),
-			CEREAL_NVP(_materialComponents)
-			//CEREAL_NVP(_nextComponentId)
-		);
-
-		// Indices
-		archive(
-			CEREAL_NVP(_transformComponentIndices),
-			CEREAL_NVP(_meshComponentIndices),
-			CEREAL_NVP(_materialComponentIndices)
-		);
-
-		// UI
-		archive(
-			CEREAL_NVP(_worldHierarchy)
-		);
 
 		FinalizeLoading();
 	}

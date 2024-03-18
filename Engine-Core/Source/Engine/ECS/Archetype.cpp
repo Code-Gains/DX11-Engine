@@ -5,6 +5,12 @@ Archetype::Archetype(const ComponentSignature& signature) : _signature(signature
 {
 }
 
+void Archetype::DestroyEntity(Entity entity)
+{
+	// take each vector and remove entity data from it
+
+}
+
 IComponentVector* Archetype::GetComponentVector(ComponentType componentType)
 {
 	auto it = _typeToComponentVector.find(componentType);

@@ -21,7 +21,7 @@ class World; // forward declaration
 class WorldHierarchy
 {
 	World* _world = nullptr; // non owning
-	std::unordered_map<int, std::string> _entityToName;
+	std::unordered_map<Entity, std::string> _entityToName;
 
 public:
 	WorldHierarchy();

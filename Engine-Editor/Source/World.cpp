@@ -137,8 +137,6 @@ void World::Update(float deltaTime)
     DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
     _renderingApplication->SetPerFrameConstantBuffer(viewProjection);
     _renderingApplication->SetCameraConstantBuffer(cameraPosition);
-
-    UpdateDirtyRenderableTransforms();
 }
 
 void World::PeriodicUpdate(float deltaTime)
@@ -150,20 +148,10 @@ void World::Render()
     _worldHierarchy.Render();
 }
 
-//int World::GetNextPoolId() const
-//{
-//    return _nextPoolId;
-//}
-
-void World::IncrementEntityId()
+void World::DestroyEntity(Entity entity)
 {
-    _nextEntityId++;
+    _renderingApplication->DestroyEntity(entity);
 }
-
-//void World::IncrementPoolId()
-//{
-//    _nextPoolId;
-//}
 
 std::vector<int> World::GetRenderableEntities(
     const std::unordered_map<int, int>& transformIndices,
@@ -317,32 +305,6 @@ void World::UpdateViewportDimensions(int32_t width, int32_t height)
 //    }
 //}
 
-TransformComponent* World::GetTransformComponent(int entityId)
-{
-    auto entityIdToComponentIndex = _transformComponentIndices.find(entityId);
-    if (entityIdToComponentIndex == _transformComponentIndices.end())
-        return nullptr;
-
-    return &_transformComponents[entityIdToComponentIndex->second];
-}
-
-MeshComponent* World::GetMeshComponent(int entityId)
-{
-    auto entityIdToComponentIndex = _meshComponentIndices.find(entityId);
-    if (entityIdToComponentIndex == _meshComponentIndices.end())
-        return nullptr;
-
-    return &_meshComponents[entityIdToComponentIndex->second];
-}
-
-MaterialComponent* World::GetMaterialComponent(int entityId)
-{
-    auto entityIdToComponentIndex = _materialComponentIndices.find(entityId);
-    if (entityIdToComponentIndex == _materialComponentIndices.end())
-        return nullptr;
-
-    return &_materialComponents[entityIdToComponentIndex->second];
-}
 
 void World::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
@@ -356,42 +318,6 @@ void World::UpdateRenderableInstanceData(int poolKey, int entityId, const Instan
 
 void World::RemoveRenderableInstance(int poolKey, int entityId)
 {
-    //_renderingApplication->RemoveRenderableInstance(poolKey, entityId);
-}
-
-void World::RemoveAllRenderableInstances()
-{
-    //_renderingApplication->RemoveAllRenderableInstances();
-}
-
-void World::UpdateDirtyRenderableTransforms()
-{
-    for (auto& entity : _entities)
-    {
-        if (_transformComponentIndices.find(entity) == _transformComponentIndices.end())
-            continue;
-
-        int transformIndex = _transformComponentIndices[entity];
-        TransformComponent& transform = _transformComponents[transformIndex];
-
-        if (_materialComponentIndices.find(entity) == _materialComponentIndices.end())
-            continue;
-
-        int materialIndex = _materialComponentIndices[entity];
-        MaterialComponent& material = _materialComponents[materialIndex];
-
-        if (!transform.IsDirty() && !material.IsDirty())
-            continue;
-
-        if (_meshComponentIndices.find(entity) == _meshComponentIndices.end())
-            continue;
-
-        int meshIndex = _meshComponentIndices[entity];
-        MeshComponent& mesh = _meshComponents[meshIndex];
-
-        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity, InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
-        transform.SetIsDirty(false);
-        material.SetIsDirty(false);
-    }
+    _renderingApplication->RemoveRenderableInstance(poolKey, entityId);
 }
 

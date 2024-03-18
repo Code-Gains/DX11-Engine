@@ -61,7 +61,6 @@ void InstanceRendererSystem::UpdateInstanceData(int poolKey, int instanceId, con
 
 void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 {
-    auto zeroedMatrix = DirectX::XMMatrixSet(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
@@ -70,7 +69,16 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];
-            instances[instanceIndex].worldMatrix = zeroedMatrix;
+            for (auto& pair : entityIdToInstance)
+            {
+                if (pair.second > instanceIndex)
+                {
+                    pair.second--;
+                }
+            }
+            entityIdToInstance.erase(entityId);
+            instances.erase(instances.begin() + instanceIndex);
+            _instancePools[poolKey].instanceCount--;
         }
     }
 }

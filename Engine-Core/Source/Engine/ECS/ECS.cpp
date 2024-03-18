@@ -38,6 +38,13 @@ Entity ECS::CreateEntity()
 	return _nextEntityId++;
 }
 
+void ECS::DestroyEntity(Entity entity)
+{
+	auto archetype = GetEntityArchetype(entity);
+	archetype->DestroyEntity(entity);
+	// remove from map
+}
+
 void ECS::Render()
 {
 	for (auto& system : _systems)
