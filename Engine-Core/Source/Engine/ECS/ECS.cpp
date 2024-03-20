@@ -28,6 +28,11 @@ const std::optional<ComponentSignature> ECS::GetEntitySignature(Entity entity) c
 	return std::nullopt;
 }
 
+size_t ECS::GetEntityCount() const
+{
+	return _entityToSignature.size();
+}
+
 Entity ECS::GetNextEntityId() const
 {
 	return _nextEntityId;
@@ -35,6 +40,7 @@ Entity ECS::GetNextEntityId() const
 
 Entity ECS::CreateEntity()
 {
+	//std::cout << _nextEntityId << std::endl;
 	return _nextEntityId++;
 }
 

@@ -246,6 +246,7 @@
     <ClInclude Include="Source\include\Definitions.hpp" />
     <ClInclude Include="Source\include\DirectXSerialization.hpp" />
     <ClInclude Include="Source\include\ECS.hpp" />
+    <ClInclude Include="Source\include\ECSDebugger.hpp" />
     <ClInclude Include="Source\include\Entity.hpp" />
     <ClInclude Include="Source\include\Heightmap.hpp" />
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
@@ -282,10 +283,10 @@
     <ClCompile Include="Source\Engine\ECS\Components\TerrainComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\ECS.cpp" />
+    <ClCompile Include="Source\Engine\ECS\ECSDebugger.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
     <ClCompile Include="Source\Engine\ECS\System.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
-    <ClCompile Include="Source\Engine\ResourceMonitor.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />

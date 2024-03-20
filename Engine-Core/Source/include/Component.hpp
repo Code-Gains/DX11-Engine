@@ -5,6 +5,7 @@
 #include <bitset>
 #include <functional>
 #include <optional>
+#include <any>
 #include "Entity.hpp"
 
 constexpr size_t MAX_COMPONENTS = 64;
@@ -21,7 +22,7 @@ class IComponentVector
 {
 public:
     virtual ~IComponentVector() = default;
-    //virtual void GetComponent(Entity entity) const = 0;
+    virtual void* GetComponent(Entity entity) = 0;
     virtual void CloneComponent(Entity entity, IComponentVector& target) const = 0;
     virtual void TransferComponent(Entity entity, IComponentVector& target) const = 0;
     virtual void RemoveComponent(Entity entity) = 0;
@@ -35,14 +36,14 @@ class ComponentVector : public IComponentVector
     std::unordered_map<Entity, size_t> _entityToIndex;
 
 public:
-    /*TComponent& GetComponent(Entity entity)
+    void* GetComponent(Entity entity)
     {
         auto it = _entityToIndex.find(entity);
         if (it != _entityToIndex.end())
-            return _components[it->second];
+            return &(_components[it->second]);
 
         throw std::runtime_error("Component not found for entity!");
-    }*/
+    }
 
     /*void GetComponent(Entity entity) const override
     {
@@ -98,8 +99,11 @@ public:
 
     void AddComponent(Entity entity, const TComponent& component)
     {
+        //auto type = ComponentRegistry::GetComponentType<TComponent>();
+        std::cout << "Added in component vector of type: " << this << " " << entity << std::endl;
         _components.push_back(component);
         _entityToIndex[entity] = _components.size() - 1;
+        std::cout << "EntityToIndex size: " << _entityToIndex.size() << std::endl;
     }
 
     void RemoveComponent(Entity entity) override

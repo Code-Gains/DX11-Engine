@@ -56,6 +56,7 @@ void InstanceRendererSystem::UpdateInstanceData(int poolKey, int instanceId, con
             return;
         }
         AddInstance(poolKey, instanceId, newData);
+        std::cout << "Added instance: " << instanceId << std::endl;
     }
 }
 
@@ -90,7 +91,7 @@ void InstanceRendererSystem::UpdateDirtyInstances()
     // iterate
     for (auto& tuple : componentQueryResult)
     {
-        // will need to optimize TODO
+        // will need to optimize TODO (or actually never mind I think, we need entity indexes anyway)
         auto& transforms = std::get<0>(tuple);
         auto& meshes = std::get<1>(tuple);
         auto& materials = std::get<2>(tuple);
@@ -103,12 +104,13 @@ void InstanceRendererSystem::UpdateDirtyInstances()
 
         for (auto& entityToComponent : transforms->GetEntityToIndex())
         {
+            auto id = entityToComponent.first;
             auto idx = entityToComponent.second;
             if (rawTransforms[idx].IsDirty() || rawMaterials[idx].IsDirty())
             {
                 UpdateInstanceData(
                     rawMeshes[idx].GetInstancePoolIndex(),
-                    idx,
+                    id,
                     InstanceConstantBuffer(
                         rawTransforms[idx].GetWorldMatrix(),
                         rawMaterials[idx].GetMaterialConstantBuffer()

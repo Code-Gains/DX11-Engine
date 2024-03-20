@@ -316,8 +316,4 @@ void World::UpdateRenderableInstanceData(int poolKey, int entityId, const Instan
     _renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
 }
 
-void World::RemoveRenderableInstance(int poolKey, int entityId)
-{
-    _renderingApplication->RemoveRenderableInstance(poolKey, entityId);
-}
 

@@ -19,24 +19,22 @@ enum class PrimitiveGeometryType3D
 	TerrainChunk // TODO REMOVE FROM HERE ONLY FOR TESTING
 };
 
-class MeshComponent : public ComponentIdentifier, public IComponent
+class MeshComponent : public IComponent
 {
 	std::vector<VertexPositionNormalUv> _vertices;
 	std::vector<UINT> _indices;
 	int _instancePoolIndex;
-	// Engine models use prefix Engine::
+	// Engine models use prefix Engine:: ?? maybe, I don't know yet what the json will look like
 	std::string _path;
 	bool _isDirty = true; // TODO find a common system for dirtyness
 public:
 	MeshComponent();
 	MeshComponent(const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices);
-	MeshComponent(int id, const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices);
-	MeshComponent(int id, const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices, int _instancePoolIndex);
+	MeshComponent(const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices, int _instancePoolIndex);
 
 
 	void SetVertices(const std::vector<VertexPositionNormalUv>& vertices);
 	void SetIndices(const std::vector<UINT>& indices);
-	void SetComponentIdentifier(int id);
 	void SetInstancePoolIndex(int id);
 	void SetPath(std::string path);
 
@@ -74,13 +72,13 @@ public:
 	template<typename Archive>
 	void save(Archive& archive) const
 	{
-		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
+		archive(CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
 	}
 
 	template<typename Archive>
 	void load(Archive& archive)
 	{
-		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
+		archive(CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
 		FinalizeLoading();
 	}
 };

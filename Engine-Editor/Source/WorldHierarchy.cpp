@@ -156,14 +156,10 @@ void WorldHierarchy::Render()
 	if (deleteSelected && selected != _entityToName.end())
 	{
 		auto selectedEntityId = selected->first;
-		//auto mesh = _world->GetMeshComponent(selected->first);
-			//_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
 		_world->DestroyEntity(selectedEntityId);
-
-		_world->RemoveComponent<TransformComponent>(selectedEntityId);
-		_world->RemoveComponent<MeshComponent>(selectedEntityId);
-		_world->RemoveComponent<MaterialComponent>(selectedEntityId);
 		_entityToName.erase(selected);
+
+		// deselect
 		selected = _entityToName.end();
 	}
 }
@@ -177,6 +173,7 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 {
 	//auto geometry = Entity(_world->GetNextEntityId());
 	auto geometry = _world->CreateEntity();
+	//std::cout << "Hierarchy entity id: " << geometry << std::endl;
 
 	auto transform = TransformComponent();
 	_world->AddComponent(geometry, transform);
@@ -193,14 +190,12 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 		}
 		Heightmap heightmap = Heightmap(heights);
 		mesh = MeshComponent::GenerateTerrainMeshComponent(type, &heightmap);
-		auto terrain = TerrainComponent(geometry, heightmap, &mesh);
-		terrain.SetId(geometry);
+		auto terrain = TerrainComponent(heightmap, &mesh);
 		_world->AddComponent(geometry, terrain);
 	}
 	else
 		mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
 
-	mesh.SetId(geometry);
 	_world->AddComponent(geometry, mesh);
 
 	auto material = MaterialComponent::GetDefaultMaterialComponent(0);

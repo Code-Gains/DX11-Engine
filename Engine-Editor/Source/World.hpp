@@ -118,7 +118,6 @@ public:
 	// ----- Instance Rendering System Methods -----
 	void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
 	void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-	void RemoveRenderableInstance(int poolKey, int entityId);
 
 	std::vector<int> GetRenderableEntities(
 		const std::unordered_map<int, int>& transformIndices,

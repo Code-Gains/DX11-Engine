@@ -16,7 +16,7 @@ void Archetype::DestroyEntity(Entity entity)
 
 }
 
-IComponentVector* Archetype::GetComponentVector(ComponentType componentType)
+IComponentVector* Archetype::GetComponentVector(ComponentType componentType) const
 {
 	auto it = _typeToComponentVector.find(componentType);
 	if (it != _typeToComponentVector.end())

@@ -16,6 +16,7 @@
 #include <array>
 #include <algorithm>
 #include <tuple>
+#include <iostream>
 
 
 struct InstanceConstantBuffer
@@ -328,6 +329,7 @@ public:
             // if we ever needed, bind the PerObjectData here
 
             int instancesRendered = 0;
+            //std::cout << instancePool.instanceCount << std::endl;
             while (instancesRendered < instancePool.instanceCount)
             {
                 int instancesToRender = min(_batchSize, instancePool.instanceCount - instancesRendered);

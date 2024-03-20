@@ -85,12 +85,6 @@ void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int insta
     _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
 }
 
-void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
-{
-    _ecs.DestroyEntity(entityId);
-    _instanceRenderer->RemoveInstance(poolKey, entityId);
-}
-
 
 //void RenderingApplication3D::RemoveAllRenderableInstances()
 //{
@@ -134,6 +128,9 @@ Entity RenderingApplication3D::CreateEntity()
 
 void RenderingApplication3D::DestroyEntity(Entity entity)
 {
+    auto mesh = _ecs.GetComponent<MeshComponent>(entity);
+    std::cout << mesh->GetInstancePoolIndex() << entity << std::endl;
+    _instanceRenderer->RemoveInstance(mesh->GetInstancePoolIndex(), entity);
     _ecs.DestroyEntity(entity);
 }
 
@@ -305,8 +302,10 @@ bool RenderingApplication3D::Load()
     _shaderManager.LoadShaderCollection(L"Terrain", mainShaderDescriptor);
 
     //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
+    _ecs.AddSystem<ECSDebugger>(&_ecs);
     _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
+    _ecsDebugger = _ecs.GetSystem<ECSDebugger>();
     _instanceRenderer->LinkEngineInstancePools();
 
     std::cout << "Core Loading Complete!\n";
@@ -384,6 +383,7 @@ void RenderingApplication3D::Update()
     Application::Update();
 
     _resourceMonitor.Update(_deltaTime);
+    _ecs.Update(_deltaTime);
     for (const auto& engineModule : _engineModules)
     {
         engineModule->Update(_periodicDeltaTime);
@@ -394,6 +394,7 @@ void RenderingApplication3D::PeriodicUpdate()
 {
     if (_periodicDeltaTime > _periodicUpdatePeriod)
     {
+        _ecs.PeriodicUpdate(_deltaTime);
         for (const auto& engineModule : _engineModules)
         {
             engineModule->PeriodicUpdate(_periodicDeltaTime);

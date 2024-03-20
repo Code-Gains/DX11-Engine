@@ -18,6 +18,7 @@
 #include "InstanceRendererSystem.hpp"
 #include "ShaderManager.hpp"
 #include "ECS.hpp"
+#include "ECSDebugger.hpp"
 
 
 
@@ -55,7 +56,6 @@ public:
 
     void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
     void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-    void RemoveRenderableInstance(int poolKey, int entityId);
 
     // Renderer Constant Buffers
     void SetLightConstantBuffer(const LightConstantBuffer& lightBuffer);
@@ -123,6 +123,7 @@ private:
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
 
     ECS _ecs;
+    ECSDebugger* _ecsDebugger;
 
     // ----- Rendering Systems -----
     InstanceRendererSystem* _instanceRenderer;

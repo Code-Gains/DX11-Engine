@@ -417,6 +417,9 @@
     <ClInclude Include="Source\include\ECS.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\ECSDebugger.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Entity.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -521,6 +524,9 @@
     <ClCompile Include="Source\Engine\ECS\ECS.cpp">
       <Filter>Engine\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\ECSDebugger.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Entity.cpp">
       <Filter>Engine\ECS</Filter>
     </ClCompile>
@@ -529,9 +535,6 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ResourceMonitor.cpp">
-      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">
       <Filter>Engine\Shaders</Filter>

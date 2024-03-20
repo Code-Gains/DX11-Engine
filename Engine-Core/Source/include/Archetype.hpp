@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <bitset>
+#include <any>
 
 #include "Entity.hpp"
 #include "Component.hpp"
@@ -22,7 +23,24 @@ public:
 	// Entity management
 	void DestroyEntity(Entity entity);
 
-	IComponentVector* GetComponentVector(ComponentType componentType);
+	// Components
+
+	template<typename TComponent>
+	TComponent* GetComponent(Entity entity, ComponentType componentType) const
+	{
+		auto it = _typeToComponentVector.find(componentType);
+		if (it != _typeToComponentVector.end())
+		{
+			void* component = it->second.get()->GetComponent(entity);
+			return static_cast<TComponent*>(component);
+		}
+
+		return nullptr;
+	}
+
+	// Component Vectors
+
+	IComponentVector* GetComponentVector(ComponentType componentType) const;
 
 	template <typename TComponent>
 	IComponentVector* GetComponentVector()

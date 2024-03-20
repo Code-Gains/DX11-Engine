@@ -34,6 +34,8 @@ public:
 	Archetype* GetSignatureArchetype(const ComponentSignature& signature) const;
 
 	// --- Entity Management ---
+	size_t GetEntityCount() const;
+
 	Entity GetNextEntityId() const;
 	const std::optional<ComponentSignature> GetEntitySignature(Entity entity) const;
 
@@ -62,8 +64,7 @@ public:
 	template<typename TComponent>
 	void AddComponent(Entity entity, const TComponent& component)
 	{
-		std::cout << "Component has been added!\n";
-		// perform inheritance checks and get type
+		// perform inheritance checks and get or register type
 		auto componentType = ComponentRegistry::GetOrRegisterComponentType<TComponent>();
 
 		// check if entity already belongs to an archetype
@@ -96,8 +97,29 @@ public:
 		TransferEntityComponents(entity, previousArchetype, newArchetype.get());
 		newArchetype->AddComponent<TComponent>(entity, component, componentType);
 		auto newSignature = newArchetype->GetSignature();
+
 		_signatureToArchetype[newSignature] = std::move(newArchetype);
 		_entityToSignature[entity] = newSignature;
+	}
+
+	template<typename TComponent>
+	TComponent* GetComponent(Entity entity)
+	{
+		/*auto signatureIt = _entityToSignature.find(entity);
+		if (signatureIt == _entityToSignature.end())
+			return nullptr;
+
+		auto archetypeIt = _signatureToArchetype.find(signatureIt->second);
+		if (archetypeIt == _signatureToArchetype.end())
+			return nullptr;*/
+
+		auto archetype = GetEntityArchetype(entity);
+		if (!archetype)
+			return nullptr;
+
+		auto componentTypeOpt = ComponentRegistry::GetComponentType<TComponent>();
+
+		return archetype->GetComponent<TComponent>(entity, componentTypeOpt.value());
 	}
 
 	template<typename TComponent>
