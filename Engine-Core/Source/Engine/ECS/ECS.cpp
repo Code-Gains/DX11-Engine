@@ -1,5 +1,23 @@
 #include "ECS.hpp"
 
+size_t ECS::GetArchetypeCount() const
+{
+	return _signatureToArchetype.size();
+}
+
+ComponentSignature ECS::GenerateNewSignature(std::optional<ComponentSignature> current, ComponentType componentType) const
+{
+	if (!current)
+		return ComponentSignature().set(componentType);
+	else
+		return current->set(componentType);
+}
+
+ComponentSignature ECS::GenerateNewSignature(ComponentSignature current, ComponentType componentType) const
+{
+	return current.set(componentType);
+}
+
 Archetype* ECS::GetEntityArchetype(Entity entity) const
 {
 	auto signature = GetEntitySignature(entity);
@@ -18,6 +36,35 @@ Archetype* ECS::GetSignatureArchetype(const ComponentSignature& signature) const
 	std::cerr << "Signature does not have an archetype!";
 	return nullptr;
 }
+
+Archetype* ECS::GetOrCreateArchetype(const ComponentSignature& signature)
+{
+	auto existingArchetype = GetSignatureArchetype(signature);
+	if (!existingArchetype)
+	{
+		auto newArchetype = std::make_unique<Archetype>(signature);
+		_signatureToArchetype[signature] = std::move(newArchetype);
+		return _signatureToArchetype[signature].get();
+	}
+	return existingArchetype;
+}
+
+const std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>>& ECS::GetSignatureToArchetype() const
+{
+	return _signatureToArchetype;
+}
+
+//Archetype* ECS::GetOrCreateArchetype(const ComponentSignature& signature)
+//{
+//	auto existingArchetype = GetSignatureArchetype(signature);
+//	if (!existingArchetype)
+//	{
+//		auto newArchetype = std::make_unique<Archetype>(signature);
+//		_signatureToArchetype[signature] = std::move(newArchetype);
+//		return _signatureToArchetype[signature].get();
+//	}
+//	return existingArchetype;
+//}
 
 const std::optional<ComponentSignature> ECS::GetEntitySignature(Entity entity) const
 {

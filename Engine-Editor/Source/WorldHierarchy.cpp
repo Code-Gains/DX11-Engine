@@ -19,18 +19,18 @@ void WorldHierarchy::Render()
 
 	bool exitEarly = false;
 	ImGui::Begin("World Hierarchy");
-	if (ImGui::Button("Save"))
-	{
-		_world->SaveWorld("./output.json");
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Load"))
-	{
-		// Need some sort of prepare to load function TODO
-		selected = _entityToName.end();
-		_world->LoadWorld("./output.json");
-		exitEarly = true;
-	}
+	//if (ImGui::Button("Save"))
+	//{
+	//	_world->SaveWorld("./output.json");
+	//}
+	//ImGui::SameLine();
+	//if (ImGui::Button("Load"))
+	//{
+	//	// Need some sort of prepare to load function TODO
+	//	selected = _entityToName.end();
+	//	_world->LoadWorld("./output.json");
+	//	exitEarly = true;
+	//}
 	if (ImGui::BeginMenu("Add"))
 	{
 		if (ImGui::BeginMenu("Primitives 3D"))

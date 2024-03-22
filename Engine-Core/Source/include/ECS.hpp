@@ -30,8 +30,16 @@ public:
 	void PeriodicUpdate(float deltaTime);
 
 	// --- Archetype Management ---
+	size_t GetArchetypeCount() const;
+
 	Archetype* GetEntityArchetype(Entity entity) const;
 	Archetype* GetSignatureArchetype(const ComponentSignature& signature) const;
+	Archetype* GetOrCreateArchetype(const ComponentSignature& signature);
+
+	ComponentSignature GenerateNewSignature(std::optional<ComponentSignature> current, ComponentType componentType) const;
+	ComponentSignature GenerateNewSignature(ComponentSignature current, ComponentType componentType) const;
+
+	const std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>>& GetSignatureToArchetype() const;
 
 	// --- Entity Management ---
 	size_t GetEntityCount() const;
@@ -39,17 +47,19 @@ public:
 	Entity GetNextEntityId() const;
 	const std::optional<ComponentSignature> GetEntitySignature(Entity entity) const;
 
-	void TransferEntityComponents(Entity entity, Archetype* from, Archetype* to)
+	void TransferEntityComponents(Entity entity, Archetype& from, Archetype& to)
 	{
 		for (ComponentType ct = 0; ct < MAX_COMPONENTS; ++ct)
 		{
-			if (from->GetSignature().test(ct))
+			if (from.GetSignature().test(ct))
 			{
-				auto fromVector = from->GetComponentVector(ct);
-				auto toVector = to->GetOrCreateComponentVector(ct);
+				auto fromVector = from.GetComponentVector(ct);
+				auto toVector = to.GetOrCreateComponentVector(ct);
 
 				if (fromVector && toVector)
+				{
 					fromVector->TransferComponent(entity, *toVector);
+				}
 				else
 					throw std::runtime_error("Could not get or create component vectors!");
 
@@ -66,53 +76,27 @@ public:
 	{
 		// perform inheritance checks and get or register type
 		auto componentType = ComponentRegistry::GetOrRegisterComponentType<TComponent>();
+		auto existingSignature = GetEntitySignature(entity);
 
-		// check if entity already belongs to an archetype
-		auto signature = GetEntitySignature(entity);
-		if (!signature) // single component archetype
+		auto signatureWithComponent = GenerateNewSignature(existingSignature, componentType);
+
+		// archetype with component that is being added
+		auto archetype = GetOrCreateArchetype(signatureWithComponent);
+
+		// if the entity had data elsewhere and we are adding a new component, transfer them
+		if (existingSignature && archetype != GetSignatureArchetype(existingSignature.value()))
 		{
-			//std::cout << "added new in addedinecs" << std::endl;
-
-		    auto newArchetype = std::make_unique<Archetype>();
-			newArchetype->AddComponent<TComponent>(entity, component, componentType);
-
-			auto newSignature = newArchetype->GetSignature();
-			_signatureToArchetype[newSignature] = std::move(newArchetype);
-			_entityToSignature[entity] = newSignature;
-			return;
-		}
-		// multiple component archetype
-		auto previousArchetype = GetSignatureArchetype(signature.value());
-
-		// check if the component we are adding currently exists in the archetype
-		if (previousArchetype->SignatureContainsBit(componentType))
-		{
-			previousArchetype->AddComponent<TComponent>(entity, component, componentType);
-			return;
+			TransferEntityComponents(entity, *GetSignatureArchetype(existingSignature.value()), *archetype);
 		}
 
-		// we are adding a new type of component, we will have to first remove the data from previous archetype,
-		// then create a new archetype based on the previous one
-		auto newArchetype = std::make_unique<Archetype>(previousArchetype->GetSignature());
-		TransferEntityComponents(entity, previousArchetype, newArchetype.get());
-		newArchetype->AddComponent<TComponent>(entity, component, componentType);
-		auto newSignature = newArchetype->GetSignature();
-
-		_signatureToArchetype[newSignature] = std::move(newArchetype);
-		_entityToSignature[entity] = newSignature;
+		// add the component to the archetype and update entity signature.
+		archetype->AddComponent<TComponent>(entity, component, componentType);
+		_entityToSignature[entity] = signatureWithComponent;
 	}
 
 	template<typename TComponent>
 	TComponent* GetComponent(Entity entity)
 	{
-		/*auto signatureIt = _entityToSignature.find(entity);
-		if (signatureIt == _entityToSignature.end())
-			return nullptr;
-
-		auto archetypeIt = _signatureToArchetype.find(signatureIt->second);
-		if (archetypeIt == _signatureToArchetype.end())
-			return nullptr;*/
-
 		auto archetype = GetEntityArchetype(entity);
 		if (!archetype)
 			return nullptr;

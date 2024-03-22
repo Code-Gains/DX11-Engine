@@ -16,6 +16,11 @@ void Archetype::DestroyEntity(Entity entity)
 
 }
 
+const std::unordered_map<ComponentType, std::unique_ptr<IComponentVector>>& Archetype::GetTypeToComponentVector() const
+{
+	return _typeToComponentVector;
+}
+
 IComponentVector* Archetype::GetComponentVector(ComponentType componentType) const
 {
 	auto it = _typeToComponentVector.find(componentType);
