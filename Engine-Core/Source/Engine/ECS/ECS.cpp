@@ -54,18 +54,6 @@ const std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>>& ECS::G
 	return _signatureToArchetype;
 }
 
-//Archetype* ECS::GetOrCreateArchetype(const ComponentSignature& signature)
-//{
-//	auto existingArchetype = GetSignatureArchetype(signature);
-//	if (!existingArchetype)
-//	{
-//		auto newArchetype = std::make_unique<Archetype>(signature);
-//		_signatureToArchetype[signature] = std::move(newArchetype);
-//		return _signatureToArchetype[signature].get();
-//	}
-//	return existingArchetype;
-//}
-
 const std::optional<ComponentSignature> ECS::GetEntitySignature(Entity entity) const
 {
 	auto it = _entityToSignature.find(entity);

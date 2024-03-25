@@ -9,6 +9,12 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
+#include <cereal/types/vector.hpp>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
+
 #include "Definitions.hpp"
 #include "Application.hpp"
 #include "ShaderCollection.hpp"
@@ -69,6 +75,13 @@ public:
     void DestroyEntity(Entity entity);
 
     // Components
+
+    template<typename TComponent>
+    TComponent* GetComponent(Entity entity)
+    {
+        return _ecs.GetComponent<TComponent>(entity);
+    }
+
     template<typename TComponent>
     void AddComponent(Entity entity, const TComponent& component)
     {
@@ -83,6 +96,42 @@ public:
 
     // Systems
 
+
+    // Serialization
+
+    bool LoadNewWorld()
+    {
+        //_world.Initialize(_renderingApplication, this, _win32Window, _device.Get(), _deviceContext.Get());
+        //_world.UpdateViewportDimensions(_viewportWidth, _viewportHeight);
+        //_world.LoadWorld();
+        return true;
+    }
+
+    bool LoadWorldSingle(std::string filePath)
+    {
+        std::ifstream is(filePath);
+        if (!is.is_open())
+            return false;  // Failed to open file
+
+        {
+            cereal::JSONInputArchive archive(is);
+        }
+
+        return true;  // Successfully deserialized
+    }
+
+    bool SaveWorld(std::string filePath)
+    {
+        std::ofstream os(filePath);
+        if (!os.is_open())
+            return false;  // Failed to open file
+
+        {
+            cereal::JSONOutputArchive archive(os);
+        }
+
+        return true;  // Successfully serialized
+    }
 
 protected:
     bool Load() override;

@@ -19,18 +19,18 @@ void WorldHierarchy::Render()
 
 	bool exitEarly = false;
 	ImGui::Begin("World Hierarchy");
-	//if (ImGui::Button("Save"))
-	//{
-	//	_world->SaveWorld("./output.json");
-	//}
-	//ImGui::SameLine();
-	//if (ImGui::Button("Load"))
-	//{
-	//	// Need some sort of prepare to load function TODO
-	//	selected = _entityToName.end();
-	//	_world->LoadWorld("./output.json");
-	//	exitEarly = true;
-	//}
+	if (ImGui::Button("Save"))
+	{
+		_world->SaveWorld("./output.json");
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Load"))
+	{
+		// Need some sort of prepare to load function TODO
+		selected = _entityToName.end();
+		_world->LoadWorld("./output.json");
+		exitEarly = true;
+	}
 	if (ImGui::BeginMenu("Add"))
 	{
 		if (ImGui::BeginMenu("Primitives 3D"))
@@ -83,7 +83,7 @@ void WorldHierarchy::Render()
 
 	if (selected != _entityToName.end())
 	{
-		/*auto transform = _world->GetTransformComponent(selected->first);
+		auto transform = _world->GetComponent<TransformComponent>(selected->first);
 		if (transform)
 		{
 			selectedPosition = transform->GetPosition();
@@ -105,8 +105,8 @@ void WorldHierarchy::Render()
 				transform->SetScale(selectedScale);
 			}
 			ImGui::TreePop();
-		}*/
-		/*auto material = _world->GetMaterialComponent(selected->first);
+		}
+		auto material = _world->GetComponent<MaterialComponent>(selected->first);
 		if (material)
 		{
 			selectedAmbient = material->GetAmbient();
@@ -133,7 +133,7 @@ void WorldHierarchy::Render()
 				material->SetShininess(selectedShininess);
 			}
 			ImGui::TreePop();
-		}*/
+		}
 	}
 
 	ImGui::Text("Entities");

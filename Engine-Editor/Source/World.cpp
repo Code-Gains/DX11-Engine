@@ -172,16 +172,6 @@ Entity World::CreateEntity()
     return _renderingApplication->CreateEntity();
 }
 
-bool World::LoadWorld(std::string filePath)
-{
-	if(filePath != "")
-	{
-        _universe->LoadWorldSingle(filePath);
-	}
-
-    return true;
-}
-
 bool World::PrepareLoading()
 {
     _worldHierarchy.Clear();
@@ -208,6 +198,14 @@ bool World::FinalizeLoading()
 bool World::SaveWorld(std::string filePath)
 {
     _universe->SaveWorld(filePath);
+    return true;
+}
+
+bool World::LoadWorld(std::string filePath)
+{
+    if (filePath != "")
+        _universe->LoadWorldSingle(filePath);
+
     return true;
 }
 
