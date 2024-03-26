@@ -1,15 +1,12 @@
 #include "TerrainComponent.hpp"
 
-TerrainComponent::TerrainComponent() : ComponentIdentifier(0)
+
+TerrainComponent::TerrainComponent()
 {
 }
 
-TerrainComponent::TerrainComponent(int id) : ComponentIdentifier(id)
-{
-}
-
-TerrainComponent::TerrainComponent(int id, const Heightmap& heightmap, MeshComponent* mesh)
-	: ComponentIdentifier(id), _terrainChunkMesh(mesh)
+TerrainComponent::TerrainComponent(const Heightmap& heightmap, MeshComponent* mesh)
+	: _terrainChunkMesh(mesh)
 {
 
 	// non ECS mesh does not need identification or world references

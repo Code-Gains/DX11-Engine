@@ -86,7 +86,7 @@ public:
 
     void Render() const
     {
-        ImGui::Begin("Debug Info");
+        ImGui::Begin("Profiler");
         ImGui::Text("FPS [Last 100]: %.2f", _framerate);
         ImGui::Text("AVG FPS: %.2f", _averageFramerate);
         ImGui::Text("RAM: %.2f MB", _virtualMemoryUsage / (1024.0f * 1024.0f));

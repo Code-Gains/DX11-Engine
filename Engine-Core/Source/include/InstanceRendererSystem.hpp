@@ -1,18 +1,22 @@
 #pragma once
-#include <vector>
-#include <d3d11_2.h>
 #include "Definitions.hpp"
 #include "ConstantBufferDefinitions.hpp"
 #include "VertexType.hpp"
 #include "Logging.hpp"
 #include "MeshComponent.hpp"
 #include "MaterialComponent.hpp"
+#include "TransformComponent.hpp"
+#include "ECS.hpp";
 
+#include <vector>
+#include <d3d11_2.h>
 #include <unordered_map>
 #include <map>
 #include <iostream>
 #include <array>
 #include <algorithm>
+#include <tuple>
+#include <iostream>
 
 
 struct InstanceConstantBuffer
@@ -26,7 +30,7 @@ struct InstanceConstantBuffer
 };
 
 
-class InstanceRendererSystem : IDebuggable
+class InstanceRendererSystem : public ISystem
 {
 public:
     struct InstancePool
@@ -50,8 +54,12 @@ public:
     };
 
 private:
+    // ECS
+    ECS* _ecs;
+
     // Instanced Rendering Resources
     std::unordered_map<int, InstancePool> _instancePools;
+    int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
     int _batchSize = 256;
 
     // Graphics Resources
@@ -66,17 +74,117 @@ private:
     void CreateConstantBuffers();
 
 public:
+    InstanceRendererSystem() {}
+    ~InstanceRendererSystem() {}
     InstanceRendererSystem(int batchSize = 10);
-    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int batchSize = 10);
+    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ECS* ecs, int batchSize = 10);
 
-    void AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
-    void UpdateInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-    void RemoveInstance(int poolKey, int instanceIndex);
-
-    int GetOwnershipCount() const override;
-
+    void AddInstance(int poolKey, int instanceId, const InstanceConstantBuffer& instanceData);
+    void UpdateInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData);
+    void RemoveInstance(int poolKey, int instanceId);
+    void UpdateDirtyInstances();
 
     void RemoveAllInstances();
+
+    void Render() override {};
+    void Update(float deltaTime) override {};
+    void PeriodicUpdate(float deltaTime) override {};
+
+    void Initialize();
+
+
+    // TODO fix to remove any references to entities
+   /* void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
+    {
+        if (_instancePools.find(poolKey) != _instancePools.end())
+        {
+            auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
+            if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
+            {
+                auto instanceIndex = entityIdToInstances[instanceId];
+                _instancePools[poolKey].instances[instanceIndex] = newData;
+                return;
+            }
+            AddRenderableInstance(poolKey, instanceId, newData);
+        }
+    }*/
+
+    /*void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
+    {
+        if (_instancePools.find(poolKey) != _instancePools.end())
+        {
+            auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
+            auto& instances = _instancePools[poolKey].instances;
+            auto& instanceCount = _instancePools[poolKey].instanceCount;
+            if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
+            {
+                auto instanceIndex = entityIdToInstance[entityId];
+                for (auto& pair : entityIdToInstance)
+                {
+                    if (pair.second > instanceIndex)
+                    {
+                        pair.second--;
+                    }
+                }
+                entityIdToInstance.erase(entityId);
+                instances.erase(instances.begin() + instanceIndex);
+                _instancePools[poolKey].instanceCount--;
+            }
+        }
+    }
+
+    void RenderingApplication3D::RemoveAllRenderableInstances()
+    {
+        for (auto& instancePoolPair : _instancePools)
+        {
+            InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
+            instancePool.entityIdToInstanceIndex.clear();
+            instancePool.instances.clear();
+            instancePool.instanceCount = 0;
+        }
+    }
+
+    void RenderingApplication3D::ClearAllInstancePools()
+    {
+        for (auto& instancePool : _instancePools)
+        {
+            instancePool.second.Clear();
+        }
+    }*/
+
+
+    void LinkEngineInstancePools()
+    {
+        auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
+        int cubeIndex = cubeMesh.GetInstancePoolIndex();
+        InstancePool cubePool =
+            CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
+        _instancePools[cubeIndex] = cubePool;
+
+        auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
+        int sphereIndex = sphereMesh.GetInstancePoolIndex();
+        InstancePool spherePool =
+            CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
+        _instancePools[sphereIndex] = spherePool;
+
+        auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
+        int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
+        InstancePool cylinderPool =
+            CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
+        _instancePools[cylinderIndex] = cylinderPool;
+
+        auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
+        int pipeIndex = pipeMesh.GetInstancePoolIndex();
+        InstanceRendererSystem::InstancePool pipePool =
+            CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
+        _instancePools[pipeIndex] = pipePool;
+
+        auto terrainChunkMesh = MeshComponent::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk);
+        int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
+        InstancePool terrainChunkPool =
+            CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
+        _instancePools[terrainChunkIndex] = terrainChunkPool;
+    }
 
     template <typename TVertexType>
     bool InitializeInstancePool(int poolKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices)
@@ -177,7 +285,6 @@ public:
 
     template<typename TVertexType>
     void RenderInstances(
-        const std::unordered_map<int, InstancePool>& instancePools,
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
         const LightConstantBuffer& lightConstantBufferData
@@ -215,7 +322,7 @@ public:
         _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
-        for (const auto& instancePoolPair : instancePools)
+        for (const auto& instancePoolPair : _instancePools)
         {
             const InstancePool& instancePool = instancePoolPair.second;
 

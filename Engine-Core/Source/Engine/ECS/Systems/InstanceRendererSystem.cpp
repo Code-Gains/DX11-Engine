@@ -27,38 +27,40 @@ InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batch
 
 InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
-    int batchSize) : _device(device), _deviceContext(deviceContext)
+    ECS* ecs,
+    int batchSize) : _device(device), _deviceContext(deviceContext), _ecs(ecs)
 {
     CreateConstantBuffers();
 }
 
-void InstanceRendererSystem::AddInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
+void InstanceRendererSystem::AddInstance(int poolKey, int instanceId, const InstanceConstantBuffer& instanceData)
 {
     auto it = _instancePools.find(poolKey);
     if (it != _instancePools.end())
     {
-        it->second.entityIdToInstanceIndex[entityId] = it->second.instances.size();
+        it->second.entityIdToInstanceIndex[instanceId] = it->second.instances.size();
         it->second.instances.push_back(instanceData);
         it->second.instanceCount++;
     }
 }
 
-void InstanceRendererSystem::UpdateInstanceData(int poolKey, int entityId, const InstanceConstantBuffer& newData)
+void InstanceRendererSystem::UpdateInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
 {
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
         auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-        if(entityIdToInstances.find(entityId) != entityIdToInstances.end())
+        if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
         {
-            auto instanceIndex = entityIdToInstances[entityId];
+            auto instanceIndex = entityIdToInstances[instanceId];
             _instancePools[poolKey].instances[instanceIndex] = newData;
+            return;
         }
+        AddInstance(poolKey, instanceId, newData);
     }
 }
 
 void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 {
-    auto zeroedMatrix = DirectX::XMMatrixSet(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (_instancePools.find(poolKey) != _instancePools.end())
     {
         auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
@@ -67,9 +69,82 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
         if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
         {
             auto instanceIndex = entityIdToInstance[entityId];
-            instances[instanceIndex].worldMatrix = zeroedMatrix;
+            for (auto& pair : entityIdToInstance)
+            {
+                if (pair.second > instanceIndex)
+                {
+                    pair.second--;
+                }
+            }
+            entityIdToInstance.erase(entityId);
+            instances.erase(instances.begin() + instanceIndex);
+            _instancePools[poolKey].instanceCount--;
         }
     }
+}
+
+void InstanceRendererSystem::UpdateDirtyInstances()
+{
+    // querry returns a vector of tuples that contain component vectors
+    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent, MaterialComponent>();
+    // iterate
+    for (auto& tuple : componentQueryResult)
+    {
+        // will need to optimize TODO (or actually never mind I think, we need entity indexes anyway)
+        auto& transforms = std::get<0>(tuple);
+        auto& meshes = std::get<1>(tuple);
+        auto& materials = std::get<2>(tuple);
+
+        // all vectors should be the same length (ALWAYS!!! Otherwise it should result in a crash)
+
+        auto& rawTransforms = *transforms->GetRawVector();
+        auto& rawMeshes = *meshes->GetRawVector();
+        auto& rawMaterials = *materials->GetRawVector();
+
+        for (auto& entityToComponent : transforms->GetEntityToIndex())
+        {
+            auto id = entityToComponent.first;
+            auto idx = entityToComponent.second;
+            if (rawTransforms[idx].IsDirty() || rawMaterials[idx].IsDirty())
+            {
+                UpdateInstanceData(
+                    rawMeshes[idx].GetInstancePoolIndex(),
+                    id,
+                    InstanceConstantBuffer(
+                        rawTransforms[idx].GetWorldMatrix(),
+                        rawMaterials[idx].GetMaterialConstantBuffer()
+                    ));
+                rawTransforms[idx].SetIsDirty(false);
+                rawMaterials[idx].SetIsDirty(false);
+            }
+        }
+    }
+
+    //if (_transformComponentIndices.find(entity) == _transformComponentIndices.end())
+    //    continue;
+
+    //int transformIndex = _transformComponentIndices[entity];
+    //TransformComponent& transform = _transformComponents[transformIndex];
+
+    //if (_materialComponentIndices.find(entity) == _materialComponentIndices.end())
+    //    continue;
+
+    //int materialIndex = _materialComponentIndices[entity];
+    //MaterialComponent& material = _materialComponents[materialIndex];
+
+    //if (!transform.IsDirty() && !material.IsDirty())
+    //    continue;
+
+    //if (_meshComponentIndices.find(entity) == _meshComponentIndices.end())
+    //    continue;
+
+    //int meshIndex = _meshComponentIndices[entity];
+    //MeshComponent& mesh = _meshComponents[meshIndex];
+
+    //UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity, InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
+    //transform.SetIsDirty(false);
+    //material.SetIsDirty(false);
+    // update
 }
 
 void InstanceRendererSystem::RemoveAllInstances()
@@ -81,17 +156,6 @@ void InstanceRendererSystem::RemoveAllInstances()
         instancePool.instances.clear();
         instancePool.instanceCount = 0;
     }
-}
-
-
-int InstanceRendererSystem::GetOwnershipCount() const
-{
-    int totalCount = 0;
-    for (auto poolPair : _instancePools)
-    {
-        totalCount += poolPair.second.instanceCount;
-    }
-    return totalCount;
 }
 
 InstanceConstantBuffer::InstanceConstantBuffer()

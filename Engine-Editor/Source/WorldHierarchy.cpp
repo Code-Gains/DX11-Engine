@@ -19,18 +19,18 @@ void WorldHierarchy::Render()
 
 	bool exitEarly = false;
 	ImGui::Begin("World Hierarchy");
-	if (ImGui::Button("Save"))
-	{
-		_world->SaveWorld("./output.json");
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Load"))
-	{
-		// Need some sort of prepare to load function TODO
-		selected = _entityToName.end();
-		_world->LoadWorld("./output.json");
-		exitEarly = true;
-	}
+	//if (ImGui::Button("Save"))
+	//{
+	//	_world->SaveWorld("./output.json");
+	//}
+	//ImGui::SameLine();
+	//if (ImGui::Button("Load"))
+	//{
+	//	// Need some sort of prepare to load function TODO
+	//	selected = _entityToName.end();
+	//	_world->LoadWorld("./output.json");
+	//	exitEarly = true;
+	//}
 	if (ImGui::BeginMenu("Add"))
 	{
 		if (ImGui::BeginMenu("Primitives 3D"))
@@ -83,7 +83,7 @@ void WorldHierarchy::Render()
 
 	if (selected != _entityToName.end())
 	{
-		auto transform = _world->GetTransformComponent(selected->first);
+		auto transform = _world->GetComponent<TransformComponent>(selected->first);
 		if (transform)
 		{
 			selectedPosition = transform->GetPosition();
@@ -106,7 +106,7 @@ void WorldHierarchy::Render()
 			}
 			ImGui::TreePop();
 		}
-		auto material = _world->GetMaterialComponent(selected->first);
+		auto material = _world->GetComponent<MaterialComponent>(selected->first);
 		if (material)
 		{
 			selectedAmbient = material->GetAmbient();
@@ -156,13 +156,10 @@ void WorldHierarchy::Render()
 	if (deleteSelected && selected != _entityToName.end())
 	{
 		auto selectedEntityId = selected->first;
-		auto mesh = _world->GetMeshComponent(selected->first);
-		if (mesh)
-			_world->RemoveRenderableInstance(mesh->GetInstancePoolIndex(), selectedEntityId);
-		_world->RemoveTransformComponent(selectedEntityId);
-		_world->RemoveMeshComponent(selectedEntityId);
-		_world->RemoveMaterialComponent(selectedEntityId);
+		_world->DestroyEntity(selectedEntityId);
 		_entityToName.erase(selected);
+
+		// deselect
 		selected = _entityToName.end();
 	}
 }
@@ -174,11 +171,11 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
-	auto geometry = Entity(_world->GetNextEntityId());
-	auto transform = TransformComponent(_world->GetNextComponentId());
-	_world->AddComponent(geometry.GetId(), transform);
+	auto geometry = _world->CreateEntity();
+	auto transform = TransformComponent();
+	_world->AddComponent(geometry, transform);
 
-	//temporary to check system
+	//temporary to check system TODO SEPARATE
 	auto mesh = MeshComponent();
 
 	if (type == PrimitiveGeometryType3D::TerrainChunk)
@@ -190,23 +187,21 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 		}
 		Heightmap heightmap = Heightmap(heights);
 		mesh = MeshComponent::GenerateTerrainMeshComponent(type, &heightmap);
-		auto terrain = TerrainComponent(geometry.GetId(), heightmap, &mesh);
-		terrain.SetId(geometry.GetId());
-		_world->AddComponent(geometry.GetId(), terrain);
+		auto terrain = TerrainComponent(heightmap, &mesh);
+		_world->AddComponent(geometry, terrain);
 	}
 	else
 		mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
 
-	mesh.SetId(geometry.GetId());
-	_world->AddComponent(geometry.GetId(), mesh);
+	_world->AddComponent(geometry, mesh);
 
-	auto material = MaterialComponent::GetDefaultMaterialComponent(_world->GetNextComponentId());
-	_world->AddComponent(geometry.GetId(), material);
+	auto material = MaterialComponent::GetDefaultMaterialComponent(0);
+	_world->AddComponent(geometry, material);
 
-	_world->AddEntity(geometry);
-	AddEntity(geometry.GetId(), name);
+	//_world->AddEntity(geometry);
+	AddEntity(geometry, name);
 
-	return geometry.GetId();
+	return geometry;
 }
 
 void WorldHierarchy::SetWorld(World* world)

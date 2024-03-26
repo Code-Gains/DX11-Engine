@@ -9,6 +9,12 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
+#include <cereal/types/vector.hpp>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
+#include <fstream>
+
 #include "Definitions.hpp"
 #include "Application.hpp"
 #include "ShaderCollection.hpp"
@@ -16,7 +22,9 @@
 
 #include "ResourceMonitor.hpp"
 #include "InstanceRendererSystem.hpp"
-#include <ShaderManager.hpp>
+#include "ShaderManager.hpp"
+#include "ECS.hpp"
+#include "ECSDebugger.hpp"
 
 
 
@@ -50,20 +58,49 @@ public:
     void AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule);
     void AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules);
 
-    // Instance Rendering System
-    void LinkEngineInstancePools();
-    void LinkRenderableInstancePool(int index, const InstanceRendererSystem::InstancePool& instancePool);
-    void LinkRenderableInstancePool(const InstanceRendererSystem::InstancePool& instancePool);
+    // ----- Instance Rendering System -----
+
     void AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData);
     void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
-    void RemoveRenderableInstance(int poolKey, int entityId);
-    void RemoveAllRenderableInstances();
-    void ClearAllInstancePools();
 
     // Renderer Constant Buffers
     void SetLightConstantBuffer(const LightConstantBuffer& lightBuffer);
     void SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition);
     void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
+
+    // ----- ECS -----
+    
+    // Entities
+    Entity CreateEntity();
+    void DestroyEntity(Entity entity);
+
+    // Components
+
+    template<typename TComponent>
+    TComponent* GetComponent(Entity entity)
+    {
+        return _ecs.GetComponent<TComponent>(entity);
+    }
+
+    template<typename TComponent>
+    void AddComponent(Entity entity, const TComponent& component)
+    {
+        return _ecs.AddComponent(entity, component);
+    }
+
+    template<typename TComponent>
+    void RemoveComponent(Entity entity) const
+    {
+        _ecs.RemoveComponent<TComponent>(entity);
+    }
+
+    // Systems
+
+
+    // Serialization
+
+    bool LoadWorldSingle(std::string filePath);
+    bool SaveWorld(std::string filePath);
 
 protected:
     bool Load() override;
@@ -103,14 +140,14 @@ private:
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
 
-    // --- Rendering Systems --- //
-    std::unordered_map<int, InstanceRendererSystem::InstancePool> _instancePools;
-    int _nextPoolId = 10000; // allocate 10000 to non user meshes TODO FIX
-    InstanceRendererSystem _instanceRenderer;
+    ECS _ecs;
+    ECSDebugger* _ecsDebugger;
 
-    // HLSL Constant Buffer Data
+    // ----- Rendering Systems -----
+    InstanceRendererSystem* _instanceRenderer;
+
+    // ----- HLSL Constant Buffer Data -----
     LightConstantBuffer _lightConstantBufferData{};
     PerFrameConstantBuffer _perFrameConstantBufferData{};
     CameraConstantBuffer _cameraConstantBufferData{};
-    // -------------------------//
 };

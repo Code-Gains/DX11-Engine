@@ -9,9 +9,10 @@
 #include "VertexType.hpp"
 #include "ComponentIdentifier.hpp"
 #include "Heightmap.hpp"
+#include "Terrain.hpp"
 #include <MeshComponent.hpp>
 
-class TerrainComponent : public ComponentIdentifier
+class TerrainComponent : public IComponent
 {
 	float _chunkWidth;
 	float _chunkHeight;
@@ -23,8 +24,7 @@ class TerrainComponent : public ComponentIdentifier
 
 public:
 	TerrainComponent();
-	TerrainComponent(int id);
-	TerrainComponent(int id, const Heightmap& heightmap, MeshComponent* mesh);
+	TerrainComponent(const Heightmap& heightmap, MeshComponent* mesh);
 
 	template<typename Archive>
 	void save(Archive& archive) const

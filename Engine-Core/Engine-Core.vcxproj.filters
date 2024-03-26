@@ -390,7 +390,13 @@
     <ClInclude Include="Source\include\Application.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\Archetype.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\CameraComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\Component.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ComponentIdentifier.hpp">
@@ -406,6 +412,12 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\DirectXSerialization.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECSDebugger.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\Entity.hpp">
@@ -447,6 +459,9 @@
     <ClInclude Include="Source\include\ShaderManager.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\System.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Terrain.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -479,6 +494,12 @@
     <ClCompile Include="Source\Engine\Application\RenderingApplication3D.cpp">
       <Filter>Engine\Application</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Archetype.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Component.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp">
       <Filter>Engine\ECS</Filter>
     </ClCompile>
@@ -500,14 +521,20 @@
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\ECS.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\ECSDebugger.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Entity.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\System.cpp">
       <Filter>Engine\ECS</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ResourceMonitor.cpp">
-      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">
       <Filter>Engine\Shaders</Filter>

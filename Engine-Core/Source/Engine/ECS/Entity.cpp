@@ -1,14 +1,14 @@
 #include "Entity.hpp"
-
-Entity::Entity()
-{
-}
-
-Entity::Entity(int id): _id(id)
-{
-}
-
-int Entity::GetId() const
-{
-	return _id;
-}
+//
+//Entity::Entity()
+//{
+//}
+//
+//Entity::Entity(size_t id): _id(id)
+//{
+//}
+//
+//size_t Entity::GetId() const
+//{
+//	return _id;
+//}

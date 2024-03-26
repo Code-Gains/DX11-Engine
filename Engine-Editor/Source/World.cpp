@@ -137,8 +137,6 @@ void World::Update(float deltaTime)
     DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
     _renderingApplication->SetPerFrameConstantBuffer(viewProjection);
     _renderingApplication->SetCameraConstantBuffer(cameraPosition);
-
-    UpdateDirtyRenderableTransforms();
 }
 
 void World::PeriodicUpdate(float deltaTime)
@@ -150,30 +148,10 @@ void World::Render()
     _worldHierarchy.Render();
 }
 
-int World::GetNextEntityId() const
+void World::DestroyEntity(Entity entity)
 {
-    return _nextEntityId;
+    _renderingApplication->DestroyEntity(entity);
 }
-
-int World::GetNextComponentId() const
-{
-    return _nextComponentId;
-}
-
-//int World::GetNextPoolId() const
-//{
-//    return _nextPoolId;
-//}
-
-void World::IncrementEntityId()
-{
-    _nextEntityId++;
-}
-
-//void World::IncrementPoolId()
-//{
-//    _nextPoolId;
-//}
 
 std::vector<int> World::GetRenderableEntities(
     const std::unordered_map<int, int>& transformIndices,
@@ -189,25 +167,9 @@ std::vector<int> World::GetRenderableEntities(
     return entities;
 }
 
-void World::AddEntity(Entity entity)
+Entity World::CreateEntity()
 {
-    _entities.push_back(entity);
-    _nextEntityId++;
-}
-
-void World::RemoveEntity(int id)
-{
-
-}
-
-bool World::LoadWorld(std::string filePath)
-{
-	if(filePath != "")
-	{
-        _universe->LoadWorldSingle(filePath);
-	}
-
-    return true;
+    return _renderingApplication->CreateEntity();
 }
 
 bool World::PrepareLoading()
@@ -218,7 +180,7 @@ bool World::PrepareLoading()
 
 bool World::FinalizeLoading()
 {
-    _renderingApplication->ClearAllInstancePools();
+    /*_renderingApplication->ClearAllInstancePools();
     for (auto& transformComponent : _transformComponents)
     {
         transformComponent.SetIsDirty(true);
@@ -228,7 +190,7 @@ bool World::FinalizeLoading()
         materialComponents.SetIsDirty(true);
     }
 
-    _worldHierarchy.SetWorld(this);
+    _worldHierarchy.SetWorld(this);*/
 
     return false;
 }
@@ -239,168 +201,108 @@ bool World::SaveWorld(std::string filePath)
     return true;
 }
 
+bool World::LoadWorld(std::string filePath)
+{
+    if (filePath != "")
+        _universe->LoadWorldSingle(filePath);
+
+    return true;
+}
+
 void World::UpdateViewportDimensions(int32_t width, int32_t height)
 {
 	_viewportWidth = width;
 	_viewportHeight = height;
 }
 
-void World::AddComponent(int entityId, const TransformComponent& component)
-{
-    _transformComponentIndices[entityId] = _transformComponents.size();
-    _transformComponents.push_back(component);
-    _nextComponentId++;
-}
+//void World::RemoveTransformComponent(int entityId)
+//{
+//    auto it = _transformComponentIndices.find(entityId);
+//    if (it != _transformComponentIndices.end())
+//    {
+//        auto transformIndex = it->second;
+//        for (auto& pair : _transformComponentIndices)
+//        {
+//            if (pair.second > transformIndex)
+//                pair.second--;
+//        }
+//        _transformComponents.erase(_transformComponents.begin() + it->second);
+//        _transformComponentIndices.erase(it);
+//    }
+//}
+//
+//void World::RemoveMeshComponent(int entityId)
+//{
+//    auto it = _meshComponentIndices.find(entityId);
+//    if (it != _meshComponentIndices.end())
+//    {
+//        auto meshIndex = it->second;
+//        for (auto& pair : _meshComponentIndices)
+//        {
+//            if (pair.second > meshIndex)
+//                pair.second--;
+//        }
+//        _meshComponents.erase(_meshComponents.begin() + it->second);
+//        _meshComponentIndices.erase(it);
+//    }
+//}
+//
+//void World::RemoveMaterialComponent(int entityId)
+//{
+//    auto it = _materialComponentIndices.find(entityId);
+//    if (it != _materialComponentIndices.end())
+//    {
+//        auto materialIndex = it->second;
+//        for (auto& pair : _materialComponentIndices)
+//            if (pair.second > materialIndex)
+//                pair.second--;
+//        _materialComponents.erase(_materialComponents.begin() + it->second);
+//        _materialComponentIndices.erase(it);
+//    }
+//}
+//
+//void World::RemoveLightComponent(int entityId)
+//{
+//    auto it = _lightComponentIndices.find(entityId);
+//    if (it != _lightComponentIndices.end())
+//    {
+//        auto lightIndex = it->second;
+//        for (auto& pair : _lightComponentIndices)
+//            if (pair.second > lightIndex)
+//                pair.second--;
+//        _lightComponents.erase(_lightComponents.begin() + it->second);
+//        _lightComponentIndices.erase(it);
+//    }
+//}
+//
+//void World::RemoveCameraComponent(int entityId)
+//{
+//    auto it = _cameraComponentIndices.find(entityId);
+//    if (it != _cameraComponentIndices.end())
+//    {
+//        auto cameraIndex = it->second;
+//        for (auto& pair : _cameraComponentIndices)
+//            if (pair.second > cameraIndex)
+//                pair.second--;
+//        _cameraComponents.erase(_cameraComponents.begin() + it->second);
+//        _cameraComponentIndices.erase(it);
+//    }
+//}
+//
+//void World::RemoveTerrainComponent(int entityId)
+//{
+//    auto it = _terrainComponentIndices.find(entityId);
+//    if (it != _terrainComponentIndices.end())
+//    {
+//        auto cameraIndex = it->second;
+//        for (auto& pair : _terrainComponentIndices)
+//            if (pair.second > cameraIndex)
+//                pair.second--;
+//        _terrainComponents.erase(_terrainComponents.begin() + it->second);
+//        _terrainComponentIndices.erase(it);
+//    }
+//}
 
-void World::AddComponent(int entityId, const MeshComponent& component)
-{
-    _meshComponentIndices[entityId] = _meshComponents.size();
-    _meshComponents.push_back(component);
-    _nextComponentId++;
-}
-
-void World::AddComponent(int entityId, const MaterialComponent& component)
-{
-    _materialComponentIndices[entityId] = _materialComponents.size();
-    _materialComponents.push_back(component);
-    _nextComponentId++;
-}
-
-void World::AddComponent(int entityId, const LightComponent& component)
-{
-    _lightComponentIndices[entityId] = _lightComponents.size();
-    _lightComponents.push_back(component);
-    _nextComponentId++;
-}
-
-void World::AddComponent(int entityId, const CameraComponent& component)
-{
-    _cameraComponentIndices[entityId] = _cameraComponents.size();
-    _cameraComponents.push_back(component);
-    _nextComponentId++;
-}
-
-void World::AddComponent(int entityId, const TerrainComponent& component)
-{
-    _terrainComponentIndices[entityId] = _terrainComponents.size();
-    _terrainComponents.push_back(component);
-    _nextComponentId++;
-}
-
-void World::RemoveTransformComponent(int entityId)
-{
-    auto it = _transformComponentIndices.find(entityId);
-    if (it != _transformComponentIndices.end())
-    {
-        auto transformIndex = it->second;
-        for (auto& pair : _transformComponentIndices)
-        {
-            if (pair.second > transformIndex)
-                pair.second--;
-        }
-        _transformComponents.erase(_transformComponents.begin() + it->second);
-        _transformComponentIndices.erase(it);
-    }
-}
-
-void World::RemoveMeshComponent(int entityId)
-{
-    auto it = _meshComponentIndices.find(entityId);
-    if (it != _meshComponentIndices.end())
-    {
-        auto meshIndex = it->second;
-        for (auto& pair : _meshComponentIndices)
-        {
-            if (pair.second > meshIndex)
-                pair.second--;
-        }
-        _meshComponents.erase(_meshComponents.begin() + it->second);
-        _meshComponentIndices.erase(it);
-    }
-}
-
-void World::RemoveMaterialComponent(int entityId)
-{
-    auto it = _materialComponentIndices.find(entityId);
-    if (it != _materialComponentIndices.end())
-    {
-        auto materialIndex = it->second;
-        for (auto& pair : _materialComponentIndices)
-            if (pair.second > materialIndex)
-                pair.second--;
-        _materialComponents.erase(_materialComponents.begin() + it->second);
-        _materialComponentIndices.erase(it);
-    }
-}
-
-void World::RemoveLightComponent(int entityId)
-{
-    auto it = _lightComponentIndices.find(entityId);
-    if (it != _lightComponentIndices.end())
-    {
-        auto lightIndex = it->second;
-        for (auto& pair : _lightComponentIndices)
-            if (pair.second > lightIndex)
-                pair.second--;
-        _lightComponents.erase(_lightComponents.begin() + it->second);
-        _lightComponentIndices.erase(it);
-    }
-}
-
-void World::RemoveCameraComponent(int entityId)
-{
-    auto it = _cameraComponentIndices.find(entityId);
-    if (it != _cameraComponentIndices.end())
-    {
-        auto cameraIndex = it->second;
-        for (auto& pair : _cameraComponentIndices)
-            if (pair.second > cameraIndex)
-                pair.second--;
-        _cameraComponents.erase(_cameraComponents.begin() + it->second);
-        _cameraComponentIndices.erase(it);
-    }
-}
-
-void World::RemoveTerrainComponent(int entityId)
-{
-    auto it = _terrainComponentIndices.find(entityId);
-    if (it != _terrainComponentIndices.end())
-    {
-        auto cameraIndex = it->second;
-        for (auto& pair : _terrainComponentIndices)
-            if (pair.second > cameraIndex)
-                pair.second--;
-        _terrainComponents.erase(_terrainComponents.begin() + it->second);
-        _terrainComponentIndices.erase(it);
-    }
-}
-
-TransformComponent* World::GetTransformComponent(int entityId)
-{
-    auto entityIdToComponentIndex = _transformComponentIndices.find(entityId);
-    if (entityIdToComponentIndex == _transformComponentIndices.end())
-        return nullptr;
-
-    return &_transformComponents[entityIdToComponentIndex->second];
-}
-
-MeshComponent* World::GetMeshComponent(int entityId)
-{
-    auto entityIdToComponentIndex = _meshComponentIndices.find(entityId);
-    if (entityIdToComponentIndex == _meshComponentIndices.end())
-        return nullptr;
-
-    return &_meshComponents[entityIdToComponentIndex->second];
-}
-
-MaterialComponent* World::GetMaterialComponent(int entityId)
-{
-    auto entityIdToComponentIndex = _materialComponentIndices.find(entityId);
-    if (entityIdToComponentIndex == _materialComponentIndices.end())
-        return nullptr;
-
-    return &_materialComponents[entityIdToComponentIndex->second];
-}
 
 void World::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {
@@ -412,45 +314,4 @@ void World::UpdateRenderableInstanceData(int poolKey, int entityId, const Instan
     _renderingApplication->UpdateRenderableInstanceData(poolKey, entityId, newData);
 }
 
-void World::RemoveRenderableInstance(int poolKey, int entityId)
-{
-    _renderingApplication->RemoveRenderableInstance(poolKey, entityId);
-}
-
-void World::RemoveAllRenderableInstances()
-{
-    _renderingApplication->RemoveAllRenderableInstances();
-}
-
-void World::UpdateDirtyRenderableTransforms()
-{
-    for (auto& entity : _entities)
-    {
-        if (_transformComponentIndices.find(entity.GetId()) == _transformComponentIndices.end())
-            continue;
-
-        int transformIndex = _transformComponentIndices[entity.GetId()];
-        TransformComponent& transform = _transformComponents[transformIndex];
-
-        if (_materialComponentIndices.find(entity.GetId()) == _materialComponentIndices.end())
-            continue;
-
-        int materialIndex = _materialComponentIndices[entity.GetId()];
-        MaterialComponent& material = _materialComponents[materialIndex];
-
-        if (!transform.IsDirty() && !material.IsDirty())
-            continue;
-
-        if (_meshComponentIndices.find(entity.GetId()) == _meshComponentIndices.end())
-            continue;
-
-        int meshIndex = _meshComponentIndices[entity.GetId()];
-        MeshComponent& mesh = _meshComponents[meshIndex];
-
-        UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity.GetId(), InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
-        transform.SetIsDirty(false);
-        material.SetIsDirty(false);
-    }
-
-}
 

@@ -1,24 +1,18 @@
 #include "MeshComponent.hpp"
 
-MeshComponent::MeshComponent() : ComponentIdentifier(0)
+MeshComponent::MeshComponent()
 {
 }
 
 MeshComponent::MeshComponent(const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices) :
-	_vertices(vertices), _indices(indices), ComponentIdentifier(0)
-{
-}
-
-MeshComponent::MeshComponent(int id, const std::vector<VertexPositionNormalUv>& vertices, const std::vector<UINT>& indices) :
-	_vertices(vertices), _indices(indices), ComponentIdentifier(id)
+	_vertices(vertices), _indices(indices)
 {
 }
 
 MeshComponent::MeshComponent(
-	int id,
 	const std::vector<VertexPositionNormalUv>& vertices,
 	const std::vector<UINT>& indices, int instancePoolIndex) : 
-	_vertices(vertices), _indices(indices), _instancePoolIndex(instancePoolIndex), ComponentIdentifier(id)
+	_vertices(vertices), _indices(indices), _instancePoolIndex(instancePoolIndex)
 {
 }
 
@@ -34,10 +28,6 @@ void MeshComponent::SetIndices(const std::vector<UINT>& indices)
     _isDirty = true;
 }
 
-void MeshComponent::SetComponentIdentifier(int id)
-{
-	SetId(id);
-}
 
 void MeshComponent::SetInstancePoolIndex(int id)
 {

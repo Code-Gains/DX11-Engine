@@ -4,8 +4,9 @@
 #include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
 #include "DirectXSerialization.hpp"
+#include "Component.hpp"
 
-class TransformComponent : public ComponentIdentifier
+class TransformComponent : public ComponentIdentifier, public IComponent
 {
 	DirectX::XMFLOAT3 _position;
 	DirectX::XMFLOAT3 _rotation;
