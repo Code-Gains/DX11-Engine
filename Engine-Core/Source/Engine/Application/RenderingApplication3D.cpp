@@ -284,6 +284,34 @@ void RenderingApplication3D::CreateDepthState()
     _device->CreateDepthStencilState(&depthDesc, &_depthState);
 }
 
+bool RenderingApplication3D::LoadWorldSingle(std::string filePath)
+{
+    std::ifstream is(filePath);
+    if (!is.is_open())
+        return false;  // Failed to open file
+    {
+        cereal::JSONInputArchive archive(is);
+        archive(CEREAL_NVP(_ecs));
+    }
+
+    std::cout << "Finished saving from \"" << filePath << "\"\n";
+    return true;  // Successfully deserialized
+}
+
+bool RenderingApplication3D::SaveWorld(std::string filePath)
+{
+    std::ofstream os(filePath);
+    if (!os.is_open())
+        return false;  // Failed to open file
+    {
+        cereal::JSONOutputArchive archive(os);
+        archive(CEREAL_NVP(_ecs));
+    }
+
+    std::cout << "Finished loading to \"" << filePath << "\"\n";
+    return true;  // Successfully serialized
+}
+
 bool RenderingApplication3D::Load()
 {
     // TODO MOVE SHADER COLLECTION TO WORLD OR RENDERER

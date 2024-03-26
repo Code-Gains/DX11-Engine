@@ -99,39 +99,8 @@ public:
 
     // Serialization
 
-    bool LoadNewWorld()
-    {
-        //_world.Initialize(_renderingApplication, this, _win32Window, _device.Get(), _deviceContext.Get());
-        //_world.UpdateViewportDimensions(_viewportWidth, _viewportHeight);
-        //_world.LoadWorld();
-        return true;
-    }
-
-    bool LoadWorldSingle(std::string filePath)
-    {
-        std::ifstream is(filePath);
-        if (!is.is_open())
-            return false;  // Failed to open file
-
-        {
-            cereal::JSONInputArchive archive(is);
-        }
-
-        return true;  // Successfully deserialized
-    }
-
-    bool SaveWorld(std::string filePath)
-    {
-        std::ofstream os(filePath);
-        if (!os.is_open())
-            return false;  // Failed to open file
-
-        {
-            cereal::JSONOutputArchive archive(os);
-        }
-
-        return true;  // Successfully serialized
-    }
+    bool LoadWorldSingle(std::string filePath);
+    bool SaveWorld(std::string filePath);
 
 protected:
     bool Load() override;

@@ -3,6 +3,9 @@
 #include <memory>
 #include <unordered_map>
 #include <optional>
+
+#include <cereal/cereal.hpp>
+
 #include "Archetype.hpp"
 #include "System.hpp"
 #include "Entity.hpp"
@@ -196,5 +199,31 @@ public:
 			}
 		}
 		return results;
+	}
+
+	// --- Serialization ---
+
+	template<typename Archive>
+	void save(Archive& archive) const
+	{
+		//std::vector<std::unique_ptr<ISystem>> _systems;
+		//std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
+		//std::unordered_map<Entity, ComponentSignature> _entityToSignature;
+
+		//// --- IDs ---
+		//std::uint32_t _nextEntityId = 0;
+		/*for (auto& signatureToArchetype : _signatureToArchetype)
+		{
+			archive(CEREAL_NVP(signatureToArchetype.first));
+		}*/
+
+
+		// This should go opposite from how it was created in the application.
+
+		// First we go through registries and save bitsets / component identifiers
+		//archive(cereal::make_nvp());
+		// Second we go through raw component data by iterating signature -> archetype
+		// Third I don't know
+
 	}
 };
