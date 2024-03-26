@@ -1,4 +1,6 @@
-## I am currently rewritting the Entity-Component-System into an Archetype based one. This will allow to multithread the Engine Core, my hope is to merge the code by the end of March https://github.com/Code-Gains/DX11-Engine/tree/ECSComponentStorage
+## I am currently rewritting the Entity-Component-System into an Archetype based one. This will allow to multithread the Engine Core.
+![Engine-Editor_OUA3NBv3Yy](https://github.com/Code-Gains/DX11-Engine/assets/22920179/e4b8a312-f984-4572-8de4-1554602c8673)
+
 # DX11-Engine
 
 I am building a DirectX11 graphics engine to learn the basics of graphics programming. The project is setup in a way, that you can clone it, open the solution with VS2022 and run it.
