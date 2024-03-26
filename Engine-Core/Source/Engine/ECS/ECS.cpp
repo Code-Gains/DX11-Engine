@@ -33,7 +33,6 @@ Archetype* ECS::GetSignatureArchetype(const ComponentSignature& signature) const
 	if (it != _signatureToArchetype.end())
 		return it->second.get();
 
-	std::cerr << "Signature does not have an archetype!";
 	return nullptr;
 }
 
@@ -75,7 +74,6 @@ Entity ECS::GetNextEntityId() const
 
 Entity ECS::CreateEntity()
 {
-	//std::cout << _nextEntityId << std::endl;
 	return _nextEntityId++;
 }
 

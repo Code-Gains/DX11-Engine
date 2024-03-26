@@ -56,7 +56,6 @@ void InstanceRendererSystem::UpdateInstanceData(int poolKey, int instanceId, con
             return;
         }
         AddInstance(poolKey, instanceId, newData);
-        std::cout << "Added instance: " << instanceId << std::endl;
     }
 }
 

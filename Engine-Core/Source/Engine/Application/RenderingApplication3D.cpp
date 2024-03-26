@@ -129,7 +129,6 @@ Entity RenderingApplication3D::CreateEntity()
 void RenderingApplication3D::DestroyEntity(Entity entity)
 {
     auto mesh = _ecs.GetComponent<MeshComponent>(entity);
-    std::cout << mesh->GetInstancePoolIndex() << entity << std::endl;
     _instanceRenderer->RemoveInstance(mesh->GetInstancePoolIndex(), entity);
     _ecs.DestroyEntity(entity);
 }

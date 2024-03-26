@@ -99,11 +99,8 @@ public:
 
     void AddComponent(Entity entity, const TComponent& component)
     {
-        //auto type = ComponentRegistry::GetComponentType<TComponent>();
-        std::cout << "Added in component vector of type: " << this << " " << entity << std::endl;
         _components.push_back(component);
         _entityToIndex[entity] = _components.size() - 1;
-        std::cout << "EntityToIndex size: " << _entityToIndex.size() << std::endl;
     }
 
     void RemoveComponent(Entity entity) override

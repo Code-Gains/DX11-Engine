@@ -204,7 +204,7 @@ public:
 	// --- Serialization ---
 
 	template<typename Archive>
-	void save(Archive& archive) const
+	void serialize(Archive& archive)
 	{
 		//std::vector<std::unique_ptr<ISystem>> _systems;
 		//std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;

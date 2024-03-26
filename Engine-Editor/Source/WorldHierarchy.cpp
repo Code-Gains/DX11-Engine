@@ -19,18 +19,18 @@ void WorldHierarchy::Render()
 
 	bool exitEarly = false;
 	ImGui::Begin("World Hierarchy");
-	if (ImGui::Button("Save"))
-	{
-		_world->SaveWorld("./output.json");
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Load"))
-	{
-		// Need some sort of prepare to load function TODO
-		selected = _entityToName.end();
-		_world->LoadWorld("./output.json");
-		exitEarly = true;
-	}
+	//if (ImGui::Button("Save"))
+	//{
+	//	_world->SaveWorld("./output.json");
+	//}
+	//ImGui::SameLine();
+	//if (ImGui::Button("Load"))
+	//{
+	//	// Need some sort of prepare to load function TODO
+	//	selected = _entityToName.end();
+	//	_world->LoadWorld("./output.json");
+	//	exitEarly = true;
+	//}
 	if (ImGui::BeginMenu("Add"))
 	{
 		if (ImGui::BeginMenu("Primitives 3D"))
@@ -171,14 +171,11 @@ void WorldHierarchy::AddEntity(int entityId, std::string entityName)
 
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
-	//auto geometry = Entity(_world->GetNextEntityId());
 	auto geometry = _world->CreateEntity();
-	//std::cout << "Hierarchy entity id: " << geometry << std::endl;
-
 	auto transform = TransformComponent();
 	_world->AddComponent(geometry, transform);
 
-	//temporary to check system
+	//temporary to check system TODO SEPARATE
 	auto mesh = MeshComponent();
 
 	if (type == PrimitiveGeometryType3D::TerrainChunk)

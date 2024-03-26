@@ -93,7 +93,6 @@ public:
 			return it->second.get();
 
 		// vector does not exist
-		std::cout << "Vector does not exist\n";
 		auto factoryFunction = ComponentRegistry::GetFactoryFunction(componentType);
 		auto newComponentVector = factoryFunction();
 		_typeToComponentVector[componentType] = std::move(newComponentVector);
