@@ -20,11 +20,11 @@ class TerrainComponent : public IComponent
 	int _chunkDdensityY;
 	
 	// testing component relations
-	MeshComponent* _terrainChunkMesh;
+	MeshComponent<VertexPositionNormalUvHeight>* _terrainChunkMesh;
 
 public:
 	TerrainComponent();
-	TerrainComponent(const Heightmap& heightmap, MeshComponent* mesh);
+	TerrainComponent(const Heightmap& heightmap, MeshComponent<VertexPositionNormalUvHeight>* mesh);
 
 	template<typename Archive>
 	void save(Archive& archive) const

@@ -15,6 +15,7 @@
 
 class ShaderManager {
 	ID3D11Device* _device;
+	std::wstring _currentShaderId;
 	// Collection can be [pixel + vertex]
 	std::unordered_map<std::wstring, std::unique_ptr<ShaderCollection>> _shaderCollections;
 
@@ -26,6 +27,8 @@ public:
 	ShaderCollection* GetShaderCollection(const std::wstring& id);
 
 	void ApplyToContext(const std::wstring& id, ID3D11DeviceContext* context);
+
+	std::wstring GetCurrentShaderId() const;
 
 	void Destroy();
 };

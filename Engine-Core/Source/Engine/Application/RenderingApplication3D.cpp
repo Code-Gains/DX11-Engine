@@ -128,7 +128,7 @@ Entity RenderingApplication3D::CreateEntity()
 
 void RenderingApplication3D::DestroyEntity(Entity entity)
 {
-    auto mesh = _ecs.GetComponent<MeshComponent>(entity);
+    auto mesh = _ecs.GetComponent<MeshComponent<VertexPositionNormalUv>>(entity);
     _instanceRenderer->RemoveInstance(mesh->GetInstancePoolIndex(), entity);
     _ecs.DestroyEntity(entity);
 }
@@ -330,7 +330,7 @@ bool RenderingApplication3D::Load()
 
     //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
     _ecs.AddSystem<ECSDebugger>(&_ecs);
-    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_ecs);
+    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_shaderManager, &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
     _ecsDebugger = _ecs.GetSystem<ECSDebugger>();
     _instanceRenderer->LinkEngineInstancePools();
@@ -455,7 +455,7 @@ void RenderingApplication3D::Render()
 
     _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    _shaderManager.ApplyToContext(L"Main", _deviceContext.Get());
+    //_shaderManager.ApplyToContext(L"Main", _deviceContext.Get());
 
     D3D11_VIEWPORT viewport = {
         0.0f,

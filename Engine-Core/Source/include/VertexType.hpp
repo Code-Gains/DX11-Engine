@@ -14,13 +14,31 @@ using Uv = DirectX::XMFLOAT2;
 
 struct VertexPositionNormalUv
 {
-    Position position;
-    Normal normal;
-    Uv uv;
+    // 32 bytes
+    Position position; // 12
+    Normal normal; // 12
+    Uv uv; // 8
 
     template <class Archive>
     void serialize(Archive& archive)
     {
         archive(CEREAL_NVP(position), CEREAL_NVP(normal), CEREAL_NVP(uv));
+    }
+};
+
+struct VertexPositionNormalUvHeight
+{
+    // 48 bytes
+    Position position; // 12
+    Normal normal; // 12
+    Uv uv; // 8
+    float height; // 4
+
+    float padding[3]; // 12
+
+    template <class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(CEREAL_NVP(position), CEREAL_NVP(normal), CEREAL_NVP(uv), CEREAL_NVP(height));
     }
 };

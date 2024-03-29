@@ -33,6 +33,11 @@ void ShaderManager::ApplyToContext(const std::wstring& id, ID3D11DeviceContext* 
 	std::cerr << "Could not find the requested shader collection!\n";
 }
 
+std::wstring ShaderManager::GetCurrentShaderId() const
+{
+	return _currentShaderId;
+}
+
 void ShaderManager::Destroy()
 {
 	for (auto& pair : _shaderCollections)

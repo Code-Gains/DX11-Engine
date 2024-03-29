@@ -6,7 +6,7 @@ Editor::Editor()
 
 void Editor::Run()
 {
-    RenderingApplication3D application("D3D11 Engine");
+    RenderingApplication3D application("CG Engine");
     application.Initialize();
 
     std::unique_ptr<IEngineModule> engineModule;

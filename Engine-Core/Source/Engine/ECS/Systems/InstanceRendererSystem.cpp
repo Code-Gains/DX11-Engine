@@ -27,8 +27,9 @@ InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batch
 
 InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
+    ShaderManager* shaderManager,
     ECS* ecs,
-    int batchSize) : _device(device), _deviceContext(deviceContext), _ecs(ecs)
+    int batchSize) : _device(device), _deviceContext(deviceContext), _shaderManager(shaderManager), _ecs(ecs)
 {
     CreateConstantBuffers();
 }
@@ -86,7 +87,7 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 void InstanceRendererSystem::UpdateDirtyInstances()
 {
     // querry returns a vector of tuples that contain component vectors
-    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent, MaterialComponent>();
+    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent<VertexPositionNormalUvHeight>, MaterialComponent>();
     // iterate
     for (auto& tuple : componentQueryResult)
     {
