@@ -125,14 +125,14 @@ public:
         }
     }
 
-    static MeshComponent<VertexPositionNormalUvHeight> GenerateTerrainMeshComponent(PrimitiveGeometryType3D type, const Heightmap* heightmap)
+    static MeshComponent<VertexPositionNormalUv> GenerateTerrainMeshComponent(PrimitiveGeometryType3D type, const Heightmap* heightmap)
     {
-        MeshComponent<VertexPositionNormalUvHeight> mesh = MeshComponent<VertexPositionNormalUvHeight>(GetTerrainMeshVertices(heightmap), GetTerrainMeshIndices());
+        MeshComponent<VertexPositionNormalUv> mesh = MeshComponent<VertexPositionNormalUv>(GetTerrainMeshVertices(heightmap), GetTerrainMeshIndices());
         mesh.SetInstancePoolIndex((int)type);
         return mesh;
     }
 
-    static std::vector<VertexPositionNormalUvHeight> GetTerrainMeshVertices(const Heightmap* heightmap = nullptr)
+    static std::vector<VertexPositionNormalUv> GetTerrainMeshVertices(const Heightmap* heightmap = nullptr)
     {
         return GetPrimitiveTerrainChunkVertices(10.0f, 10.0f, 10, 10, heightmap);
     }
@@ -318,56 +318,8 @@ public:
         return vertices;
     }
 
-    static std::vector<VertexPositionNormalUvHeight> GetPrimitiveTerrainChunkVertices(float width, float height, int densityX, int densityY, const Heightmap* heightmap = nullptr)
+    static std::vector<VertexPositionNormalUv> GetPrimitiveTerrainChunkVertices(float width, float height, int densityX, int densityY, const Heightmap* heightmap = nullptr)
     {
-
-        //return std::vector<VertexPositionNormalUvHeight> {
-        //    // Front
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f, -0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{0.0f, 0.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f,  0.5f, 0.5f }, Normal{ 0.0f, 0.0f, 1.0f }, Uv{1.0f, 0.0f}, 0 },
-
-        //        // Back
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{0.0f, 0.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f,  0.5f, -0.5f }, Normal{ 0.0f, 0.0f, -1.0f }, Uv{1.0f, 0.0f}, 0 },
-
-        //        // Top
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, 0.5f, 0.5f },  Normal{  0.0f, 1.0f, 0.0f }, Uv{0.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f, 0.5f, 0.5f },  Normal{  0.0f, 1.0f, 0.0f }, Uv{1.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f },  Uv{0.0f, 0.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f, 0.5f, -0.5f }, Normal{ 0.0f, 1.0f, 0.0f },  Uv{1.0f, 0.0f}, 0 },
-
-        //        // Bottom
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, -0.5f, 0.5f },  Normal{  0.0f, -1.0f, 0.0f }, Uv{0.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f, -0.5f, 0.5f },  Normal{  0.0f, -1.0f, 0.0f }, Uv{1.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f },  Uv{0.0f, 0.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{  0.5f, -0.5f, -0.5f }, Normal{ 0.0f, -1.0f, 0.0f },  Uv{1.0f, 0.0f}, 0 },
-
-        //        // Left
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, -0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f },  Uv{0.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f, -0.5f, 0.5f },  Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f,  0.5f, -0.5f }, Normal{ -1.0f, 0.0f, 0.0f },  Uv{0.0f, 0.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ -0.5f,  0.5f, 0.5f },  Normal{  -1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}, 0 },
-
-        //        // Right
-        //        VertexPositionNormalUvHeight{ Position{ 0.5f, -0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f },  Uv{0.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ 0.5f, -0.5f, 0.5f },  Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 1.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ 0.5f,  0.5f, -0.5f }, Normal{ 1.0f, 0.0f, 0.0f },  Uv{0.0f, 0.0f}, 0 },
-        //        VertexPositionNormalUvHeight{ Position{ 0.5f,  0.5f, 0.5f },  Normal{  1.0f, 0.0f, 0.0f }, Uv{1.0f, 0.0f}, 0 },
-        //};
-        //std::vector<VertexPositionNormalUvHeight> hardcodedVertices = {
-        //    // Positions                     // Normals        // UVs     // Height
-        //    {{-5.5f, 0.0f,  5.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, 0.0f}, // Top-Left
-        //    {{ 5.5f, 0.0f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, 0.0f}, // Top-Right
-        //    {{-5.5f, 0.0f, -5.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}, 0.0f}, // Bottom-Left
-        //    {{ 5.5f, 0.0f, -5.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}, 0.0f}  // Bottom-Right
-        //};
-
-        //return hardcodedVertices;
-
         float horizontalGap = width / densityX;
         float verticalGap = height / densityY;
 
@@ -378,7 +330,7 @@ public:
         std::cout << height << std::endl;
         int indice = 0;
 
-        std::vector<VertexPositionNormalUvHeight> vertices;
+        std::vector<VertexPositionNormalUv> vertices;
         for (float y = 0.0f; y < height; y += verticalGap)
         {
 
@@ -387,18 +339,13 @@ public:
                 float u = x / width;
                 float v = y / height;
 
-                float vertexHeight = 0.0f;
-                if (heightmap != nullptr)
-                    vertexHeight = heightmap->GetHeight(x, y);
-
                 //std::cout << "indice " << indice << ": " << x << " " << y << std::endl;
                 indice++;
                 //std::cout << x-halfWidth << " " << y-halfHeight << std::endl;
                 vertices.push_back({
                     {x - halfWidth, 0, y - halfHeight},   // Position
                     {0.0f, 1.0f, 0.0f},                              // Normal
-                    {u, v},                                          // Uv
-                    vertexHeight                           // Height
+                    {u, v}
                 });
             }
         }
@@ -510,44 +457,9 @@ public:
 
     static std::vector<UINT> GetPrimitiveTerrainChunkIndices(float width, float height, int densityX, int densityY)
     {
-
-        //return {
-        //    // Front
-        //    0, 2, 1,
-        //    2, 3, 1,
-
-        //    // Back
-        //    6, 4, 5,
-        //    6, 5, 7,
-
-        //    // Top
-        //    8, 10, 9,
-        //    10, 11, 9,
-
-        //    // Bottom
-        //    12, 13, 14,
-        //    14, 13, 15,
-
-        //    // Left
-        //    16, 18, 17,
-        //    18, 19, 17,
-
-        //    // Right
-        //    20, 21, 22,
-        //    22, 21, 23,
-        //};
-
-        //std::vector<UINT> hardcodedIndices = {
-        //    0, 1, 2, // First triangle (Top-Left, Top-Right, Bottom-Left)
-        //    1, 3, 2  // Second triangle (Top-Right, Bottom-Right, Bottom-Left)
-        //};
-
-        //return hardcodedIndices;
-        ////return std::vector<UINT>({ 0, 1, 10, 1, 11, 10 });
-        ////return std::vector<UINT>({ 0, 1, 10, 1, 10, 11 });
-        //// 0 - 1
-        //// | / |
-        //// 2   3
+        // 0 - 1
+        // | / |
+        // 2   3
         std::vector<UINT> indices;
 
         for (int y = 0; y < densityY - 1; y++) {
@@ -557,14 +469,13 @@ public:
                 UINT bottomLeft = (y + 1) * densityX + x;
                 UINT bottomRight = bottomLeft + 1;
 
-                //std::cout << topLeft<<" " << topRight <<" " << bottomLeft << std::endl;
                 indices.push_back(topLeft);
                 indices.push_back(topRight);
                 indices.push_back(bottomLeft);
 
                 indices.push_back(topRight);
-                indices.push_back(bottomLeft);
                 indices.push_back(bottomRight);
+                indices.push_back(bottomLeft);
             }
         }
         return indices;

@@ -55,7 +55,7 @@ float4 Main(PSInput input) : SV_Target
 
     // Combine lighting components with adjusted attenuation and fresnel effect for specular highlight
     float3 result = ambient + (diff + specular) * attenuation;
-return float4(normalize(input.Normal) * 0.5f + 0.5f, 1.0f);
+//return float4(normalize(input.Normal) * 0.5f + 0.5f, 1.0f);
     return float4(result, 1.0);
 }
 

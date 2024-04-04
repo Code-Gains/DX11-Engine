@@ -30,6 +30,9 @@ cbuffer PerInstance : register(b3)
     PerInstanceData instanceData[256]; // Max batch size
 };
 
+// texture2D
+// sampler
+
 struct VSInput
 {
     float3 Position : POSITION;
@@ -49,24 +52,26 @@ struct VSOutput
 
 VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
 {
-    VSOutput output = (VSOutput) 0;
+    VSOutput output = (VSOutput)0;
+
+    // Convert the input normal into world space
+    float3 normalWorld = normalize(mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix));
 
     // Calculate the model-view-projection matrix
     matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
-    //matrix world = mul(viewprojection, modelMatrix);
+
+    // sample normal map to get correct vertex height
     output.Position = mul(world, float4(input.Position, 1.0));
-    
+
     output.Uv = input.Uv;
-    
-    // Transform the normal
-    output.Normal = mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix);
-    //output.Normal = mul(input.Normal, (float3x3)modelMatrix);
-    
-    // Calculate the world position
+
+    // The normal does not need to be adjusted if it's purely a displacement along the normal.
+    output.Normal = normalWorld;
+
+    // Calculate the world position with the adjusted position
     output.PositionWorld = mul(float4(input.Position, 1.0), instanceData[instanceID].worldMatrix).xyz;
-    //output.PositionWorld = mul(float4(input.Position, 1.0), modelMatrix).xyz;
-    
+
     output.Material = instanceData[instanceID].material;
-    
+
     return output;
 }

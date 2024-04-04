@@ -5,7 +5,7 @@ TerrainComponent::TerrainComponent()
 {
 }
 
-TerrainComponent::TerrainComponent(const Heightmap& heightmap, MeshComponent<VertexPositionNormalUvHeight>* mesh)
+TerrainComponent::TerrainComponent(const Heightmap& heightmap, MeshComponent<VertexPositionNormalUv>* mesh)
 	: _terrainChunkMesh(mesh)
 {
 

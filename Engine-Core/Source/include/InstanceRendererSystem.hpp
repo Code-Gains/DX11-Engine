@@ -19,6 +19,7 @@
 #include <tuple>
 #include <iostream>
 #include <string>
+#include <random>
 
 
 class IVertexHandler
@@ -163,11 +164,16 @@ public:
         pipePool.shaderId = L"Main";
         _instancePools[pipeIndex] = std::move(pipePool);
 
+
+        std::random_device rd;  // Obtain a random number from hardware
+        std::mt19937 gen(rd()); // Seed the generator
+        std::uniform_real_distribution<> distr(-1.0, 1.0); // Define the range
+
         Heightmap heightmap = Heightmap(10, 10);
         auto terrainChunkMesh = MeshComponent<VertexPositionNormalUv>::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk, &heightmap);
         int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
         InstancePool terrainChunkPool =
-            CreateInstancePool<VertexPositionNormalUvHeight>(terrainChunkIndex, terrainChunkMesh);
+            CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
         terrainChunkPool.shaderId = L"Terrain";
         _instancePools[terrainChunkIndex] = std::move(terrainChunkPool);
     }
