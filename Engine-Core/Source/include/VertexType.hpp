@@ -4,7 +4,8 @@
 
 enum class VertexType
 {
-    PositionNormalUv
+    PositionNormalUv,
+    PositionNormalUvHeight
 };
 
 using Position = DirectX::XMFLOAT3;
@@ -18,12 +19,6 @@ struct VertexPositionNormalUv
     Position position; // 12
     Normal normal; // 12
     Uv uv; // 8
-
-    template <class Archive>
-    void serialize(Archive& archive)
-    {
-        archive(CEREAL_NVP(position), CEREAL_NVP(normal), CEREAL_NVP(uv));
-    }
 };
 
 struct VertexPositionNormalUvHeight
@@ -35,10 +30,4 @@ struct VertexPositionNormalUvHeight
     float height; // 4
 
     float padding[3]; // 12
-
-    template <class Archive>
-    void serialize(Archive& archive)
-    {
-        archive(CEREAL_NVP(position), CEREAL_NVP(normal), CEREAL_NVP(uv), CEREAL_NVP(height));
-    }
 };

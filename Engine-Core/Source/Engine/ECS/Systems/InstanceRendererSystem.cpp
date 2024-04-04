@@ -121,6 +121,43 @@ void InstanceRendererSystem::UpdateDirtyInstances()
         }
     }
 
+
+    // temporary spaghetti
+    // querry returns a vector of tuples that contain component vectors
+    auto componentQueryResultSpaghetti = _ecs->QueryComponentVectors<TransformComponent, MeshComponent<VertexPositionNormalUv>, MaterialComponent>();
+    // iterate
+    for (auto& tuple : componentQueryResultSpaghetti)
+    {
+        // will need to optimize TODO (or actually never mind I think, we need entity indexes anyway)
+        auto& transforms = std::get<0>(tuple);
+        auto& meshes = std::get<1>(tuple);
+        auto& materials = std::get<2>(tuple);
+
+        // all vectors should be the same length (ALWAYS!!! Otherwise it should result in a crash)
+
+        auto& rawTransforms = *transforms->GetRawVector();
+        auto& rawMeshes = *meshes->GetRawVector();
+        auto& rawMaterials = *materials->GetRawVector();
+
+        for (auto& entityToComponent : transforms->GetEntityToIndex())
+        {
+            auto id = entityToComponent.first;
+            auto idx = entityToComponent.second;
+            if (rawTransforms[idx].IsDirty() || rawMaterials[idx].IsDirty())
+            {
+                UpdateInstanceData(
+                    rawMeshes[idx].GetInstancePoolIndex(),
+                    id,
+                    InstanceConstantBuffer(
+                        rawTransforms[idx].GetWorldMatrix(),
+                        rawMaterials[idx].GetMaterialConstantBuffer()
+                    ));
+                rawTransforms[idx].SetIsDirty(false);
+                rawMaterials[idx].SetIsDirty(false);
+            }
+        }
+    }
+
     //if (_transformComponentIndices.find(entity) == _transformComponentIndices.end())
     //    continue;
 

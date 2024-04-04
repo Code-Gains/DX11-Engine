@@ -54,21 +54,9 @@ float4 Main(PSInput input) : SV_Target
     specular += fresnel * specular;
 
     // Combine lighting components with adjusted attenuation and fresnel effect for specular highlight
-    float3 lightResult = ambient + (diff + specular) * attenuation;
-
- // Existing shader code for lighting calculations...
-
-    // Dot Effect (simplified example)
-    float uvThreshold = 0.5; // Threshold for how close to the UV edge or corner to start showing the dot
-    bool nearUvEdgeOrCorner = (input.Uv.x < uvThreshold || input.Uv.x > 1.0f - uvThreshold) || 
-                              (input.Uv.y < uvThreshold || input.Uv.y > 1.0f - uvThreshold);
-    if (nearUvEdgeOrCorner)
-    {
-        // Modify this color to your liking or blend it with the existing pixel color
-        return float4(1.0, 0.0, 0.0, 1.0); // Example: Red dots
-    }
-
-    return float4(lightResult, 1.0);
+    float3 result = ambient + (diff + specular) * attenuation;
+return float4(normalize(input.Normal) * 0.5f + 0.5f, 1.0f);
+    return float4(result, 1.0);
 }
 
 

@@ -187,8 +187,8 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 		Heightmap heightmap = Heightmap(heights);
 		auto mesh = MeshComponent<VertexPositionNormalUvHeight>::GenerateTerrainMeshComponent(type, &heightmap);
 		auto terrain = TerrainComponent(heightmap, &mesh);
-		_world->AddComponent(geometry, terrain);
 		_world->AddComponent(geometry, mesh);
+		_world->AddComponent(geometry, terrain);
 	}
 	else
 	{

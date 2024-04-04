@@ -315,18 +315,18 @@ bool RenderingApplication3D::Load()
 {
     // TODO MOVE SHADER COLLECTION TO WORLD OR RENDERER
     ShaderCollectionDescriptor mainShaderDescriptor = {};
-    mainShaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
-    mainShaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
+    mainShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Main.vs.hlsl";
+    mainShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Main.ps.hlsl";
     mainShaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     ShaderCollectionDescriptor terrainShaderDescriptor = {};
-    terrainShaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Terrain.vs.hlsl";
-    terrainShaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Terrain.ps.hlsl";
-    terrainShaderDescriptor.VertexType = VertexType::PositionNormalUv;
+    terrainShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Terrain.vs.hlsl";
+    terrainShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Terrain.ps.hlsl";
+    terrainShaderDescriptor.VertexType = VertexType::PositionNormalUvHeight;
 
     _shaderManager = ShaderManager(_device.Get());
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
-    _shaderManager.LoadShaderCollection(L"Terrain", mainShaderDescriptor);
+    _shaderManager.LoadShaderCollection(L"Terrain", terrainShaderDescriptor);
 
     //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
     _ecs.AddSystem<ECSDebugger>(&_ecs);

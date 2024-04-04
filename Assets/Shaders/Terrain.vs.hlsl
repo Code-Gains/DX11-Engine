@@ -30,8 +30,6 @@ cbuffer PerInstance : register(b3)
     PerInstanceData instanceData[256]; // Max batch size
 };
 
-StructuredBuffer<float> heightmap : register(t0);
-
 struct VSInput
 {
     float3 Position : POSITION;

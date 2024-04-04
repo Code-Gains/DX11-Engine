@@ -21,6 +21,31 @@
 #include <string>
 
 
+class IVertexHandler
+{
+public:
+    virtual ~IVertexHandler() = default;
+    virtual void SetVertexBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* vertexBuffer) const = 0;
+    virtual UINT GetStride() const = 0;
+};
+
+template <typename TVertex>
+class VertexHandler : public IVertexHandler
+{
+public:
+    void SetVertexBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* vertexBuffer) const override
+    {
+        UINT stride = sizeof(TVertex);
+        UINT offset = 0;
+        deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    }
+
+    UINT GetStride() const override
+    {
+        return sizeof(TVertex);
+    }
+};
+
 struct InstanceConstantBuffer
 {
     DirectX::XMMATRIX worldMatrix;
@@ -37,6 +62,8 @@ class InstanceRendererSystem : public ISystem
 public:
     struct InstancePool
     {
+        std::unique_ptr<IVertexHandler> vertexHandler;
+
         std::wstring shaderId;
         WRL::ComPtr<ID3D11Buffer> vertexBuffer = nullptr;
         UINT vertexCount = 0;
@@ -45,7 +72,7 @@ public:
         UINT indexCount = 0;
 
         std::vector<InstanceConstantBuffer> instances;
-        std::unordered_map<int, size_t> entityIdToInstanceIndex;
+        std::unordered_map<uint32_t, size_t> entityIdToInstanceIndex;
         UINT instanceCount = 0;
 
         void Clear()
@@ -54,6 +81,16 @@ public:
             entityIdToInstanceIndex.clear();
             instanceCount = 0;
         }
+
+        InstancePool() {};
+
+        // delete copy operators
+        InstancePool(const InstancePool&) = delete;
+        InstancePool& operator=(const InstancePool&) = delete;
+
+        // move constructors
+        InstancePool(InstancePool&&) noexcept = default;
+        InstancePool& operator=(InstancePool&&) noexcept = default;
     };
 
 private:
@@ -103,87 +140,40 @@ public:
         InstancePool cubePool =
             CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
         cubePool.shaderId = L"Main";
-        _instancePools[cubeIndex] = cubePool;
+        _instancePools[cubeIndex] = std::move(cubePool);
 
         auto sphereMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
         int sphereIndex = sphereMesh.GetInstancePoolIndex();
         InstancePool spherePool =
             CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
         spherePool.shaderId = L"Main";
-        _instancePools[sphereIndex] = spherePool;
+        _instancePools[sphereIndex] = std::move(spherePool);
 
         auto cylinderMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
         int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
         InstancePool cylinderPool =
             CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
         cylinderPool.shaderId = L"Main";
-        _instancePools[cylinderIndex] = cylinderPool;
+        _instancePools[cylinderIndex] = std::move(cylinderPool);
 
         auto pipeMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
         int pipeIndex = pipeMesh.GetInstancePoolIndex();
         InstanceRendererSystem::InstancePool pipePool =
             CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
         pipePool.shaderId = L"Main";
-        _instancePools[pipeIndex] = pipePool;
+        _instancePools[pipeIndex] = std::move(pipePool);
 
         Heightmap heightmap = Heightmap(10, 10);
-        auto terrainChunkMesh = MeshComponent<VertexPositionNormalUvHeight>::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk, &heightmap);
+        auto terrainChunkMesh = MeshComponent<VertexPositionNormalUv>::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk, &heightmap);
         int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
         InstancePool terrainChunkPool =
             CreateInstancePool<VertexPositionNormalUvHeight>(terrainChunkIndex, terrainChunkMesh);
         terrainChunkPool.shaderId = L"Terrain";
-        _instancePools[terrainChunkIndex] = terrainChunkPool;
+        _instancePools[terrainChunkIndex] = std::move(terrainChunkPool);
     }
 
-    template <typename TVertexType>
-    bool InitializeInstancePool(int poolKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices)
-    {
-        D3D11_BUFFER_DESC vertexBufferDesc;
-        ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-        vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-        vertexBufferDesc.ByteWidth = sizeof(TVertexType) * vertices.size();
-        vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        vertexBufferDesc.CPUAccessFlags = 0;
-        vertexBufferDesc.MiscFlags = 0;
-
-        D3D11_BUFFER_DESC indexBufferDesc;
-        ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
-        indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        indexBufferDesc.ByteWidth = sizeof(UINT) * indices.size();
-        indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-        // Create buffers
-        InstancePool newPool;
-
-        D3D11_SUBRESOURCE_DATA vertexData;
-        ZeroMemory(&vertexData, sizeof(vertexData));
-        vertexData.pSysMem = vertices.data();
-        HRESULT hr = _device->CreateBuffer(&vertexBufferDesc, &vertexData, newPool.vertexBuffer.GetAddressOf());
-        if (FAILED(hr))
-        {
-            std::cerr << "Could not create Vertex Buffer for a pool!\n";
-            return false;
-        }
-
-        D3D11_SUBRESOURCE_DATA indexData;
-        ZeroMemory(&indexData, sizeof(indexData));
-        indexData.pSysMem = indices.data();
-        hr = _device->CreateBuffer(&indexBufferDesc, &indexData, newPool.indexBuffer.GetAddressOf());
-        if (FAILED(hr))
-        {
-            std::cerr << "Could not create Index Buffer for a pool!\n";
-            return false;
-        }
-
-        // Set pool
-        newPool.vertexCount = vertices.size();
-        newPool.indexCount = indices.size();
-        _instancePools[poolKey] = newPool;
-        return true;
-    }
-
-    template <typename TVertexType>
-    InstancePool CreateInstancePool(int poolKey, const MeshComponent<TVertexType>& meshComponent)
+    template <typename TVertex>
+    InstancePool CreateInstancePool(int poolKey, const MeshComponent<TVertex>& meshComponent)
     {
         auto vertices = meshComponent.GetVertices();
         auto indices = meshComponent.GetIndices();
@@ -191,7 +181,7 @@ public:
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
         vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-        vertexBufferDesc.ByteWidth = sizeof(TVertexType) * vertices.size(); // DANGEROUS, CHANGE TODO
+        vertexBufferDesc.ByteWidth = sizeof(TVertex) * vertices.size(); // DANGEROUS, CHANGE TODO
         vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vertexBufferDesc.CPUAccessFlags = 0;
         vertexBufferDesc.MiscFlags = 0;
@@ -226,6 +216,7 @@ public:
         }
 
         // Set pool
+        newPool.vertexHandler = std::make_unique<VertexHandler<TVertex>>();
         newPool.vertexCount = vertices.size();
         newPool.indexCount = indices.size();
         return newPool;
@@ -296,10 +287,9 @@ public:
                 _deviceContext->Unmap(_instanceConstantBuffer.Get(), 0);
 
                 // Draw
-                UINT stride = sizeof(TVertexType);
-                UINT offset = 0;
-
-                _deviceContext->IASetVertexBuffers(0, 1, instancePool.vertexBuffer.GetAddressOf(), &stride, &offset);
+                
+                // automatically calculate stride and offset inside the instance pool and bind vertex buffer
+                instancePool.vertexHandler->SetVertexBuffer(_deviceContext.Get(), instancePool.vertexBuffer.Get());
                 _deviceContext->IASetIndexBuffer(instancePool.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
                 _deviceContext->DrawIndexedInstanced(instancePool.indexCount, instancesToRender, 0, 0, 0);
 

@@ -19,7 +19,8 @@ class ShaderCollection
 public:
 
     static ShaderCollection CreateShaderCollection(
-        const ShaderCollectionDescriptor& settings, ID3D11Device* device);
+        const ShaderCollectionDescriptor& settings,
+        ID3D11Device* device);
 
     static UINT GetLayoutByteSize(VertexType vertexType);
 
