@@ -332,6 +332,7 @@ bool RenderingApplication3D::Load()
     _ecs.AddSystem<ECSDebugger>(&_ecs);
     _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_shaderManager, &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
+    _instanceRenderer->Initialize();
     _ecsDebugger = _ecs.GetSystem<ECSDebugger>();
     _instanceRenderer->LinkEngineInstancePools();
 

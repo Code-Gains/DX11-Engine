@@ -264,6 +264,7 @@
     <ClInclude Include="Source\include\Terrain.hpp" />
     <ClInclude Include="Source\include\TerrainChunk.hpp" />
     <ClInclude Include="Source\include\TerrainComponent.hpp" />
+    <ClInclude Include="Source\include\TextureManager.hpp" />
     <ClInclude Include="Source\include\TransformComponent.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
   </ItemGroup>
@@ -289,6 +290,7 @@
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
+    <ClCompile Include="Source\Engine\Shaders\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />
     <ClCompile Include="Source\imgui\imgui.cpp" />
     <ClCompile Include="Source\imgui\imgui_demo.cpp" />

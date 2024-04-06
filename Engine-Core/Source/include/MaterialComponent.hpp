@@ -16,7 +16,7 @@ struct MaterialConstantBuffer
     MaterialConstantBuffer(const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float shininess);
 };
 
-class MaterialComponent : public ComponentIdentifier, public IComponent
+class MaterialComponent : public IComponent
 {
     MaterialConstantBuffer _materialConstantBuffer;
     bool _isDirty = true;
@@ -46,7 +46,6 @@ public:
     void serialize(Archive& archive)
     {
         archive(
-            cereal::make_nvp("_id", GetId()),
             CEREAL_NVP(_isDirty),
             cereal::make_nvp("ambient", _materialConstantBuffer.ambient),
             cereal::make_nvp("diffuse", _materialConstantBuffer.diffuse),

@@ -471,6 +471,9 @@
     <ClInclude Include="Source\include\TerrainComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\TextureManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\TransformComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -540,6 +543,9 @@
       <Filter>Engine\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp">
+      <Filter>Engine\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Shaders\TextureManager.cpp">
       <Filter>Engine\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp">

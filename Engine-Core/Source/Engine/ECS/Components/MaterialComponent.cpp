@@ -1,6 +1,6 @@
 #include "MaterialComponent.hpp"
 
-MaterialComponent::MaterialComponent() : ComponentIdentifier(0)
+MaterialComponent::MaterialComponent()
 {
 }
 
@@ -8,7 +8,7 @@ MaterialComponent::MaterialComponent(
 	const DirectX::XMFLOAT4& ambient,
 	const DirectX::XMFLOAT4& diffuse,
 	const DirectX::XMFLOAT4& specular,
-	float shininess) : ComponentIdentifier(0)
+	float shininess)
 {
 	_materialConstantBuffer = MaterialConstantBuffer(ambient, diffuse, specular, shininess);
 }
@@ -18,7 +18,7 @@ MaterialComponent::MaterialComponent(
 	const DirectX::XMFLOAT4& ambient,
 	const DirectX::XMFLOAT4& diffuse,
 	const DirectX::XMFLOAT4& specular,
-	float shininess) : ComponentIdentifier(id)
+	float shininess)
 {
 	_materialConstantBuffer = MaterialConstantBuffer(ambient, diffuse, specular, shininess);
 }

@@ -30,15 +30,14 @@ cbuffer PerInstance : register(b3)
     PerInstanceData instanceData[256]; // Max batch size
 };
 
-// texture2D
-// sampler
+Texture2D HeightMap : register(t0);
+SamplerState HeightSampler : register(s0);
 
 struct VSInput
 {
     float3 Position : POSITION;
     float3 Normal : NORMAL;
     float2 Uv : TEXCOORD0;
-    float Height : TEXCOORD1;
 };
 
 struct VSOutput

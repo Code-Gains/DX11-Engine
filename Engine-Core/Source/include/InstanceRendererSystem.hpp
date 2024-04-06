@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+//#include "TextureManager.hpp"
 
 
 class IVertexHandler
@@ -51,10 +52,12 @@ struct InstanceConstantBuffer
 {
     DirectX::XMMATRIX worldMatrix;
     MaterialConstantBuffer material;
+    //std::wstring textureId;
 
     InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer);
+    //InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer, const std::wstring& textureId);
 };
 
 
@@ -95,8 +98,8 @@ public:
     };
 
 private:
-    // ECS
     ShaderManager* _shaderManager;
+    //TextureManager _textureManager;
     ECS* _ecs;
 
     // Instanced Rendering Resources
@@ -107,6 +110,9 @@ private:
     // Graphics Resources
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
+
+    WRL::ComPtr<ID3D11ShaderResourceView> _textureView = nullptr;
+    WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
@@ -228,12 +234,10 @@ public:
         return newPool;
     }
 
-    template<typename TVertexType>
-    void RenderInstances(
+    void BindBuffersAndResources(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const LightConstantBuffer& lightConstantBufferData
-    )
+        const LightConstantBuffer& lightConstantBufferData)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -249,7 +253,7 @@ public:
         memcpy(mappedResource.pData, &lightConstantBufferData, sizeof(LightConstantBuffer));
         _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
 
-        ID3D11Buffer* constantPerFrameBuffers[3] = 
+        ID3D11Buffer* constantPerFrameBuffers[3] =
         {
             _perFrameConstantBuffer.Get(),
             _cameraConstantBuffer.Get(),
@@ -266,6 +270,20 @@ public:
 
         _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
+
+        _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
+        _deviceContext->VSGetShaderResources(0, 1, _textureView.GetAddressOf());
+
+    }
+
+    template<typename TVertexType>
+    void RenderInstances(
+        const PerFrameConstantBuffer& perFrameConstantBuffer,
+        const CameraConstantBuffer& cameraConstantBufferData,
+        const LightConstantBuffer& lightConstantBufferData
+    )
+    {
+        BindBuffersAndResources(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData);
 
         for (const auto& instancePoolPair : _instancePools)
         {
@@ -291,6 +309,13 @@ public:
 
                 memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(InstanceConstantBuffer) * instancesToRender);
                 _deviceContext->Unmap(_instanceConstantBuffer.Get(), 0);
+
+                // Bind Textures TODO this will need adjustment to account for multiple textures
+                // While condition guarantees [0] access
+                /*auto& firstInstance = instancePool.instances[0];
+                ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(firstInstance.textureId);
+                if(textureSrv)
+                    _deviceContext->VSSetShaderResources(0, 1, &textureSrv);*/
 
                 // Draw
                 
