@@ -87,7 +87,7 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 void InstanceRendererSystem::UpdateDirtyInstances()
 {
     // querry returns a vector of tuples that contain component vectors
-    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent<VertexPositionNormalUvHeight>, MaterialComponent>();
+    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent<VertexPositionNormalUv>, MaterialComponent>();
     // iterate
     for (auto& tuple : componentQueryResult)
     {
