@@ -55,20 +55,21 @@ VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
 
     // Convert the input normal into world space
     float3 normalWorld = normalize(mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix));
-
+    float heightValue = HeightMap.SampleLevel(HeightSampler, input.Uv, 0).r;
+    float3 displacedPosition = input.Position + (normalWorld * heightValue);
     // Calculate the model-view-projection matrix
     matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
 
     // sample normal map to get correct vertex height
-    output.Position = mul(world, float4(input.Position, 1.0));
+    //output.Position = mul(world, float4(input.Position, 1.0));
+    output.Position = mul(world, float4(displacedPosition, 1.0));
 
     output.Uv = input.Uv;
 
-    // The normal does not need to be adjusted if it's purely a displacement along the normal.
     output.Normal = normalWorld;
 
     // Calculate the world position with the adjusted position
-    output.PositionWorld = mul(float4(input.Position, 1.0), instanceData[instanceID].worldMatrix).xyz;
+    output.PositionWorld = mul(float4(displacedPosition, 1.0), instanceData[instanceID].worldMatrix).xyz;
 
     output.Material = instanceData[instanceID].material;
 

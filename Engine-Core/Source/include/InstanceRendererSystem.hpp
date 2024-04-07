@@ -20,7 +20,7 @@
 #include <iostream>
 #include <string>
 #include <random>
-//#include "TextureManager.hpp"
+#include "TextureManager.hpp"
 
 
 class IVertexHandler
@@ -52,7 +52,6 @@ struct InstanceConstantBuffer
 {
     DirectX::XMMATRIX worldMatrix;
     MaterialConstantBuffer material;
-    //std::wstring textureId;
 
     InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
@@ -67,6 +66,7 @@ public:
     struct InstancePool
     {
         std::unique_ptr<IVertexHandler> vertexHandler;
+        std::wstring textureId;
 
         std::wstring shaderId;
         WRL::ComPtr<ID3D11Buffer> vertexBuffer = nullptr;
@@ -99,7 +99,7 @@ public:
 
 private:
     ShaderManager* _shaderManager;
-    //TextureManager _textureManager;
+    TextureManager _textureManager;
     ECS* _ecs;
 
     // Instanced Rendering Resources
@@ -181,6 +181,11 @@ public:
         InstancePool terrainChunkPool =
             CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
         terrainChunkPool.shaderId = L"Terrain";
+        auto textureId = _textureManager.LoadTexture(_device.Get(), L"../../../../Assets/Textures/mario.png");
+
+        std::string textureName(textureId.begin(), textureId.end());
+        std::cout << textureName << std::endl;
+        terrainChunkPool.textureId = textureId;
         _instancePools[terrainChunkIndex] = std::move(terrainChunkPool);
     }
 
@@ -272,7 +277,7 @@ public:
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
-        _deviceContext->VSGetShaderResources(0, 1, _textureView.GetAddressOf());
+       // _deviceContext->VSGetShaderResources(0, 1, _textureView.GetAddressOf());
 
     }
 
@@ -310,12 +315,15 @@ public:
                 memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(InstanceConstantBuffer) * instancesToRender);
                 _deviceContext->Unmap(_instanceConstantBuffer.Get(), 0);
 
-                // Bind Textures TODO this will need adjustment to account for multiple textures
+                // Bind Textures TODO this will need adjustment to account for multiple textures ??
+                // actually maybe not, it makes sense that you keep instances with different textures in
+                // separate pools I think
                 // While condition guarantees [0] access
-                /*auto& firstInstance = instancePool.instances[0];
-                ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(firstInstance.textureId);
+                ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(instancePool.textureId);
+                /*std::string textureName(instancePool.textureId.begin(), instancePool.textureId.end());
+                std::cout << textureName << std::endl;*/
                 if(textureSrv)
-                    _deviceContext->VSSetShaderResources(0, 1, &textureSrv);*/
+                    _deviceContext->VSSetShaderResources(0, 1, &textureSrv);
 
                 // Draw
                 

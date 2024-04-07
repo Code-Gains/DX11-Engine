@@ -85,26 +85,6 @@ void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int insta
     _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
 }
 
-
-//void RenderingApplication3D::RemoveAllRenderableInstances()
-//{
-//    for (auto& instancePoolPair : _instancePools)
-//    {
-//        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
-//        instancePool.entityIdToInstanceIndex.clear();
-//        instancePool.instances.clear();
-//        instancePool.instanceCount = 0;
-//    }
-//}
-
-//void RenderingApplication3D::ClearAllInstancePools()
-//{
-//    for (auto& instancePool : _instancePools)
-//    {
-//        instancePool.second.Clear();
-//    }
-//}
-
 void RenderingApplication3D::SetLightConstantBuffer(const LightConstantBuffer& lightBuffer)
 {
     _lightConstantBufferData.Position = lightBuffer.Position;
