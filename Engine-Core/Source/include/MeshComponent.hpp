@@ -326,10 +326,6 @@ public:
         float halfWidth = width / 2;
         float halfHeight = height / 2;
 
-        std::cout << width << std::endl;
-        std::cout << height << std::endl;
-        int indice = 0;
-
         std::vector<VertexPositionNormalUv> vertices;
         for (float y = 0.0f; y < height; y += verticalGap)
         {
@@ -338,14 +334,10 @@ public:
             {
                 float u = x / width;
                 float v = y / height;
-
-                //std::cout << "indice " << indice << ": " << x << " " << y << std::endl;
-                indice++;
-                //std::cout << x-halfWidth << " " << y-halfHeight << std::endl;
                 vertices.push_back({
-                    {x - halfWidth, 0, y - halfHeight},   // Position
-                    {0.0f, 1.0f, 0.0f},                              // Normal
-                    {u, v}
+                    {x - halfWidth, 0, y - halfHeight}, // Position
+                    {0.0f, 1.0f, 0.0f},                 // Normal
+                    {u, v}                              //UV
                 });
             }
         }

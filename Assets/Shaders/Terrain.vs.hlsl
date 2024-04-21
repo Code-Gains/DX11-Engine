@@ -30,8 +30,10 @@ cbuffer PerInstance : register(b3)
     PerInstanceData instanceData[256]; // Max batch size
 };
 
-Texture2D HeightMap : register(t0);
 SamplerState HeightSampler : register(s0);
+Texture2D HeightMap : register(t0);
+
+//SamplerState NormalSampler : register(s0);
 
 struct VSInput
 {
@@ -56,7 +58,7 @@ VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
     // Convert the input normal into world space
     float3 normalWorld = normalize(mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix));
     float heightValue = HeightMap.SampleLevel(HeightSampler, input.Uv, 0).r;
-    float3 displacedPosition = input.Position + (normalWorld * heightValue);
+    float3 displacedPosition = input.Position + (normalWorld * 5 *  heightValue);
     // Calculate the model-view-projection matrix
     matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
 

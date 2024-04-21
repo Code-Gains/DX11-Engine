@@ -67,6 +67,7 @@ public:
     {
         std::unique_ptr<IVertexHandler> vertexHandler;
         std::wstring textureId;
+        std::wstring normalMapTextureId;
 
         std::wstring shaderId;
         WRL::ComPtr<ID3D11Buffer> vertexBuffer = nullptr;
@@ -181,11 +182,12 @@ public:
         InstancePool terrainChunkPool =
             CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
         terrainChunkPool.shaderId = L"Terrain";
-        auto textureId = _textureManager.LoadTexture(_device.Get(), L"../../../../Assets/Textures/mario.png");
+        auto textureId = _textureManager.LoadTexture(_device.Get(), L"../../../../Assets/Textures/10x10.png");
+        auto normalMapTextureId = _textureManager.CreateTextureNormalMapFromImage(_device.Get(), L"../../../../Assets/Textures/10x10.png");
 
-        std::string textureName(textureId.begin(), textureId.end());
-        std::cout << textureName << std::endl;
+        // TODO fix spaghetti
         terrainChunkPool.textureId = textureId;
+        terrainChunkPool.normalMapTextureId = normalMapTextureId;
         _instancePools[terrainChunkIndex] = std::move(terrainChunkPool);
     }
 
@@ -277,7 +279,7 @@ public:
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
-       // _deviceContext->VSGetShaderResources(0, 1, _textureView.GetAddressOf());
+        _deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
 
     }
 
@@ -294,7 +296,7 @@ public:
         {
             const InstancePool& instancePool = instancePoolPair.second;
 
-            // automatic shader switching
+            // Automatic shader switching
             if (instancePool.instanceCount != 0 && _shaderManager->GetCurrentShaderId() != instancePool.shaderId)
                 _shaderManager->ApplyToContext(instancePool.shaderId, _deviceContext.Get());
 
@@ -320,18 +322,24 @@ public:
                 // separate pools I think
                 // While condition guarantees [0] access
                 ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(instancePool.textureId);
-                /*std::string textureName(instancePool.textureId.begin(), instancePool.textureId.end());
-                std::cout << textureName << std::endl;*/
-                if(textureSrv)
-                    _deviceContext->VSSetShaderResources(0, 1, &textureSrv);
+                ID3D11ShaderResourceView* normalMapTextureSrv = _textureManager.GetTexture(instancePool.normalMapTextureId);
 
-                // Draw
+                if (textureSrv && normalMapTextureSrv)
+                {
+                    _deviceContext->VSSetShaderResources(0, 1, &textureSrv);
+                    _deviceContext->PSSetShaderResources(0, 1, &normalMapTextureSrv);
+                }
                 
-                // automatically calculate stride and offset inside the instance pool and bind vertex buffer
+                // Automatically calculate stride and offset inside the instance pool and bind vertex buffer
                 instancePool.vertexHandler->SetVertexBuffer(_deviceContext.Get(), instancePool.vertexBuffer.Get());
+
+                // Other resource setting
                 _deviceContext->IASetIndexBuffer(instancePool.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+                    
+                // Draw
                 _deviceContext->DrawIndexedInstanced(instancePool.indexCount, instancesToRender, 0, 0, 0);
 
+                // For while loop condition
                 instancesRendered += instancesToRender;
             }
         }

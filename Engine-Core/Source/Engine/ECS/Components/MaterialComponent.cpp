@@ -87,7 +87,7 @@ MaterialComponent MaterialComponent::GetDefaultMaterialComponent(int id)
 	DirectX::XMFLOAT4 ambient{ 1.0f, 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT4 diffuse{ 1.0f, 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT4 specular{ 1.0f, 1.0f, 1.0f, 1.0f };
-	float shininess = 3.0f;
+	float shininess = 15.0f;
 	auto material = MaterialComponent(id, ambient, diffuse, specular, shininess);
 	return material;
 }
