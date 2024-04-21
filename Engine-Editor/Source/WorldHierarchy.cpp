@@ -176,7 +176,6 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	_world->AddComponent(geometry, transform);
 
 	//temporary to check system TODO SEPARATE
-	auto mesh = MeshComponent();
 
 	if (type == PrimitiveGeometryType3D::TerrainChunk)
 	{
@@ -186,14 +185,16 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 			heights[i].resize(10, (float)i);
 		}
 		Heightmap heightmap = Heightmap(heights);
-		mesh = MeshComponent::GenerateTerrainMeshComponent(type, &heightmap);
+		auto mesh = MeshComponent<VertexPositionNormalUvHeight>::GenerateTerrainMeshComponent(type, &heightmap);
 		auto terrain = TerrainComponent(heightmap, &mesh);
+		_world->AddComponent(geometry, mesh);
 		_world->AddComponent(geometry, terrain);
 	}
 	else
-		mesh = MeshComponent::GeneratePrimitiveMeshComponent(type);
-
-	_world->AddComponent(geometry, mesh);
+	{
+		auto mesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(type);
+		_world->AddComponent(geometry, mesh);
+	}
 
 	auto material = MaterialComponent::GetDefaultMaterialComponent(0);
 	_world->AddComponent(geometry, material);

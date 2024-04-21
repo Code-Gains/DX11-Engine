@@ -17,13 +17,15 @@ project "Engine-Editor"
         "../Engine-Core/Source/cereal",
         "../Engine-Core/Source/imgui/include",
         "../Engine-Core/Source/glfw-3.3.8.bin.WIN64/include",
+        "../Engine-Core/Source/FreeImage/include"
     }
 
     links
     {
         "Engine-Core",
         "../Engine-Core/Source/glfw-3.3.8.bin.WIN64/lib-vc2022/glfw3.lib",
-        "../Engine-Core/Source/DirectXTex/lib/Release/DirectXTex.lib"
+        "../Engine-Core/Source/DirectXTex/lib/Release/DirectXTex.lib",
+        "../Engine-Core/Source/FreeImage/lib//FreeImage.lib"
     }
 
 

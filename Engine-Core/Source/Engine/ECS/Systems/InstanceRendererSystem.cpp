@@ -27,8 +27,9 @@ InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batch
 
 InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,
+    ShaderManager* shaderManager,
     ECS* ecs,
-    int batchSize) : _device(device), _deviceContext(deviceContext), _ecs(ecs)
+    int batchSize) : _device(device), _deviceContext(deviceContext), _shaderManager(shaderManager), _ecs(ecs)
 {
     CreateConstantBuffers();
 }
@@ -86,7 +87,7 @@ void InstanceRendererSystem::RemoveInstance(int poolKey, int entityId)
 void InstanceRendererSystem::UpdateDirtyInstances()
 {
     // querry returns a vector of tuples that contain component vectors
-    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent, MaterialComponent>();
+    auto componentQueryResult = _ecs->QueryComponentVectors<TransformComponent, MeshComponent<VertexPositionNormalUv>, MaterialComponent>();
     // iterate
     for (auto& tuple : componentQueryResult)
     {
@@ -119,32 +120,6 @@ void InstanceRendererSystem::UpdateDirtyInstances()
             }
         }
     }
-
-    //if (_transformComponentIndices.find(entity) == _transformComponentIndices.end())
-    //    continue;
-
-    //int transformIndex = _transformComponentIndices[entity];
-    //TransformComponent& transform = _transformComponents[transformIndex];
-
-    //if (_materialComponentIndices.find(entity) == _materialComponentIndices.end())
-    //    continue;
-
-    //int materialIndex = _materialComponentIndices[entity];
-    //MaterialComponent& material = _materialComponents[materialIndex];
-
-    //if (!transform.IsDirty() && !material.IsDirty())
-    //    continue;
-
-    //if (_meshComponentIndices.find(entity) == _meshComponentIndices.end())
-    //    continue;
-
-    //int meshIndex = _meshComponentIndices[entity];
-    //MeshComponent& mesh = _meshComponents[meshIndex];
-
-    //UpdateRenderableInstanceData(mesh.GetInstancePoolIndex(), entity, InstanceConstantBuffer(transform.GetWorldMatrix(), material.GetMaterialConstantBuffer())); // MUST manage meshes
-    //transform.SetIsDirty(false);
-    //material.SetIsDirty(false);
-    // update
 }
 
 void InstanceRendererSystem::RemoveAllInstances()
@@ -156,6 +131,19 @@ void InstanceRendererSystem::RemoveAllInstances()
         instancePool.instances.clear();
         instancePool.instanceCount = 0;
     }
+}
+
+void InstanceRendererSystem::Initialize()
+{
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    _device->CreateSamplerState(&sampDesc, &_samplerState);
 }
 
 InstanceConstantBuffer::InstanceConstantBuffer()
@@ -171,3 +159,8 @@ InstanceConstantBuffer::InstanceConstantBuffer(
     const MaterialConstantBuffer& materialConstantBuffer) : worldMatrix(worldMatrix), material(materialConstantBuffer)
 {
 }
+
+//InstanceConstantBuffer::InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer, const std::wstring& textureId)
+//    : worldMatrix(worldMatrix), material(materialConstantBuffer), textureId(textureId)
+//{
+//}

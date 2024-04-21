@@ -85,26 +85,6 @@ void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int insta
     _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
 }
 
-
-//void RenderingApplication3D::RemoveAllRenderableInstances()
-//{
-//    for (auto& instancePoolPair : _instancePools)
-//    {
-//        InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
-//        instancePool.entityIdToInstanceIndex.clear();
-//        instancePool.instances.clear();
-//        instancePool.instanceCount = 0;
-//    }
-//}
-
-//void RenderingApplication3D::ClearAllInstancePools()
-//{
-//    for (auto& instancePool : _instancePools)
-//    {
-//        instancePool.second.Clear();
-//    }
-//}
-
 void RenderingApplication3D::SetLightConstantBuffer(const LightConstantBuffer& lightBuffer)
 {
     _lightConstantBufferData.Position = lightBuffer.Position;
@@ -128,7 +108,7 @@ Entity RenderingApplication3D::CreateEntity()
 
 void RenderingApplication3D::DestroyEntity(Entity entity)
 {
-    auto mesh = _ecs.GetComponent<MeshComponent>(entity);
+    auto mesh = _ecs.GetComponent<MeshComponent<VertexPositionNormalUv>>(entity);
     _instanceRenderer->RemoveInstance(mesh->GetInstancePoolIndex(), entity);
     _ecs.DestroyEntity(entity);
 }
@@ -315,23 +295,24 @@ bool RenderingApplication3D::Load()
 {
     // TODO MOVE SHADER COLLECTION TO WORLD OR RENDERER
     ShaderCollectionDescriptor mainShaderDescriptor = {};
-    mainShaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Main.vs.hlsl";
-    mainShaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Main.ps.hlsl";
+    mainShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Main.vs.hlsl";
+    mainShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Main.ps.hlsl";
     mainShaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
     ShaderCollectionDescriptor terrainShaderDescriptor = {};
-    terrainShaderDescriptor.VertexShaderFilePath = L"Assets/Shaders/Terrain.vs.hlsl";
-    terrainShaderDescriptor.PixelShaderFilePath = L"Assets/Shaders/Terrain.ps.hlsl";
-    terrainShaderDescriptor.VertexType = VertexType::PositionNormalUv;
+    terrainShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Terrain.vs.hlsl";
+    terrainShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Terrain.ps.hlsl";
+    terrainShaderDescriptor.VertexType = VertexType::PositionNormalUvHeight;
 
     _shaderManager = ShaderManager(_device.Get());
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
-    _shaderManager.LoadShaderCollection(L"Terrain", mainShaderDescriptor);
+    _shaderManager.LoadShaderCollection(L"Terrain", terrainShaderDescriptor);
 
     //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
     _ecs.AddSystem<ECSDebugger>(&_ecs);
-    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_ecs);
+    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_shaderManager, &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
+    _instanceRenderer->Initialize();
     _ecsDebugger = _ecs.GetSystem<ECSDebugger>();
     _instanceRenderer->LinkEngineInstancePools();
 
@@ -455,7 +436,7 @@ void RenderingApplication3D::Render()
 
     _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    _shaderManager.ApplyToContext(L"Main", _deviceContext.Get());
+    //_shaderManager.ApplyToContext(L"Main", _deviceContext.Get());
 
     D3D11_VIEWPORT viewport = {
         0.0f,

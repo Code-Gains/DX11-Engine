@@ -35,8 +35,51 @@ std::unordered_map<VertexType, std::vector<D3D11_INPUT_ELEMENT_DESC>> ShaderColl
                 0
             }
         }
+    },
+    {
+        VertexType::PositionNormalUvHeight,
+        {
+            {
+                "POSITION",
+                0,
+                DXGI_FORMAT_R32G32B32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUvHeight, position),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
+            },
+            {
+                "NORMAL",
+                0,
+                DXGI_FORMAT_R32G32B32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUvHeight, normal),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
+            },
+            {
+                "TEXCOORD",
+                0,
+                DXGI_FORMAT_R32G32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUvHeight, uv),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
+            },
+            {
+                "TEXCOORD",
+                1,
+                DXGI_FORMAT_R32_FLOAT,
+                0,
+                offsetof(VertexPositionNormalUvHeight, height),
+                D3D11_INPUT_PER_VERTEX_DATA,
+                0
+            }
+        }
     }
 };
+
+
 ShaderCollection ShaderCollection::CreateShaderCollection(const ShaderCollectionDescriptor& settings, ID3D11Device* device)
 {
     ShaderCollection collection;
@@ -55,13 +98,18 @@ UINT ShaderCollection::GetLayoutByteSize(VertexType vertexType)
 {
     switch (vertexType)
     {
-    case VertexType::PositionNormalUv:
-        return static_cast<UINT>(sizeof(VertexPositionNormalUv));
+        case VertexType::PositionNormalUv:
+            return static_cast<UINT>(sizeof(VertexPositionNormalUv));
+        case VertexType::PositionNormalUvHeight:
+            return static_cast<UINT>(sizeof(VertexPositionNormalUvHeight));
     }
     return 0;
 }
 
-WRL::ComPtr<ID3D11VertexShader> ShaderCollection::CreateVertexShader(ID3D11Device* device, const std::wstring& filePath, WRL::ComPtr<ID3DBlob>& vertexShaderBlob)
+WRL::ComPtr<ID3D11VertexShader> ShaderCollection::CreateVertexShader(
+    ID3D11Device* device,
+    const std::wstring& filePath,
+    WRL::ComPtr<ID3DBlob>& vertexShaderBlob)
 {
     if (!CompileShader(filePath, "Main", "vs_5_0", vertexShaderBlob))
     {
@@ -82,7 +130,9 @@ WRL::ComPtr<ID3D11VertexShader> ShaderCollection::CreateVertexShader(ID3D11Devic
     return vertexShader;
 }
 
-WRL::ComPtr<ID3D11PixelShader> ShaderCollection::CreatePixelShader(ID3D11Device* device, const std::wstring& filePath)
+WRL::ComPtr<ID3D11PixelShader> ShaderCollection::CreatePixelShader(
+    ID3D11Device* device,
+    const std::wstring& filePath)
 {
     WRL::ComPtr<ID3DBlob> pixelShaderBlob = nullptr;
     if (!CompileShader(filePath, "Main", "ps_5_0", pixelShaderBlob))
@@ -117,10 +167,15 @@ bool ShaderCollection::CreateInputLayout(ID3D11Device* device, const VertexType 
         std::cerr << "D3D11: Failed to create the input layout";
         return false;
     }
+
     return true;
 }
 
-bool ShaderCollection::CompileShader(const std::wstring& filePath, const std::string& entryPoint, const std::string& profile, WRL::ComPtr<ID3DBlob>& shaderBlob)
+bool ShaderCollection::CompileShader(
+    const std::wstring& filePath,
+    const std::string& entryPoint,
+    const std::string& profile,
+    WRL::ComPtr<ID3DBlob>& shaderBlob)
 {
     constexpr uint32_t compileFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 

@@ -6,6 +6,7 @@
 #include "MeshComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "TransformComponent.hpp"
+#include "ShaderManager.hpp"
 #include "ECS.hpp";
 
 #include <vector>
@@ -17,7 +18,35 @@
 #include <algorithm>
 #include <tuple>
 #include <iostream>
+#include <string>
+#include <random>
+#include "TextureManager.hpp"
 
+
+class IVertexHandler
+{
+public:
+    virtual ~IVertexHandler() = default;
+    virtual void SetVertexBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* vertexBuffer) const = 0;
+    virtual UINT GetStride() const = 0;
+};
+
+template <typename TVertex>
+class VertexHandler : public IVertexHandler
+{
+public:
+    void SetVertexBuffer(ID3D11DeviceContext* deviceContext, ID3D11Buffer* vertexBuffer) const override
+    {
+        UINT stride = sizeof(TVertex);
+        UINT offset = 0;
+        deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+    }
+
+    UINT GetStride() const override
+    {
+        return sizeof(TVertex);
+    }
+};
 
 struct InstanceConstantBuffer
 {
@@ -27,6 +56,7 @@ struct InstanceConstantBuffer
     InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer);
+    //InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer, const std::wstring& textureId);
 };
 
 
@@ -35,6 +65,11 @@ class InstanceRendererSystem : public ISystem
 public:
     struct InstancePool
     {
+        std::unique_ptr<IVertexHandler> vertexHandler;
+        std::wstring textureId;
+        std::wstring normalMapTextureId;
+
+        std::wstring shaderId;
         WRL::ComPtr<ID3D11Buffer> vertexBuffer = nullptr;
         UINT vertexCount = 0;
 
@@ -42,7 +77,7 @@ public:
         UINT indexCount = 0;
 
         std::vector<InstanceConstantBuffer> instances;
-        std::unordered_map<int, size_t> entityIdToInstanceIndex;
+        std::unordered_map<uint32_t, size_t> entityIdToInstanceIndex;
         UINT instanceCount = 0;
 
         void Clear()
@@ -51,10 +86,21 @@ public:
             entityIdToInstanceIndex.clear();
             instanceCount = 0;
         }
+
+        InstancePool() {};
+
+        // delete copy operators
+        InstancePool(const InstancePool&) = delete;
+        InstancePool& operator=(const InstancePool&) = delete;
+
+        // move constructors
+        InstancePool(InstancePool&&) noexcept = default;
+        InstancePool& operator=(InstancePool&&) noexcept = default;
     };
 
 private:
-    // ECS
+    ShaderManager* _shaderManager;
+    TextureManager _textureManager;
     ECS* _ecs;
 
     // Instanced Rendering Resources
@@ -65,6 +111,9 @@ private:
     // Graphics Resources
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
+
+    WRL::ComPtr<ID3D11ShaderResourceView> _textureView = nullptr;
+    WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
@@ -77,7 +126,7 @@ public:
     InstanceRendererSystem() {}
     ~InstanceRendererSystem() {}
     InstanceRendererSystem(int batchSize = 10);
-    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ECS* ecs, int batchSize = 10);
+    InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ShaderManager* shaderManager, ECS* ecs, int batchSize = 10);
 
     void AddInstance(int poolKey, int instanceId, const InstanceConstantBuffer& instanceData);
     void UpdateInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData);
@@ -92,149 +141,58 @@ public:
 
     void Initialize();
 
-
-    // TODO fix to remove any references to entities
-   /* void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int instanceId, const InstanceConstantBuffer& newData)
-    {
-        if (_instancePools.find(poolKey) != _instancePools.end())
-        {
-            auto& entityIdToInstances = _instancePools[poolKey].entityIdToInstanceIndex;
-            if (entityIdToInstances.find(instanceId) != entityIdToInstances.end())
-            {
-                auto instanceIndex = entityIdToInstances[instanceId];
-                _instancePools[poolKey].instances[instanceIndex] = newData;
-                return;
-            }
-            AddRenderableInstance(poolKey, instanceId, newData);
-        }
-    }*/
-
-    /*void RenderingApplication3D::RemoveRenderableInstance(int poolKey, int entityId)
-    {
-        if (_instancePools.find(poolKey) != _instancePools.end())
-        {
-            auto& entityIdToInstance = _instancePools[poolKey].entityIdToInstanceIndex;
-            auto& instances = _instancePools[poolKey].instances;
-            auto& instanceCount = _instancePools[poolKey].instanceCount;
-            if (entityIdToInstance.find(entityId) != entityIdToInstance.end())
-            {
-                auto instanceIndex = entityIdToInstance[entityId];
-                for (auto& pair : entityIdToInstance)
-                {
-                    if (pair.second > instanceIndex)
-                    {
-                        pair.second--;
-                    }
-                }
-                entityIdToInstance.erase(entityId);
-                instances.erase(instances.begin() + instanceIndex);
-                _instancePools[poolKey].instanceCount--;
-            }
-        }
-    }
-
-    void RenderingApplication3D::RemoveAllRenderableInstances()
-    {
-        for (auto& instancePoolPair : _instancePools)
-        {
-            InstanceRendererSystem::InstancePool& instancePool = instancePoolPair.second;
-            instancePool.entityIdToInstanceIndex.clear();
-            instancePool.instances.clear();
-            instancePool.instanceCount = 0;
-        }
-    }
-
-    void RenderingApplication3D::ClearAllInstancePools()
-    {
-        for (auto& instancePool : _instancePools)
-        {
-            instancePool.second.Clear();
-        }
-    }*/
-
-
     void LinkEngineInstancePools()
     {
-        auto cubeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
+        auto cubeMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
         int cubeIndex = cubeMesh.GetInstancePoolIndex();
         InstancePool cubePool =
             CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
-        _instancePools[cubeIndex] = cubePool;
+        cubePool.shaderId = L"Main";
+        _instancePools[cubeIndex] = std::move(cubePool);
 
-        auto sphereMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
+        auto sphereMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
         int sphereIndex = sphereMesh.GetInstancePoolIndex();
         InstancePool spherePool =
             CreateInstancePool<VertexPositionNormalUv>(sphereIndex, sphereMesh);
-        _instancePools[sphereIndex] = spherePool;
+        spherePool.shaderId = L"Main";
+        _instancePools[sphereIndex] = std::move(spherePool);
 
-        auto cylinderMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
+        auto cylinderMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cylinder);
         int cylinderIndex = cylinderMesh.GetInstancePoolIndex();
         InstancePool cylinderPool =
             CreateInstancePool<VertexPositionNormalUv>(cylinderIndex, cylinderMesh);
-        _instancePools[cylinderIndex] = cylinderPool;
+        cylinderPool.shaderId = L"Main";
+        _instancePools[cylinderIndex] = std::move(cylinderPool);
 
-        auto pipeMesh = MeshComponent::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
+        auto pipeMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Pipe);
         int pipeIndex = pipeMesh.GetInstancePoolIndex();
         InstanceRendererSystem::InstancePool pipePool =
             CreateInstancePool<VertexPositionNormalUv>(pipeIndex, pipeMesh);
-        _instancePools[pipeIndex] = pipePool;
+        pipePool.shaderId = L"Main";
+        _instancePools[pipeIndex] = std::move(pipePool);
 
-        auto terrainChunkMesh = MeshComponent::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk);
+
+        std::random_device rd;  // Obtain a random number from hardware
+        std::mt19937 gen(rd()); // Seed the generator
+        std::uniform_real_distribution<> distr(-1.0, 1.0); // Define the range
+
+        Heightmap heightmap = Heightmap(10, 10);
+        auto terrainChunkMesh = MeshComponent<VertexPositionNormalUv>::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk, &heightmap);
         int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
         InstancePool terrainChunkPool =
             CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);
-        _instancePools[terrainChunkIndex] = terrainChunkPool;
+        terrainChunkPool.shaderId = L"Terrain";
+        auto textureId = _textureManager.LoadTexture(_device.Get(), L"../../../../Assets/Textures/10x10.png");
+        auto normalMapTextureId = _textureManager.CreateTextureNormalMapFromImage(_device.Get(), L"../../../../Assets/Textures/10x10.png");
+
+        // TODO fix spaghetti
+        terrainChunkPool.textureId = textureId;
+        terrainChunkPool.normalMapTextureId = normalMapTextureId;
+        _instancePools[terrainChunkIndex] = std::move(terrainChunkPool);
     }
 
-    template <typename TVertexType>
-    bool InitializeInstancePool(int poolKey, const std::vector<TVertexType>& vertices, const std::vector<UINT>& indices)
-    {
-        D3D11_BUFFER_DESC vertexBufferDesc;
-        ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-        vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-        vertexBufferDesc.ByteWidth = sizeof(TVertexType) * vertices.size();
-        vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        vertexBufferDesc.CPUAccessFlags = 0;
-        vertexBufferDesc.MiscFlags = 0;
-
-        D3D11_BUFFER_DESC indexBufferDesc;
-        ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
-        indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-        indexBufferDesc.ByteWidth = sizeof(UINT) * indices.size();
-        indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-        // Create buffers
-        InstancePool newPool;
-
-        D3D11_SUBRESOURCE_DATA vertexData;
-        ZeroMemory(&vertexData, sizeof(vertexData));
-        vertexData.pSysMem = vertices.data();
-        HRESULT hr = _device->CreateBuffer(&vertexBufferDesc, &vertexData, newPool.vertexBuffer.GetAddressOf());
-        if (FAILED(hr))
-        {
-            std::cerr << "Could not create Vertex Buffer for a pool!\n";
-            return false;
-        }
-
-        D3D11_SUBRESOURCE_DATA indexData;
-        ZeroMemory(&indexData, sizeof(indexData));
-        indexData.pSysMem = indices.data();
-        hr = _device->CreateBuffer(&indexBufferDesc, &indexData, newPool.indexBuffer.GetAddressOf());
-        if (FAILED(hr))
-        {
-            std::cerr << "Could not create Index Buffer for a pool!\n";
-            return false;
-        }
-
-        // Set pool
-        newPool.vertexCount = vertices.size();
-        newPool.indexCount = indices.size();
-        _instancePools[poolKey] = newPool;
-        return true;
-    }
-
-    template <typename TVertexType>
-    InstancePool CreateInstancePool(int poolKey, const MeshComponent& meshComponent)
+    template <typename TVertex>
+    InstancePool CreateInstancePool(int poolKey, const MeshComponent<TVertex>& meshComponent)
     {
         auto vertices = meshComponent.GetVertices();
         auto indices = meshComponent.GetIndices();
@@ -242,7 +200,7 @@ public:
         D3D11_BUFFER_DESC vertexBufferDesc;
         ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
         vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-        vertexBufferDesc.ByteWidth = sizeof(TVertexType) * vertices.size(); // DANGEROUS, CHANGE TODO
+        vertexBufferDesc.ByteWidth = sizeof(TVertex) * vertices.size(); // DANGEROUS, CHANGE TODO
         vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vertexBufferDesc.CPUAccessFlags = 0;
         vertexBufferDesc.MiscFlags = 0;
@@ -277,18 +235,16 @@ public:
         }
 
         // Set pool
+        newPool.vertexHandler = std::make_unique<VertexHandler<TVertex>>();
         newPool.vertexCount = vertices.size();
         newPool.indexCount = indices.size();
-        //_instancePools[poolKey] = newPool;
         return newPool;
     }
 
-    template<typename TVertexType>
-    void RenderInstances(
+    void BindBuffersAndResources(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const LightConstantBuffer& lightConstantBufferData
-    )
+        const LightConstantBuffer& lightConstantBufferData)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -304,7 +260,7 @@ public:
         memcpy(mappedResource.pData, &lightConstantBufferData, sizeof(LightConstantBuffer));
         _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
 
-        ID3D11Buffer* constantPerFrameBuffers[3] = 
+        ID3D11Buffer* constantPerFrameBuffers[3] =
         {
             _perFrameConstantBuffer.Get(),
             _cameraConstantBuffer.Get(),
@@ -322,11 +278,27 @@ public:
         _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
+        _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
+        _deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+
+    }
+
+    template<typename TVertexType>
+    void RenderInstances(
+        const PerFrameConstantBuffer& perFrameConstantBuffer,
+        const CameraConstantBuffer& cameraConstantBufferData,
+        const LightConstantBuffer& lightConstantBufferData
+    )
+    {
+        BindBuffersAndResources(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData);
+
         for (const auto& instancePoolPair : _instancePools)
         {
             const InstancePool& instancePool = instancePoolPair.second;
 
-            // if we ever needed, bind the PerObjectData here
+            // Automatic shader switching
+            if (instancePool.instanceCount != 0 && _shaderManager->GetCurrentShaderId() != instancePool.shaderId)
+                _shaderManager->ApplyToContext(instancePool.shaderId, _deviceContext.Get());
 
             int instancesRendered = 0;
             while (instancesRendered < instancePool.instanceCount)
@@ -345,14 +317,29 @@ public:
                 memcpy(instanceMappedResource.pData, instancePool.instances.data() + instancesRendered, sizeof(InstanceConstantBuffer) * instancesToRender);
                 _deviceContext->Unmap(_instanceConstantBuffer.Get(), 0);
 
-                // Draw
-                UINT stride = sizeof(TVertexType);
-                UINT offset = 0;
+                // Bind Textures TODO this will need adjustment to account for multiple textures ??
+                // actually maybe not, it makes sense that you keep instances with different textures in
+                // separate pools I think
+                // While condition guarantees [0] access
+                ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(instancePool.textureId);
+                ID3D11ShaderResourceView* normalMapTextureSrv = _textureManager.GetTexture(instancePool.normalMapTextureId);
 
-                _deviceContext->IASetVertexBuffers(0, 1, instancePool.vertexBuffer.GetAddressOf(), &stride, &offset);
+                if (textureSrv && normalMapTextureSrv)
+                {
+                    _deviceContext->VSSetShaderResources(0, 1, &textureSrv);
+                    _deviceContext->PSSetShaderResources(0, 1, &normalMapTextureSrv);
+                }
+                
+                // Automatically calculate stride and offset inside the instance pool and bind vertex buffer
+                instancePool.vertexHandler->SetVertexBuffer(_deviceContext.Get(), instancePool.vertexBuffer.Get());
+
+                // Other resource setting
                 _deviceContext->IASetIndexBuffer(instancePool.indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+                    
+                // Draw
                 _deviceContext->DrawIndexedInstanced(instancePool.indexCount, instancesToRender, 0, 0, 0);
 
+                // For while loop condition
                 instancesRendered += instancesToRender;
             }
         }
