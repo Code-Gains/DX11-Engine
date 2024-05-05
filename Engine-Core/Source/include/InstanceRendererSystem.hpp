@@ -176,8 +176,8 @@ public:
         std::mt19937 gen(rd()); // Seed the generator
         std::uniform_real_distribution<> distr(-1.0, 1.0); // Define the range
 
-        Heightmap heightmap = Heightmap(10, 10);
-        auto terrainChunkMesh = MeshComponent<VertexPositionNormalUv>::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk, &heightmap);
+        Heightmap heightmap = Heightmap(256, 256);
+        auto terrainChunkMesh = MeshComponent<VertexPositionNormalUv>::GenerateTerrainMeshComponent(PrimitiveGeometryType3D::TerrainChunk, heightmap);
         int terrainChunkIndex = terrainChunkMesh.GetInstancePoolIndex();
         InstancePool terrainChunkPool =
             CreateInstancePool<VertexPositionNormalUv>(terrainChunkIndex, terrainChunkMesh);

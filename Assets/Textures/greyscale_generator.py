@@ -49,44 +49,19 @@ def generate_half_white_black_image(width, height):
     
     return image
 
-# def main():
-#     # Create parser for command line arguments
-#     parser = argparse.ArgumentParser(description="Generate a greyscale noise image with specified dimensions.")
-#     parser.add_argument("width", type=int, help="Width of the image")
-#     parser.add_argument("height", type=int, help="Height of the image")
-
-#     # Parse arguments
-#     args = parser.parse_args()
-
-#     # Generate noise image
-#     img = generate_noise_image(args.width, args.height)
-    
-#     # Get the directory of the current script
-#     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
-#     # Specify the filename
-#     filename = "noise_image.png"
-    
-#     # Create the full path where the image will be saved
-#     save_path = os.path.join(script_dir, filename)
-    
-#     # Save the image
-#     img.save(save_path)
-#     print(f"Image saved to {save_path}")
-
 def main():
     # Create parser for command line arguments
-    parser = argparse.ArgumentParser(description="Generate a half white, half black image with specified dimensions.")
+    parser = argparse.ArgumentParser(description="Generate a greyscale noise image with specified dimensions.")
     parser.add_argument("width", type=int, help="Width of the image")
     parser.add_argument("height", type=int, help="Height of the image")
 
     # Parse arguments
     args = parser.parse_args()
 
-    # Generate half white and black image
-    img = generate_half_white_black_image(args.width, args.height)
-
-    #Get the directory of the current script
+    # Generate noise image
+    img = generate_noise_image(args.width, args.height)
+    
+    # Get the directory of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
     # Specify the filename
@@ -98,6 +73,8 @@ def main():
     # Save the image
     img.save(save_path)
     print(f"Image saved to {save_path}")
+
+
 
 
 if __name__ == "__main__":

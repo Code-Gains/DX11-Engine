@@ -180,12 +180,12 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 	if (type == PrimitiveGeometryType3D::TerrainChunk)
 	{
 		std::vector<std::vector<float>> heights;
-		heights.resize(10);
-		for (unsigned int i = 0; i < 10; ++i) {
-			heights[i].resize(10, (float)i);
+		heights.resize(256);
+		for (unsigned int i = 0; i < 256; ++i) {
+			heights[i].resize(256, 0);
 		}
 		Heightmap heightmap = Heightmap(heights);
-		auto mesh = MeshComponent<VertexPositionNormalUvHeight>::GenerateTerrainMeshComponent(type, &heightmap);
+		auto mesh = MeshComponent<VertexPositionNormalUvHeight>::GenerateTerrainMeshComponent(type, heightmap);
 		auto terrain = TerrainComponent(heightmap, &mesh);
 		_world->AddComponent(geometry, mesh);
 		_world->AddComponent(geometry, terrain);

@@ -125,21 +125,21 @@ public:
         }
     }
 
-    static MeshComponent<VertexPositionNormalUv> GenerateTerrainMeshComponent(PrimitiveGeometryType3D type, const Heightmap* heightmap)
+    static MeshComponent<VertexPositionNormalUv> GenerateTerrainMeshComponent(PrimitiveGeometryType3D type, const Heightmap& heightmap)
     {
         MeshComponent<VertexPositionNormalUv> mesh = MeshComponent<VertexPositionNormalUv>(GetTerrainMeshVertices(heightmap), GetTerrainMeshIndices());
         mesh.SetInstancePoolIndex((int)type);
         return mesh;
     }
 
-    static std::vector<VertexPositionNormalUv> GetTerrainMeshVertices(const Heightmap* heightmap = nullptr)
+    static std::vector<VertexPositionNormalUv> GetTerrainMeshVertices(const Heightmap& heightmap)
     {
-        return GetPrimitiveTerrainChunkVertices(10.0f, 10.0f, 10, 10, heightmap);
+        return GetPrimitiveTerrainChunkVertices(256.0f, 256.0f, heightmap);
     }
 
     static std::vector<UINT> GetTerrainMeshIndices()
     {
-        return GetPrimitiveTerrainChunkIndices(10.0f, 10.0f, 10, 10);
+        return GetPrimitiveTerrainChunkIndices(256.0f, 256.0f, 256, 256);
     }
 
     static std::vector<UINT> GetPrimitiveMeshIndices(PrimitiveGeometryType3D type)
@@ -318,8 +318,14 @@ public:
         return vertices;
     }
 
-    static std::vector<VertexPositionNormalUv> GetPrimitiveTerrainChunkVertices(float width, float height, int densityX, int densityY, const Heightmap* heightmap = nullptr)
+    static std::vector<VertexPositionNormalUv> GetPrimitiveTerrainChunkVertices(
+        int densityX,
+        int densityY,
+        const Heightmap& heightmap
+    )
     {
+        auto width = heightmap.GetWidth();
+        auto height = heightmap.GetHeight();
         float horizontalGap = width / densityX;
         float verticalGap = height / densityY;
 

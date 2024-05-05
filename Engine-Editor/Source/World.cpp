@@ -16,7 +16,7 @@ bool World::Initialize(RenderingApplication3D* renderingApplication, Universe* u
     _universe = universe;
 
     LightConstantBuffer lightConstantBuffer;
-    lightConstantBuffer.Position = { -1.0f, 20.0f, -5.0f, 0.0f };
+    lightConstantBuffer.Position = { -1.0f, 50.0f, -5.0f, 0.0f };
     lightConstantBuffer.Ambient = { 0.3f, 0.3f, 0.3f, 1.0f };
     lightConstantBuffer.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
 	lightConstantBuffer.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
