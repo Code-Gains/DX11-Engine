@@ -48,6 +48,7 @@ public:
     ~RenderingApplication3D() override;
 
     bool Initialize() override;
+    bool Load() override;
 
     bool isApplicationMinimized = false;
 
@@ -105,7 +106,6 @@ public:
     bool SaveWorld(std::string filePath);
 
 protected:
-    bool Load() override;
 
     void OnResize(
         int32_t width,

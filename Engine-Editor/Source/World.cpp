@@ -215,7 +215,6 @@ bool World::LoadWorld(std::string filePath)
         auto cameraComponent = CameraComponent(cameraStartPosition, cameraStartRotation, 1.0f, 1.0f);
         ecs->AddComponent(camera, cameraComponent);
 
-
         ecs->AddSystem<CameraSystem>(ecs);
     }
 
@@ -227,95 +226,6 @@ void World::UpdateViewportDimensions(int32_t width, int32_t height)
 	_viewportWidth = width;
 	_viewportHeight = height;
 }
-
-//void World::RemoveTransformComponent(int entityId)
-//{
-//    auto it = _transformComponentIndices.find(entityId);
-//    if (it != _transformComponentIndices.end())
-//    {
-//        auto transformIndex = it->second;
-//        for (auto& pair : _transformComponentIndices)
-//        {
-//            if (pair.second > transformIndex)
-//                pair.second--;
-//        }
-//        _transformComponents.erase(_transformComponents.begin() + it->second);
-//        _transformComponentIndices.erase(it);
-//    }
-//}
-//
-//void World::RemoveMeshComponent(int entityId)
-//{
-//    auto it = _meshComponentIndices.find(entityId);
-//    if (it != _meshComponentIndices.end())
-//    {
-//        auto meshIndex = it->second;
-//        for (auto& pair : _meshComponentIndices)
-//        {
-//            if (pair.second > meshIndex)
-//                pair.second--;
-//        }
-//        _meshComponents.erase(_meshComponents.begin() + it->second);
-//        _meshComponentIndices.erase(it);
-//    }
-//}
-//
-//void World::RemoveMaterialComponent(int entityId)
-//{
-//    auto it = _materialComponentIndices.find(entityId);
-//    if (it != _materialComponentIndices.end())
-//    {
-//        auto materialIndex = it->second;
-//        for (auto& pair : _materialComponentIndices)
-//            if (pair.second > materialIndex)
-//                pair.second--;
-//        _materialComponents.erase(_materialComponents.begin() + it->second);
-//        _materialComponentIndices.erase(it);
-//    }
-//}
-//
-//void World::RemoveLightComponent(int entityId)
-//{
-//    auto it = _lightComponentIndices.find(entityId);
-//    if (it != _lightComponentIndices.end())
-//    {
-//        auto lightIndex = it->second;
-//        for (auto& pair : _lightComponentIndices)
-//            if (pair.second > lightIndex)
-//                pair.second--;
-//        _lightComponents.erase(_lightComponents.begin() + it->second);
-//        _lightComponentIndices.erase(it);
-//    }
-//}
-//
-//void World::RemoveCameraComponent(int entityId)
-//{
-//    auto it = _cameraComponentIndices.find(entityId);
-//    if (it != _cameraComponentIndices.end())
-//    {
-//        auto cameraIndex = it->second;
-//        for (auto& pair : _cameraComponentIndices)
-//            if (pair.second > cameraIndex)
-//                pair.second--;
-//        _cameraComponents.erase(_cameraComponents.begin() + it->second);
-//        _cameraComponentIndices.erase(it);
-//    }
-//}
-//
-//void World::RemoveTerrainComponent(int entityId)
-//{
-//    auto it = _terrainComponentIndices.find(entityId);
-//    if (it != _terrainComponentIndices.end())
-//    {
-//        auto cameraIndex = it->second;
-//        for (auto& pair : _terrainComponentIndices)
-//            if (pair.second > cameraIndex)
-//                pair.second--;
-//        _terrainComponents.erase(_terrainComponents.begin() + it->second);
-//        _terrainComponentIndices.erase(it);
-//    }
-//}
-
 
 void World::AddRenderableInstance(int poolKey, int entityId, const InstanceConstantBuffer& instanceData)
 {

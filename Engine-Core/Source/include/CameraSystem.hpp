@@ -2,9 +2,9 @@
 #include "ECS.hpp";
 #include "Constants.hpp"
 
-class CameraSystem : ISystem
+class CameraSystem : public ISystem
 {
-	ECS* _ecs;
+	ECS* _ecs = nullptr;
 public:
 	CameraSystem();
 	CameraSystem(ECS* ecs);

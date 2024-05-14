@@ -14,6 +14,12 @@ void Editor::Run()
     auto device = application.GetApplicationDevice();
     auto deviceContext = application.GetApplicationDeviceContext();
 
+    if (!application.Load())
+    {
+        std::cerr << "Could not load Rendering Application!\n";
+        return;
+    }
+
     engineModule = std::make_unique<Universe>(
         application.GetApplicationWindow(),
         &application,
