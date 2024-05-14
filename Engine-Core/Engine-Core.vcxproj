@@ -257,7 +257,6 @@
     <ClInclude Include="Source\include\MaterialComponent.hpp" />
     <ClInclude Include="Source\include\MeshComponent.hpp" />
     <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
-    <ClInclude Include="Source\include\RenderingSystem.hpp" />
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
     <ClInclude Include="Source\include\ShaderManager.hpp" />

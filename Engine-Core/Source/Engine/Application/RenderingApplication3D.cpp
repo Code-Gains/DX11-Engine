@@ -101,6 +101,11 @@ void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& 
     DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 }
 
+ECS* RenderingApplication3D::GetECS()
+{
+    return &_ecs;
+}
+
 Entity RenderingApplication3D::CreateEntity()
 {
     return _ecs.CreateEntity();
@@ -308,7 +313,7 @@ bool RenderingApplication3D::Load()
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
     _shaderManager.LoadShaderCollection(L"Terrain", terrainShaderDescriptor);
 
-    //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
+    // TODO MOVE OPTIONAL SYSTEMS OUT OF CORE
     _ecs.AddSystem<ECSDebugger>(&_ecs);
     _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_shaderManager, &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();

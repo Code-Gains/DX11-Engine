@@ -205,6 +205,19 @@ bool World::LoadWorld(std::string filePath)
 {
     if (filePath != "")
         _universe->LoadWorldSingle(filePath);
+    else // load new world
+    {
+        auto ecs = _renderingApplication->GetECS();
+
+        auto camera = ecs->CreateEntity();
+        DirectX::XMFLOAT3 cameraStartPosition = { 0.0f, 3.0f, 10.0f };
+        DirectX::XMFLOAT3 cameraStartRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
+        auto cameraComponent = CameraComponent(cameraStartPosition, cameraStartRotation, 1.0f, 1.0f);
+        ecs->AddComponent(camera, cameraComponent);
+
+
+        ecs->AddSystem<CameraSystem>(ecs);
+    }
 
     return true;
 }

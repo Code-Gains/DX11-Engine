@@ -69,7 +69,9 @@ public:
     void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
 
     // ----- ECS -----
-    
+
+    ECS* GetECS();
+
     // Entities
     Entity CreateEntity();
     void DestroyEntity(Entity entity);

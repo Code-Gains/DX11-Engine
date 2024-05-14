@@ -450,9 +450,6 @@
     <ClInclude Include="Source\include\RenderingApplication3D.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\RenderingSystem.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\ResourceMonitor.hpp">
       <Filter>include</Filter>
     </ClInclude>

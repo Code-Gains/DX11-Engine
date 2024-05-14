@@ -18,6 +18,7 @@
 #include "MeshComponent.hpp"
 
 #include "InstanceRendererSystem.hpp"
+#include "CameraSystem.hpp"
 
 #include "VertexType.hpp"
 #include "Constants.hpp"
