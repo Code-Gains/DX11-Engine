@@ -239,6 +239,7 @@
     <ClInclude Include="Source\include\Application.hpp" />
     <ClInclude Include="Source\include\Archetype.hpp" />
     <ClInclude Include="Source\include\CameraComponent.hpp" />
+    <ClInclude Include="Source\include\CameraSystem.hpp" />
     <ClInclude Include="Source\include\Component.hpp" />
     <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
@@ -262,7 +263,6 @@
     <ClInclude Include="Source\include\ShaderManager.hpp" />
     <ClInclude Include="Source\include\System.hpp" />
     <ClInclude Include="Source\include\Terrain.hpp" />
-    <ClInclude Include="Source\include\TerrainChunk.hpp" />
     <ClInclude Include="Source\include\TerrainComponent.hpp" />
     <ClInclude Include="Source\include\TextureManager.hpp" />
     <ClInclude Include="Source\include\TransformComponent.hpp" />
@@ -271,7 +271,6 @@
   <ItemGroup>
     <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp" />
     <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp" />
-    <ClCompile Include="Source\Engine\3DObjects\TerrainChunk.cpp" />
     <ClCompile Include="Source\Engine\Application\Application.cpp" />
     <ClCompile Include="Source\Engine\Application\RenderingApplication3D.cpp" />
     <ClCompile Include="Source\Engine\ECS\Archetype.cpp" />
@@ -287,6 +286,7 @@
     <ClCompile Include="Source\Engine\ECS\ECSDebugger.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
     <ClCompile Include="Source\Engine\ECS\System.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Systems\CameraSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />

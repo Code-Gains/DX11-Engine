@@ -416,7 +416,6 @@ void RenderingApplication3D::Render()
     //if (isApplicationMinimized)
         //return;
 
-
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
@@ -436,8 +435,6 @@ void RenderingApplication3D::Render()
 
     _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    //_shaderManager.ApplyToContext(L"Main", _deviceContext.Get());
-
     D3D11_VIEWPORT viewport = {
         0.0f,
         0.0f,
@@ -451,13 +448,8 @@ void RenderingApplication3D::Render()
     _deviceContext->RSSetState(_rasterState.Get());
     _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
-    // :)
-    //_instanceRenderer.RenderInstances<VertexPositionNormalUv>(_instancePools, _perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
-    //auto instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
     _instanceRenderer->UpdateDirtyInstances();
     _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
-    //if(instanceRenderer)
-        //std::cout << "instance renderer is active" << std::endl;
 
     _ecs.Render();
 
@@ -471,5 +463,5 @@ void RenderingApplication3D::Render()
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // TODO Fix not working without changing NVIDIA 3D settings
-    _swapChain->Present(0, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
+    _swapChain->Present(1, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 }

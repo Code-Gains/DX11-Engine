@@ -396,6 +396,9 @@
     <ClInclude Include="Source\include\CameraComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\CameraSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Component.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -465,9 +468,6 @@
     <ClInclude Include="Source\include\Terrain.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\TerrainChunk.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\TerrainComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -486,9 +486,6 @@
       <Filter>Engine\3DObjects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp">
-      <Filter>Engine\3DObjects</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\3DObjects\TerrainChunk.cpp">
       <Filter>Engine\3DObjects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Application\Application.cpp">
@@ -535,6 +532,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\System.cpp">
       <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Systems\CameraSystem.cpp">
+      <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
