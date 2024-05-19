@@ -143,7 +143,35 @@ void InstanceRendererSystem::Initialize()
     sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sampDesc.MinLOD = 0;
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    _device->CreateSamplerState(&sampDesc, &_samplerState);
+    HRESULT hr = _device->CreateSamplerState(&sampDesc, &_samplerState);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to create default texture sampler.\n";
+    }
+
+    // Default depth-stencil state
+    D3D11_DEPTH_STENCIL_DESC defaultDesc = {};
+    defaultDesc.DepthEnable = TRUE;
+    defaultDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    defaultDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    defaultDesc.StencilEnable = FALSE;
+    hr = _device->CreateDepthStencilState(&defaultDesc, _defaultDepthStencilState.GetAddressOf());
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to create default depth-stencil state.\n";
+    }
+
+    // No depth write depth-stencil state
+    D3D11_DEPTH_STENCIL_DESC noDepthWriteDesc = {};
+    noDepthWriteDesc.DepthEnable = TRUE;
+    noDepthWriteDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    noDepthWriteDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    noDepthWriteDesc.StencilEnable = FALSE;
+    hr = _device->CreateDepthStencilState(&noDepthWriteDesc, _noDepthStencilState.GetAddressOf());
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to create no-depth-write depth-stencil state.\n";
+    }
 }
 
 InstanceConstantBuffer::InstanceConstantBuffer()

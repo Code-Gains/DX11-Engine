@@ -8,6 +8,7 @@
 #include <FreeImage.h>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 // Loads textures and generates unique wstring IDs associated with them
 class TextureManager

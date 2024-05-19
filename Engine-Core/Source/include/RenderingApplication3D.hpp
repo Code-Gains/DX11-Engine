@@ -120,7 +120,7 @@ private:
 
     void CreateRasterState();
     void CreateDepthStencilView();
-    void CreateDepthState();
+    //void CreateDepthState();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
 

@@ -199,7 +199,7 @@ bool RenderingApplication3D::Initialize()
     CreateSwapchainResources();
     CreateRasterState();
     CreateDepthStencilView();
-    CreateDepthState();
+    //CreateDepthState();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -248,25 +248,24 @@ void RenderingApplication3D::CreateDepthStencilView()
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
     dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
     dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    if (FAILED(_device->CreateDepthStencilView(texture, &dsvDesc, &_depthTarget)))
+    HRESULT hr = _device->CreateDepthStencilView(texture, &dsvDesc, &_depthTarget);
+    texture->Release();
+    if (FAILED(hr))
     {
         std::cerr << "D3D11: Failed to create DepthStencilView\n";
-        texture->Release();
         return;
     }
-
-    texture->Release();
 }
 
-void RenderingApplication3D::CreateDepthState()
-{
-    D3D11_DEPTH_STENCIL_DESC depthDesc{};
-    depthDesc.DepthEnable = TRUE;
-    depthDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
-    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-
-    _device->CreateDepthStencilState(&depthDesc, &_depthState);
-}
+//void RenderingApplication3D::CreateDepthState()
+//{
+//    D3D11_DEPTH_STENCIL_DESC depthDesc{};
+//    depthDesc.DepthEnable = TRUE;
+//    depthDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+//    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+//
+//    _device->CreateDepthStencilState(&depthDesc, &_depthState);
+//}
 
 bool RenderingApplication3D::LoadWorldSingle(std::string filePath)
 {
@@ -457,7 +456,7 @@ void RenderingApplication3D::Render()
 
     _deviceContext->RSSetViewports(1, &viewport);
     _deviceContext->RSSetState(_rasterState.Get());
-    _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
+    //_deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     _instanceRenderer->UpdateDirtyInstances();
     _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);

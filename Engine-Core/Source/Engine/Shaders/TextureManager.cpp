@@ -65,7 +65,6 @@ WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateTextureFromImage(ID3
 
     unsigned int width = FreeImage_GetWidth(bitmap);
     unsigned int height = FreeImage_GetHeight(bitmap);
-    void* data = FreeImage_GetBits(bitmap);
 
     D3D11_TEXTURE2D_DESC texDesc = {};
     texDesc.Width = width;
@@ -78,7 +77,10 @@ WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateTextureFromImage(ID3
     texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     texDesc.CPUAccessFlags = 0;
 
+
+
     D3D11_SUBRESOURCE_DATA initData = {};
+    void* data = FreeImage_GetBits(bitmap);
     initData.pSysMem = data;
     initData.SysMemPitch = FreeImage_GetPitch(bitmap);
 
@@ -103,72 +105,106 @@ WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateTextureCubeFromSingl
     std::string narrowPath(filePath.begin(), filePath.end());
 
     FREE_IMAGE_FORMAT format = FreeImage_GetFileType(narrowPath.c_str());
+
     FIBITMAP* bitmap = FreeImage_Load(format, narrowPath.c_str());
     if (!bitmap)
+    {
+        std::cerr << "Failed to load image." << std::endl;
         return nullptr;
+    }
 
+    // Split the image into 6 faces
     std::vector<FIBITMAP*> bitmaps = SplitCubeImage(bitmap);
     FreeImage_Unload(bitmap);
 
     if (bitmaps.size() != 6)
+    {
+        std::cerr << "Failed to split image into 6 faces." << std::endl;
         return nullptr;
+    }
 
+    // Get the width and height of each face (all identical because of / division)
     unsigned int width = FreeImage_GetWidth(bitmaps[0]);
     unsigned int height = FreeImage_GetHeight(bitmaps[0]);
     unsigned int mipLevels = 1;
 
+    unsigned pitch = FreeImage_GetPitch(bitmaps[0]);
+    for (size_t i = 0; i < 6; ++i)
+    {
+        unsigned facePitch = FreeImage_GetPitch(bitmaps[i]);
+        if (facePitch != pitch)
+        {
+            std::cerr << "Pitch mismatch on face " << i << ". Expected: " << pitch << ", Got: " << facePitch << std::endl;
+            for (auto& bitmap : bitmaps)
+            {
+                FreeImage_Unload(bitmap);
+            }
+            return nullptr;
+        }
+    }
+
+    // Describe the texture cube
     D3D11_TEXTURE2D_DESC texDesc = {};
-    texDesc.Width = width;
-    texDesc.Height = height;
+    texDesc.Width = width;  // Width of each face
+    texDesc.Height = height;  // Height of each face
     texDesc.MipLevels = mipLevels;
-    texDesc.ArraySize = 6; // 6 faces for the cube
-    texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    texDesc.SampleDesc.Count = 1;
+    texDesc.ArraySize = 6;  // Six faces for the cube
+    texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;  // Format
+    texDesc.SampleDesc.Count = 1;  // No multi-sampling
     texDesc.Usage = D3D11_USAGE_DEFAULT;
     texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     texDesc.CPUAccessFlags = 0;
     texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
+    // Initialize the subresource data
     std::vector<D3D11_SUBRESOURCE_DATA> initData(6);
-    for (size_t i = 0; i < 6; ++i)
+    for (size_t i = 0; i < 6; i++)
     {
         initData[i].pSysMem = FreeImage_GetBits(bitmaps[i]);
         initData[i].SysMemPitch = FreeImage_GetPitch(bitmaps[i]);
     }
 
+    // Create the texture cube
     Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
-    HRESULT hr = device->CreateTexture2D(&texDesc, &initData[0], texture.GetAddressOf());
+    HRESULT hr = device->CreateTexture2D(&texDesc, initData.data(), texture.GetAddressOf());
 
-    //
-    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
-    hr = device->CreateShaderResourceView(texture.Get(), nullptr, srv.GetAddressOf());
     if (FAILED(hr))
+    {
+        std::cerr << "Failed to create Texture2D. HRESULT: " << std::hex << hr << std::endl;
+
+        // Clean up FreeImage bitmaps
+        for (auto& bitmap : bitmaps)
+        {
+            FreeImage_Unload(bitmap);
+        }
+
         return nullptr;
+    }
 
-    return srv;
-    //
-
-    /*for (auto& bitmap : bitmaps)
+    // Clean up FreeImage bitmaps
+    for (auto& bitmap : bitmaps)
     {
         FreeImage_Unload(bitmap);
-    }*/
+    }
 
-    /*if (FAILED(hr))
-        return nullptr;
-
+    // Describe the shader resource view for the texture cube
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Format = texDesc.Format;
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
     srvDesc.TextureCube.MipLevels = texDesc.MipLevels;
     srvDesc.TextureCube.MostDetailedMip = 0;
 
+    // Create the shader resource view
     Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
     hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, srv.GetAddressOf());
 
     if (FAILED(hr))
+    {
+        std::cerr << "Failed to create ShaderResourceView. HRESULT: " << std::hex << hr << std::endl;
         return nullptr;
+    }
 
-    return srv;*/
+    return srv;
 }
 
 WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateNormalMapFromImage(ID3D11Device* device, const std::wstring& filePath)
@@ -240,40 +276,61 @@ std::vector<FIBITMAP*> TextureManager::SplitCubeImage(FIBITMAP* image)
     unsigned int faceWidth = width / 4;
     unsigned int faceHeight = height / 3;
 
-    std::vector<FIBITMAP*> faces(6, nullptr);
+    std::vector<FIBITMAP*> faces;
 
     // x;y for each face (starting block)
     int faceCoordinates[6][2] =
     {
-        {2, 1},
-        {0, 1},
-        {1, 0},
-        {1, 2},
-        {1, 1},
-        {3, 1}
+        {2, 1}, // +X
+        {0, 1}, // -X
+        {1, 2}, // +Y
+        {1, 0}, // -Y
+        {1, 1}, // +Z
+        {3, 1}  // -Z
     };
 
     for (int i = 0; i < 6; i++)
     {
         int x = faceCoordinates[i][0] * faceWidth;
-        int y = faceCoordinates[i][1] * faceWidth;
+        int y = faceCoordinates[i][1] * faceHeight;
 
-        // Make a subimage from the cross skybox image
-        faces[i] = FreeImage_Copy(image, x, x + faceWidth, y, y + faceHeight);
-
-        if (!faces[i])
+        // Create a new image for the face
+        FIBITMAP* face = FreeImage_Allocate(faceWidth, faceHeight, FreeImage_GetBPP(image));
+        if (!face)
         {
-            for (int j = 0; j < i; j++)
+            std::cerr << "Failed to allocate memory for face " << i << std::endl;
+            for (auto& bitmap : faces)
             {
-                FreeImage_Unload(faces[j]);
+                FreeImage_Unload(bitmap);
             }
             faces.clear();
             break;
         }
+
+        // Copy the pixels manually
+        for (unsigned int fy = 0; fy < faceHeight; ++fy)
+        {
+            for (unsigned int fx = 0; fx < faceWidth; ++fx)
+            {
+                RGBQUAD color;
+                if (FreeImage_GetPixelColor(image, x + fx, y + fy, &color))
+                {
+                    FreeImage_SetPixelColor(face, fx, fy, &color);
+                }
+                else
+                {
+                    std::cerr << "Failed to get pixel color at (" << x + fx << ", " << y + fy << ")" << std::endl;
+                }
+            }
+        }
+
+        FreeImage_FlipVertical(face);
+        faces.push_back(face);
     }
 
     return faces;
 }
+
 
 FIBITMAP* TextureManager::GenerateNormalMapFromHeightmap(FIBITMAP* heightMap)
 {

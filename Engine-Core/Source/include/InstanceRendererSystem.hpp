@@ -112,6 +112,9 @@ private:
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
 
+    WRL::ComPtr<ID3D11DepthStencilState> _defaultDepthStencilState;
+    WRL::ComPtr<ID3D11DepthStencilState> _noDepthStencilState;
+
     WRL::ComPtr<ID3D11ShaderResourceView> _textureView = nullptr;
     WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
@@ -143,22 +146,23 @@ public:
 
     void LinkEngineInstancePools()
     {
+        auto skyboxMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Skybox);
+        int skyboxIndex = skyboxMesh.GetInstancePoolIndex();
+        InstancePool skyboxPool =
+            CreateInstancePool<VertexPositionNormalUv>(skyboxIndex, skyboxMesh);
+        skyboxPool.shaderId = L"Skybox";
+        auto skyboxTextureId = _textureManager.LoadTextureCubeFromSingleImage(_device.Get(), L"../../../../Assets/Textures/darkbox.png");
+        //auto skyboxTextureId = _textureManager.LoadTexture(_device.Get(), L"../../../../Assets/Textures/Skybox.png");
+        // TODO fix spaghetti
+        skyboxPool.textureId = skyboxTextureId;
+        _instancePools[skyboxIndex] = std::move(skyboxPool);
+
         auto cubeMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
         int cubeIndex = cubeMesh.GetInstancePoolIndex();
         InstancePool cubePool =
             CreateInstancePool<VertexPositionNormalUv>(cubeIndex, cubeMesh);
         cubePool.shaderId = L"Main";
         _instancePools[cubeIndex] = std::move(cubePool);
-
-        auto skyboxMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Skybox);
-        int skyboxIndex = skyboxMesh.GetInstancePoolIndex();
-        InstancePool skyboxPool =
-            CreateInstancePool<VertexPositionNormalUv>(skyboxIndex, skyboxMesh);
-        skyboxPool.shaderId = L"Skybox";
-        auto skyboxTextureId = _textureManager.LoadTextureCubeFromSingleImage(_device.Get(), L"../../../../Assets/Textures/Skybox.png");
-        // TODO fix spaghetti
-        skyboxPool.textureId = skyboxTextureId;
-        _instancePools[skyboxIndex] = std::move(skyboxPool);
 
         auto sphereMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
         int sphereIndex = sphereMesh.GetInstancePoolIndex();
@@ -310,8 +314,23 @@ public:
             if (instancePool.instanceCount != 0 && _shaderManager->GetCurrentShaderId() != instancePool.shaderId)
             {
                 _shaderManager->ApplyToContext(instancePool.shaderId, _deviceContext.Get());
-                /*auto shaderName = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                std::cout << shaderName << std::endl;*/
+                auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
+                std::cout << name << std::endl;
+            }
+
+            // Spaghetti TODO FIX
+            if (instancePool.shaderId == L"Skybox")
+            {
+                _deviceContext->OMSetDepthStencilState(_noDepthStencilState.Get(), 0);
+                auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
+                std::cout << name << std::endl;
+                std::cout << "Set NoDepth" << std::endl;
+            }
+            else
+            {
+                _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
+                auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
+                std::cout << "Set Default" << std::endl;
             }
 
             int instancesRendered = 0;
@@ -361,6 +380,7 @@ public:
                 // For while loop condition
                 instancesRendered += instancesToRender;
             }
+           // _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
         }
     }
 };
