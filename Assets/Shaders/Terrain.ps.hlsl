@@ -29,7 +29,7 @@ struct PSInput
 };
 
 SamplerState NormalSampler : register(s0);
-Texture2D NormalMap : register(t0);
+Texture2D NormalMap : register(t1);
 
 float4 Main(PSInput input) : SV_Target
 {

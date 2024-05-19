@@ -309,9 +309,15 @@ bool RenderingApplication3D::Load()
     terrainShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Terrain.ps.hlsl";
     terrainShaderDescriptor.VertexType = VertexType::PositionNormalUvHeight;
 
+    ShaderCollectionDescriptor skyboxShaderDescriptor = {};
+    skyboxShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Skybox.vs.hlsl";
+    skyboxShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Skybox.ps.hlsl";
+    skyboxShaderDescriptor.VertexType = VertexType::PositionNormalUv;
+
     _shaderManager = ShaderManager(_device.Get());
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
     _shaderManager.LoadShaderCollection(L"Terrain", terrainShaderDescriptor);
+    _shaderManager.LoadShaderCollection(L"Skybox", skyboxShaderDescriptor);
 
     // TODO MOVE OPTIONAL SYSTEMS OUT OF CORE
     _ecs.AddSystem<ECSDebugger>(&_ecs);

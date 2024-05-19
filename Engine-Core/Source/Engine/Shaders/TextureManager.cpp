@@ -15,7 +15,8 @@ std::wstring TextureManager::LoadTexture(ID3D11Device* device, const std::wstrin
 
     auto textureId = GenerateUniqueId(filePath);
     _idToTexture[textureId] = textureSrv;
-
+    /*auto texName = std::string(textureId.begin(), textureId.end());
+    std::cout << "Loaded Texture: " << texName << std::endl;*/
     return textureId;
 }
 
@@ -28,6 +29,21 @@ std::wstring TextureManager::CreateTextureNormalMapFromImage(ID3D11Device* devic
         return L"";
 
     auto textureId =  L"normalmap-" + GenerateUniqueId(filePath);
+    _idToTexture[textureId] = textureSrv;
+    /*auto texName = std::string(textureId.begin(), textureId.end());
+    std::cout << "Loaded Texture: " << texName << std::endl;*/
+
+    return textureId;
+}
+
+std::wstring TextureManager::LoadTextureCubeFromSingleImage(ID3D11Device* device, const std::wstring& filePath)
+{
+    auto textureSrv = CreateTextureCubeFromSingleImage(device, filePath);
+
+    if (!textureSrv)
+        return L"";
+
+    auto textureId = GenerateUniqueId(filePath);
     _idToTexture[textureId] = textureSrv;
 
     return textureId;
@@ -80,6 +96,79 @@ WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateTextureFromImage(ID3
         return nullptr;
 
     return srv;
+}
+
+WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateTextureCubeFromSingleImage(ID3D11Device* device, const std::wstring& filePath)
+{
+    std::string narrowPath(filePath.begin(), filePath.end());
+
+    FREE_IMAGE_FORMAT format = FreeImage_GetFileType(narrowPath.c_str());
+    FIBITMAP* bitmap = FreeImage_Load(format, narrowPath.c_str());
+    if (!bitmap)
+        return nullptr;
+
+    std::vector<FIBITMAP*> bitmaps = SplitCubeImage(bitmap);
+    FreeImage_Unload(bitmap);
+
+    if (bitmaps.size() != 6)
+        return nullptr;
+
+    unsigned int width = FreeImage_GetWidth(bitmaps[0]);
+    unsigned int height = FreeImage_GetHeight(bitmaps[0]);
+    unsigned int mipLevels = 1;
+
+    D3D11_TEXTURE2D_DESC texDesc = {};
+    texDesc.Width = width;
+    texDesc.Height = height;
+    texDesc.MipLevels = mipLevels;
+    texDesc.ArraySize = 6; // 6 faces for the cube
+    texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.Usage = D3D11_USAGE_DEFAULT;
+    texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    texDesc.CPUAccessFlags = 0;
+    texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+
+    std::vector<D3D11_SUBRESOURCE_DATA> initData(6);
+    for (size_t i = 0; i < 6; ++i)
+    {
+        initData[i].pSysMem = FreeImage_GetBits(bitmaps[i]);
+        initData[i].SysMemPitch = FreeImage_GetPitch(bitmaps[i]);
+    }
+
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+    HRESULT hr = device->CreateTexture2D(&texDesc, &initData[0], texture.GetAddressOf());
+
+    //
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+    hr = device->CreateShaderResourceView(texture.Get(), nullptr, srv.GetAddressOf());
+    if (FAILED(hr))
+        return nullptr;
+
+    return srv;
+    //
+
+    /*for (auto& bitmap : bitmaps)
+    {
+        FreeImage_Unload(bitmap);
+    }*/
+
+    /*if (FAILED(hr))
+        return nullptr;
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = texDesc.Format;
+    srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+    srvDesc.TextureCube.MipLevels = texDesc.MipLevels;
+    srvDesc.TextureCube.MostDetailedMip = 0;
+
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+    hr = device->CreateShaderResourceView(texture.Get(), &srvDesc, srv.GetAddressOf());
+
+    if (FAILED(hr))
+        return nullptr;
+
+    return srv;*/
 }
 
 WRL::ComPtr<ID3D11ShaderResourceView> TextureManager::CreateNormalMapFromImage(ID3D11Device* device, const std::wstring& filePath)
@@ -141,6 +230,49 @@ ID3D11ShaderResourceView* TextureManager::GetTexture(const std::wstring& id) con
         return it->second.Get();
 
     return nullptr;
+}
+
+std::vector<FIBITMAP*> TextureManager::SplitCubeImage(FIBITMAP* image)
+{
+    unsigned int width = FreeImage_GetWidth(image);
+    unsigned int height = FreeImage_GetHeight(image);
+
+    unsigned int faceWidth = width / 4;
+    unsigned int faceHeight = height / 3;
+
+    std::vector<FIBITMAP*> faces(6, nullptr);
+
+    // x;y for each face (starting block)
+    int faceCoordinates[6][2] =
+    {
+        {2, 1},
+        {0, 1},
+        {1, 0},
+        {1, 2},
+        {1, 1},
+        {3, 1}
+    };
+
+    for (int i = 0; i < 6; i++)
+    {
+        int x = faceCoordinates[i][0] * faceWidth;
+        int y = faceCoordinates[i][1] * faceWidth;
+
+        // Make a subimage from the cross skybox image
+        faces[i] = FreeImage_Copy(image, x, x + faceWidth, y, y + faceHeight);
+
+        if (!faces[i])
+        {
+            for (int j = 0; j < i; j++)
+            {
+                FreeImage_Unload(faces[j]);
+            }
+            faces.clear();
+            break;
+        }
+    }
+
+    return faces;
 }
 
 FIBITMAP* TextureManager::GenerateNormalMapFromHeightmap(FIBITMAP* heightMap)

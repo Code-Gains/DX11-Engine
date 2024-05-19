@@ -150,6 +150,16 @@ public:
         cubePool.shaderId = L"Main";
         _instancePools[cubeIndex] = std::move(cubePool);
 
+        auto skyboxMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Skybox);
+        int skyboxIndex = skyboxMesh.GetInstancePoolIndex();
+        InstancePool skyboxPool =
+            CreateInstancePool<VertexPositionNormalUv>(skyboxIndex, skyboxMesh);
+        skyboxPool.shaderId = L"Skybox";
+        auto skyboxTextureId = _textureManager.LoadTextureCubeFromSingleImage(_device.Get(), L"../../../../Assets/Textures/Skybox.png");
+        // TODO fix spaghetti
+        skyboxPool.textureId = skyboxTextureId;
+        _instancePools[skyboxIndex] = std::move(skyboxPool);
+
         auto sphereMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Sphere);
         int sphereIndex = sphereMesh.GetInstancePoolIndex();
         InstancePool spherePool =
@@ -298,7 +308,11 @@ public:
 
             // Automatic shader switching
             if (instancePool.instanceCount != 0 && _shaderManager->GetCurrentShaderId() != instancePool.shaderId)
+            {
                 _shaderManager->ApplyToContext(instancePool.shaderId, _deviceContext.Get());
+                /*auto shaderName = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
+                std::cout << shaderName << std::endl;*/
+            }
 
             int instancesRendered = 0;
             while (instancesRendered < instancePool.instanceCount)
@@ -324,10 +338,15 @@ public:
                 ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(instancePool.textureId);
                 ID3D11ShaderResourceView* normalMapTextureSrv = _textureManager.GetTexture(instancePool.normalMapTextureId);
 
-                if (textureSrv && normalMapTextureSrv)
+                if (textureSrv)
                 {
                     _deviceContext->VSSetShaderResources(0, 1, &textureSrv);
-                    _deviceContext->PSSetShaderResources(0, 1, &normalMapTextureSrv);
+                    _deviceContext->PSSetShaderResources(0, 1, &textureSrv);
+                }
+                if (normalMapTextureSrv)
+                {
+                    _deviceContext->VSSetShaderResources(1, 1, &normalMapTextureSrv);
+                    _deviceContext->PSSetShaderResources(1, 1, &normalMapTextureSrv);
                 }
                 
                 // Automatically calculate stride and offset inside the instance pool and bind vertex buffer

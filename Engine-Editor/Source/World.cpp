@@ -30,113 +30,113 @@ void World::Update(float deltaTime)
 {
     _worldHierarchy.Update(deltaTime);
 
-    // DirectX namespace contains overloads for vector and float multiplication
-    using namespace DirectX;
+    //// DirectX namespace contains overloads for vector and float multiplication
+    //using namespace DirectX;
 
-    float cameraMoveSpeed = 1.0f;
-    float cameraRotationSpeed = 1.0f;
+    //float cameraMoveSpeed = 1.0f;
+    //float cameraRotationSpeed = 1.0f;
 
-    static DirectX::XMFLOAT3 cameraPosition = { 0.0f, 3.0f, 10.0f };
-    static DirectX::XMFLOAT3 cameraRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
-
-
-    // Camera Movement
-
-    if (GetAsyncKeyState('W') & 0x8000)
-    {
-        // Move camera forward
-        DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        DirectX::XMVECTOR forward = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
-        DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-    if (GetAsyncKeyState('S') & 0x8000)
-    {
-        // Move camera backward
-        DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        DirectX::XMVECTOR forward = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), rotationMatrix);
-        DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-    if (GetAsyncKeyState('A') & 0x8000)
-    {
-        // Move camera left
-        DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        DirectX::XMVECTOR right = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
-        DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) + right * cameraMoveSpeed * deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
-    if (GetAsyncKeyState('D') & 0x8000)
-    {
-        // Move camera right
-        DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
-        DirectX::XMVECTOR right = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
-        DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) - right * cameraMoveSpeed * deltaTime;
-        XMStoreFloat3(&cameraPosition, newPosition);
-    }
+    //static DirectX::XMFLOAT3 cameraPosition = { 0.0f, 3.0f, 10.0f };
+    //static DirectX::XMFLOAT3 cameraRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
 
 
-    static float lastMouseX = 0.0f;
-    static float lastMouseY = 0.0f;
+    //// Camera Movement
 
-    bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
-    static bool wasRightMouseDown = false; // Keep track of previous right mouse button state
-    POINT cursorPos;
-    GetCursorPos(&cursorPos);
-    ScreenToClient(_win32Window, &cursorPos);
-    int mouseX = cursorPos.x;
-    int mouseY = cursorPos.y;
+    //if (GetAsyncKeyState('W') & 0x8000)
+    //{
+    //    // Move camera forward
+    //    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+    //    DirectX::XMVECTOR forward = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
+    //    DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * deltaTime;
+    //    XMStoreFloat3(&cameraPosition, newPosition);
+    //}
+    //if (GetAsyncKeyState('S') & 0x8000)
+    //{
+    //    // Move camera backward
+    //    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+    //    DirectX::XMVECTOR forward = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f), rotationMatrix);
+    //    DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) + forward * cameraMoveSpeed * deltaTime;
+    //    XMStoreFloat3(&cameraPosition, newPosition);
+    //}
+    //if (GetAsyncKeyState('A') & 0x8000)
+    //{
+    //    // Move camera left
+    //    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+    //    DirectX::XMVECTOR right = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+    //    DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) + right * cameraMoveSpeed * deltaTime;
+    //    XMStoreFloat3(&cameraPosition, newPosition);
+    //}
+    //if (GetAsyncKeyState('D') & 0x8000)
+    //{
+    //    // Move camera right
+    //    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+    //    DirectX::XMVECTOR right = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+    //    DirectX::XMVECTOR newPosition = DirectX::XMLoadFloat3(&cameraPosition) - right * cameraMoveSpeed * deltaTime;
+    //    XMStoreFloat3(&cameraPosition, newPosition);
+    //}
 
-    if (isRightMouseDown) {
-        if (!wasRightMouseDown) {
-            // Right mouse button was just pressed, initialize previous mouse position
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-        }
 
-        // Calculate the change in mouse position since the last frame
-        int deltaX = mouseX - lastMouseX;
-        int deltaY = mouseY - lastMouseY;
+    //static float lastMouseX = 0.0f;
+    //static float lastMouseY = 0.0f;
 
-        // Update the camera rotation based on the change in mouse position
-        cameraRotation.y -= deltaX * cameraRotationSpeed * deltaTime;
-        cameraRotation.x += deltaY * cameraRotationSpeed * deltaTime;
+    //bool isRightMouseDown = (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+    //static bool wasRightMouseDown = false; // Keep track of previous right mouse button state
+    //POINT cursorPos;
+    //GetCursorPos(&cursorPos);
+    //ScreenToClient(_win32Window, &cursorPos);
+    //int mouseX = cursorPos.x;
+    //int mouseY = cursorPos.y;
 
-        // Clamp pitch to prevent camera flipping
-        cameraRotation.x = (-DirectX::XM_PIDIV2, min(DirectX::XM_PIDIV2, cameraRotation.x));
+    //if (isRightMouseDown) {
+    //    if (!wasRightMouseDown) {
+    //        // Right mouse button was just pressed, initialize previous mouse position
+    //        lastMouseX = mouseX;
+    //        lastMouseY = mouseY;
+    //    }
 
-        // Update the previous mouse position
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
-    }
+    //    // Calculate the change in mouse position since the last frame
+    //    int deltaX = mouseX - lastMouseX;
+    //    int deltaY = mouseY - lastMouseY;
 
-    wasRightMouseDown = isRightMouseDown;
+    //    // Update the camera rotation based on the change in mouse position
+    //    cameraRotation.y -= deltaX * cameraRotationSpeed * deltaTime;
+    //    cameraRotation.x += deltaY * cameraRotationSpeed * deltaTime;
 
-    DirectX::XMVECTOR camPos = XMLoadFloat3(&cameraPosition);
+    //    // Clamp pitch to prevent camera flipping
+    //    cameraRotation.x = (-DirectX::XM_PIDIV2, min(DirectX::XM_PIDIV2, cameraRotation.x));
 
-    DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
+    //    // Update the previous mouse position
+    //    lastMouseX = mouseX;
+    //    lastMouseY = mouseY;
+    //}
 
-    // Calculate the forward, right, and up vectors
-    DirectX::XMVECTOR forward = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
-    DirectX::XMVECTOR right = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
-    DirectX::XMVECTOR up = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rotationMatrix);
+    //wasRightMouseDown = isRightMouseDown;
 
-    // Calculate the new camera target
-    DirectX::XMVECTOR cameraTarget = DirectX::XMVectorAdd(XMLoadFloat3(&cameraPosition), forward);
+    //DirectX::XMVECTOR camPos = XMLoadFloat3(&cameraPosition);
 
-    // Create the view matrix
-    DirectX::XMMATRIX view = DirectX::XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
+    //DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(cameraRotation.x, cameraRotation.y, cameraRotation.z);
 
-    DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovRH(
-        Constants::DegreesToRadians(90),
-        static_cast<float>(_viewportWidth) / static_cast<float>(_viewportHeight),
-        0.1f,
-        400
-    );
+    //// Calculate the forward, right, and up vectors
+    //DirectX::XMVECTOR forward = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), rotationMatrix);
+    //DirectX::XMVECTOR right = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), rotationMatrix);
+    //DirectX::XMVECTOR up = DirectX::XMVector3TransformCoord(DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), rotationMatrix);
 
-    DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
-    _renderingApplication->SetPerFrameConstantBuffer(viewProjection);
-    _renderingApplication->SetCameraConstantBuffer(cameraPosition);
+    //// Calculate the new camera target
+    //DirectX::XMVECTOR cameraTarget = DirectX::XMVectorAdd(XMLoadFloat3(&cameraPosition), forward);
+
+    //// Create the view matrix
+    //DirectX::XMMATRIX view = DirectX::XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
+
+    //DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovRH(
+    //    Constants::DegreesToRadians(90),
+    //    static_cast<float>(_viewportWidth) / static_cast<float>(_viewportHeight),
+    //    0.1f,
+    //    400
+    //);
+
+    //DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
+    //_renderingApplication->SetPerFrameConstantBuffer(viewProjection);
+    //_renderingApplication->SetCameraConstantBuffer(cameraPosition);
 }
 
 void World::PeriodicUpdate(float deltaTime)
@@ -212,10 +212,20 @@ bool World::LoadWorld(std::string filePath)
         auto camera = ecs->CreateEntity();
         DirectX::XMFLOAT3 cameraStartPosition = { 0.0f, 3.0f, 10.0f };
         DirectX::XMFLOAT3 cameraStartRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
-        auto cameraComponent = CameraComponent(cameraStartPosition, cameraStartRotation, 1.0f, 1.0f);
+
+        auto cameraComponent = CameraComponent(cameraStartRotation, 20.0f, 3.0f);
         ecs->AddComponent(camera, cameraComponent);
 
-        ecs->AddSystem<CameraSystem>(ecs);
+        auto transformComponent = TransformComponent(cameraStartPosition, cameraStartRotation, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
+        ecs->AddComponent(camera, transformComponent);
+
+        auto materialComponent = MaterialComponent::GetDefaultMaterialComponent();
+        ecs->AddComponent(camera, materialComponent);
+
+        auto meshComponent = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Skybox);
+        ecs->AddComponent(camera, meshComponent);
+
+        ecs->AddSystem<CameraSystem>(_renderingApplication, ecs);
     }
 
     return true;
