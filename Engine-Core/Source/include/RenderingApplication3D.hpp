@@ -26,8 +26,6 @@
 #include "ECS.hpp"
 #include "ECSDebugger.hpp"
 
-#include "DirectionalLightComponent.hpp"
-
 
 
 class IEngineModule
@@ -50,7 +48,6 @@ public:
     ~RenderingApplication3D() override;
 
     bool Initialize() override;
-    bool Load() override;
 
     bool isApplicationMinimized = false;
 
@@ -72,9 +69,7 @@ public:
     void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
 
     // ----- ECS -----
-
-    ECS* GetECS();
-
+    
     // Entities
     Entity CreateEntity();
     void DestroyEntity(Entity entity);
@@ -108,6 +103,7 @@ public:
     bool SaveWorld(std::string filePath);
 
 protected:
+    bool Load() override;
 
     void OnResize(
         int32_t width,
@@ -122,7 +118,7 @@ private:
 
     void CreateRasterState();
     void CreateDepthStencilView();
-    //void CreateDepthState();
+    void CreateDepthState();
     bool CreateSwapchainResources();
     void DestroySwapchainResources();
 

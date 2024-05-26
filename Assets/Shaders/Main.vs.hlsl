@@ -6,12 +6,12 @@ struct Material
     float matShininess;
 };
 
-struct DirectionalLight
+struct Light
 {
-    float4 direction;
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
+    float4 lightPosition;
+    float4 lightAmbient;
+    float4 lightDiffuse;
+    float4 lightSpecular;
 };
 
 cbuffer PerFrame : register(b0)
@@ -50,14 +50,20 @@ VSOutput Main(VSInput input, uint instanceID : SV_InstanceID)
 {
     VSOutput output = (VSOutput) 0;
 
+    // Calculate the model-view-projection matrix
     matrix world = mul(viewprojection, instanceData[instanceID].worldMatrix);
+    //matrix world = mul(viewprojection, modelMatrix);
     output.Position = mul(world, float4(input.Position, 1.0));
     
     output.Uv = input.Uv;
     
+    // Transform the normal
     output.Normal = mul(input.Normal, (float3x3)instanceData[instanceID].worldMatrix);
+    //output.Normal = mul(input.Normal, (float3x3)modelMatrix);
     
+    // Calculate the world position
     output.PositionWorld = mul(float4(input.Position, 1.0), instanceData[instanceID].worldMatrix).xyz;
+    //output.PositionWorld = mul(float4(input.Position, 1.0), modelMatrix).xyz;
     
     output.Material = instanceData[instanceID].material;
     

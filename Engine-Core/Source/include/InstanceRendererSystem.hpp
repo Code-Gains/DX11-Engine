@@ -7,7 +7,6 @@
 #include "MaterialComponent.hpp"
 #include "TransformComponent.hpp"
 #include "ShaderManager.hpp"
-#include "DirectionalLightComponent.hpp"
 #include "ECS.hpp";
 
 #include <vector>
@@ -57,6 +56,7 @@ struct InstanceConstantBuffer
     InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer);
+    //InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer, const std::wstring& textureId);
 };
 
 
@@ -99,9 +99,9 @@ public:
     };
 
 private:
-    ShaderManager* _shaderManager = nullptr;
+    ShaderManager* _shaderManager;
     TextureManager _textureManager;
-    ECS* _ecs = nullptr;
+    ECS* _ecs;
 
     // Instanced Rendering Resources
     std::unordered_map<int, InstancePool> _instancePools;
@@ -112,14 +112,12 @@ private:
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
 
-    WRL::ComPtr<ID3D11DepthStencilState> _defaultDepthStencilState = nullptr;
-    WRL::ComPtr<ID3D11DepthStencilState> _noDepthStencilState = nullptr;
-
     WRL::ComPtr<ID3D11ShaderResourceView> _textureView = nullptr;
     WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
+    WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
@@ -145,16 +143,6 @@ public:
 
     void LinkEngineInstancePools()
     {
-        auto skyboxMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Skybox);
-        int skyboxIndex = skyboxMesh.GetInstancePoolIndex();
-        InstancePool skyboxPool =
-            CreateInstancePool<VertexPositionNormalUv>(skyboxIndex, skyboxMesh);
-        skyboxPool.shaderId = L"Skybox";
-        auto skyboxTextureId = _textureManager.LoadTextureCubeFromSingleImage(_device.Get(), L"../../../../Assets/Textures/darkbox.png");
-        // TODO fix spaghetti
-        skyboxPool.textureId = skyboxTextureId;
-        _instancePools[skyboxIndex] = std::move(skyboxPool);
-
         auto cubeMesh = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Cube);
         int cubeIndex = cubeMesh.GetInstancePoolIndex();
         InstancePool cubePool =
@@ -256,7 +244,7 @@ public:
     void BindBuffersAndResources(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const DirectionalLightConstantBuffer& lightConstantBufferData)
+        const LightConstantBuffer& lightConstantBufferData)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -268,11 +256,15 @@ public:
         memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
         _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
 
+        _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        memcpy(mappedResource.pData, &lightConstantBufferData, sizeof(LightConstantBuffer));
+        _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
 
-        ID3D11Buffer* constantPerFrameBuffers[2] =
+        ID3D11Buffer* constantPerFrameBuffers[3] =
         {
             _perFrameConstantBuffer.Get(),
             _cameraConstantBuffer.Get(),
+            _lightConstantBuffer.Get(),
         };
 
         ID3D11Buffer* constantPerObjectBuffers[1] =
@@ -280,21 +272,22 @@ public:
             _instanceConstantBuffer.Get()
         };
 
-        _deviceContext->VSSetConstantBuffers(0, 2, constantPerFrameBuffers);
+        _deviceContext->VSSetConstantBuffers(0, 3, constantPerFrameBuffers);
         _deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
-        _deviceContext->PSSetConstantBuffers(0, 2, constantPerFrameBuffers);
+        _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
         _deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+
     }
 
     template<typename TVertexType>
     void RenderInstances(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const DirectionalLightConstantBuffer& lightConstantBufferData
+        const LightConstantBuffer& lightConstantBufferData
     )
     {
         BindBuffersAndResources(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData);
@@ -305,25 +298,7 @@ public:
 
             // Automatic shader switching
             if (instancePool.instanceCount != 0 && _shaderManager->GetCurrentShaderId() != instancePool.shaderId)
-            {
                 _shaderManager->ApplyToContext(instancePool.shaderId, _deviceContext.Get());
-                //auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                //std::cout << name << std::endl;
-            }
-            // Spaghetti TODO FIX
-            if (instancePool.shaderId == L"Skybox")
-            {
-                _deviceContext->OMSetDepthStencilState(_noDepthStencilState.Get(), 0);
-                //auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                //std::cout << name << std::endl;
-                //std::cout << "Set NoDepth" << std::endl;
-            }
-            else
-            {
-                _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
-                auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                //std::cout << "Set Default" << std::endl;
-            }
 
             int instancesRendered = 0;
             while (instancesRendered < instancePool.instanceCount)
@@ -349,15 +324,10 @@ public:
                 ID3D11ShaderResourceView* textureSrv = _textureManager.GetTexture(instancePool.textureId);
                 ID3D11ShaderResourceView* normalMapTextureSrv = _textureManager.GetTexture(instancePool.normalMapTextureId);
 
-                if (textureSrv)
+                if (textureSrv && normalMapTextureSrv)
                 {
                     _deviceContext->VSSetShaderResources(0, 1, &textureSrv);
-                    _deviceContext->PSSetShaderResources(0, 1, &textureSrv);
-                }
-                if (normalMapTextureSrv)
-                {
-                    _deviceContext->VSSetShaderResources(1, 1, &normalMapTextureSrv);
-                    _deviceContext->PSSetShaderResources(1, 1, &normalMapTextureSrv);
+                    _deviceContext->PSSetShaderResources(0, 1, &normalMapTextureSrv);
                 }
                 
                 // Automatically calculate stride and offset inside the instance pool and bind vertex buffer
@@ -372,7 +342,6 @@ public:
                 // For while loop condition
                 instancesRendered += instancesToRender;
             }
-           // _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
         }
     }
 };

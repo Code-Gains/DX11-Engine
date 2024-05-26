@@ -164,6 +164,11 @@ void WorldHierarchy::Render()
 	}
 }
 
+void WorldHierarchy::AddEntity(int entityId, std::string entityName)
+{
+	_entityToName[entityId] = entityName;
+}
+
 int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name)
 {
 	auto geometry = _world->CreateEntity();
@@ -191,10 +196,11 @@ int WorldHierarchy::CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std:
 		_world->AddComponent(geometry, mesh);
 	}
 
-	auto material = MaterialComponent::GetDefaultMaterialComponent();
+	auto material = MaterialComponent::GetDefaultMaterialComponent(0);
 	_world->AddComponent(geometry, material);
 
-	_entityToName[geometry] = name;
+	//_world->AddEntity(geometry);
+	AddEntity(geometry, name);
 
 	return geometry;
 }
