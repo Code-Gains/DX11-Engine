@@ -30,6 +30,8 @@ public:
 	void Update(float deltaTime);
 	void Render();
 
+	void AddEntity(int entityId, std::string entityName);
+
 	int CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name);
 
 	void SetWorld(World* world);

@@ -417,9 +417,6 @@
     <ClInclude Include="Source\include\DirectXSerialization.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\DirectionalLightComponent.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\ECS.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -441,9 +438,6 @@
     <ClInclude Include="Source\include\LightComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\LightingSystem.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\Logging.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -454,6 +448,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\RenderingApplication3D.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\RenderingSystem.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ResourceMonitor.hpp">
@@ -509,9 +506,6 @@
     <ClCompile Include="Source\Engine\ECS\Components\CameraComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\Components\DirectionalLightComponent.cpp">
-      <Filter>Engine\ECS\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
@@ -543,9 +537,6 @@
       <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">
-      <Filter>Engine\ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">

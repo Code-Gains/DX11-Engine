@@ -14,7 +14,6 @@ public:
     virtual ~Application();
 
     virtual bool Initialize();
-    virtual bool Load() = 0;
     void Run();
 
     [[nodiscard]] int32_t GetWindowWidth() const;
@@ -29,6 +28,7 @@ protected:
         int32_t width,
         int32_t height);
 
+    virtual bool Load() = 0;
     virtual void Cleanup();
     virtual void Render() = 0;
     virtual void Update();

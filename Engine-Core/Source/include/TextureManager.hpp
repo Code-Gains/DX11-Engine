@@ -8,7 +8,6 @@
 #include <FreeImage.h>
 #include <algorithm>
 #include <iostream>
-#include <vector>
 
 // Loads textures and generates unique wstring IDs associated with them
 class TextureManager
@@ -17,14 +16,10 @@ class TextureManager
 	std::wstring GenerateUniqueId(const std::wstring& baseId) const;
 public:
 	std::wstring LoadTexture(ID3D11Device* device, const std::wstring& filePath);
-	std::wstring LoadTextureCubeFromSingleImage(ID3D11Device* device, const std::wstring& filePath);
 	std::wstring CreateTextureNormalMapFromImage(ID3D11Device* device, const std::wstring& filePath);
 	WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureFromImage(ID3D11Device* device, const std::wstring& filePath);
-	WRL::ComPtr<ID3D11ShaderResourceView> CreateTextureCubeFromSingleImage(ID3D11Device* device, const std::wstring& filePath);
 	WRL::ComPtr<ID3D11ShaderResourceView> CreateNormalMapFromImage(ID3D11Device* device, const std::wstring& filePath);
 	ID3D11ShaderResourceView* GetTexture(const std::wstring& id) const;
-
-	std::vector<FIBITMAP*> SplitCubeImage(FIBITMAP* image);
 
 	FIBITMAP* GenerateNormalMapFromHeightmap(FIBITMAP* heightMap);
 	float GetPixelHeightClamped(unsigned int x, unsigned int y, FIBITMAP* heightMap);

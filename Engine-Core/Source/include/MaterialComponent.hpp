@@ -23,6 +23,7 @@ class MaterialComponent : public IComponent
 public:
     MaterialComponent();
 	MaterialComponent(const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float shininess);
+	MaterialComponent(int id, const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float shininess);
 
     void SetAmbient(DirectX::XMFLOAT4 ambient);
     void SetDiffuse(DirectX::XMFLOAT4 diffuse);
@@ -39,7 +40,7 @@ public:
 
     MaterialConstantBuffer GetMaterialConstantBuffer() const;
 
-    static MaterialComponent GetDefaultMaterialComponent();
+    static MaterialComponent GetDefaultMaterialComponent(int id);
 
     template<typename Archive>
     void serialize(Archive& archive)

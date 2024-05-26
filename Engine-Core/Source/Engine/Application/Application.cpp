@@ -80,16 +80,17 @@ void Application::Cleanup()
 
 void Application::Run()
 {
-    /*if (!Load())
+    if (!Load())
     {
         return;
-    }*/
+    }
 
     while (!glfwWindowShouldClose(_window))
     {
         if (glfwGetWindowAttrib(_window, GLFW_ICONIFIED))
+        {
             continue;
-
+        }
         Update();
         PeriodicUpdate();
         Render();

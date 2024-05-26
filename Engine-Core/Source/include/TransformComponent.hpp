@@ -6,7 +6,7 @@
 #include "DirectXSerialization.hpp"
 #include "Component.hpp"
 
-class TransformComponent : public IComponent
+class TransformComponent : public ComponentIdentifier, public IComponent
 {
 	DirectX::XMFLOAT3 _position;
 	DirectX::XMFLOAT3 _rotation;
@@ -15,7 +15,8 @@ class TransformComponent : public IComponent
 
 public:
 	TransformComponent();
-	TransformComponent(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale);
+	TransformComponent(int id);
+	TransformComponent(int id, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale);
 
 	void SetPosition(const DirectX::XMFLOAT3& position);
 	void SetRotation(const DirectX::XMFLOAT3& rotation);
@@ -24,12 +25,6 @@ public:
 	DirectX::XMFLOAT3 GetPosition() const;
 	DirectX::XMFLOAT3 GetRotation() const;
 	DirectX::XMFLOAT3 GetScale() const;
-
-	//TODO CONSIDER USING REFS IS GOOD OR BAD
-	DirectX::XMFLOAT3& GetPositionByRef();
-	DirectX::XMFLOAT3& GetRotationByRef();
-	DirectX::XMFLOAT3& GetScaleByRef();
-
 	DirectX::XMMATRIX GetWorldMatrix() const;
 
 	bool IsDirty() const;
@@ -40,7 +35,7 @@ public:
 	template <typename Archive>
 	void serialize(Archive& archive)
 	{
-		archive(CEREAL_NVP(_isDirty), CEREAL_NVP(_position), CEREAL_NVP(_rotation), CEREAL_NVP(_scale));
+		archive(cereal::make_nvp("_id", GetId()), CEREAL_NVP(_isDirty), CEREAL_NVP(_position), CEREAL_NVP(_rotation), CEREAL_NVP(_scale));
 	}
 };
 
