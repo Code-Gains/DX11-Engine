@@ -26,6 +26,8 @@
 #include "ECS.hpp"
 #include "ECSDebugger.hpp"
 
+#include "DirectionalLightComponent.hpp"
+
 
 
 class IEngineModule

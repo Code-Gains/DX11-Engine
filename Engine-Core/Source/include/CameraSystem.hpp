@@ -1,3 +1,4 @@
+#pragma once
 #include "CameraComponent.hpp"
 #include "ECS.hpp";
 #include "Constants.hpp"

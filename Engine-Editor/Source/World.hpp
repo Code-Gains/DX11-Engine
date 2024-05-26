@@ -16,8 +16,10 @@
 #include "LightComponent.hpp"
 #include "CameraComponent.hpp"
 #include "MeshComponent.hpp"
+#include "DirectionalLightComponent.hpp"
 
 #include "InstanceRendererSystem.hpp"
+#include "LightingSystem.hpp"
 #include "CameraSystem.hpp"
 
 #include "VertexType.hpp"

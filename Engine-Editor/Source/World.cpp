@@ -225,6 +225,19 @@ bool World::LoadWorld(std::string filePath)
         auto meshComponent = MeshComponent<VertexPositionNormalUv>::GeneratePrimitiveMeshComponent(PrimitiveGeometryType3D::Skybox);
         ecs->AddComponent(camera, meshComponent);
 
+        auto directionalLight = ecs->CreateEntity();
+        auto directionalLightComponent = DirectionalLightComponent
+        (
+            DirectX::XMFLOAT4(-0.5f, -1.0f, -0.5f, 0.0f),
+            DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f),
+            DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+            DirectX::XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
+        );
+        ecs->AddComponent(directionalLight, directionalLightComponent);
+
+        //std::cout << "Adding Lighting System!" << std::endl;
+        ecs->AddSystem<LightingSystem>(
+            _renderingApplication->GetApplicationDevice(), _renderingApplication->GetApplicationDeviceContext(), ecs);
         ecs->AddSystem<CameraSystem>(_renderingApplication, ecs);
     }
 

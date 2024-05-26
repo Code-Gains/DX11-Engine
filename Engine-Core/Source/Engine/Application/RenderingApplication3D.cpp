@@ -459,7 +459,16 @@ void RenderingApplication3D::Render()
     //_deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     _instanceRenderer->UpdateDirtyInstances();
-    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+
+    static auto tempBuffer = DirectionalLightConstantBuffer
+    (
+        DirectX::XMFLOAT4(-0.5f, -1.0f, -0.5f, 0.0f),
+        DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f),
+        DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+        DirectX::XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
+    );
+
+    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, tempBuffer);
 
     _ecs.Render();
 

@@ -13,9 +13,6 @@ void InstanceRendererSystem::CreateConstantBuffers()
     desc.ByteWidth = sizeof(CameraConstantBuffer);
     _device->CreateBuffer(&desc, nullptr, &_cameraConstantBuffer);
 
-    desc.ByteWidth = sizeof(LightConstantBuffer);
-    _device->CreateBuffer(&desc, nullptr, &_lightConstantBuffer);
-
     desc.ByteWidth = sizeof(InstanceConstantBuffer) * _batchSize;
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }

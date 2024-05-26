@@ -7,6 +7,7 @@
 #include "MaterialComponent.hpp"
 #include "TransformComponent.hpp"
 #include "ShaderManager.hpp"
+#include "DirectionalLightComponent.hpp"
 #include "ECS.hpp";
 
 #include <vector>
@@ -56,7 +57,6 @@ struct InstanceConstantBuffer
     InstanceConstantBuffer();
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix);
     InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer);
-    //InstanceConstantBuffer(const DirectX::XMMATRIX& worldMatrix, const MaterialConstantBuffer& materialConstantBuffer, const std::wstring& textureId);
 };
 
 
@@ -99,9 +99,9 @@ public:
     };
 
 private:
-    ShaderManager* _shaderManager;
+    ShaderManager* _shaderManager = nullptr;
     TextureManager _textureManager;
-    ECS* _ecs;
+    ECS* _ecs = nullptr;
 
     // Instanced Rendering Resources
     std::unordered_map<int, InstancePool> _instancePools;
@@ -112,15 +112,14 @@ private:
     WRL::ComPtr<ID3D11Device> _device = nullptr;
     WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
 
-    WRL::ComPtr<ID3D11DepthStencilState> _defaultDepthStencilState;
-    WRL::ComPtr<ID3D11DepthStencilState> _noDepthStencilState;
+    WRL::ComPtr<ID3D11DepthStencilState> _defaultDepthStencilState = nullptr;
+    WRL::ComPtr<ID3D11DepthStencilState> _noDepthStencilState = nullptr;
 
     WRL::ComPtr<ID3D11ShaderResourceView> _textureView = nullptr;
     WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _lightConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
@@ -152,7 +151,6 @@ public:
             CreateInstancePool<VertexPositionNormalUv>(skyboxIndex, skyboxMesh);
         skyboxPool.shaderId = L"Skybox";
         auto skyboxTextureId = _textureManager.LoadTextureCubeFromSingleImage(_device.Get(), L"../../../../Assets/Textures/darkbox.png");
-        //auto skyboxTextureId = _textureManager.LoadTexture(_device.Get(), L"../../../../Assets/Textures/Skybox.png");
         // TODO fix spaghetti
         skyboxPool.textureId = skyboxTextureId;
         _instancePools[skyboxIndex] = std::move(skyboxPool);
@@ -258,7 +256,7 @@ public:
     void BindBuffersAndResources(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const LightConstantBuffer& lightConstantBufferData)
+        const DirectionalLightConstantBuffer& lightConstantBufferData)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -270,15 +268,11 @@ public:
         memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
         _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
 
-        _deviceContext->Map(_lightConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, &lightConstantBufferData, sizeof(LightConstantBuffer));
-        _deviceContext->Unmap(_lightConstantBuffer.Get(), 0);
 
-        ID3D11Buffer* constantPerFrameBuffers[3] =
+        ID3D11Buffer* constantPerFrameBuffers[2] =
         {
             _perFrameConstantBuffer.Get(),
             _cameraConstantBuffer.Get(),
-            _lightConstantBuffer.Get(),
         };
 
         ID3D11Buffer* constantPerObjectBuffers[1] =
@@ -286,22 +280,21 @@ public:
             _instanceConstantBuffer.Get()
         };
 
-        _deviceContext->VSSetConstantBuffers(0, 3, constantPerFrameBuffers);
+        _deviceContext->VSSetConstantBuffers(0, 2, constantPerFrameBuffers);
         _deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
-        _deviceContext->PSSetConstantBuffers(0, 3, constantPerFrameBuffers);
+        _deviceContext->PSSetConstantBuffers(0, 2, constantPerFrameBuffers);
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
         _deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
-
     }
 
     template<typename TVertexType>
     void RenderInstances(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
         const CameraConstantBuffer& cameraConstantBufferData,
-        const LightConstantBuffer& lightConstantBufferData
+        const DirectionalLightConstantBuffer& lightConstantBufferData
     )
     {
         BindBuffersAndResources(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData);
@@ -314,23 +307,22 @@ public:
             if (instancePool.instanceCount != 0 && _shaderManager->GetCurrentShaderId() != instancePool.shaderId)
             {
                 _shaderManager->ApplyToContext(instancePool.shaderId, _deviceContext.Get());
-                auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                std::cout << name << std::endl;
+                //auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
+                //std::cout << name << std::endl;
             }
-
             // Spaghetti TODO FIX
             if (instancePool.shaderId == L"Skybox")
             {
                 _deviceContext->OMSetDepthStencilState(_noDepthStencilState.Get(), 0);
-                auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                std::cout << name << std::endl;
-                std::cout << "Set NoDepth" << std::endl;
+                //auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
+                //std::cout << name << std::endl;
+                //std::cout << "Set NoDepth" << std::endl;
             }
             else
             {
                 _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
                 auto name = std::string(instancePool.shaderId.begin(), instancePool.shaderId.end());
-                std::cout << "Set Default" << std::endl;
+                //std::cout << "Set Default" << std::endl;
             }
 
             int instancesRendered = 0;
