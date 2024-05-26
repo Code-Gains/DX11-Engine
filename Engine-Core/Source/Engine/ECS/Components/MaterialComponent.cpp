@@ -13,16 +13,6 @@ MaterialComponent::MaterialComponent(
 	_materialConstantBuffer = MaterialConstantBuffer(ambient, diffuse, specular, shininess);
 }
 
-MaterialComponent::MaterialComponent(
-	int id,
-	const DirectX::XMFLOAT4& ambient,
-	const DirectX::XMFLOAT4& diffuse,
-	const DirectX::XMFLOAT4& specular,
-	float shininess)
-{
-	_materialConstantBuffer = MaterialConstantBuffer(ambient, diffuse, specular, shininess);
-}
-
 void MaterialComponent::SetAmbient(DirectX::XMFLOAT4 ambient)
 {
 	_materialConstantBuffer.ambient = ambient;
@@ -82,13 +72,13 @@ MaterialConstantBuffer MaterialComponent::GetMaterialConstantBuffer() const
 	return _materialConstantBuffer;
 }
 
-MaterialComponent MaterialComponent::GetDefaultMaterialComponent(int id)
+MaterialComponent MaterialComponent::GetDefaultMaterialComponent()
 {
 	DirectX::XMFLOAT4 ambient{ 1.0f, 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT4 diffuse{ 1.0f, 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT4 specular{ 1.0f, 1.0f, 1.0f, 1.0f };
 	float shininess = 15.0f;
-	auto material = MaterialComponent(id, ambient, diffuse, specular, shininess);
+	auto material = MaterialComponent(ambient, diffuse, specular, shininess);
 	return material;
 }
 
