@@ -246,6 +246,7 @@
     <ClInclude Include="Source\include\Constants.hpp" />
     <ClInclude Include="Source\include\Definitions.hpp" />
     <ClInclude Include="Source\include\DirectXSerialization.hpp" />
+    <ClInclude Include="Source\include\DirectionalLightComponent.hpp" />
     <ClInclude Include="Source\include\ECS.hpp" />
     <ClInclude Include="Source\include\ECSDebugger.hpp" />
     <ClInclude Include="Source\include\Entity.hpp" />
@@ -253,11 +254,11 @@
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
     <ClInclude Include="Source\include\IntVectors.hpp" />
     <ClInclude Include="Source\include\LightComponent.hpp" />
+    <ClInclude Include="Source\include\LightingSystem.hpp" />
     <ClInclude Include="Source\include\Logging.hpp" />
     <ClInclude Include="Source\include\MaterialComponent.hpp" />
     <ClInclude Include="Source\include\MeshComponent.hpp" />
     <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
-    <ClInclude Include="Source\include\RenderingSystem.hpp" />
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
     <ClInclude Include="Source\include\ShaderManager.hpp" />
@@ -277,6 +278,7 @@
     <ClCompile Include="Source\Engine\ECS\Component.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\CameraComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\DirectionalLightComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\MaterialComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\MeshComponent.cpp" />
@@ -288,6 +290,7 @@
     <ClCompile Include="Source\Engine\ECS\System.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\CameraSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Shaders\TextureManager.cpp" />

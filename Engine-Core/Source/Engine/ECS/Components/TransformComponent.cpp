@@ -3,21 +3,12 @@
 TransformComponent::TransformComponent() :
     _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
     _rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
-    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f }),
-    ComponentIdentifier(0)
+    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f })
 {
 }
 
-TransformComponent::TransformComponent(int id) :
-    _position(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
-    _rotation(DirectX::XMFLOAT3{ 0.0f, 0.0f, 0.0f }),
-    _scale(DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f }),
-    ComponentIdentifier(id)
-{
-}
-
-TransformComponent::TransformComponent(int id, const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale)
-    : _position(pos), _rotation(rot), _scale(scale), ComponentIdentifier(id)
+TransformComponent::TransformComponent(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& rot, const DirectX::XMFLOAT3& scale)
+    : _position(pos), _rotation(rot), _scale(scale)
 {
 }
 
@@ -50,6 +41,21 @@ DirectX::XMFLOAT3 TransformComponent::GetRotation() const
 }
 
 DirectX::XMFLOAT3 TransformComponent::GetScale() const
+{
+    return _scale;
+}
+
+DirectX::XMFLOAT3& TransformComponent::GetPositionByRef()
+{
+    return _position;
+}
+
+DirectX::XMFLOAT3& TransformComponent::GetRotationByRef()
+{
+    return _rotation;
+}
+
+DirectX::XMFLOAT3& TransformComponent::GetScaleByRef()
 {
     return _scale;
 }

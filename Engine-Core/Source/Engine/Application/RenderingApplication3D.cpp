@@ -101,6 +101,11 @@ void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& 
     DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
 }
 
+ECS* RenderingApplication3D::GetECS()
+{
+    return &_ecs;
+}
+
 Entity RenderingApplication3D::CreateEntity()
 {
     return _ecs.CreateEntity();
@@ -194,7 +199,7 @@ bool RenderingApplication3D::Initialize()
     CreateSwapchainResources();
     CreateRasterState();
     CreateDepthStencilView();
-    CreateDepthState();
+    //CreateDepthState();
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -243,25 +248,24 @@ void RenderingApplication3D::CreateDepthStencilView()
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
     dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
     dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    if (FAILED(_device->CreateDepthStencilView(texture, &dsvDesc, &_depthTarget)))
+    HRESULT hr = _device->CreateDepthStencilView(texture, &dsvDesc, &_depthTarget);
+    texture->Release();
+    if (FAILED(hr))
     {
         std::cerr << "D3D11: Failed to create DepthStencilView\n";
-        texture->Release();
         return;
     }
-
-    texture->Release();
 }
 
-void RenderingApplication3D::CreateDepthState()
-{
-    D3D11_DEPTH_STENCIL_DESC depthDesc{};
-    depthDesc.DepthEnable = TRUE;
-    depthDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
-    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-
-    _device->CreateDepthStencilState(&depthDesc, &_depthState);
-}
+//void RenderingApplication3D::CreateDepthState()
+//{
+//    D3D11_DEPTH_STENCIL_DESC depthDesc{};
+//    depthDesc.DepthEnable = TRUE;
+//    depthDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
+//    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+//
+//    _device->CreateDepthStencilState(&depthDesc, &_depthState);
+//}
 
 bool RenderingApplication3D::LoadWorldSingle(std::string filePath)
 {
@@ -304,11 +308,17 @@ bool RenderingApplication3D::Load()
     terrainShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Terrain.ps.hlsl";
     terrainShaderDescriptor.VertexType = VertexType::PositionNormalUvHeight;
 
+    ShaderCollectionDescriptor skyboxShaderDescriptor = {};
+    skyboxShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Skybox.vs.hlsl";
+    skyboxShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Skybox.ps.hlsl";
+    skyboxShaderDescriptor.VertexType = VertexType::PositionNormalUv;
+
     _shaderManager = ShaderManager(_device.Get());
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
     _shaderManager.LoadShaderCollection(L"Terrain", terrainShaderDescriptor);
+    _shaderManager.LoadShaderCollection(L"Skybox", skyboxShaderDescriptor);
 
-    //auto instanceRenderer = InstanceRendererSystem(_device.Get(), _deviceContext.Get());
+    // TODO MOVE OPTIONAL SYSTEMS OUT OF CORE
     _ecs.AddSystem<ECSDebugger>(&_ecs);
     _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_shaderManager, &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
@@ -446,10 +456,19 @@ void RenderingApplication3D::Render()
 
     _deviceContext->RSSetViewports(1, &viewport);
     _deviceContext->RSSetState(_rasterState.Get());
-    _deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
+    //_deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     _instanceRenderer->UpdateDirtyInstances();
-    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, _lightConstantBufferData);
+
+    static auto tempBuffer = DirectionalLightConstantBuffer
+    (
+        DirectX::XMFLOAT4(-0.5f, -1.0f, -0.5f, 0.0f),
+        DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f),
+        DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+        DirectX::XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
+    );
+
+    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, tempBuffer);
 
     _ecs.Render();
 
