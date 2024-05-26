@@ -16,7 +16,8 @@ enum class PrimitiveGeometryType3D
 	Sphere,
 	Cylinder,
 	Pipe,
-	TerrainChunk // TODO REMOVE FROM HERE ONLY FOR TESTING
+	TerrainChunk, // TODO REMOVE FROM HERE ONLY FOR TESTING,
+    Skybox
 };
 
 class IMeshComponent
@@ -120,6 +121,8 @@ public:
                 return GetPrimitiveCylinderVertices(0.5f, 1, 30);
             case PrimitiveGeometryType3D::Pipe:
                 return GetPrimitivePipeVertices(0.5f, 1, 30);
+            case PrimitiveGeometryType3D::Skybox:
+                return GetPrimitiveCubeVertices();
                 //case PrimitiveGeometryType3D::TerrainChunk:
                     //return GetPrimitiveTerrainChunkVertices(10.0f, 10.0f, 10, 10);
         }
@@ -154,6 +157,8 @@ public:
             return GetPrimitiveCylinderIndices(30);
         case PrimitiveGeometryType3D::Pipe:
             return GetPrimitivePipeIndices(30);
+        case PrimitiveGeometryType3D::Skybox:
+            return GetPrimitiveSkyboxIndices();
             //case PrimitiveGeometryType3D::TerrainChunk:
                 //return GetPrimitiveTerrainChunkIndices(10.0f, 10.0f, 10, 10);
         }
@@ -377,6 +382,35 @@ public:
             // Right
             20, 21, 22,
             22, 21, 23,
+        };
+    }
+
+    static std::vector<UINT> GetPrimitiveSkyboxIndices()
+    {
+        return {
+            // Front
+            0, 1, 2,
+            2, 1, 3,
+
+            // Back
+            6, 5, 4,
+            6, 7, 5,
+
+            // Top
+            8, 9, 10,
+            10, 9, 11,
+
+            // Bottom
+            12, 14, 13,
+            14, 15, 13,
+
+            // Left
+            16, 17, 18,
+            18, 17, 19,
+
+            // Right
+            20, 22, 21,
+            22, 23, 21,
         };
     }
 
