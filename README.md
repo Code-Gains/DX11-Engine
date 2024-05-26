@@ -11,7 +11,3 @@ I am making a YouTube series along the way https://youtube.com/@Code_Gains
 ## Contributing
 I don't really have guidelines for contributions yet, however you are free to fork the repository, make some improvements and open a pull request. Just have in mind that I will be able to freely edit, merge or close the pull requests you make. I might have to come up with a different solution if interest in the project increases.
 
-## Latest showcase (World Saving and Loading using Cereal C++ serialization library):
-
-![vlc_r8kJ1rwHsd](https://github.com/Code-Gains/DX11-Engine/assets/22920179/6592d6b9-c3eb-4cd7-ab54-15a92cbd1b1b)
-
