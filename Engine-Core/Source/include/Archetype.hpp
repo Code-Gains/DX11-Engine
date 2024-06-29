@@ -8,6 +8,7 @@
 
 #include "Entity.hpp"
 #include "Component.hpp"
+#include <stdlib.h>;
 
 class Archetype
 {

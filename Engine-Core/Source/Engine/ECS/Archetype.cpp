@@ -1,5 +1,5 @@
 #include "Archetype.hpp"
-#include <stdlib.h>;
+
 
 Archetype::Archetype(const ComponentSignature& signature) : _signature(signature)
 {

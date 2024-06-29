@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -90,7 +90,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
@@ -101,7 +102,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -118,7 +119,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
@@ -129,7 +131,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -146,7 +148,8 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>

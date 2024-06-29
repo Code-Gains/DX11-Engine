@@ -7,6 +7,7 @@
 // ReSharper disable once CppInconsistentNaming
 struct GLFWwindow;
 
+
 class Application
 {
 public:
