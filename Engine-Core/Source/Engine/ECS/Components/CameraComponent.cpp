@@ -13,11 +13,6 @@ CameraComponent::~CameraComponent()
 {
 }
 
-//DirectX::XMFLOAT3& CameraComponent::GetPositionByRef()
-//{
-//	return _position;
-//}
-//
 DirectX::XMFLOAT3& CameraComponent::GetRotationByRef()
 {
 	return _rotation;
@@ -33,12 +28,7 @@ float CameraComponent::GetRotationSpeed() const
 	return _rotationSpeed;
 }
 
-//void CameraComponent::SetPosition(const DirectX::XMFLOAT3& position)
-//{
-//	_position = position;
-//}
-//
-//void CameraComponent::SetRotation(const DirectX::XMFLOAT3& rotation)
-//{
-//	_rotation = rotation;
-//}
+void CameraComponent::RenderMonitorUI() const
+{
+
+}

@@ -5,8 +5,11 @@
 #include "Component.hpp"
 #include "ComponentIdentifier.hpp"
 
+// Debug tools
+#include "IMonitorable.hpp"
 
-class CameraComponent : public IComponent
+
+class CameraComponent : public IComponent, public IMonitorable
 {
     DirectX::XMFLOAT3 _rotation;
 
@@ -20,12 +23,10 @@ public:
     CameraComponent(DirectX::XMFLOAT3 rotation, float moveSpeed, float rotationSpeed);
     ~CameraComponent();
 
-    //DirectX::XMFLOAT3& GetPositionByRef();
     DirectX::XMFLOAT3& GetRotationByRef();
     float GetMoveSpeed() const;
     float GetRotationSpeed() const;
 
-    /*void SetPosition(const DirectX::XMFLOAT3& position);
-    void SetRotation(const DirectX::XMFLOAT3& rotation);*/
+    // Debug tools
+    void RenderMonitorUI() const override;
 };
-

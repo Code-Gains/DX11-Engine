@@ -17,6 +17,7 @@ class ECS
 {
 	std::vector<std::unique_ptr<ISystem>> _systems;
 	std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
+	// This could be removed TODO (watch stuff)
 	std::unordered_map<Entity, ComponentSignature> _entityToSignature;
 
 	// --- IDs ---
@@ -46,6 +47,8 @@ public:
 
 	// --- Entity Management ---
 	size_t GetEntityCount() const;
+
+	std::unordered_map<Entity, ComponentSignature> GetAllEntities() const;
 
 	Entity GetNextEntityId() const;
 	const std::optional<ComponentSignature> GetEntitySignature(Entity entity) const;

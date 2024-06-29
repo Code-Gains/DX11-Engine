@@ -102,7 +102,7 @@ void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& 
 }
 
 ECS* RenderingApplication3D::GetECS()
-{
+{ 
     return &_ecs;
 }
 

@@ -60,6 +60,7 @@ public:
         return _components.size();
     }
 
+    // RETURN REF TODO
     std::vector<TComponent>* GetRawVector()
     {
         return &_components;
@@ -156,6 +157,18 @@ public:
             return std::nullopt;
 
         return _componentTypes[type];
+    }
+
+    template<typename TComponent>
+    static std::optional<std::string> GetComponentName()
+    {
+        static_assert(std::is_base_of<IComponent, TComponent>::value, "TComponent must inherit from Component!");
+
+        auto type = std::type_index(typeid(TComponent));
+        if (_componentTypes.find(type) == _componentTypes.end())
+            return std::nullopt;
+
+        return _componentNames[type];
     }
 
     template<typename... TComponents>

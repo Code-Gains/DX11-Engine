@@ -207,6 +207,7 @@ bool World::LoadWorld(std::string filePath)
         _universe->LoadWorldSingle(filePath);
     else // load new world
     {
+        // TODO FIX RETURN REF AND NOT POINTER
         auto ecs = _renderingApplication->GetECS();
 
         auto camera = ecs->CreateEntity();
@@ -235,7 +236,9 @@ bool World::LoadWorld(std::string filePath)
         );
         ecs->AddComponent(directionalLight, directionalLightComponent);
 
-        //std::cout << "Adding Lighting System!" << std::endl;
+        // Plugins for system bundles
+        //TODO TEMP MONITORING SYSTEM, WILL NEED TO DO EDITOR PREPROCESSORS
+        ecs->AddSystem<EntityMonitoringSystem>(ecs);
         ecs->AddSystem<LightingSystem>(
             _renderingApplication->GetApplicationDevice(), _renderingApplication->GetApplicationDeviceContext(), ecs);
         ecs->AddSystem<CameraSystem>(_renderingApplication, ecs);

@@ -60,6 +60,8 @@ struct InstanceConstantBuffer
 };
 
 
+
+// TODO MAKE ADDITIONAL LAYER AND MAKE CORE INTERRACT ONLY WITH THAT LAYER FOR DIFERRENT
 class InstanceRendererSystem : public ISystem
 {
 public:

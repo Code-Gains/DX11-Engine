@@ -21,6 +21,7 @@
 #include "InstanceRendererSystem.hpp"
 #include "LightingSystem.hpp"
 #include "CameraSystem.hpp"
+#include "EntityMonitoringSystem.hpp"
 
 #include "VertexType.hpp"
 #include "Constants.hpp"

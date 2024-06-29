@@ -429,7 +429,13 @@
     <ClInclude Include="Source\include\Entity.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\EntityMonitoringSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Heightmap.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\IMonitorable.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp">
@@ -540,6 +546,9 @@
       <Filter>Engine\ECS</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\CameraSystem.cpp">
+      <Filter>Engine\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Systems\EntityMonitoringSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp">

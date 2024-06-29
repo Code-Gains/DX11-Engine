@@ -10,6 +10,7 @@
 #include <iostream>
 #include <vector>
 
+// Could be stored in entities
 // Loads textures and generates unique wstring IDs associated with them
 class TextureManager
 {

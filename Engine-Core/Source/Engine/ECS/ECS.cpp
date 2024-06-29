@@ -67,6 +67,11 @@ size_t ECS::GetEntityCount() const
 	return _entityToSignature.size();
 }
 
+std::unordered_map<Entity, ComponentSignature> ECS::GetAllEntities() const
+{
+	return _entityToSignature;
+}
+
 Entity ECS::GetNextEntityId() const
 {
 	return _nextEntityId;

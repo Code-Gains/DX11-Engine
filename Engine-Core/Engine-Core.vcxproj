@@ -250,7 +250,9 @@
     <ClInclude Include="Source\include\ECS.hpp" />
     <ClInclude Include="Source\include\ECSDebugger.hpp" />
     <ClInclude Include="Source\include\Entity.hpp" />
+    <ClInclude Include="Source\include\EntityMonitoringSystem.hpp" />
     <ClInclude Include="Source\include\Heightmap.hpp" />
+    <ClInclude Include="Source\include\IMonitorable.hpp" />
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
     <ClInclude Include="Source\include\IntVectors.hpp" />
     <ClInclude Include="Source\include\LightComponent.hpp" />
@@ -289,6 +291,7 @@
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
     <ClCompile Include="Source\Engine\ECS\System.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\CameraSystem.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Systems\EntityMonitoringSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
