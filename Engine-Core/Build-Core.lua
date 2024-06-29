@@ -6,6 +6,8 @@ project "Engine-Core"
    staticruntime "off"
 
    files { "Source/**.h", "Source/**.hpp", "Source/**.cpp" }
+   links { "$(VULKAN_SDK)/lib/vulkan-1.lib" }
+
 
    includedirs
    {
@@ -14,7 +16,8 @@ project "Engine-Core"
       "Source/cereal",
       "Source/imgui/include",
       "Source/glfw-3.3.8.bin.WIN64/include",
-      "Source/FreeImage/include"
+      "Source/FreeImage/include",
+      "$(VULKAN_SDK)/include"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
