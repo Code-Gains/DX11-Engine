@@ -1,6 +1,6 @@
 workspace "Engine"
    architecture "x64"
-   configurations { "Debug", "Release", "Dist" }
+   configurations { "Debug_DX11", "Release_DX11", "Dist_DX11", "Debug_Vulkan", "Release_Vulkan", "Dist_Vulkan" }
    startproject "Engine-Editor"
 
    -- Workspace-wide build options for MSVC

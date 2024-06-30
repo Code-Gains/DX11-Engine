@@ -25,6 +25,9 @@
     <Filter Include="Engine\ECS\Systems">
       <UniqueIdentifier>{AC5CA585-9840-66DB-01A1-602EEDA3505D}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GraphicsAPI">
+      <UniqueIdentifier>{B567E6D3-A14B-A729-0AAC-A17CF6AE91AB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Shaders">
       <UniqueIdentifier>{B4970385-A065-F78A-89F9-67B17566D3EF}</UniqueIdentifier>
     </Filter>
@@ -414,6 +417,9 @@
     <ClInclude Include="Source\include\Definitions.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\DirectX11Context.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\DirectXSerialization.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -430,6 +436,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\EntityMonitoringSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\GraphicsContext.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\Heightmap.hpp">
@@ -487,6 +496,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\VertexType.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\VulkanContext.hpp">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -556,6 +568,15 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsAPI\DirectX11Context.cpp">
+      <Filter>Engine\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsAPI\GraphicsContext.cpp">
+      <Filter>Engine\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp">
+      <Filter>Engine\GraphicsAPI</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">
       <Filter>Engine\Shaders</Filter>

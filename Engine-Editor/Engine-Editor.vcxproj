@@ -1,16 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
+    <ProjectConfiguration Include="Debug_DX11|x64">
+      <Configuration>Debug_DX11</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
+    <ProjectConfiguration Include="Release_DX11|x64">
+      <Configuration>Release_DX11</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Dist|x64">
-      <Configuration>Dist</Configuration>
+    <ProjectConfiguration Include="Dist_DX11|x64">
+      <Configuration>Dist_DX11</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug_Vulkan|x64">
+      <Configuration>Debug_Vulkan</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Vulkan|x64">
+      <Configuration>Release_Vulkan</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Dist_Vulkan|x64">
+      <Configuration>Dist_Vulkan</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -22,19 +34,37 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist_DX11|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist_Vulkan|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
@@ -43,42 +73,72 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist_DX11|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist_Vulkan|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\Binaries\windows-x86_64\Debug\Engine-Editor\</OutDir>
-    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug\Engine-Editor\</IntDir>
+    <OutDir>..\Binaries\windows-x86_64\Debug_DX11\Engine-Editor\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug_DX11\Engine-Editor\</IntDir>
     <TargetName>Engine-Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\Binaries\windows-x86_64\Release\Engine-Editor\</OutDir>
-    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release\Engine-Editor\</IntDir>
+    <OutDir>..\Binaries\windows-x86_64\Release_DX11\Engine-Editor\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release_DX11\Engine-Editor\</IntDir>
     <TargetName>Engine-Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist_DX11|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\Binaries\windows-x86_64\Dist\Engine-Editor\</OutDir>
-    <IntDir>..\Binaries\Intermediates\windows-x86_64\Dist\Engine-Editor\</IntDir>
+    <OutDir>..\Binaries\windows-x86_64\Dist_DX11\Engine-Editor\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Dist_DX11\Engine-Editor\</IntDir>
     <TargetName>Engine-Editor</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\Binaries\windows-x86_64\Debug_Vulkan\Engine-Editor\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug_Vulkan\Engine-Editor\</IntDir>
+    <TargetName>Engine-Editor</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\Binaries\windows-x86_64\Release_Vulkan\Engine-Editor\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release_Vulkan\Engine-Editor\</IntDir>
+    <TargetName>Engine-Editor</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist_Vulkan|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\Binaries\windows-x86_64\Dist_Vulkan\Engine-Editor\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Dist_Vulkan\Engine-Editor\</IntDir>
+    <TargetName>Engine-Editor</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;DEBUG;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -94,14 +154,14 @@
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
+      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug_DX11\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug_DX11\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WINDOWS;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;RELEASE;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
@@ -123,14 +183,14 @@
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
+      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release_DX11\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release_DX11\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist_DX11|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WINDOWS;DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;DIST;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
@@ -152,7 +212,88 @@
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
+      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist_DX11\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist_DX11\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WINDOWS;DEBUG;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug_Vulkan\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Debug_Vulkan\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WINDOWS;RELEASE;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release_Vulkan\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Release_Vulkan\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist_Vulkan|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WINDOWS;DIST;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\lib-vc2022\glfw3.lib;..\Engine-Core\Source\DirectXTex\lib\Release\DirectXTex.lib;..\Engine-Core\Source\FreeImage\lib\FreeImage.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)\Assets\Shaders\*"\ (xcopy /Q /E /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist_Vulkan\Engine-Editor\Assets\Shaders\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\Assets\Shaders\*" "..\Binaries\windows-x86_64\Dist_Vulkan\Engine-Editor\Assets\Shaders\" &gt; nul)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
