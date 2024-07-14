@@ -121,7 +121,6 @@ private:
     WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
@@ -257,7 +256,6 @@ public:
 
     void BindBuffersAndResources(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
-        const CameraConstantBuffer& cameraConstantBufferData,
         const DirectionalLightConstantBuffer& lightConstantBufferData)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -266,26 +264,15 @@ public:
         memcpy(mappedResource.pData, &perFrameConstantBuffer, sizeof(PerFrameConstantBuffer));
         _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
 
-        _deviceContext->Map(_cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
-        _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
-
-
-        ID3D11Buffer* constantPerFrameBuffers[2] =
-        {
-            _perFrameConstantBuffer.Get(),
-            _cameraConstantBuffer.Get(),
-        };
-
         ID3D11Buffer* constantPerObjectBuffers[1] =
         {
             _instanceConstantBuffer.Get()
         };
 
-        _deviceContext->VSSetConstantBuffers(0, 2, constantPerFrameBuffers);
+        _deviceContext->VSSetConstantBuffers(0, 1, _perFrameConstantBuffer.GetAddressOf());
         _deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
-        _deviceContext->PSSetConstantBuffers(0, 2, constantPerFrameBuffers);
+        _deviceContext->PSSetConstantBuffers(0, 1, _perFrameConstantBuffer.GetAddressOf());
         _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
@@ -295,11 +282,10 @@ public:
     template<typename TVertexType>
     void RenderInstances(
         const PerFrameConstantBuffer& perFrameConstantBuffer,
-        const CameraConstantBuffer& cameraConstantBufferData,
         const DirectionalLightConstantBuffer& lightConstantBufferData
     )
     {
-        BindBuffersAndResources(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData);
+        BindBuffersAndResources(perFrameConstantBuffer, lightConstantBufferData);
 
         for (const auto& instancePoolPair : _instancePools)
         {

@@ -87,17 +87,6 @@ void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int insta
     _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
 }
 
-void RenderingApplication3D::SetLightConstantBuffer(const LightConstantBuffer& lightBuffer)
-{
-    _lightConstantBufferData.Position = lightBuffer.Position;
-    _lightConstantBufferData.Ambient = lightBuffer.Ambient;
-    _lightConstantBufferData.Diffuse = lightBuffer.Diffuse;
-    _lightConstantBufferData.Specular = lightBuffer.Specular;
-}
-void RenderingApplication3D::SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition)
-{
-    _cameraConstantBufferData.cameraPosition = cameraPosition;
-}
 void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection)
 {
     DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
@@ -286,7 +275,7 @@ void RenderingApplication3D::Render()
         DirectX::XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
     );
 
-    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, tempBuffer);
+    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, tempBuffer);
 
     _ecs.Render();
 

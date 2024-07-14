@@ -66,8 +66,6 @@ public:
     void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
 
     // Renderer Constant Buffers
-    void SetLightConstantBuffer(const LightConstantBuffer& lightBuffer);
-    void SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition);
     void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
 
     // ----- ECS -----
@@ -131,7 +129,5 @@ private:
     InstanceRendererSystem* _instanceRenderer;
 
     // ----- HLSL Constant Buffer Data -----
-    LightConstantBuffer _lightConstantBufferData{};
-    PerFrameConstantBuffer _perFrameConstantBufferData{};
-    CameraConstantBuffer _cameraConstantBufferData{};
+    PerFrameConstantBuffer _perFrameConstantBufferData{}; // TODO MOVE TO CAMERA SYSTEM
 };

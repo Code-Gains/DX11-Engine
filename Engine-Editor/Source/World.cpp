@@ -15,13 +15,6 @@ bool World::Initialize(RenderingApplication3D* renderingApplication, Universe* u
     _renderingApplication = renderingApplication;
     _universe = universe;
 
-    LightConstantBuffer lightConstantBuffer;
-    lightConstantBuffer.Position = { -1.0f, 50.0f, -5.0f, 0.0f };
-    lightConstantBuffer.Ambient = { 0.3f, 0.3f, 0.3f, 1.0f };
-    lightConstantBuffer.Diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
-	lightConstantBuffer.Specular = { 1.0f, 1.0f, 1.0f, 1.0f };
-    _renderingApplication->SetLightConstantBuffer(lightConstantBuffer);
-
     _worldHierarchy = WorldHierarchy(this);
 	return true;
 }
@@ -214,7 +207,7 @@ bool World::LoadWorld(std::string filePath)
         DirectX::XMFLOAT3 cameraStartPosition = { 0.0f, 3.0f, 10.0f };
         DirectX::XMFLOAT3 cameraStartRotation = { 0.0f,  (float)Constants::DegreesToRadians(180), 0.0f };
 
-        auto cameraComponent = CameraComponent(cameraStartRotation, 20.0f, 3.0f);
+        auto cameraComponent = CameraComponent(_renderingApplication->GetApplicationDevice(), cameraStartRotation, 20.0f, 3.0f);
         ecs->AddComponent(camera, cameraComponent);
 
         auto transformComponent = TransformComponent(cameraStartPosition, cameraStartRotation, DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f));
