@@ -18,6 +18,7 @@ project "Engine-Editor"
         "../Engine-Core/Source/imgui/include",
         "../Engine-Core/Source/glfw-3.3.8.bin.WIN64/include",
         "../Engine-Core/Source/FreeImage/include",
+        "../Engine-Core/Source/nlohmannjson",
         "%{vulkanSDK}/Include" -- Add Vulkan include directory
     }
 

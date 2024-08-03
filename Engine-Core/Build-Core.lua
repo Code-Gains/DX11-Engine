@@ -16,7 +16,8 @@ project "Engine-Core"
       "Source/glfw-3.3.8.bin.WIN64/include",
       "Source/FreeImage/include",
       "%{vulkanSDK}/Include",
-      "Source/Engine/Graphics", 
+      "Source/Engine/Graphics",
+      "Source/nlohmannjson"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")

@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <algorithm>
+#include "ConstantBufferBinder.hpp"
 
 class Editor
 {

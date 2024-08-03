@@ -30,6 +30,7 @@ void Editor::Run()
     );
 
     application.AddEngineModule(std::move(engineModule));
-
+    ConstantBufferBinder& constantBufferBinder = ConstantBufferBinder::GetInstance();
+    constantBufferBinder.Initialize(deviceContext);
     application.Run();
 }

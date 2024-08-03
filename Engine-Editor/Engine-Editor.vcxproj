@@ -139,7 +139,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;DEBUG;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;..\Engine-Core\Source\nlohmannjson;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -162,7 +162,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;RELEASE;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;..\Engine-Core\Source\nlohmannjson;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -191,7 +191,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;DIST;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;..\Engine-Core\Source\nlohmannjson;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -220,7 +220,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;DEBUG;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;..\Engine-Core\Source\nlohmannjson;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -243,7 +243,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;RELEASE;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;..\Engine-Core\Source\nlohmannjson;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -272,7 +272,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WINDOWS;DIST;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;..\Engine-Core\Source;..\Engine-Core\Source\include;..\Engine-Core\Source\cereal;..\Engine-Core\Source\imgui\include;..\Engine-Core\Source\glfw-3.3.8.bin.WIN64\include;..\Engine-Core\Source\FreeImage\include;..\Engine-Core\Source\nlohmannjson;C:\VulkanSDK\1.3.283.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>

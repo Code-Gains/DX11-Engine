@@ -22,6 +22,8 @@
 #include <string>
 #include <random>
 #include "TextureManager.hpp"
+#include "ConfigManager.hpp"
+#include "ConstantBufferBinder.hpp"
 
 
 class IVertexHandler
@@ -255,8 +257,7 @@ public:
     }
 
     void BindBuffersAndResources(
-        const PerFrameConstantBuffer& perFrameConstantBuffer,
-        const DirectionalLightConstantBuffer& lightConstantBufferData)
+        const PerFrameConstantBuffer& perFrameConstantBuffer)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -269,11 +270,15 @@ public:
             _instanceConstantBuffer.Get()
         };
 
-        _deviceContext->VSSetConstantBuffers(0, 1, _perFrameConstantBuffer.GetAddressOf());
-        _deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
+        ConfigManager& configManager = ConfigManager::GetInstance();
+        int perFrameSlot = configManager.GetVSConstantBufferSlot("PerFrame");
+        int perObjectSlot = configManager.GetVSConstantBufferSlot("PerObject");
 
-        _deviceContext->PSSetConstantBuffers(0, 1, _perFrameConstantBuffer.GetAddressOf());
-        _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
+        ConstantBufferBinder& binder = ConstantBufferBinder::GetInstance();
+        binder.BindConstantBuffer(_perFrameConstantBuffer.Get(), perFrameConstantBuffer, perFrameSlot, true, true);
+
+        _deviceContext->VSSetConstantBuffers(perObjectSlot, 1, constantPerObjectBuffers);
+        _deviceContext->PSSetConstantBuffers(perObjectSlot, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
         _deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
@@ -281,11 +286,10 @@ public:
 
     template<typename TVertexType>
     void RenderInstances(
-        const PerFrameConstantBuffer& perFrameConstantBuffer,
-        const DirectionalLightConstantBuffer& lightConstantBufferData
+        const PerFrameConstantBuffer& perFrameConstantBuffer
     )
     {
-        BindBuffersAndResources(perFrameConstantBuffer, lightConstantBufferData);
+        BindBuffersAndResources(perFrameConstantBuffer);
 
         for (const auto& instancePoolPair : _instancePools)
         {

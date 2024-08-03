@@ -7,30 +7,16 @@ void CameraSystem::BindCameraConstantBuffer(const WRL::ComPtr<ID3D11Buffer>& cam
 
     CameraConstantBuffer cameraConstantBufferData;
     cameraConstantBufferData.cameraPosition = cameraPosition;
+
     deviceContext->Map(cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
     deviceContext->Unmap(cameraConstantBuffer.Get(), 0);
 
+    ConfigManager& configManager = ConfigManager::GetInstance();
+    int slot = configManager.GetVSConstantBufferSlot("Camera");
 
-    /*ID3D11Buffer* constantPerFrameBuffers[2] =
-    {
-        _perFrameConstantBuffer.Get(),
-        _cameraConstantBuffer.Get(),
-    };
-
-    ID3D11Buffer* constantPerObjectBuffers[1] =
-    {
-        _instanceConstantBuffer.Get()
-    };*/
-
-    deviceContext->VSSetConstantBuffers(1, 1, cameraConstantBuffer.GetAddressOf());
-    //_deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
-
-    deviceContext->PSSetConstantBuffers(1, 1, cameraConstantBuffer.GetAddressOf());
-    //_deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
-
-    //_deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
-    //_deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
+    ConstantBufferBinder& binder = ConstantBufferBinder::GetInstance();
+    binder.BindConstantBuffer(cameraConstantBuffer.Get(), cameraConstantBufferData, slot, true, true);
 }
 
 CameraSystem::CameraSystem()
