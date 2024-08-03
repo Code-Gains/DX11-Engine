@@ -11,8 +11,6 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_DX11|x64 = Debug_DX11|x64
 		Debug_Vulkan|x64 = Debug_Vulkan|x64
-		Dist_DX11|x64 = Dist_DX11|x64
-		Dist_Vulkan|x64 = Dist_Vulkan|x64
 		Release_DX11|x64 = Release_DX11|x64
 		Release_Vulkan|x64 = Release_Vulkan|x64
 	EndGlobalSection
@@ -21,10 +19,6 @@ Global
 		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Debug_DX11|x64.Build.0 = Debug_DX11|x64
 		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Debug_Vulkan|x64.ActiveCfg = Debug_Vulkan|x64
 		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Debug_Vulkan|x64.Build.0 = Debug_Vulkan|x64
-		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Dist_DX11|x64.ActiveCfg = Dist_DX11|x64
-		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Dist_DX11|x64.Build.0 = Dist_DX11|x64
-		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Dist_Vulkan|x64.ActiveCfg = Dist_Vulkan|x64
-		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Dist_Vulkan|x64.Build.0 = Dist_Vulkan|x64
 		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Release_DX11|x64.ActiveCfg = Release_DX11|x64
 		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Release_DX11|x64.Build.0 = Release_DX11|x64
 		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}.Release_Vulkan|x64.ActiveCfg = Release_Vulkan|x64
@@ -33,10 +27,6 @@ Global
 		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Debug_DX11|x64.Build.0 = Debug_DX11|x64
 		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Debug_Vulkan|x64.ActiveCfg = Debug_Vulkan|x64
 		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Debug_Vulkan|x64.Build.0 = Debug_Vulkan|x64
-		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Dist_DX11|x64.ActiveCfg = Dist_DX11|x64
-		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Dist_DX11|x64.Build.0 = Dist_DX11|x64
-		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Dist_Vulkan|x64.ActiveCfg = Dist_Vulkan|x64
-		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Dist_Vulkan|x64.Build.0 = Dist_Vulkan|x64
 		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Release_DX11|x64.ActiveCfg = Release_DX11|x64
 		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Release_DX11|x64.Build.0 = Release_DX11|x64
 		{11DC7661-7D91-EF56-0686-E92D723AE65A}.Release_Vulkan|x64.ActiveCfg = Release_Vulkan|x64

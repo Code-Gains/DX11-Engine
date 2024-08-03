@@ -38,12 +38,6 @@ project "Engine-Core"
        optimize "On"
        symbols "On"
 
-   filter "configurations:Dist_DX11"
-       defines { "DIST", "USE_DIRECTX11" }
-       runtime "Release"
-       optimize "On"
-       symbols "Off"
-
    filter "configurations:Debug_Vulkan"
        defines { "DEBUG", "USE_VULKAN" }
        runtime "Debug"
@@ -54,9 +48,3 @@ project "Engine-Core"
        runtime "Release"
        optimize "On"
        symbols "On"
-
-   filter "configurations:Dist_Vulkan"
-       defines { "DIST", "USE_VULKAN" }
-       runtime "Release"
-       optimize "On"
-       symbols "Off"

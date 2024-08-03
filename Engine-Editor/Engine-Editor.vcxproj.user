@@ -8,20 +8,12 @@
     <LocalDebuggerWorkingDirectory>..\Binaries\windows-x86_64\Release_DX11\$(ProjectName)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist_DX11|x64'">
-    <LocalDebuggerWorkingDirectory>..\Binaries\windows-x86_64\Dist_DX11\$(ProjectName)</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
     <LocalDebuggerWorkingDirectory>..\Binaries\windows-x86_64\Debug_Vulkan\$(ProjectName)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
     <LocalDebuggerWorkingDirectory>..\Binaries\windows-x86_64\Release_Vulkan\$(ProjectName)</LocalDebuggerWorkingDirectory>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist_Vulkan|x64'">
-    <LocalDebuggerWorkingDirectory>..\Binaries\windows-x86_64\Dist_Vulkan\$(ProjectName)</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
