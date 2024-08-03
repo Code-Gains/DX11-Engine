@@ -3,6 +3,16 @@
 
 #include "ECS.hpp";
 #include "DirectionalLightComponent.hpp"
+#include "ConfigManager.hpp"
+#include "ConstantBufferBinder.hpp"
+
+enum ConstantBuffers
+{
+	PerFrame,
+	Camera,
+	DirectionalLight,
+	PerObject
+};
 
 class LightingSystem : public ISystem
 {

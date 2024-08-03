@@ -16,6 +16,9 @@
     <Filter Include="Engine\Application">
       <UniqueIdentifier>{1EA4C00C-0A88-8162-73E8-7BB55FEB6BE4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Config">
+      <UniqueIdentifier>{807E9034-EC3E-0C6B-B579-55E821F95047}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\ECS">
       <UniqueIdentifier>{A531F502-91E9-3650-FAF0-0FACE6C7D140}</UniqueIdentifier>
     </Filter>
@@ -24,6 +27,9 @@
     </Filter>
     <Filter Include="Engine\ECS\Systems">
       <UniqueIdentifier>{AC5CA585-9840-66DB-01A1-602EEDA3505D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GraphicsAPI">
+      <UniqueIdentifier>{B567E6D3-A14B-A729-0AAC-A17CF6AE91AB}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Shaders">
       <UniqueIdentifier>{B4970385-A065-F78A-89F9-67B17566D3EF}</UniqueIdentifier>
@@ -90,6 +96,9 @@
     </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nlohmannjson">
+      <UniqueIdentifier>{FAEEE682-E651-7627-8FD7-AEDD7B1942AA}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -405,6 +414,12 @@
     <ClInclude Include="Source\include\ComponentIdentifier.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\ConfigManager.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ConstantBufferBinder.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -412,6 +427,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\Definitions.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\DirectX11Context.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\DirectXSerialization.hpp">
@@ -430,6 +448,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\EntityMonitoringSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\GraphicsContext.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\Heightmap.hpp">
@@ -489,6 +510,12 @@
     <ClInclude Include="Source\include\VertexType.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\VulkanContext.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\nlohmannjson\json.hpp">
+      <Filter>nlohmannjson</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp">
@@ -502,6 +529,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Application\RenderingApplication3D.cpp">
       <Filter>Engine\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Config\ConfigManager.cpp">
+      <Filter>Engine\Config</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Archetype.cpp">
       <Filter>Engine\ECS</Filter>
@@ -556,6 +586,18 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsAPI\DirectX11Context.cpp">
+      <Filter>Engine\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsAPI\GraphicsContext.cpp">
+      <Filter>Engine\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp">
+      <Filter>Engine\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Shaders\ConstantBufferBinder.cpp">
+      <Filter>Engine\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp">
       <Filter>Engine\Shaders</Filter>

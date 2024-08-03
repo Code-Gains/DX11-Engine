@@ -1,5 +1,24 @@
 #include "CameraSystem.hpp"
 
+void CameraSystem::BindCameraConstantBuffer(const WRL::ComPtr<ID3D11Buffer>& cameraConstantBuffer, const DirectX::XMFLOAT3& cameraPosition) const
+{
+    auto deviceContext = _renderingApplication->GetApplicationDeviceContext();
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+    CameraConstantBuffer cameraConstantBufferData;
+    cameraConstantBufferData.cameraPosition = cameraPosition;
+
+    deviceContext->Map(cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
+    deviceContext->Unmap(cameraConstantBuffer.Get(), 0);
+
+    ConfigManager& configManager = ConfigManager::GetInstance();
+    int slot = configManager.GetVSConstantBufferSlot("Camera");
+
+    ConstantBufferBinder& binder = ConstantBufferBinder::GetInstance();
+    binder.BindConstantBuffer(cameraConstantBuffer.Get(), cameraConstantBufferData, slot, true, true);
+}
+
 CameraSystem::CameraSystem()
 {
 }
@@ -137,7 +156,7 @@ void CameraSystem::Update(float deltaTime)
             DirectX::XMMATRIX view = DirectX::XMMatrixLookAtRH(XMLoadFloat3(&cameraPosition), cameraTarget, up);
 
             DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovRH(
-                Constants::DegreesToRadians(90),
+                Constants::DegreesToRadians(70),
                 static_cast<float>(_renderingApplication->GetWindowWidth()) / static_cast<float>(_renderingApplication->GetWindowHeight()),
                 0.1f,
                 400
@@ -147,7 +166,9 @@ void CameraSystem::Update(float deltaTime)
             transform.SetIsDirty(true);
             DirectX::XMMATRIX viewProjection = DirectX::XMMatrixMultiply(view, proj);
             _renderingApplication->SetPerFrameConstantBuffer(viewProjection);
-            _renderingApplication->SetCameraConstantBuffer(cameraPosition);
+            auto cameraConstantBuffer = camera.GetCameraConstantBuffer();
+            BindCameraConstantBuffer(cameraConstantBuffer, cameraPosition);
+            //_renderingApplication->SetCameraConstantBuffer(cameraPosition);
         }
     }
 }

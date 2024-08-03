@@ -27,8 +27,7 @@
 #include "ECSDebugger.hpp"
 
 #include "DirectionalLightComponent.hpp"
-
-
+#include "DirectX11Context.hpp"
 
 class IEngineModule
 {
@@ -67,8 +66,6 @@ public:
     void UpdateRenderableInstanceData(int poolKey, int instanceIndex, const InstanceConstantBuffer& newData);
 
     // Renderer Constant Buffers
-    void SetLightConstantBuffer(const LightConstantBuffer& lightBuffer);
-    void SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition);
     void SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection);
 
     // ----- ECS -----
@@ -118,28 +115,9 @@ protected:
     void Render() override;
 
 private:
+    std::unique_ptr<DirectX11Context> _graphicsContext;
+
     ResourceMonitor _resourceMonitor;
-
-    void CreateRasterState();
-    void CreateDepthStencilView();
-    //void CreateDepthState();
-    bool CreateSwapchainResources();
-    void DestroySwapchainResources();
-
-    WRL::ComPtr<ID3D11Device> _device = nullptr;
-    WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
-    WRL::ComPtr<IDXGIFactory2> _dxgiFactory = nullptr;
-    WRL::ComPtr<IDXGISwapChain1> _swapChain = nullptr;
-    WRL::ComPtr<ID3D11RenderTargetView> _renderTarget = nullptr;
-    WRL::ComPtr<ID3D11DepthStencilView> _depthTarget = nullptr;
-    WRL::ComPtr<ID3D11RasterizerState> _rasterState = nullptr;
-    WRL::ComPtr<ID3D11DepthStencilState> _depthState = nullptr;
-    WRL::ComPtr<ID3D11Debug> _debug = nullptr;
-
-    WRL::ComPtr<ID3D11SamplerState> _linearSamplerState = nullptr;
-    WRL::ComPtr<ID3D11ShaderResourceView> _textureSrv = nullptr;
-    WRL::ComPtr<ID3D11ShaderResourceView> _fallbackTextureSrv = nullptr;
-
     ShaderManager _shaderManager;
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;
@@ -151,7 +129,5 @@ private:
     InstanceRendererSystem* _instanceRenderer;
 
     // ----- HLSL Constant Buffer Data -----
-    LightConstantBuffer _lightConstantBufferData{};
-    PerFrameConstantBuffer _perFrameConstantBufferData{};
-    CameraConstantBuffer _cameraConstantBufferData{};
+    PerFrameConstantBuffer _perFrameConstantBufferData{}; // TODO MOVE TO CAMERA SYSTEM
 };

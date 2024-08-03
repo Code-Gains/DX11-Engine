@@ -60,16 +60,8 @@ void LightingSystem::PeriodicUpdate(float deltaTime)
 
 void LightingSystem::UpdateDirectionalLightBuffer(const DirectionalLightConstantBuffer& directionalLightBuffer)
 {
-    //std::cout << "Setting DL buffer\n";
-    //if (!_deviceContext)
-    //{
-    //    throw std::runtime_error("Device context is null");
-    //}
-
-    //if (!_directionalLightConstantBuffer)
-    //{
-    //    throw std::runtime_error("Directional light buffer is not initialized");
-    //}
+    ConfigManager& configManager = ConfigManager::GetInstance();
+    int slot = configManager.GetVSConstantBufferSlot("DirectionalLight");
 
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     HRESULT hr = _deviceContext->Map(_directionalLightConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -78,10 +70,6 @@ void LightingSystem::UpdateDirectionalLightBuffer(const DirectionalLightConstant
         throw std::runtime_error("Failed to map directional light buffer");
     }
 
-    memcpy(mappedResource.pData, &directionalLightBuffer, sizeof(DirectionalLightConstantBuffer));
-    _deviceContext->Unmap(_directionalLightConstantBuffer.Get(), 0);
-
-    // Bind the buffer to the pipeline
-    _deviceContext->VSSetConstantBuffers(2, 1, _directionalLightConstantBuffer.GetAddressOf());
-    _deviceContext->PSSetConstantBuffers(2, 1, _directionalLightConstantBuffer.GetAddressOf());
+    ConstantBufferBinder& binder = ConstantBufferBinder::GetInstance();
+    binder.BindConstantBuffer(_directionalLightConstantBuffer.Get(), directionalLightBuffer, slot, true, true);
 }

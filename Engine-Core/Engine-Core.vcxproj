@@ -1,16 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
+    <ProjectConfiguration Include="Debug_DX11|x64">
+      <Configuration>Debug_DX11</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
+    <ProjectConfiguration Include="Release_DX11|x64">
+      <Configuration>Release_DX11</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Dist|x64">
-      <Configuration>Dist</Configuration>
+    <ProjectConfiguration Include="Debug_Vulkan|x64">
+      <Configuration>Debug_Vulkan</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Vulkan|x64">
+      <Configuration>Release_Vulkan</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -22,19 +26,25 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
@@ -43,40 +53,49 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\Binaries\windows-x86_64\Debug\Engine-Core\</OutDir>
-    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug\Engine-Core\</IntDir>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Debug_DX11\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug_DX11\Engine-Core\</IntDir>
     <TargetName>Engine-Core</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\Binaries\windows-x86_64\Release\Engine-Core\</OutDir>
-    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release\Engine-Core\</IntDir>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Release_DX11\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release_DX11\Engine-Core\</IntDir>
     <TargetName>Engine-Core</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
-    <OutDir>..\Binaries\windows-x86_64\Dist\Engine-Core\</OutDir>
-    <IntDir>..\Binaries\Intermediates\windows-x86_64\Dist\Engine-Core\</IntDir>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Debug_Vulkan\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Debug_Vulkan\Engine-Core\</IntDir>
     <TargetName>Engine-Core</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
+    <OutDir>..\Binaries\windows-x86_64\Release_Vulkan\Engine-Core\</OutDir>
+    <IntDir>..\Binaries\Intermediates\windows-x86_64\Release_Vulkan\Engine-Core\</IntDir>
+    <TargetName>Engine-Core</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_DX11|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -88,13 +107,16 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_DX11|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>RELEASE;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -112,14 +134,38 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Vulkan|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <PreprocessorDefinitions>DEBUG;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/EHsc /Zc:preprocessor /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Vulkan|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>RELEASE;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -132,10 +178,13 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.3.283.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\DirectXTex\include\DirectXTex.h" />
@@ -242,15 +291,19 @@
     <ClInclude Include="Source\include\CameraSystem.hpp" />
     <ClInclude Include="Source\include\Component.hpp" />
     <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
+    <ClInclude Include="Source\include\ConfigManager.hpp" />
+    <ClInclude Include="Source\include\ConstantBufferBinder.hpp" />
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
     <ClInclude Include="Source\include\Constants.hpp" />
     <ClInclude Include="Source\include\Definitions.hpp" />
+    <ClInclude Include="Source\include\DirectX11Context.hpp" />
     <ClInclude Include="Source\include\DirectXSerialization.hpp" />
     <ClInclude Include="Source\include\DirectionalLightComponent.hpp" />
     <ClInclude Include="Source\include\ECS.hpp" />
     <ClInclude Include="Source\include\ECSDebugger.hpp" />
     <ClInclude Include="Source\include\Entity.hpp" />
     <ClInclude Include="Source\include\EntityMonitoringSystem.hpp" />
+    <ClInclude Include="Source\include\GraphicsContext.hpp" />
     <ClInclude Include="Source\include\Heightmap.hpp" />
     <ClInclude Include="Source\include\IMonitorable.hpp" />
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
@@ -270,12 +323,15 @@
     <ClInclude Include="Source\include\TextureManager.hpp" />
     <ClInclude Include="Source\include\TransformComponent.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
+    <ClInclude Include="Source\include\VulkanContext.hpp" />
+    <ClInclude Include="Source\nlohmannjson\json.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Engine\3DObjects\Heightmap.cpp" />
     <ClCompile Include="Source\Engine\3DObjects\Terrain.cpp" />
     <ClCompile Include="Source\Engine\Application\Application.cpp" />
     <ClCompile Include="Source\Engine\Application\RenderingApplication3D.cpp" />
+    <ClCompile Include="Source\Engine\Config\ConfigManager.cpp" />
     <ClCompile Include="Source\Engine\ECS\Archetype.cpp" />
     <ClCompile Include="Source\Engine\ECS\Component.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp" />
@@ -294,6 +350,10 @@
     <ClCompile Include="Source\Engine\ECS\Systems\EntityMonitoringSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsAPI\DirectX11Context.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsAPI\GraphicsContext.cpp" />
+    <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp" />
+    <ClCompile Include="Source\Engine\Shaders\ConstantBufferBinder.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Shaders\TextureManager.cpp" />

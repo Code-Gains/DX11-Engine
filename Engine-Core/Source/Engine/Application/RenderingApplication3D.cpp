@@ -25,35 +25,37 @@ inline void SetDebugName(_In_ ID3D11DeviceChild* deviceResource, _In_z_ const ch
 RenderingApplication3D::RenderingApplication3D(const std::string& title)
     : Application(title)
 {
+    _graphicsContext = std::make_unique<DirectX11Context>();
 }
 
 RenderingApplication3D::~RenderingApplication3D()
 {
-    _deviceContext->Flush();
-    _textureSrv.Reset();
-    _rasterState.Reset();
-    _depthState.Reset();
-    _depthTarget.Reset();
+    //_deviceContext->Flush();
+    //_textureSrv.Reset();
+    //_rasterState.Reset();
+    //_depthState.Reset();
+    //_depthTarget.Reset();
+    //_graphicsContext->Cleanup();
     _shaderManager.Destroy();
-    DestroySwapchainResources();
-    _swapChain.Reset();
-    _dxgiFactory.Reset();
-    _deviceContext.Reset();
-#if !defined(NDEBUG)
-    _debug->ReportLiveDeviceObjects(D3D11_RLDO_FLAGS::D3D11_RLDO_DETAIL);
-    _debug.Reset();
-#endif
-    _device.Reset();
+    //DestroySwapchainResources();
+    //_swapChain.Reset();
+    //_dxgiFactory.Reset();
+    //_deviceContext.Reset();
+//#if !defined(NDEBUG)
+   // _debug->ReportLiveDeviceObjects(D3D11_RLDO_FLAGS::D3D11_RLDO_DETAIL);
+    //_debug.Reset();
+//#endif
+    //_device.Reset();
 }
 
 ID3D11Device* RenderingApplication3D::GetApplicationDevice()
 {
-    return _device.Get();
+    return _graphicsContext->GetDevice();
 }
 
 ID3D11DeviceContext* RenderingApplication3D::GetApplicationDeviceContext()
 {
-    return _deviceContext.Get();
+    return _graphicsContext->GetDeviceContext();
 }
 
 HWND RenderingApplication3D::GetApplicationWindow()
@@ -85,17 +87,6 @@ void RenderingApplication3D::UpdateRenderableInstanceData(int poolKey, int insta
     _instanceRenderer->UpdateInstanceData(poolKey, instanceId, newData);
 }
 
-void RenderingApplication3D::SetLightConstantBuffer(const LightConstantBuffer& lightBuffer)
-{
-    _lightConstantBufferData.Position = lightBuffer.Position;
-    _lightConstantBufferData.Ambient = lightBuffer.Ambient;
-    _lightConstantBufferData.Diffuse = lightBuffer.Diffuse;
-    _lightConstantBufferData.Specular = lightBuffer.Specular;
-}
-void RenderingApplication3D::SetCameraConstantBuffer(const DirectX::XMFLOAT3& cameraPosition)
-{
-    _cameraConstantBufferData.cameraPosition = cameraPosition;
-}
 void RenderingApplication3D::SetPerFrameConstantBuffer(const DirectX::XMMATRIX& viewProjection)
 {
     DirectX::XMStoreFloat4x4(&_perFrameConstantBufferData.viewProjectionMatrix, viewProjection);
@@ -124,148 +115,13 @@ bool RenderingApplication3D::Initialize()
     {
         return false;
     }
-
-    if (FAILED(CreateDXGIFactory1(IID_PPV_ARGS(&_dxgiFactory))))
-    {
-        std::cerr << "DXGI: Failed to create factory\n";
-        return false;
-    }
-
-    constexpr D3D_FEATURE_LEVEL deviceFeatureLevel = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
-    uint32_t deviceFlags = 0;
-#if !defined(NDEBUG)
-    deviceFlags |= D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-    WRL::ComPtr<ID3D11DeviceContext> deviceContext;
-    if (FAILED(D3D11CreateDevice(
-        nullptr,
-        D3D_DRIVER_TYPE::D3D_DRIVER_TYPE_HARDWARE,
-        nullptr,
-        deviceFlags,
-        &deviceFeatureLevel,
-        1,
-        D3D11_SDK_VERSION,
-        &_device,
-        nullptr,
-        &deviceContext)))
-    {
-        std::cerr << "D3D11: Failed to create Device and Device Context\n";
-        return false;
-    }
-
-#if !defined(NDEBUG)
-    if (FAILED(_device.As(&_debug)))
-    {
-        std::cerr << "D3D11: Failed to get the debug layer from the device\n";
-        return false;
-    }
-#endif
-
-    constexpr char deviceName[] = "DEV_Main";
-    _device->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(deviceName), deviceName);
-    SetDebugName(deviceContext.Get(), "CTX_Main");
-
-    _deviceContext = deviceContext;
-
-
-    DXGI_SWAP_CHAIN_DESC1 swapChainDescriptor = {};
-    swapChainDescriptor.Width = GetWindowWidth();
-    swapChainDescriptor.Height = GetWindowHeight();
-    swapChainDescriptor.Format = DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM;
-    swapChainDescriptor.SampleDesc.Count = 1;
-    swapChainDescriptor.SampleDesc.Quality = 0;
-    swapChainDescriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDescriptor.BufferCount = 2;
-    swapChainDescriptor.SwapEffect = DXGI_SWAP_EFFECT::DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDescriptor.Scaling = DXGI_SCALING::DXGI_SCALING_STRETCH;
-    swapChainDescriptor.Flags = {};
-
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapChainFullscreenDescriptor = {};
-    swapChainFullscreenDescriptor.Windowed = true;
-
-    if (FAILED(_dxgiFactory->CreateSwapChainForHwnd(
-        _device.Get(),
-        glfwGetWin32Window(GetWindow()),
-        &swapChainDescriptor,
-        &swapChainFullscreenDescriptor,
-        nullptr,
-        &_swapChain)))
-    {
-        std::cerr << "DXGI: Failed to create SwapChain\n";
-        return false;
-    }
-
-    CreateSwapchainResources();
-    CreateRasterState();
-    CreateDepthStencilView();
-    //CreateDepthState();
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForOther(_window, true);
-    ImGui_ImplDX11_Init(_device.Get(), _deviceContext.Get());
-
     _resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
-    //LinkEngineInstancePools();
-
-    return true;
+    _graphicsContext->SetHWND(glfwGetWin32Window(GetWindow()));
+    _graphicsContext->SetWindow(GetWindow());
+    _graphicsContext->SetWindowWidth(GetWindowWidth());
+    _graphicsContext->SetWindowHeight(GetWindowHeight());
+    return _graphicsContext->Initialize();
 }
-
-void RenderingApplication3D::CreateRasterState()
-{
-    D3D11_RASTERIZER_DESC rasterDesc{};
-    rasterDesc.CullMode = D3D11_CULL_BACK;
-    rasterDesc.FillMode = D3D11_FILL_SOLID;
-
-    _device->CreateRasterizerState(&rasterDesc, &_rasterState);
-}
-
-void RenderingApplication3D::CreateDepthStencilView()
-{
-    D3D11_TEXTURE2D_DESC texDesc{};
-    texDesc.Height = GetWindowHeight();
-    texDesc.Width = GetWindowWidth();
-    texDesc.ArraySize = 1;
-    texDesc.SampleDesc.Count = 1;
-    texDesc.MipLevels = 1;
-    texDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-
-    ID3D11Texture2D* texture = nullptr;
-    if (FAILED(_device->CreateTexture2D(&texDesc, nullptr, &texture)))
-    {
-        std::cerr << "D3D11: Failed to create texture for DepthStencilView\n";
-        return;
-    }
-
-    D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-    dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    HRESULT hr = _device->CreateDepthStencilView(texture, &dsvDesc, &_depthTarget);
-    texture->Release();
-    if (FAILED(hr))
-    {
-        std::cerr << "D3D11: Failed to create DepthStencilView\n";
-        return;
-    }
-}
-
-//void RenderingApplication3D::CreateDepthState()
-//{
-//    D3D11_DEPTH_STENCIL_DESC depthDesc{};
-//    depthDesc.DepthEnable = TRUE;
-//    depthDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS;
-//    depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-//
-//    _device->CreateDepthStencilState(&depthDesc, &_depthState);
-//}
 
 bool RenderingApplication3D::LoadWorldSingle(std::string filePath)
 {
@@ -297,6 +153,9 @@ bool RenderingApplication3D::SaveWorld(std::string filePath)
 
 bool RenderingApplication3D::Load()
 {
+    auto device = _graphicsContext->GetDevice();
+    auto deviceContext = _graphicsContext->GetDeviceContext();
+
     // TODO MOVE SHADER COLLECTION TO WORLD OR RENDERER
     ShaderCollectionDescriptor mainShaderDescriptor = {};
     mainShaderDescriptor.VertexShaderFilePath = L"../../../../Assets/Shaders/Main.vs.hlsl";
@@ -313,14 +172,14 @@ bool RenderingApplication3D::Load()
     skyboxShaderDescriptor.PixelShaderFilePath = L"../../../../Assets/Shaders/Skybox.ps.hlsl";
     skyboxShaderDescriptor.VertexType = VertexType::PositionNormalUv;
 
-    _shaderManager = ShaderManager(_device.Get());
+    _shaderManager = ShaderManager(device);
     _shaderManager.LoadShaderCollection(L"Main", mainShaderDescriptor);
     _shaderManager.LoadShaderCollection(L"Terrain", terrainShaderDescriptor);
     _shaderManager.LoadShaderCollection(L"Skybox", skyboxShaderDescriptor);
 
     // TODO MOVE OPTIONAL SYSTEMS OUT OF CORE
     _ecs.AddSystem<ECSDebugger>(&_ecs);
-    _ecs.AddSystem<InstanceRendererSystem>(_device.Get(), _deviceContext.Get(), &_shaderManager, &_ecs);
+    _ecs.AddSystem<InstanceRendererSystem>(device, deviceContext, &_shaderManager, &_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
     _instanceRenderer->Initialize();
     _ecsDebugger = _ecs.GetSystem<ECSDebugger>();
@@ -330,67 +189,10 @@ bool RenderingApplication3D::Load()
     return true;
 }
 
-bool RenderingApplication3D::CreateSwapchainResources()
-{
-    WRL::ComPtr<ID3D11Texture2D> backBuffer = nullptr;
-    if (FAILED(_swapChain->GetBuffer(
-        0,
-        IID_PPV_ARGS(&backBuffer))))
-    {
-        std::cerr << "D3D11: Failed to get back buffer from swapchain\n";
-        return false;
-    }
-
-    if (FAILED(_device->CreateRenderTargetView(
-        backBuffer.Get(),
-        nullptr,
-        &_renderTarget)))
-    {
-        std::cerr << "D3D11: Failed to create rendertarget view from back buffer\n";
-        return false;
-    }
-
-    return true;
-}
-
-void RenderingApplication3D::DestroySwapchainResources()
-{
-    _renderTarget.Reset();
-}
-
 void RenderingApplication3D::OnResize(const int32_t width, const int32_t height)
 {
     Application::OnResize(width, height);
-
-    if (width <= 0 || height <= 0)
-        isApplicationMinimized = true;
-    else
-        isApplicationMinimized = false;
-
-    Application::OnResize(width, height);
-
-    ID3D11RenderTargetView* nullRTV = nullptr;
-    _deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
-    _deviceContext->Flush();
-
-    DestroySwapchainResources();
-
-    if (FAILED(_swapChain->ResizeBuffers(
-        0,
-        width,
-        height,
-        DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM,
-        0)))
-    {
-        std::cerr << "D3D11: Failed to recreate swapchain buffers\n";
-        return;
-    }
-
-    CreateSwapchainResources();
-
-    _depthTarget.Reset();
-    CreateDepthStencilView();
-    //std::cout << "Application Resized! " << width << ";" << height << std::endl;
+    _graphicsContext->OnResize(width, height);
 }
 
 void RenderingApplication3D::Update()
@@ -435,15 +237,20 @@ void RenderingApplication3D::Render()
 
     ID3D11RenderTargetView* nullRTV = nullptr;
 
+    auto deviceContext = _graphicsContext->GetDeviceContext();
+    auto renderTarget = _graphicsContext->GetRenderTarget();
+    auto depthTarget = _graphicsContext->GetDepthTarget();
+    auto rasterState = _graphicsContext->GetRasterState();
+    auto swapchain = _graphicsContext->GetSwapChain();
 
-    _deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
+    deviceContext->OMSetRenderTargets(1, &nullRTV, nullptr);
 
-    _deviceContext->ClearRenderTargetView(_renderTarget.Get(), clearColor);
-    _deviceContext->ClearDepthStencilView(_depthTarget.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH, 1.0f, 0);
+    deviceContext->ClearRenderTargetView(renderTarget, clearColor);
+    deviceContext->ClearDepthStencilView(depthTarget, D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    _deviceContext->OMSetRenderTargets(1, _renderTarget.GetAddressOf(), _depthTarget.Get());
+    deviceContext->OMSetRenderTargets(1, &renderTarget, depthTarget);
 
-    _deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     D3D11_VIEWPORT viewport = {
         0.0f,
@@ -454,21 +261,12 @@ void RenderingApplication3D::Render()
         1.0f
     };
 
-    _deviceContext->RSSetViewports(1, &viewport);
-    _deviceContext->RSSetState(_rasterState.Get());
+    deviceContext->RSSetViewports(1, &viewport);
+    deviceContext->RSSetState(rasterState);
     //_deviceContext->OMSetDepthStencilState(_depthState.Get(), 0);
 
     _instanceRenderer->UpdateDirtyInstances();
-
-    static auto tempBuffer = DirectionalLightConstantBuffer
-    (
-        DirectX::XMFLOAT4(-0.5f, -1.0f, -0.5f, 0.0f),
-        DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f),
-        DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-        DirectX::XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f)
-    );
-
-    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData, _cameraConstantBufferData, tempBuffer);
+    _instanceRenderer->RenderInstances<VertexPositionNormalUv>(_perFrameConstantBufferData);
 
     _ecs.Render();
 
@@ -482,5 +280,5 @@ void RenderingApplication3D::Render()
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // TODO Fix not working without changing NVIDIA 3D settings
-    _swapChain->Present(1, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
+    swapchain->Present(1, 0); // 1st param is sync interval aka VSYNC (1-4 modes), 0 present immediately.
 }

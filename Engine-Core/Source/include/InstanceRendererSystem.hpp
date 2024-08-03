@@ -22,6 +22,8 @@
 #include <string>
 #include <random>
 #include "TextureManager.hpp"
+#include "ConfigManager.hpp"
+#include "ConstantBufferBinder.hpp"
 
 
 class IVertexHandler
@@ -121,7 +123,6 @@ private:
     WRL::ComPtr<ID3D11SamplerState> _samplerState = nullptr;
 
     WRL::ComPtr<ID3D11Buffer> _perFrameConstantBuffer = nullptr;
-    WRL::ComPtr<ID3D11Buffer> _cameraConstantBuffer = nullptr;
     WRL::ComPtr<ID3D11Buffer> _instanceConstantBuffer = nullptr;
 
     void CreateConstantBuffers();
@@ -256,9 +257,7 @@ public:
     }
 
     void BindBuffersAndResources(
-        const PerFrameConstantBuffer& perFrameConstantBuffer,
-        const CameraConstantBuffer& cameraConstantBufferData,
-        const DirectionalLightConstantBuffer& lightConstantBufferData)
+        const PerFrameConstantBuffer& perFrameConstantBuffer)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
 
@@ -266,27 +265,20 @@ public:
         memcpy(mappedResource.pData, &perFrameConstantBuffer, sizeof(PerFrameConstantBuffer));
         _deviceContext->Unmap(_perFrameConstantBuffer.Get(), 0);
 
-        _deviceContext->Map(_cameraConstantBuffer.Get(), 0, D3D11_MAP::D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-        memcpy(mappedResource.pData, &cameraConstantBufferData, sizeof(CameraConstantBuffer));
-        _deviceContext->Unmap(_cameraConstantBuffer.Get(), 0);
-
-
-        ID3D11Buffer* constantPerFrameBuffers[2] =
-        {
-            _perFrameConstantBuffer.Get(),
-            _cameraConstantBuffer.Get(),
-        };
-
         ID3D11Buffer* constantPerObjectBuffers[1] =
         {
             _instanceConstantBuffer.Get()
         };
 
-        _deviceContext->VSSetConstantBuffers(0, 2, constantPerFrameBuffers);
-        _deviceContext->VSSetConstantBuffers(3, 1, constantPerObjectBuffers);
+        ConfigManager& configManager = ConfigManager::GetInstance();
+        int perFrameSlot = configManager.GetVSConstantBufferSlot("PerFrame");
+        int perObjectSlot = configManager.GetVSConstantBufferSlot("PerObject");
 
-        _deviceContext->PSSetConstantBuffers(0, 2, constantPerFrameBuffers);
-        _deviceContext->PSSetConstantBuffers(3, 1, constantPerObjectBuffers);
+        ConstantBufferBinder& binder = ConstantBufferBinder::GetInstance();
+        binder.BindConstantBuffer(_perFrameConstantBuffer.Get(), perFrameConstantBuffer, perFrameSlot, true, true);
+
+        _deviceContext->VSSetConstantBuffers(perObjectSlot, 1, constantPerObjectBuffers);
+        _deviceContext->PSSetConstantBuffers(perObjectSlot, 1, constantPerObjectBuffers);
 
         _deviceContext->VSSetSamplers(0, 1, _samplerState.GetAddressOf());
         _deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
@@ -294,12 +286,10 @@ public:
 
     template<typename TVertexType>
     void RenderInstances(
-        const PerFrameConstantBuffer& perFrameConstantBuffer,
-        const CameraConstantBuffer& cameraConstantBufferData,
-        const DirectionalLightConstantBuffer& lightConstantBufferData
+        const PerFrameConstantBuffer& perFrameConstantBuffer
     )
     {
-        BindBuffersAndResources(perFrameConstantBuffer, cameraConstantBufferData, lightConstantBufferData);
+        BindBuffersAndResources(perFrameConstantBuffer);
 
         for (const auto& instancePoolPair : _instancePools)
         {
