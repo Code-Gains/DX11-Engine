@@ -480,6 +480,12 @@
     <ClInclude Include="Source\include\MeshComponent.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\ProfilerComponent.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ProfilerSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\RenderingApplication3D.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -557,6 +563,9 @@
     <ClCompile Include="Source\Engine\ECS\Components\MeshComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Components\ProfilerComponent.cpp">
+      <Filter>Engine\ECS\Components</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Components\TerrainComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
@@ -585,6 +594,9 @@
       <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp">
+      <Filter>Engine\ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Systems\ProfilerSystem.cpp">
       <Filter>Engine\ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsAPI\DirectX11Context.cpp">

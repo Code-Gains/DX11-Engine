@@ -45,8 +45,3 @@ void CameraComponent::CreateConstantBuffers(ID3D11Device* device)
     device->CreateBuffer(&desc, nullptr, &_cameraConstantBuffer);
 
 }
-
-void CameraComponent::RenderMonitorUI() const
-{
-
-}

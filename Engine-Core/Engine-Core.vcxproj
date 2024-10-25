@@ -313,6 +313,8 @@
     <ClInclude Include="Source\include\Logging.hpp" />
     <ClInclude Include="Source\include\MaterialComponent.hpp" />
     <ClInclude Include="Source\include\MeshComponent.hpp" />
+    <ClInclude Include="Source\include\ProfilerComponent.hpp" />
+    <ClInclude Include="Source\include\ProfilerSystem.hpp" />
     <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
     <ClInclude Include="Source\include\ShaderCollection.hpp" />
@@ -340,6 +342,7 @@
     <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\MaterialComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\MeshComponent.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Components\ProfilerComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\TerrainComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\TransformComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\ECS.cpp" />
@@ -350,6 +353,7 @@
     <ClCompile Include="Source\Engine\ECS\Systems\EntityMonitoringSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\InstanceRendererSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\LightingSystem.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Systems\ProfilerSystem.cpp" />
     <ClCompile Include="Source\Engine\GraphicsAPI\DirectX11Context.cpp" />
     <ClCompile Include="Source\Engine\GraphicsAPI\GraphicsContext.cpp" />
     <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp" />

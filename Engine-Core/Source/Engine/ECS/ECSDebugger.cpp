@@ -53,10 +53,4 @@ void ECSDebugger::Render()
 		}
 		ImGui::EndTable();
 	}
-
-    // Archetype -> Expandable
-    //  -> Component Vector -> Expandable
-    //      -> Entity-Component
-
-    ImGui::End();
 }

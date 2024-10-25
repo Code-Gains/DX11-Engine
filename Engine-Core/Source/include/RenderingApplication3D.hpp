@@ -20,7 +20,7 @@
 #include "ShaderCollection.hpp"
 #include "ConstantBufferDefinitions.hpp"
 
-#include "ResourceMonitor.hpp"
+//#include "ResourceMonitor.hpp"
 #include "InstanceRendererSystem.hpp"
 #include "ShaderManager.hpp"
 #include "ECS.hpp"
@@ -56,6 +56,7 @@ public:
     ID3D11Device* GetApplicationDevice();
     ID3D11DeviceContext* GetApplicationDeviceContext();
     HWND GetApplicationWindow();
+    HANDLE GetProcessHandle();
 
     void AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule);
     void AddEngineModules(std::vector<std::unique_ptr<IEngineModule>>&& engineModules);
@@ -117,7 +118,7 @@ protected:
 private:
     std::unique_ptr<DirectX11Context> _graphicsContext;
 
-    ResourceMonitor _resourceMonitor;
+    //ResourceMonitor _resourceMonitor;
     ShaderManager _shaderManager;
 
     std::vector<std::unique_ptr<IEngineModule>> _engineModules;

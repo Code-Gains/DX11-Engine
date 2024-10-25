@@ -11,7 +11,7 @@
 #include "IMonitorable.hpp"
 
 
-class CameraComponent : public IComponent, public IMonitorable
+class CameraComponent : public IComponent
 {
     DirectX::XMFLOAT3 _rotation;
 
@@ -33,7 +33,4 @@ public:
 
     WRL::ComPtr<ID3D11Buffer> GetCameraConstantBuffer();
     void CreateConstantBuffers(ID3D11Device* device);
-
-    // Debug tools
-    void RenderMonitorUI() const override;
 };

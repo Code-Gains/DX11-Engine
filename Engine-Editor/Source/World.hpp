@@ -17,16 +17,21 @@
 #include "CameraComponent.hpp"
 #include "MeshComponent.hpp"
 #include "DirectionalLightComponent.hpp"
+#include "ProfilerComponent.hpp"
 
+#include "EditorUIManagerSystem.hpp"
 #include "InstanceRendererSystem.hpp"
 #include "LightingSystem.hpp"
 #include "CameraSystem.hpp"
 #include "EntityMonitoringSystem.hpp"
+#include "ProfilerSystem.hpp"
 
 #include "VertexType.hpp"
 #include "Constants.hpp"
 #include "WorldHierarchy.hpp"
 #include "RenderingApplication3D.hpp"
+
+#include "ProfilerWindow.hpp"
 
 class Universe; // forward declaration
 

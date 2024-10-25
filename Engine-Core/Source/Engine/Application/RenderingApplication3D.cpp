@@ -63,6 +63,11 @@ HWND RenderingApplication3D::GetApplicationWindow()
     return glfwGetWin32Window(GetWindow());
 }
 
+HANDLE RenderingApplication3D::GetProcessHandle()
+{
+    return GetCurrentProcess();
+}
+
 void RenderingApplication3D::AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule)
 {
     _engineModules.push_back(std::move(engineModule));
@@ -115,7 +120,7 @@ bool RenderingApplication3D::Initialize()
     {
         return false;
     }
-    _resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
+    //_resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
     _graphicsContext->SetHWND(glfwGetWin32Window(GetWindow()));
     _graphicsContext->SetWindow(GetWindow());
     _graphicsContext->SetWindowWidth(GetWindowWidth());
@@ -202,7 +207,7 @@ void RenderingApplication3D::Update()
 
     Application::Update();
 
-    _resourceMonitor.Update(_deltaTime);
+    //_resourceMonitor.Update(_deltaTime);
     _ecs.Update(_deltaTime);
     for (const auto& engineModule : _engineModules)
     {
@@ -231,7 +236,7 @@ void RenderingApplication3D::Render()
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
-    _resourceMonitor.Render();
+    //_resourceMonitor.Render();
 
     float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
