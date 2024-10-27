@@ -51,8 +51,6 @@ public:
     bool Initialize() override;
     bool Load() override;
 
-    bool isApplicationMinimized = false;
-
     ID3D11Device* GetApplicationDevice();
     ID3D11DeviceContext* GetApplicationDeviceContext();
     HWND GetApplicationWindow();

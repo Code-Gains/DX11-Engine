@@ -43,6 +43,8 @@ protected:
     float _periodicDeltaTime = 0;
     const float _periodicUpdatePeriod = 0.016f;
     GLFWwindow* _window = nullptr;
+
+    bool _isMinimized = false;
 private:
     std::chrono::high_resolution_clock::time_point _currentTime;
     std::string _title;

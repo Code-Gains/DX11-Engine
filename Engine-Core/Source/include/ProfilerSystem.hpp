@@ -10,7 +10,7 @@
 class ProfilerSystem : public ISystem
 {
 	ECS* _ecs = nullptr;
-	bool _enabled = true;
+	bool _enabled = false;
 
 public:
 	ProfilerSystem();

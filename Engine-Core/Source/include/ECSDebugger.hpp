@@ -14,7 +14,7 @@
 class ECSDebugger : public ISystem
 {
     ECS* _ecs;
-
+    bool _enabled = false;
 
 public:
     ECSDebugger();
@@ -24,5 +24,7 @@ public:
     void Update(float deltaTime) override;
     void PeriodicUpdate(float deltaTime) override;
     void Render() override;
+
+    void Toggle();
 };
 

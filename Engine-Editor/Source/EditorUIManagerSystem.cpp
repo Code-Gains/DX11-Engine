@@ -26,8 +26,16 @@ void EditorUIManagerSystem::Render()
         {
             // On click get status from the global system registry and toggle enabled bool
             ImGui::MenuItem("World Hierarchy", nullptr, &_showWorldHierarchy);
-            ImGui::MenuItem("ECS Debugger", nullptr, &_showEcsDebugger);
-            ImGui::MenuItem("EMS", nullptr, &_showEMS);
+            if (ImGui::MenuItem("ECS Debugger", nullptr, &_showEcsDebugger))
+            {
+                auto ecsDebugger = _ecs->GetSystem<ECSDebugger>();
+                ecsDebugger->Toggle();
+            }
+            if (ImGui::MenuItem("EMS", nullptr, &_showEMS))
+            {
+                auto ems = _ecs->GetSystem<EntityMonitoringSystem>();
+                ems->Toggle();
+            }
             if (ImGui::MenuItem("Profiler", nullptr, &_showProfiler))
             {
                 auto profilerSystem = _ecs->GetSystem<ProfilerSystem>();

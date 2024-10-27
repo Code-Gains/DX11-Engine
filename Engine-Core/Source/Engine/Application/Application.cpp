@@ -10,6 +10,9 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
+#include <thread>
+#include <chrono>
+
 Application::Application(const std::string& title)
     : _title(title)
 {
@@ -80,19 +83,35 @@ void Application::Cleanup()
 
 void Application::Run()
 {
-    /*if (!Load())
-    {
-        return;
-    }*/
+    constexpr auto targetMinimizedFrameDuration = std::chrono::milliseconds(50); // 20 FPS
 
     while (!glfwWindowShouldClose(_window))
     {
-        if (glfwGetWindowAttrib(_window, GLFW_ICONIFIED))
-            continue;
+        auto frameStartTime = std::chrono::high_resolution_clock::now();
+
+        glfwPollEvents();
 
         Update();
         PeriodicUpdate();
+
+        if (_isMinimized)
+        {
+            auto frameEndTime = std::chrono::high_resolution_clock::now();
+            auto frameDuration = frameEndTime - frameStartTime;
+
+            auto sleepDuration = targetMinimizedFrameDuration - frameDuration;
+
+            if (sleepDuration > std::chrono::milliseconds(0))
+            {
+                std::this_thread::sleep_for(sleepDuration);
+            }
+
+            continue;
+        }
+
         Render();
+
+        // Additional code that should only run when not minimized
     }
 }
 
@@ -128,7 +147,6 @@ void Application::Update()
     std::chrono::duration<double, std::milli> timeSpan = (_currentTime - oldTime);
     _deltaTime = static_cast<float>(timeSpan.count() / 1000.0);
     _periodicDeltaTime += _deltaTime;
-    glfwPollEvents();
 }
 
 void Application::PeriodicUpdate()

@@ -11,6 +11,7 @@
 class EntityMonitoringSystem : public ISystem
 {
 	ECS* _ecs = nullptr;
+	bool _enabled = false;
 public:
 	EntityMonitoringSystem();
 	EntityMonitoringSystem(ECS* ecs);
@@ -19,4 +20,6 @@ public:
 	void Render() override;
 	void Update(float deltaTime) override;
 	void PeriodicUpdate(float deltaTime) override;
+
+	void Toggle();
 };

@@ -22,6 +22,9 @@ void ECSDebugger::PeriodicUpdate(float deltaTime)
 
 void ECSDebugger::Render()
 {
+	if (!_enabled)
+		return;
+
     ImGui::Begin("ECS Debugger");
     ImGui::Text("Entity Count: %d", _ecs->GetEntityCount());
     ImGui::Text("Archetype Count: %d", _ecs->GetArchetypeCount());
@@ -53,4 +56,10 @@ void ECSDebugger::Render()
 		}
 		ImGui::EndTable();
 	}
+	ImGui::End();
+}
+
+void ECSDebugger::Toggle()
+{
+	_enabled = !_enabled;
 }

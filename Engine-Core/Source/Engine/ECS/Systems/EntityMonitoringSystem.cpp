@@ -14,6 +14,9 @@ EntityMonitoringSystem::~EntityMonitoringSystem()
 
 void EntityMonitoringSystem::Render()
 {
+	if (!_enabled)
+		return;
+
 	auto entityToArchetype = _ecs->GetAllEntities();
 	ImGui::Begin("EMS");
 	for (const auto& [entity, signature] : entityToArchetype)
@@ -34,4 +37,9 @@ void EntityMonitoringSystem::Update(float deltaTime)
 
 void EntityMonitoringSystem::PeriodicUpdate(float deltaTime)
 {
+}
+
+void EntityMonitoringSystem::Toggle()
+{
+	_enabled = !_enabled;
 }

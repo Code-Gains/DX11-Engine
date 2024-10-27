@@ -198,13 +198,15 @@ void RenderingApplication3D::OnResize(const int32_t width, const int32_t height)
 {
     Application::OnResize(width, height);
     _graphicsContext->OnResize(width, height);
+
+    if (width <= 0 || height <= 0)
+        _isMinimized = true;
+    else
+        _isMinimized = false;
 }
 
 void RenderingApplication3D::Update()
 {
-    /*if (isApplicationMinimized)
-        return;*/
-
     Application::Update();
 
     //_resourceMonitor.Update(_deltaTime);
@@ -230,9 +232,6 @@ void RenderingApplication3D::PeriodicUpdate()
 
 void RenderingApplication3D::Render()
 {
-    //if (isApplicationMinimized)
-        //return;
-
     ImGui_ImplGlfw_NewFrame();
     ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
@@ -280,7 +279,6 @@ void RenderingApplication3D::Render()
         engineModule->Render();
     }
 
-    ImGui::End();
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
