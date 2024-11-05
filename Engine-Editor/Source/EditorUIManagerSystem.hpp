@@ -38,4 +38,5 @@ public:
 	void RenderMenuBarMenuButtons();
 	void RenderMenuBarControlButtons(int controlButtonStackWidth);
 	void RenderMenuBarInvisibleDragButton(int controlButtonStackWidth);
+	void RenderWindowInvisibleResizePanels();
 };

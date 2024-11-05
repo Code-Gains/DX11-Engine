@@ -41,6 +41,7 @@ void EditorUIManagerSystem::RenderMenuBar()
 
         RenderMenuBarInvisibleDragButton(controlButtonStackWidth);
         RenderMenuBarControlButtons(controlButtonStackWidth);
+        RenderWindowInvisibleResizePanels();
 
         // End the main menu bar
         ImGui::EndMainMenuBar();
@@ -200,4 +201,10 @@ void EditorUIManagerSystem::RenderMenuBarInvisibleDragButton(int controlButtonSt
                 }
             }
         }
+}
+
+void EditorUIManagerSystem::RenderWindowInvisibleResizePanels()
+{
+    // Create 4 invisible panels at the side of the window when it is not maximized
+    // When Dragging these pannels cursor should indicate that the window is available for resize
 }
