@@ -25,6 +25,7 @@
 #include "ShaderManager.hpp"
 #include "ECS.hpp"
 #include "ECSDebugger.hpp"
+#include "InputSystem.hpp"
 
 #include "DirectionalLightComponent.hpp"
 #include "DirectX11Context.hpp"
@@ -54,6 +55,7 @@ public:
     ID3D11Device* GetApplicationDevice();
     ID3D11DeviceContext* GetApplicationDeviceContext();
     HWND GetApplicationWindow();
+    GLFWwindow* GetGlfwWindow();
     HANDLE GetProcessHandle();
 
     void AddEngineModule(std::unique_ptr<IEngineModule>&& engineModule);
@@ -102,6 +104,8 @@ public:
 
     bool LoadWorldSingle(std::string filePath);
     bool SaveWorld(std::string filePath);
+
+    void Resize(int32_t width, int32_t height);
 
 protected:
 

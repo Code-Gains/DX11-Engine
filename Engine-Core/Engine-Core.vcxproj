@@ -306,6 +306,7 @@
     <ClInclude Include="Source\include\GraphicsContext.hpp" />
     <ClInclude Include="Source\include\Heightmap.hpp" />
     <ClInclude Include="Source\include\IMonitorable.hpp" />
+    <ClInclude Include="Source\include\InputSystem.hpp" />
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
     <ClInclude Include="Source\include\IntVectors.hpp" />
     <ClInclude Include="Source\include\LightComponent.hpp" />
@@ -357,6 +358,7 @@
     <ClCompile Include="Source\Engine\GraphicsAPI\DirectX11Context.cpp" />
     <ClCompile Include="Source\Engine\GraphicsAPI\GraphicsContext.cpp" />
     <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp" />
+    <ClCompile Include="Source\Engine\Input\InputSystem.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ConstantBufferBinder.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />

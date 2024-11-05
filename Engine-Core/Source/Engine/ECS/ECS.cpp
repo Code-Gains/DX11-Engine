@@ -117,3 +117,23 @@ void ECS::PeriodicUpdate(float deltaTime)
 		system->PeriodicUpdate(deltaTime);
 	}
 }
+
+void ECS::SetRenderingApplication(RenderingApplication3D* renderingApplication)
+{
+	_renderingApplication = renderingApplication;
+}
+
+void ECS::SetGlfwWindow(GLFWwindow* window)
+{
+	_glfwWindow = window;
+}
+
+GLFWwindow* ECS::GetGlfwWindow()
+{
+	return _glfwWindow;
+}
+
+RenderingApplication3D* ECS::GetRenderingApplication3D()
+{
+	return _renderingApplication;
+}

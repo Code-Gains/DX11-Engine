@@ -13,12 +13,14 @@
     <ClCompile Include="Source\Universe.cpp" />
     <ClCompile Include="Source\World.cpp" />
     <ClCompile Include="Source\WorldHierarchy.cpp" />
-    <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="Source\Editor.cpp" />
+    <ClCompile Include="Source\EditorUIManagerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Universe.hpp" />
     <ClInclude Include="Source\World.hpp" />
     <ClInclude Include="Source\WorldHierarchy.hpp" />
-    <ClInclude Include="Editor.hpp" />
+    <ClInclude Include="Source\Editor.hpp" />
+    <ClInclude Include="Source\EditorUIManagerSystem.hpp" />
   </ItemGroup>
 </Project>

@@ -25,13 +25,12 @@
 #include "CameraSystem.hpp"
 #include "EntityMonitoringSystem.hpp"
 #include "ProfilerSystem.hpp"
+#include "InputSystem.hpp"
 
 #include "VertexType.hpp"
 #include "Constants.hpp"
 #include "WorldHierarchy.hpp"
 #include "RenderingApplication3D.hpp"
-
-#include "ProfilerWindow.hpp"
 
 class Universe; // forward declaration
 
@@ -47,7 +46,7 @@ class World
 	Universe* _universe;
 
 	// UI TODO MOVE OUT TO A SEPARATE ENGINE MODULE
-	WorldHierarchy _worldHierarchy;
+	//WorldHierarchy _worldHierarchy;
 
 public:
 	// World loading and application management

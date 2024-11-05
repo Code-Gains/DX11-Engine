@@ -13,8 +13,16 @@
 #include "MaterialComponent.hpp"
 #include "MeshComponent.hpp"
 
+
+// ReSharper disable once CppInconsistentNaming
+struct GLFWwindow;
+
+class RenderingApplication3D; // forward declaration (used after all systems initialized)
+
 class ECS
 {
+	RenderingApplication3D* _renderingApplication; // no owning
+	GLFWwindow* _glfwWindow; // non owning
 	std::vector<std::unique_ptr<ISystem>> _systems;
 	std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 	// This could be removed TODO (watch stuff)
@@ -32,6 +40,12 @@ public:
 	void Render();
 	void Update(float deltaTime);
 	void PeriodicUpdate(float deltaTime);
+
+	// System Resources
+	void SetRenderingApplication(RenderingApplication3D* renderingApplication);
+	void SetGlfwWindow(GLFWwindow* window);
+	GLFWwindow* GetGlfwWindow();
+	RenderingApplication3D* GetRenderingApplication3D();
 
 	// --- Archetype Management ---
 	size_t GetArchetypeCount() const;

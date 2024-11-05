@@ -15,13 +15,13 @@ bool World::Initialize(RenderingApplication3D* renderingApplication, Universe* u
     _renderingApplication = renderingApplication;
     _universe = universe;
 
-    _worldHierarchy = WorldHierarchy(this);
+    //_worldHierarchy = WorldHierarchy(this);
 	return true;
 }
 
 void World::Update(float deltaTime)
 {
-    _worldHierarchy.Update(deltaTime);
+    //_worldHierarchy.Update(deltaTime);
 }
 
 void World::PeriodicUpdate(float deltaTime)
@@ -30,7 +30,7 @@ void World::PeriodicUpdate(float deltaTime)
 
 void World::Render()
 {
-    _worldHierarchy.Render();
+    //_worldHierarchy.Render();
 }
 
 void World::DestroyEntity(Entity entity)
@@ -59,7 +59,7 @@ Entity World::CreateEntity()
 
 bool World::PrepareLoading()
 {
-    _worldHierarchy.Clear();
+    //_worldHierarchy.Clear();
     return true;
 }
 
@@ -142,7 +142,13 @@ bool World::LoadWorld(std::string filePath)
 
         //ecs->AddComponent(profilerWindow, profilerWindowComponent);
 
+        // Editor Components
+        auto worldHierarchy = ecs->CreateEntity();
+        auto worldHierarchyComponent = WorldHierarchyComponent();
+        ecs->AddComponent(worldHierarchy, worldHierarchyComponent);
+
         // Editor systems
+        ecs->AddSystem<WorldHierarchy>(ecs, this);
         ecs->AddSystem<EditorUIManagerSystem>(ecs);
         ecs->AddSystem<EntityMonitoringSystem>(ecs);
     }

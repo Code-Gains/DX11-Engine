@@ -63,6 +63,11 @@ HWND RenderingApplication3D::GetApplicationWindow()
     return glfwGetWin32Window(GetWindow());
 }
 
+GLFWwindow* RenderingApplication3D::GetGlfwWindow()
+{
+    return GetWindow();
+}
+
 HANDLE RenderingApplication3D::GetProcessHandle()
 {
     return GetCurrentProcess();
@@ -120,7 +125,6 @@ bool RenderingApplication3D::Initialize()
     {
         return false;
     }
-    //_resourceMonitor.Initialize(glfwGetWin32Window(GetWindow()), GetCurrentProcess());
     _graphicsContext->SetHWND(glfwGetWin32Window(GetWindow()));
     _graphicsContext->SetWindow(GetWindow());
     _graphicsContext->SetWindowWidth(GetWindowWidth());
@@ -156,6 +160,11 @@ bool RenderingApplication3D::SaveWorld(std::string filePath)
     return true;  // Successfully serialized
 }
 
+void RenderingApplication3D::Resize(int32_t width, int32_t height)
+{
+    OnResize(width, height);
+}
+
 bool RenderingApplication3D::Load()
 {
     auto device = _graphicsContext->GetDevice();
@@ -183,8 +192,12 @@ bool RenderingApplication3D::Load()
     _shaderManager.LoadShaderCollection(L"Skybox", skyboxShaderDescriptor);
 
     // TODO MOVE OPTIONAL SYSTEMS OUT OF CORE
+    _ecs.SetRenderingApplication(this);
+    _ecs.SetGlfwWindow(GetWindow());
+
     _ecs.AddSystem<ECSDebugger>(&_ecs);
     _ecs.AddSystem<InstanceRendererSystem>(device, deviceContext, &_shaderManager, &_ecs);
+    _ecs.AddSystem<InputSystem>(&_ecs);
     _instanceRenderer = _ecs.GetSystem<InstanceRendererSystem>();
     _instanceRenderer->Initialize();
     _ecsDebugger = _ecs.GetSystem<ECSDebugger>();

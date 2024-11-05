@@ -31,6 +31,9 @@
     <Filter Include="Engine\GraphicsAPI">
       <UniqueIdentifier>{B567E6D3-A14B-A729-0AAC-A17CF6AE91AB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Input">
+      <UniqueIdentifier>{1AB06895-0613-F839-AF98-30F09BDAC3BC}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Shaders">
       <UniqueIdentifier>{B4970385-A065-F78A-89F9-67B17566D3EF}</UniqueIdentifier>
     </Filter>
@@ -459,6 +462,9 @@
     <ClInclude Include="Source\include\IMonitorable.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\InputSystem.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\InstanceRendererSystem.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -607,6 +613,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp">
       <Filter>Engine\GraphicsAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Input\InputSystem.cpp">
+      <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ConstantBufferBinder.cpp">
       <Filter>Engine\Shaders</Filter>

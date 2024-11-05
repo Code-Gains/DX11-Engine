@@ -15,33 +15,32 @@
 
 #include "TransformComponent.hpp"
 #include "TerrainComponent.hpp"
+#include "WorldHierarchyComponent.hpp"
+
+#include "ECS.hpp"
+//#include "World.hpp"
 
 class World; // forward declaration
 
-class WorldHierarchy
+class WorldHierarchy : public ISystem
 {
+	ECS* _ecs;
 	World* _world = nullptr; // non owning
-	std::unordered_map<Entity, std::string> _entityToName;
+
+	bool _enabled = false;
 
 public:
 	WorldHierarchy();
-	WorldHierarchy(World* world);
+	WorldHierarchy(ECS* ecs, World* world);
 
-	void Update(float deltaTime);
-	void Render();
+	void Render() override;
+	void Update(float deltaTime) override;
+	void PeriodicUpdate(float deltaTime) override;
 
-	int CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name);
+	int CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name, std::unordered_map<Entity, std::string>& entityToName);
 
 	void SetWorld(World* world);
 
-	std::string GetEntityName(int entityId) const;
-
-	void Clear();
-
-	template <typename Archive>
-	void serialize(Archive& archive)
-	{
-		archive(CEREAL_NVP(_entityToName));
-	}
+	void Toggle();
 };
 

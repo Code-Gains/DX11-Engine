@@ -38,6 +38,7 @@ bool Application::Initialize()
 
     glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
     _window = glfwCreateWindow(
         _width,
@@ -57,10 +58,15 @@ bool Application::Initialize()
     const int32_t windowTop = videoMode->height / 2 - _height / 2;
     glfwSetWindowPos(_window, windowLeft, windowTop);
 
-    glfwSetWindowUserPointer(_window, this);
+    //glfwSetWindowUserPointer(_window, this);
     glfwSetFramebufferSizeCallback(_window, HandleResize);
 
     _currentTime = std::chrono::high_resolution_clock::now();
+
+    //ImGui::CreateContext();
+    //ImGui::StyleColorsDark();
+    //ImGui_ImplGlfw_InitForOther(_window, false);
+
     return true;
 }
 
@@ -110,8 +116,6 @@ void Application::Run()
         }
 
         Render();
-
-        // Additional code that should only run when not minimized
     }
 }
 
