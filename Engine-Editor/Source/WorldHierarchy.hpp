@@ -22,12 +22,14 @@
 
 class World; // forward declaration
 
-class WorldHierarchy : public ISystem
+class WorldHierarchy : public System
 {
 	ECS* _ecs;
 	World* _world = nullptr; // non owning
 
 	bool _enabled = false;
+
+	Entity _selectedEntity;
 
 public:
 	WorldHierarchy();
@@ -36,6 +38,8 @@ public:
 	void Render() override;
 	void Update(float deltaTime) override;
 	void PeriodicUpdate(float deltaTime) override;
+
+	Entity GetSelectedEntity();
 
 	int CreatePrimitiveGeometry3D(PrimitiveGeometryType3D type, std::string name, std::unordered_map<Entity, std::string>& entityToName);
 

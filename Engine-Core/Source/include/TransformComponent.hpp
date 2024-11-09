@@ -4,9 +4,14 @@
 #include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
 #include "DirectXSerialization.hpp"
-#include "Component.hpp"
+#include "ComponentRegistry.hpp"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
+//#include "ComponentUIRegistry.hpp"
 
-class TransformComponent : public IComponent
+class TransformComponent : public Component
 {
 	DirectX::XMFLOAT3 _position;
 	DirectX::XMFLOAT3 _rotation;
@@ -44,3 +49,8 @@ public:
 	}
 };
 
+class TransformComponentUI : public ComponentUI
+{
+public:
+	void RenderUI(Component& component) override;
+};

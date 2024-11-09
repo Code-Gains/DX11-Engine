@@ -11,7 +11,7 @@
 #include "IMonitorable.hpp"
 
 
-class CameraComponent : public IComponent
+class CameraComponent : public Component
 {
     DirectX::XMFLOAT3 _rotation;
 

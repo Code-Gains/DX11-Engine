@@ -26,6 +26,7 @@
 #include "EntityMonitoringSystem.hpp"
 #include "ProfilerSystem.hpp"
 #include "InputSystem.hpp"
+#include "EntityEditor.hpp"
 
 #include "VertexType.hpp"
 #include "Constants.hpp"

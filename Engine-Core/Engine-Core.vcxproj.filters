@@ -34,6 +34,9 @@
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{1AB06895-0613-F839-AF98-30F09BDAC3BC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Registries">
+      <UniqueIdentifier>{ABDD0E27-17F4-0CBD-606B-98DECCC0DD44}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Shaders">
       <UniqueIdentifier>{B4970385-A065-F78A-89F9-67B17566D3EF}</UniqueIdentifier>
     </Filter>
@@ -417,6 +420,9 @@
     <ClInclude Include="Source\include\ComponentIdentifier.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\ComponentRegistry.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\ConfigManager.hpp">
       <Filter>include</Filter>
     </ClInclude>
@@ -616,6 +622,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Input\InputSystem.cpp">
       <Filter>Engine\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\Registries\ComponentRegistry.cpp">
+      <Filter>Engine\Registries</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Shaders\ConstantBufferBinder.cpp">
       <Filter>Engine\Shaders</Filter>

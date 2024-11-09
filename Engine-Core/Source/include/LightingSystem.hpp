@@ -14,7 +14,7 @@ enum ConstantBuffers
 	PerObject
 };
 
-class LightingSystem : public ISystem
+class LightingSystem : public System
 {
 	WRL::ComPtr<ID3D11Device> _device = nullptr;
 	WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;

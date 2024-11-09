@@ -5,7 +5,7 @@
 #include "RenderingApplication3D.hpp"
 #include "ConstantBufferBinder.hpp"
 
-class CameraSystem : public ISystem
+class CameraSystem : public System
 {
 	RenderingApplication3D* _renderingApplication = nullptr;
 	ECS* _ecs = nullptr;

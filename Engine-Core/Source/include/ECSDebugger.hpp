@@ -11,7 +11,7 @@
 /* Debugger class for Core ECS that provides a UI
    to visually diagnose problems, should be completely disabled in release config
 */
-class ECSDebugger : public ISystem
+class ECSDebugger : public System
 {
     ECS* _ecs;
     bool _enabled = false;

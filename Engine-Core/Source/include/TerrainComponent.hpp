@@ -12,7 +12,7 @@
 #include "Terrain.hpp"
 #include <MeshComponent.hpp>
 
-class TerrainComponent : public IComponent
+class TerrainComponent : public Component
 {
 	float _chunkWidth;
 	float _chunkHeight;

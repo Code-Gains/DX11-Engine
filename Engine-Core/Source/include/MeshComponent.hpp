@@ -31,7 +31,7 @@ public:
 };
 
 template <typename TVertex>
-class MeshComponent : public IMeshComponent, public IComponent
+class MeshComponent : public IMeshComponent, public Component
 {
 	std::vector<TVertex> _vertices;
 	std::vector<UINT> _indices;

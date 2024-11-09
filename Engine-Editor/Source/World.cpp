@@ -151,6 +151,7 @@ bool World::LoadWorld(std::string filePath)
         ecs->AddSystem<WorldHierarchy>(ecs, this);
         ecs->AddSystem<EditorUIManagerSystem>(ecs);
         ecs->AddSystem<EntityMonitoringSystem>(ecs);
+        ecs->AddSystem<EntityEditor>(ecs);
     }
 
     return true;

@@ -18,7 +18,7 @@ struct DirectionalLightConstantBuffer
 	);
 };
 
-class DirectionalLightComponent : public IComponent
+class DirectionalLightComponent : public Component
 {
 	DirectionalLightConstantBuffer _directionalLightConstantBuffer;
 

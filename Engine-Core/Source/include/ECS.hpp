@@ -23,7 +23,7 @@ class ECS
 {
 	RenderingApplication3D* _renderingApplication; // no owning
 	GLFWwindow* _glfwWindow; // non owning
-	std::vector<std::unique_ptr<ISystem>> _systems;
+	std::vector<std::unique_ptr<System>> _systems;
 	std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 	// This could be removed TODO (watch stuff)
 	std::unordered_map<Entity, ComponentSignature> _entityToSignature;
@@ -126,6 +126,16 @@ public:
 		return archetype->GetComponent<TComponent>(entity, componentTypeOpt.value());
 	}
 
+	std::vector<std::pair<ComponentType, Component*>> GetAllComponents(Entity entity) const
+	{
+		std::vector<std::pair<ComponentType, Component*>> components;
+		auto archetype = GetEntityArchetype(entity);
+		if (!archetype)
+			return components;
+
+		return archetype->GetAllComponents(entity);
+	}
+
 	template<typename TComponent>
 	void RemoveComponent(Entity entity) const
 	{
@@ -223,7 +233,7 @@ public:
 	template<typename Archive>
 	void serialize(Archive& archive)
 	{
-		//std::vector<std::unique_ptr<ISystem>> _systems;
+		//std::vector<std::unique_ptr<System>> _systems;
 		//std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 		//std::unordered_map<Entity, ComponentSignature> _entityToSignature;
 

@@ -8,7 +8,7 @@
 #include "Constants.hpp"
 #include "RenderingApplication3D.hpp"
 
-class EntityMonitoringSystem : public ISystem
+class EntityMonitoringSystem : public System
 {
 	ECS* _ecs = nullptr;
 	bool _enabled = false;

@@ -22,13 +22,25 @@ InputSystem::InputSystem(ECS* ecs) : _ecs(ecs), _mods(0)
     _mouseDeltaX = _mouseDeltaY = 0.0;
 }
 
+InputSystem::~InputSystem()
+{
+    if (_currentCursor)
+    {
+        glfwDestroyCursor(_currentCursor);
+        _currentCursor = nullptr;
+    }
+}
+
 void InputSystem::Update(float deltaTime)
 {
     // Reset per-frame input states
     ClearInputStates();
+}
 
-    // Poll GLFW events to ensure callbacks are called
-    //glfwPollEvents();
+void InputSystem::PeriodicUpdate(float deltaTime)
+{
+    //UpdateCursorShape();
+    //PerformWindowResize();
 }
 
 void InputSystem::ClearInputStates()
@@ -109,7 +121,6 @@ void InputSystem::CursorPositionCallback(GLFWwindow* window, double xpos, double
     ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
 }
 
-
 void InputSystem::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
     ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
@@ -126,6 +137,166 @@ void InputSystem::WindowSizeCallback(GLFWwindow* window, int width, int height)
     auto renderingApplication = inputSystem->_ecs->GetRenderingApplication3D();
     renderingApplication->Resize(width, height);
 }
+
+//void InputSystem::UpdateCursorShape()
+//{
+//    int windowWidth, windowHeight;
+//    glfwGetWindowSize(_window, &windowWidth, &windowHeight);
+//
+//    ResizeEdge edge = ResizeEdge::None;
+//
+//    if (_mouseX <= _resizeEdgeSize && _mouseY <= _resizeEdgeSize)
+//        edge = ResizeEdge::TopLeft;
+//    else if (_mouseX >= windowWidth - _resizeEdgeSize && _mouseY <= _resizeEdgeSize)
+//        edge = ResizeEdge::TopRight;
+//    else if (_mouseX <= _resizeEdgeSize && _mouseY >= windowHeight - _resizeEdgeSize)
+//        edge = ResizeEdge::BottomLeft;
+//    else if (_mouseX >= windowWidth - _resizeEdgeSize && _mouseY >= windowHeight - _resizeEdgeSize)
+//        edge = ResizeEdge::BottomRight;
+//    else if (_mouseX <= _resizeEdgeSize)
+//        edge = ResizeEdge::Left;
+//    else if (_mouseX >= windowWidth - _resizeEdgeSize)
+//        edge = ResizeEdge::Right;
+//    else if (_mouseY <= _resizeEdgeSize)
+//        edge = ResizeEdge::Top;
+//    else if (_mouseY >= windowHeight - _resizeEdgeSize)
+//        edge = ResizeEdge::Bottom;
+//
+//    if (edge != _resizeEdge)
+//    {
+//        _resizeEdge = edge;
+//        UpdateCursorIcon();
+//    }
+//}
+//
+//void InputSystem::UpdateCursorIcon()
+//{
+//    GLFWcursor* cursor = nullptr;
+//
+//    // Destroy the previous cursor if it exists
+//    if (_currentCursor)
+//    {
+//        glfwDestroyCursor(_currentCursor);
+//        _currentCursor = nullptr;
+//    }
+//
+//    switch (_resizeEdge)
+//    {
+//    case ResizeEdge::Left:
+//    case ResizeEdge::Right:
+//        cursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+//        break;
+//    case ResizeEdge::Top:
+//    case ResizeEdge::Bottom:
+//        cursor = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+//        break;
+//    case ResizeEdge::TopLeft:
+//    case ResizeEdge::TopRight:
+//    case ResizeEdge::BottomLeft:
+//    case ResizeEdge::BottomRight:
+//        cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+//        break;
+//    default:
+//        cursor = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+//        break;
+//    }
+//
+//    // Set the new cursor
+//    if (cursor)
+//    {
+//        _currentCursor = cursor;
+//        glfwSetCursor(_window, _currentCursor);
+//    }
+//}
+//
+//void InputSystem::PerformWindowResize()
+//{
+//    int windowX, windowY, windowWidth, windowHeight;
+//    glfwGetWindowPos(_window, &windowX, &windowY);
+//    glfwGetWindowSize(_window, &windowWidth, &windowHeight);
+//
+//    // Calculate mouse movement delta
+//    double deltaX = _mouseDeltaX;
+//    double deltaY = _mouseDeltaY;
+//
+//    // Initialize new window size and position
+//    int newWidth = windowWidth;
+//    int newHeight = windowHeight;
+//    int newX = windowX;
+//    int newY = windowY;
+//
+//    switch (_resizeEdge)
+//    {
+//    case ResizeEdge::Left:
+//        newWidth -= static_cast<int>(deltaX);
+//        newX += static_cast<int>(deltaX);
+//        break;
+//    case ResizeEdge::Right:
+//        newWidth += static_cast<int>(deltaX);
+//        break;
+//    case ResizeEdge::Top:
+//        newHeight -= static_cast<int>(deltaY);
+//        newY += static_cast<int>(deltaY);
+//        break;
+//    case ResizeEdge::Bottom:
+//        newHeight += static_cast<int>(deltaY);
+//        break;
+//    case ResizeEdge::TopLeft:
+//        newWidth -= static_cast<int>(deltaX);
+//        newX += static_cast<int>(deltaX);
+//        newHeight -= static_cast<int>(deltaY);
+//        newY += static_cast<int>(deltaY);
+//        break;
+//    case ResizeEdge::TopRight:
+//        newWidth += static_cast<int>(deltaX);
+//        newHeight -= static_cast<int>(deltaY);
+//        newY += static_cast<int>(deltaY);
+//        break;
+//    case ResizeEdge::BottomLeft:
+//        newWidth -= static_cast<int>(deltaX);
+//        newX += static_cast<int>(deltaX);
+//        newHeight += static_cast<int>(deltaY);
+//        break;
+//    case ResizeEdge::BottomRight:
+//        newWidth += static_cast<int>(deltaX);
+//        newHeight += static_cast<int>(deltaY);
+//        break;
+//    default:
+//        break;
+//    }
+//
+//    // Enforce minimum window size
+//    if (newWidth < _minWidth)
+//    {
+//        // Adjust X position if resizing from left
+//        if (_resizeEdge == ResizeEdge::Left ||
+//            _resizeEdge == ResizeEdge::TopLeft ||
+//            _resizeEdge == ResizeEdge::BottomLeft)
+//        {
+//            newX -= (_minWidth - newWidth);
+//        }
+//        newWidth = _minWidth;
+//    }
+//
+//    if (newHeight < _minHeight)
+//    {
+//        // Adjust Y position if resizing from top
+//        if (_resizeEdge == ResizeEdge::Top ||
+//            _resizeEdge == ResizeEdge::TopLeft ||
+//            _resizeEdge == ResizeEdge::TopRight)
+//        {
+//            newY -= (_minHeight - newHeight);
+//        }
+//        newHeight = _minHeight;
+//    }
+//
+//    // Apply the new window size and position
+//    //glfwSetWindowSize(_window, newWidth, newHeight);
+//    //glfwSetWindowPos(_window, newX, newY);
+//
+//    auto renderingApplication = _ecs->GetRenderingApplication3D();
+//    renderingApplication->Resize(newWidth, newHeight);
+//}
 
 
 bool InputSystem::IsKeyPressed(int key)

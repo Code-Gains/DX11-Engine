@@ -16,7 +16,7 @@ struct MaterialConstantBuffer
     MaterialConstantBuffer(const DirectX::XMFLOAT4& ambient, const DirectX::XMFLOAT4& diffuse, const DirectX::XMFLOAT4& specular, float shininess);
 };
 
-class MaterialComponent : public IComponent
+class MaterialComponent : public Component
 {
     MaterialConstantBuffer _materialConstantBuffer;
     bool _isDirty = true;

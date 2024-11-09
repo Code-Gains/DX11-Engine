@@ -9,7 +9,7 @@
 #include "Component.hpp"
 
 
-class ProfilerComponent : public IComponent
+class ProfilerComponent : public Component
 {
     HWND _win32Window;
     HANDLE _self;

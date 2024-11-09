@@ -7,7 +7,7 @@
 #include "ECS.hpp";
 #include "ProfilerComponent.hpp"
 
-class ProfilerSystem : public ISystem
+class ProfilerSystem : public System
 {
 	ECS* _ecs = nullptr;
 	bool _enabled = false;

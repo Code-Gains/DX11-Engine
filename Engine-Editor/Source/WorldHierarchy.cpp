@@ -17,6 +17,11 @@ void WorldHierarchy::PeriodicUpdate(float deltaTime)
 {
 }
 
+Entity WorldHierarchy::GetSelectedEntity()
+{
+	return _selectedEntity;
+}
+
 void WorldHierarchy::Render()
 {
 	if (!_enabled)
@@ -172,7 +177,10 @@ void WorldHierarchy::Render()
 					ImGui::TableSetColumnIndex(0);
 					auto name = item.second + " " + std::to_string(item.first);
 					if (ImGui::Selectable(name.c_str(), etn == selected))
+					{
 						selected = etn;
+						_selectedEntity = item.first;
+					}
 					etn++;
 				}
 				ImGui::EndTable();
@@ -187,6 +195,7 @@ void WorldHierarchy::Render()
 
 				// deselect
 				selected = entityToName.end();
+				//_selectedEntity = item.first;
 			}
 		}
 	}

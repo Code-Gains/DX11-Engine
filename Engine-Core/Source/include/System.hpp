@@ -1,8 +1,8 @@
 #pragma once
 
-class ISystem {
+class System {
 public:
-	virtual ~ISystem() = default;
+	virtual ~System() = default;
 
 	virtual void Render() = 0;
 	virtual void Update(float deltaTime) = 0;

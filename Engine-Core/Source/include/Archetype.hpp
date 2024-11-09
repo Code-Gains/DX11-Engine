@@ -7,8 +7,8 @@
 #include <any>
 
 #include "Entity.hpp"
-#include "Component.hpp"
-#include <stdlib.h>;
+#include "ComponentRegistry.hpp"
+#include <stdlib.h>
 
 class Archetype
 {
@@ -37,6 +37,20 @@ public:
 		}
 
 		return nullptr;
+	}
+
+	std::vector<std::pair<ComponentType, Component*>> GetAllComponents(Entity entity) const
+	{
+		std::vector<std::pair<ComponentType, Component*>> components;
+		// Reserve max possible component types to avoid dynamic resizing
+		components.reserve(_typeToComponentVector.size());
+		for (const auto& [type, componentVector] : _typeToComponentVector)
+		{
+			Component* component = static_cast<Component*>(componentVector->GetComponent(entity));
+			if (component)
+				components.emplace_back(type, component);
+		}
+		return components;
 	}
 
 	// Component Vectors

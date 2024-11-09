@@ -1,7 +1,7 @@
 #pragma once
 #include "MeshComponent.hpp"
 
-class WorldHierarchyComponent : public IComponent
+class WorldHierarchyComponent : public Component
 {
 	std::unordered_map<Entity, std::string> _entityToName;
 

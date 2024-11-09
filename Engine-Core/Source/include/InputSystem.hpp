@@ -8,10 +8,25 @@
 #include "RenderingApplication3D.hpp"
 
 
-class InputSystem : public ISystem
+enum ResizeEdge
+{
+	None,
+	Left,
+	Right,
+	Top,
+	Bottom,
+	TopLeft,
+	TopRight,
+	BottomLeft,
+	BottomRight
+};
+
+class InputSystem : public System
 {
 	ECS* _ecs; // non owning
-	GLFWwindow* _window;
+	GLFWwindow* _window; // non owning
+
+	const int _resizeEdgeSize = 5;
 
 	// Sets to keep track of keys and mouse buttons that are currently pressed
 	std::unordered_set<int> _keysPressed;
@@ -27,6 +42,15 @@ class InputSystem : public ISystem
 	double _lastMouseX, _lastMouseY;
 	double _mouseDeltaX, _mouseDeltaY;
 
+
+	const int _minWidth = 200;
+	const int _minHeight = 200;
+	ResizeEdge _resizeEdge = ResizeEdge::None;
+	bool _isResizing = false;
+
+	// Owning
+	GLFWcursor* _currentCursor = nullptr;
+
 	// Modifiers
 	int _mods;
 
@@ -38,15 +62,21 @@ class InputSystem : public ISystem
 	static void CharCallback(GLFWwindow* window, unsigned int codepoint);
 	static void WindowSizeCallback(GLFWwindow* window, int width, int height);
 
+	//void PerformWindowResize();
+
+	//void UpdateCursorShape();
+	//void UpdateCursorIcon();
+
 
 
 public:
 	InputSystem(ECS* ecs);
+	~InputSystem();
 
 	// System loops
 	void Update(float deltaTime) override;
 	void Render() override {}
-	void PeriodicUpdate(float deltaTime) override {}
+	void PeriodicUpdate(float deltaTime) override;
 
 	// Methods to query input state
 	bool IsKeyPressed(int key);

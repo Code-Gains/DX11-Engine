@@ -291,6 +291,7 @@
     <ClInclude Include="Source\include\CameraSystem.hpp" />
     <ClInclude Include="Source\include\Component.hpp" />
     <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
+    <ClInclude Include="Source\include\ComponentRegistry.hpp" />
     <ClInclude Include="Source\include\ConfigManager.hpp" />
     <ClInclude Include="Source\include\ConstantBufferBinder.hpp" />
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
@@ -359,6 +360,7 @@
     <ClCompile Include="Source\Engine\GraphicsAPI\GraphicsContext.cpp" />
     <ClCompile Include="Source\Engine\GraphicsAPI\VulkanContext.cpp" />
     <ClCompile Include="Source\Engine\Input\InputSystem.cpp" />
+    <ClCompile Include="Source\Engine\Registries\ComponentRegistry.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ConstantBufferBinder.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderCollection.cpp" />
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
