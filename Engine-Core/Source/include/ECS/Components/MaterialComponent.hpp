@@ -2,7 +2,11 @@
 #include <DirectXMath.h>
 #include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
-#include "Component.hpp"
+#include "ComponentRegistry.hpp"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_dx11.h>
 
 struct MaterialConstantBuffer
 {
@@ -34,6 +38,11 @@ public:
     DirectX::XMFLOAT4 GetSpecular() const;
     float GetShininess() const;
 
+    DirectX::XMFLOAT4& GetAmbientByRef();
+    DirectX::XMFLOAT4& GetDiffuseByRef();
+    DirectX::XMFLOAT4& GetSpecularByRef();
+    float& GetShininessByRef();
+
     bool IsDirty() const;
     void SetIsDirty(bool isDirty);
 
@@ -54,3 +63,8 @@ public:
     }
 };
 
+class MaterialComponentUI : public ComponentUI
+{
+public:
+    void RenderUI(Component& component) override;
+};

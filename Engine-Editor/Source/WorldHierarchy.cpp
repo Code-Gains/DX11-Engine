@@ -112,61 +112,6 @@ void WorldHierarchy::Render()
 			static DirectX::XMFLOAT4 selectedSpecular = { 1.0f, 1.0f, 1.0f, 1.0f };
 			static float selectedShininess = 1.0f;
 
-			if (selected != entityToName.end())
-			{
-				auto transform = _world->GetComponent<TransformComponent>(selected->first);
-				if (transform)
-				{
-					selectedPosition = transform->GetPosition();
-					selectedRotation = transform->GetRotation();
-					selectedScale = transform->GetScale();
-				}
-				if (ImGui::TreeNode("Transform"))
-				{
-					if (ImGui::DragFloat3("Position", &selectedPosition.x, 0.1f))
-					{
-						transform->SetPosition(selectedPosition);
-					}
-					if (ImGui::DragFloat3("Rotation", &selectedRotation.x, 0.1f))
-					{
-						transform->SetRotation(selectedRotation);
-					}
-					if (ImGui::DragFloat3("Scale", &selectedScale.x, 0.1f))
-					{
-						transform->SetScale(selectedScale);
-					}
-					ImGui::TreePop();
-				}
-				auto material = _world->GetComponent<MaterialComponent>(selected->first);
-				if (material)
-				{
-					selectedAmbient = material->GetAmbient();
-					selectedDiffuse = material->GetDiffuse();
-					selectedSpecular = material->GetSpecular();
-					selectedShininess = selectedShininess;
-				}
-				if (ImGui::TreeNode("Material"))
-				{
-					if (ImGui::ColorPicker4("Ambient", &selectedAmbient.x))
-					{
-						material->SetAmbient(selectedAmbient);
-					}
-					if (ImGui::ColorPicker4("Diffuse", &selectedDiffuse.x))
-					{
-						material->SetDiffuse(selectedDiffuse);
-					}
-					if (ImGui::ColorPicker4("Specular", &selectedSpecular.x))
-					{
-						material->SetSpecular(selectedSpecular);
-					}
-					if (ImGui::DragFloat("Shininess", &selectedShininess, 0.1f, 0.0f, 100.0f))
-					{
-						material->SetShininess(selectedShininess);
-					}
-					ImGui::TreePop();
-				}
-			}
-
 			ImGui::Text("Entities");
 			if (ImGui::BeginTable("EntityTable", 1, ImGuiTableFlags_Borders))
 			{

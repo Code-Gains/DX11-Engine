@@ -95,7 +95,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DEBUG;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -116,7 +116,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RELEASE;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -143,7 +143,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DEBUG;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -164,7 +164,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RELEASE;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -285,49 +285,49 @@
     <ClInclude Include="Source\imgui\include\imstb_rectpack.h" />
     <ClInclude Include="Source\imgui\include\imstb_textedit.h" />
     <ClInclude Include="Source\imgui\include\imstb_truetype.h" />
-    <ClInclude Include="Source\include\Application.hpp" />
-    <ClInclude Include="Source\include\Archetype.hpp" />
-    <ClInclude Include="Source\include\CameraComponent.hpp" />
-    <ClInclude Include="Source\include\CameraSystem.hpp" />
-    <ClInclude Include="Source\include\Component.hpp" />
-    <ClInclude Include="Source\include\ComponentIdentifier.hpp" />
-    <ClInclude Include="Source\include\ComponentRegistry.hpp" />
-    <ClInclude Include="Source\include\ConfigManager.hpp" />
-    <ClInclude Include="Source\include\ConstantBufferBinder.hpp" />
+    <ClInclude Include="Source\include\3DObjects\Heightmap.hpp" />
+    <ClInclude Include="Source\include\3DObjects\Terrain.hpp" />
+    <ClInclude Include="Source\include\Application\Application.hpp" />
+    <ClInclude Include="Source\include\Application\RenderingApplication3D.hpp" />
+    <ClInclude Include="Source\include\Config\ConfigManager.hpp" />
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp" />
     <ClInclude Include="Source\include\Constants.hpp" />
     <ClInclude Include="Source\include\Definitions.hpp" />
-    <ClInclude Include="Source\include\DirectX11Context.hpp" />
     <ClInclude Include="Source\include\DirectXSerialization.hpp" />
-    <ClInclude Include="Source\include\DirectionalLightComponent.hpp" />
-    <ClInclude Include="Source\include\ECS.hpp" />
-    <ClInclude Include="Source\include\ECSDebugger.hpp" />
-    <ClInclude Include="Source\include\Entity.hpp" />
-    <ClInclude Include="Source\include\EntityMonitoringSystem.hpp" />
-    <ClInclude Include="Source\include\GraphicsContext.hpp" />
-    <ClInclude Include="Source\include\Heightmap.hpp" />
+    <ClInclude Include="Source\include\ECS\Archetype.hpp" />
+    <ClInclude Include="Source\include\ECS\Component.hpp" />
+    <ClInclude Include="Source\include\ECS\ComponentIdentifier.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\CameraComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\DirectionalLightComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\LightComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\MaterialComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\MeshComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\ProfilerComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\TerrainComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\Components\TransformComponent.hpp" />
+    <ClInclude Include="Source\include\ECS\ECS.hpp" />
+    <ClInclude Include="Source\include\ECS\ECSDebugger.hpp" />
+    <ClInclude Include="Source\include\ECS\Entity.hpp" />
+    <ClInclude Include="Source\include\ECS\System.hpp" />
+    <ClInclude Include="Source\include\ECS\Systems\CameraSystem.hpp" />
+    <ClInclude Include="Source\include\ECS\Systems\EntityMonitoringSystem.hpp" />
+    <ClInclude Include="Source\include\ECS\Systems\InstanceRendererSystem.hpp" />
+    <ClInclude Include="Source\include\ECS\Systems\LightingSystem.hpp" />
+    <ClInclude Include="Source\include\ECS\Systems\ProfilerSystem.hpp" />
+    <ClInclude Include="Source\include\GraphicsAPI\DirectX11Context.hpp" />
+    <ClInclude Include="Source\include\GraphicsAPI\GraphicsContext.hpp" />
+    <ClInclude Include="Source\include\GraphicsAPI\VulkanContext.hpp" />
     <ClInclude Include="Source\include\IMonitorable.hpp" />
-    <ClInclude Include="Source\include\InputSystem.hpp" />
-    <ClInclude Include="Source\include\InstanceRendererSystem.hpp" />
+    <ClInclude Include="Source\include\Input\InputSystem.hpp" />
     <ClInclude Include="Source\include\IntVectors.hpp" />
-    <ClInclude Include="Source\include\LightComponent.hpp" />
-    <ClInclude Include="Source\include\LightingSystem.hpp" />
     <ClInclude Include="Source\include\Logging.hpp" />
-    <ClInclude Include="Source\include\MaterialComponent.hpp" />
-    <ClInclude Include="Source\include\MeshComponent.hpp" />
-    <ClInclude Include="Source\include\ProfilerComponent.hpp" />
-    <ClInclude Include="Source\include\ProfilerSystem.hpp" />
-    <ClInclude Include="Source\include\RenderingApplication3D.hpp" />
+    <ClInclude Include="Source\include\Registries\ComponentRegistry.hpp" />
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
-    <ClInclude Include="Source\include\ShaderCollection.hpp" />
-    <ClInclude Include="Source\include\ShaderManager.hpp" />
-    <ClInclude Include="Source\include\System.hpp" />
-    <ClInclude Include="Source\include\Terrain.hpp" />
-    <ClInclude Include="Source\include\TerrainComponent.hpp" />
-    <ClInclude Include="Source\include\TextureManager.hpp" />
-    <ClInclude Include="Source\include\TransformComponent.hpp" />
+    <ClInclude Include="Source\include\Shaders\ConstantBufferBinder.hpp" />
+    <ClInclude Include="Source\include\Shaders\ShaderCollection.hpp" />
+    <ClInclude Include="Source\include\Shaders\ShaderManager.hpp" />
+    <ClInclude Include="Source\include\Shaders\TextureManager.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
-    <ClInclude Include="Source\include\VulkanContext.hpp" />
     <ClInclude Include="Source\nlohmannjson\json.hpp" />
   </ItemGroup>
   <ItemGroup>

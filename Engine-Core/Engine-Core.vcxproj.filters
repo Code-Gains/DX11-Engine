@@ -103,6 +103,36 @@
     <Filter Include="include">
       <UniqueIdentifier>{89AF369E-F58E-B539-FEA6-40106A051C9B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\3DObjects">
+      <UniqueIdentifier>{39ACFB79-A5C2-F90F-EE39-85315A8FCA97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Application">
+      <UniqueIdentifier>{CC804ED1-38E2-2BDF-C14F-72912DB0629E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Config">
+      <UniqueIdentifier>{6E3688FB-5A04-7C01-4398-EC272F055866}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ECS">
+      <UniqueIdentifier>{5340C031-BFF5-3827-48EA-32FEB49E2F2B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ECS\Components">
+      <UniqueIdentifier>{886B2CAD-7465-55FF-5DD2-EB0F496BBB6B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\ECS\Systems">
+      <UniqueIdentifier>{5A39334A-C69A-1058-4F08-570ABB684717}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\GraphicsAPI">
+      <UniqueIdentifier>{63447498-CFA5-51A6-5813-9858C4738865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Input">
+      <UniqueIdentifier>{482232A3-B4E2-ADD9-7D1D-F756E99CF2B5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Registries">
+      <UniqueIdentifier>{99DCDC91-85C0-9DE7-EE20-983ADA238869}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Shaders">
+      <UniqueIdentifier>{624DF22A-CED8-5FEF-D7E9-E2E343F4BBEF}</UniqueIdentifier>
+    </Filter>
     <Filter Include="nlohmannjson">
       <UniqueIdentifier>{FAEEE682-E651-7627-8FD7-AEDD7B1942AA}</UniqueIdentifier>
     </Filter>
@@ -402,32 +432,20 @@
     <ClInclude Include="Source\imgui\include\imstb_truetype.h">
       <Filter>imgui\include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Application.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\3DObjects\Heightmap.hpp">
+      <Filter>include\3DObjects</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Archetype.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\3DObjects\Terrain.hpp">
+      <Filter>include\3DObjects</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\CameraComponent.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Application\Application.hpp">
+      <Filter>include\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\CameraSystem.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Application\RenderingApplication3D.hpp">
+      <Filter>include\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Component.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\ComponentIdentifier.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\ComponentRegistry.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\ConfigManager.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\ConstantBufferBinder.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Config\ConfigManager.hpp">
+      <Filter>include\Config</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ConstantBufferDefinitions.hpp">
       <Filter>include</Filter>
@@ -438,97 +456,109 @@
     <ClInclude Include="Source\include\Definitions.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\DirectX11Context.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="Source\include\DirectXSerialization.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\DirectionalLightComponent.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\Archetype.hpp">
+      <Filter>include\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\ECS.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\Component.hpp">
+      <Filter>include\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\ECSDebugger.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\ComponentIdentifier.hpp">
+      <Filter>include\ECS</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Entity.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\Components\CameraComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\EntityMonitoringSystem.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\Components\DirectionalLightComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\GraphicsContext.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\Components\LightComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Heightmap.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\ECS\Components\MaterialComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Components\MeshComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Components\ProfilerComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Components\TerrainComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Components\TransformComponent.hpp">
+      <Filter>include\ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\ECS.hpp">
+      <Filter>include\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\ECSDebugger.hpp">
+      <Filter>include\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Entity.hpp">
+      <Filter>include\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\System.hpp">
+      <Filter>include\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Systems\CameraSystem.hpp">
+      <Filter>include\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Systems\EntityMonitoringSystem.hpp">
+      <Filter>include\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Systems\InstanceRendererSystem.hpp">
+      <Filter>include\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Systems\LightingSystem.hpp">
+      <Filter>include\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\Systems\ProfilerSystem.hpp">
+      <Filter>include\ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\GraphicsAPI\DirectX11Context.hpp">
+      <Filter>include\GraphicsAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\GraphicsAPI\GraphicsContext.hpp">
+      <Filter>include\GraphicsAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\GraphicsAPI\VulkanContext.hpp">
+      <Filter>include\GraphicsAPI</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\IMonitorable.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\InputSystem.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\InstanceRendererSystem.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Input\InputSystem.hpp">
+      <Filter>include\Input</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\IntVectors.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\LightComponent.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\LightingSystem.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\Logging.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\MaterialComponent.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\MeshComponent.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\ProfilerComponent.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\ProfilerSystem.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\RenderingApplication3D.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Registries\ComponentRegistry.hpp">
+      <Filter>include\Registries</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ResourceMonitor.hpp">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\ShaderCollection.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Shaders\ConstantBufferBinder.hpp">
+      <Filter>include\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\ShaderManager.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Shaders\ShaderCollection.hpp">
+      <Filter>include\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\System.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Shaders\ShaderManager.hpp">
+      <Filter>include\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Source\include\Terrain.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\TerrainComponent.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\TextureManager.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\TransformComponent.hpp">
-      <Filter>include</Filter>
+    <ClInclude Include="Source\include\Shaders\TextureManager.hpp">
+      <Filter>include\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\VertexType.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\include\VulkanContext.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="Source\nlohmannjson\json.hpp">
