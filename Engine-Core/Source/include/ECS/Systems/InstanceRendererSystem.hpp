@@ -130,7 +130,7 @@ private:
 public:
     InstanceRendererSystem() {}
     ~InstanceRendererSystem() {}
-    InstanceRendererSystem(int batchSize = 10);
+    //InstanceRendererSystem(int batchSize);
     InstanceRendererSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ShaderManager* shaderManager, ECS* ecs, int batchSize = 10);
 
     void AddInstance(int poolKey, int instanceId, const InstanceConstantBuffer& instanceData);
@@ -367,4 +367,14 @@ public:
            // _deviceContext->OMSetDepthStencilState(_defaultDepthStencilState.Get(), 0);
         }
     }
+
+    template<typename Archive>
+    void serialize(Archive& archive)
+    {
+
+    }
 };
+
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(InstanceRendererSystem)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(System, InstanceRendererSystem)

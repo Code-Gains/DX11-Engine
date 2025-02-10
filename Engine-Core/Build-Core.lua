@@ -21,6 +21,7 @@ project "Engine-Core"
       "Source/include/Input",
       "Source/include/Registries",
       "Source/include/Shaders",
+      "Source/include/World",
       "Source/cereal",
       "Source/imgui/include",
       "Source/glfw-3.3.8.bin.WIN64/include",

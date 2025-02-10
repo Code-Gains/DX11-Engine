@@ -1,6 +1,5 @@
 #pragma once
 #include <DirectXMath.h>
-#include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
 #include "ComponentRegistry.hpp"
 #include <imgui.h>
@@ -60,6 +59,18 @@ public:
             cereal::make_nvp("specular", _materialConstantBuffer.specular),
             cereal::make_nvp("shininess", _materialConstantBuffer.shininess)
         );
+    }
+
+    // Serialization
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
     }
 };
 

@@ -6,6 +6,9 @@
 #include <functional>
 #include <optional>
 #include <any>
+
+#include <cereal/cereal.hpp>
+
 #include "Entity.hpp"
 
 constexpr size_t MAX_COMPONENTS = 64;
@@ -16,6 +19,18 @@ class Component
 {
 public:
     virtual ~Component() = default;
+
+    template <class Archive>
+    void save(Archive& archive) const
+    {
+
+    }
+
+    template <class Archive>
+    void load(Archive& archive) const
+    {
+
+    }
 };
 
 class ComponentUI
@@ -35,6 +50,18 @@ public:
     virtual void TransferComponent(Entity entity, IComponentVector& target) const = 0;
     virtual void RemoveComponent(Entity entity) = 0;
     virtual size_t GetComponentCount() const = 0;
+
+    template <class Archive>
+    void save(Archive& archive) const
+    {
+
+    }
+
+    template <class Archive>
+    void load(Archive& archive)
+    {
+
+    }
 };
 
 template<typename TComponent>
@@ -136,6 +163,19 @@ public:
 public:
     ComponentVector() {};
     ~ComponentVector() {};
+
+    // Serialization
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+
+    }
 };
 
 class IComponentVectorFactory

@@ -1,7 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
 #include <iostream>
-#include <cereal/cereal.hpp>
 #include "ComponentIdentifier.hpp"
 #include "DirectXSerialization.hpp"
 #include "ComponentRegistry.hpp"

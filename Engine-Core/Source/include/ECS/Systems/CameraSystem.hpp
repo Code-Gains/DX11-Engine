@@ -19,4 +19,14 @@ public:
 	void Render() override;
 	void Update(float deltaTime) override;
 	void PeriodicUpdate(float deltaTime) override;
+
+	template<typename Archive>
+	void serialize(Archive& archive)
+	{
+
+	}
 };
+
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(CameraSystem)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(System, CameraSystem)

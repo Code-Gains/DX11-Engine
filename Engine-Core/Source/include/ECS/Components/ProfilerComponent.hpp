@@ -68,4 +68,16 @@ public:
     void SubtractTimeLeftUntilDebugInfo(float deltaTime);
     void SetFrameDeltas(float deltaTime);
     void IncrementFrameIndex();
+
+    // Serialization
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+    }
 };

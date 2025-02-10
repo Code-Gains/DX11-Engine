@@ -10,6 +10,8 @@
 #include "ComponentRegistry.hpp"
 #include <stdlib.h>
 
+#include <cereal/cereal.hpp>
+
 class Archetype
 {
 	ComponentSignature _signature;
@@ -130,5 +132,19 @@ public:
 		// Retrieve component vector base and cast to component vector
 		auto& vector = static_cast<ComponentVector<TComponent>&>(*_typeToComponentVector[componentType]);
 		vector.AddComponent(entity, component);
+	}
+
+	// Serialization
+
+	template<typename Archive>
+	void save(Archive& archive) const
+	{
+		archive(CEREAL_NVP(_typeToComponentVector));
+	}
+
+	template<typename Archive>
+	void load(Archive& archive)
+	{
+
 	}
 };

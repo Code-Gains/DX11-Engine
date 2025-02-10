@@ -4,7 +4,8 @@
 #include <unordered_map>
 #include <optional>
 
-#include <cereal/cereal.hpp>
+//#include <cereal/cereal.hpp>
+#include "EcsSerialization.hpp"
 
 #include "Archetype.hpp"
 #include "System.hpp"
@@ -23,11 +24,11 @@ class ECS
 {
 	RenderingApplication3D* _renderingApplication; // no owning
 	GLFWwindow* _glfwWindow; // non owning
+
 	std::vector<std::unique_ptr<System>> _systems;
 	std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 	// This could be removed TODO (watch stuff)
 	std::unordered_map<Entity, ComponentSignature> _entityToSignature;
-
 	// --- IDs ---
 	std::uint32_t _nextEntityId = 0;
 
@@ -230,9 +231,35 @@ public:
 
 	// --- Serialization ---
 
+	bool SaveWorld(const std::string& filePath);
+
 	template<typename Archive>
-	void serialize(Archive& archive)
+	void save(Archive& archive) const
 	{
+		// Simple data
+		archive(CEREAL_NVP(_nextEntityId));
+
+		// Custom simple data
+		archive(CEREAL_NVP(_entityToSignature));
+
+		// Custom complex data
+		archive(CEREAL_NVP(_systems));
+		//archive(CEREAL_NVP(_signatureToArchetype));
+
+		//archive(_systems);
+		//std::cout << "ECS is saving.\n";
+
+	}
+
+	template<typename Archive>
+	void load(Archive& archive)
+	{
+		std::cout << "ECS is loading.\n";
+	}
+
+	//template<typename Archive>
+	//void serialize(Archive& archive)
+	//{
 		//std::vector<std::unique_ptr<System>> _systems;
 		//std::unordered_map<ComponentSignature, std::unique_ptr<Archetype>> _signatureToArchetype;
 		//std::unordered_map<Entity, ComponentSignature> _entityToSignature;
@@ -252,5 +279,5 @@ public:
 		// Second we go through raw component data by iterating signature -> archetype
 		// Third I don't know
 
-	}
+	//}
 };

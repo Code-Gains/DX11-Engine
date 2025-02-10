@@ -22,4 +22,14 @@ public:
 	void PeriodicUpdate(float deltaTime) override;
 
 	void Toggle();
+
+	template<typename Archive>
+	void serialize(Archive& archive)
+	{
+
+	}
 };
+
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(ProfilerSystem)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(System, ProfilerSystem)

@@ -58,6 +58,19 @@ void EditorUIManagerSystem::RenderMenuBarMenuButtons()
     // Existing menu items
     if (ImGui::BeginMenu("File"))
     {
+        if (ImGui::MenuItem("Save"))
+        {
+            std::cout << "Scene saving started...\n";
+            _ecs->SaveWorld("Save.json");
+        }
+        if (ImGui::MenuItem("Save As..."))
+        {
+            //
+        }
+        if (ImGui::MenuItem("Open"))
+        {
+            //
+        }
         ImGui::EndMenu();
     }
     // "View" menu
@@ -104,40 +117,27 @@ void EditorUIManagerSystem::RenderMenuBarMenuButtons()
 
 void EditorUIManagerSystem::RenderMenuBarControlButtons(int buttonStackWidth)
 {
+    auto window = _ecs->GetGlfwWindow();
 
     // Position the control buttons at the right of the menu bar
     ImGui::SameLine(ImGui::GetWindowWidth() - buttonStackWidth);
-
-    auto window = _ecs->GetGlfwWindow();
     if (ImGui::Button("-"))
     {
         glfwIconifyWindow(window);
-        //auto renderingApplication = _ecs->GetRenderingApplication3D();
-        //renderingApplication->Resize(0, 0);
     }
+
     ImGui::SameLine();
     if (ImGui::Button("[]"))
     {
         if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED))
-        {
             glfwRestoreWindow(window);
-        }
         else
-        {
             glfwMaximizeWindow(window);
-        }
-
-        //int width, height;
-        //glfwGetWindowSize(window, &width, &height);
-
-        //auto renderingApplication = _ecs->GetRenderingApplication3D();
-        //renderingApplication->Resize(width, height);
     }
+
     ImGui::SameLine();
     if (ImGui::Button("X"))
-    {
         glfwTerminate();
-    }
 }
 
 void EditorUIManagerSystem::RenderMenuBarInvisibleDragButton(int controlButtonStackWidth)

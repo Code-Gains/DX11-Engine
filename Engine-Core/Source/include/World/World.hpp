@@ -19,32 +19,32 @@
 #include "DirectionalLightComponent.hpp"
 #include "ProfilerComponent.hpp"
 
-#include "EditorUIManagerSystem.hpp"
 #include "InstanceRendererSystem.hpp"
 #include "LightingSystem.hpp"
 #include "CameraSystem.hpp"
 #include "EntityMonitoringSystem.hpp"
 #include "ProfilerSystem.hpp"
 #include "InputSystem.hpp"
-#include "EntityEditor.hpp"
+//#include "EntityEditor.hpp"
 
 #include "VertexType.hpp"
 #include "Constants.hpp"
-#include "WorldHierarchy.hpp"
+//#include "WorldHierarchy.hpp"
 #include "RenderingApplication3D.hpp"
 
-class Universe; // forward declaration
+//class Universe; // forward declaration
 
-class World
+class World : public IEngineModule
 {
 	// Application State
 	HWND _win32Window;
-
 	int32_t _viewportWidth;
 	int32_t _viewportHeight;
-
 	RenderingApplication3D* _renderingApplication;
-	Universe* _universe;
+	WRL::ComPtr<ID3D11Device> _device = nullptr;
+	WRL::ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
+
+	std::wstring _worldPath = L"";
 
 	// UI TODO MOVE OUT TO A SEPARATE ENGINE MODULE
 	//WorldHierarchy _worldHierarchy;
@@ -52,19 +52,24 @@ class World
 public:
 	// World loading and application management
 	World();
-	~World();
+	World(HWND win32Window, RenderingApplication3D* renderingApplication, ID3D11Device* device,
+		ID3D11DeviceContext* deviceContext, int viewportWidth, int viewportHeight, std::wstring worldPath = L"");
+	virtual ~World() = default;
 
-	bool Initialize(RenderingApplication3D* renderingApplication, Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	virtual bool Initialize() override { return 0; };
+	virtual bool Load() override { return 0; }
+	virtual void Cleanup() override {};
+
+	virtual void Update(float deltaTime) override;
+	virtual void PeriodicUpdate(float deltaTime) override;
+	virtual void Render() override;
+
+	//bool Initialize(RenderingApplication3D* renderingApplication, Universe* universe, HWND win32Window, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void UpdateViewportDimensions(int32_t width, int32_t height);
-	bool LoadWorld(std::string filePath = "");
+	bool LoadDefaultWorld();
 	bool PrepareLoading();
 	bool FinalizeLoading();
 	bool SaveWorld(std::string filePath);
-
-	// Loops
-	void Update(float deltaTime);
-	void PeriodicUpdate(float deltaTime);
-	void Render();
 
 	// ECS
 	void DestroyEntity(Entity entity);

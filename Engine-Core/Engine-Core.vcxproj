@@ -95,7 +95,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DEBUG;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\include\World;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -116,7 +116,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RELEASE;USE_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\include\World;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -143,7 +143,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>DEBUG;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\include\World;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -164,7 +164,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RELEASE;USE_VULKAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Source;Source\include;Source\include\Application;Source\include\GraphicsAPI;Source\include\Config;Source\include\3DObjects;Source\include\ECS;Source\include\ECS\Components;Source\include\ECS\Systems;Source\include\Input;Source\include\Registries;Source\include\Shaders;Source\include\World;Source\cereal;Source\imgui\include;Source\glfw-3.3.8.bin.WIN64\include;Source\FreeImage\include;C:\VulkanSDK\1.3.283.0\Include;Source\Engine\Graphics;Source\nlohmannjson;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -314,6 +314,7 @@
     <ClInclude Include="Source\include\ECS\Systems\InstanceRendererSystem.hpp" />
     <ClInclude Include="Source\include\ECS\Systems\LightingSystem.hpp" />
     <ClInclude Include="Source\include\ECS\Systems\ProfilerSystem.hpp" />
+    <ClInclude Include="Source\include\EcsSerialization.hpp" />
     <ClInclude Include="Source\include\GraphicsAPI\DirectX11Context.hpp" />
     <ClInclude Include="Source\include\GraphicsAPI\GraphicsContext.hpp" />
     <ClInclude Include="Source\include\GraphicsAPI\VulkanContext.hpp" />
@@ -321,6 +322,7 @@
     <ClInclude Include="Source\include\Input\InputSystem.hpp" />
     <ClInclude Include="Source\include\IntVectors.hpp" />
     <ClInclude Include="Source\include\Logging.hpp" />
+    <ClInclude Include="Source\include\Registries\CerealRegistry.hpp" />
     <ClInclude Include="Source\include\Registries\ComponentRegistry.hpp" />
     <ClInclude Include="Source\include\ResourceMonitor.hpp" />
     <ClInclude Include="Source\include\Shaders\ConstantBufferBinder.hpp" />
@@ -328,6 +330,7 @@
     <ClInclude Include="Source\include\Shaders\ShaderManager.hpp" />
     <ClInclude Include="Source\include\Shaders\TextureManager.hpp" />
     <ClInclude Include="Source\include\VertexType.hpp" />
+    <ClInclude Include="Source\include\World\World.hpp" />
     <ClInclude Include="Source\nlohmannjson\json.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -366,6 +369,7 @@
     <ClCompile Include="Source\Engine\Shaders\ShaderManager.cpp" />
     <ClCompile Include="Source\Engine\Shaders\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />
+    <ClCompile Include="Source\Engine\World\World.cpp" />
     <ClCompile Include="Source\imgui\imgui.cpp" />
     <ClCompile Include="Source\imgui\imgui_demo.cpp" />
     <ClCompile Include="Source\imgui\imgui_draw.cpp" />

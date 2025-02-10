@@ -33,4 +33,13 @@ public:
 
 	void UpdateDirectionalLightBuffer(const DirectionalLightConstantBuffer& directionalLightBuffer);
 
+	template<typename Archive>
+	void serialize(Archive& archive)
+	{
+
+	}
 };
+
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(LightingSystem)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(System, LightingSystem)

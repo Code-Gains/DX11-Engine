@@ -17,5 +17,17 @@ public:
     DirectX::XMFLOAT4 GetAmbient() const;
     DirectX::XMFLOAT4 GetDiffuse() const;
     DirectX::XMFLOAT4 GetSpecular() const;
+
+    // Serialization
+
+    template<typename Archive>
+    void save(Archive& archive) const
+    {
+    }
+
+    template<typename Archive>
+    void load(Archive& archive)
+    {
+    }
 };
 

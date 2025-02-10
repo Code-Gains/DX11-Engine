@@ -4,6 +4,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
+#include <cereal/cereal.hpp>
+
 #include "ECS.hpp"
 #include "WorldHierarchy.hpp"
 
@@ -31,4 +33,14 @@ public:
 	void PeriodicUpdate(float deltaTime) override;
 
 	void Toggle();
+
+	template<typename Archive>
+	void serialize(Archive& archive)
+	{
+
+	}
 };
+
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(EntityEditor)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(System, EntityEditor)

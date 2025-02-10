@@ -1,6 +1,10 @@
 #include "InputSystem.hpp"
 #include <imgui_impl_glfw.h>
 
+InputSystem::InputSystem()
+{
+}
+
 InputSystem::InputSystem(ECS* ecs) : _ecs(ecs), _mods(0)
 {
     _window = _ecs->GetGlfwWindow();

@@ -33,4 +33,16 @@ public:
 
     WRL::ComPtr<ID3D11Buffer> GetCameraConstantBuffer();
     void CreateConstantBuffers(ID3D11Device* device);
+
+    // Serialization
+
+	template<typename Archive>
+	void save(Archive& archive) const
+	{
+	}
+
+	template<typename Archive>
+	void load(Archive& archive)
+	{
+	}
 };

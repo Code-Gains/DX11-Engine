@@ -24,6 +24,7 @@ project "Engine-Editor"
         "../Engine-Core/Source/include/Input",
         "../Engine-Core/Source/include/Registries",
         "../Engine-Core/Source/include/Shaders",
+        "../Engine-Core/Source/include/World",
         "../Engine-Core/Source/cereal",
         "../Engine-Core/Source/imgui/include",
         "../Engine-Core/Source/glfw-3.3.8.bin.WIN64/include",

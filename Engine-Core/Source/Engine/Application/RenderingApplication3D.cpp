@@ -146,7 +146,7 @@ bool RenderingApplication3D::LoadWorldSingle(std::string filePath)
     return true;  // Successfully deserialized
 }
 
-bool RenderingApplication3D::SaveWorld(std::string filePath)
+bool RenderingApplication3D::SaveWorld(const std::string& filePath)
 {
     std::ofstream os(filePath);
     if (!os.is_open())
@@ -156,7 +156,7 @@ bool RenderingApplication3D::SaveWorld(std::string filePath)
         archive(CEREAL_NVP(_ecs));
     }
 
-    std::cout << "Finished loading to \"" << filePath << "\"\n";
+    std::cout << "Finished saving to \"" << filePath << "\"\n";
     return true;  // Successfully serialized
 }
 

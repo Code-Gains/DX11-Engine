@@ -42,5 +42,17 @@ public:
 	void SetAmbient(const DirectX::XMFLOAT4& ambient);
 	void SetDiffuse(const DirectX::XMFLOAT4& diffuse);
 	void SetSpecular(const DirectX::XMFLOAT4& specular);
+
+	// Serialization
+
+	template<typename Archive>
+	void save(Archive& archive) const
+	{
+	}
+
+	template<typename Archive>
+	void load(Archive& archive)
+	{
+	}
 };
 

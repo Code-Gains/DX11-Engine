@@ -9,10 +9,10 @@ void Editor::Run()
     RenderingApplication3D application("CG Engine");
     application.Initialize();
 
-    std::unique_ptr<IEngineModule> engineModule;
-
     auto device = application.GetApplicationDevice();
     auto deviceContext = application.GetApplicationDeviceContext();
+    HWND hwnd = application.GetApplicationWindow();
+    HANDLE handle = application.GetProcessHandle();
 
     if (!application.Load())
     {
@@ -20,7 +20,7 @@ void Editor::Run()
         return;
     }
 
-    engineModule = std::make_unique<Universe>(
+    auto world = World(
         application.GetApplicationWindow(),
         &application,
         device,
@@ -29,8 +29,33 @@ void Editor::Run()
         static_cast<int>(application.GetWindowHeight())
     );
 
-    application.AddEngineModule(std::move(engineModule));
+    auto ecs = application.GetECS();
+    LoadSystems(ecs, world, hwnd, handle);
+
+    application.AddEngineModule(std::unique_ptr<IEngineModule>(static_cast<IEngineModule*>(&world)));
     ConstantBufferBinder& constantBufferBinder = ConstantBufferBinder::GetInstance();
     constantBufferBinder.Initialize(deviceContext);
     application.Run();
+}
+
+void Editor::LoadSystems(ECS* ecs, World& world, HWND hwnd, HANDLE handle)
+{
+    ecs->AddSystem<EditorUIManagerSystem>(ecs);
+    ecs->AddSystem<EntityMonitoringSystem>(ecs);
+    ecs->AddSystem<EntityEditor>(ecs);
+
+    // Optional CORE Systems
+    auto profiler = ecs->CreateEntity();
+    auto profilerComponent = ProfilerComponent();
+    profilerComponent.Initialize(hwnd, handle);
+    ecs->AddComponent(profiler, profilerComponent);
+    ecs->AddSystem<ProfilerSystem>(ecs);
+
+    //Editor Components
+    auto worldHierarchy = ecs->CreateEntity();
+    auto worldHierarchyComponent = WorldHierarchyComponent();
+    ecs->AddComponent(worldHierarchy, worldHierarchyComponent);
+
+    //Editor systems
+    ecs->AddSystem<WorldHierarchy>(ecs, &world);
 }

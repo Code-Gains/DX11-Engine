@@ -103,7 +103,7 @@ public:
     // Serialization
 
     bool LoadWorldSingle(std::string filePath);
-    bool SaveWorld(std::string filePath);
+    bool SaveWorld(const std::string& filePath);
 
     void Resize(int32_t width, int32_t height);
 

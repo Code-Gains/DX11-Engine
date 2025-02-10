@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine-Editor", "Engine-Editor", "{F6065EAF-6268-3BBD-EBD5-816F5736727C}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine-Editor", "Engine-Editor\Engine-Editor.vcxproj", "{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine-Core", "Engine-Core", "{187EA723-8494-A5B9-CD0B-31DB39617641}"
@@ -36,6 +38,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{2FC77C9E-9B87-F8D4-64C2-4152D0413DB1} = {F6065EAF-6268-3BBD-EBD5-816F5736727C}
 		{11DC7661-7D91-EF56-0686-E92D723AE65A} = {187EA723-8494-A5B9-CD0B-31DB39617641}
 	EndGlobalSection
 EndGlobal

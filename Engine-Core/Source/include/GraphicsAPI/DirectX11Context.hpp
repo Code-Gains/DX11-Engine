@@ -10,7 +10,7 @@
 
 #include "DirectionalLightComponent.hpp"
 
-class DirectX11Context : public IGraphicsContext
+class DirectX11Context : public GraphicsContext
 {
 public:
     ~DirectX11Context();

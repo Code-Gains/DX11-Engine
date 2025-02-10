@@ -66,7 +66,6 @@ bool Application::Initialize()
 
     //ImGui::CreateContext();
     //ImGui::StyleColorsDark();
-    //ImGui_ImplGlfw_InitForOther(_window, false);
 
     return true;
 }

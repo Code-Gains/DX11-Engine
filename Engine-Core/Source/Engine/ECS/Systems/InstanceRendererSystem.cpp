@@ -14,10 +14,10 @@ void InstanceRendererSystem::CreateConstantBuffers()
     _device->CreateBuffer(&desc, nullptr, &_instanceConstantBuffer);
 }
 
-InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batchSize)
-{
-
-}
+//InstanceRendererSystem::InstanceRendererSystem(int batchSize) : _batchSize(batchSize)
+//{
+//
+//}
 
 InstanceRendererSystem::InstanceRendererSystem(ID3D11Device* device,
     ID3D11DeviceContext* deviceContext,

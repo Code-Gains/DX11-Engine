@@ -1,4 +1,5 @@
 #include "ECS.hpp"
+#include "RenderingApplication3D.hpp"
 
 size_t ECS::GetArchetypeCount() const
 {
@@ -92,6 +93,11 @@ void ECS::DestroyEntity(Entity entity)
 	auto it = _entityToSignature.find(entity);
 	if (it != _entityToSignature.end())
 		_entityToSignature.erase(it);
+}
+
+bool ECS::SaveWorld(const std::string& filePath)
+{
+	return _renderingApplication->SaveWorld(filePath);
 }
 
 void ECS::Render()

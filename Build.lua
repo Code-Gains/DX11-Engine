@@ -16,6 +16,5 @@ OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
 group "Engine-Core"
    include "Engine-Core/Build-Core.lua"
-group ""
-
-include "Engine-Editor/Build-Editor.lua"
+group "Engine-Editor"
+   include "Engine-Editor/Build-Editor.lua"

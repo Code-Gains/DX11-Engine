@@ -46,5 +46,15 @@ public:
 	void SetWorld(World* world);
 
 	void Toggle();
+
+	template<typename Archive>
+	void serialize(Archive& archive)
+	{
+
+	}
 };
+
+#include <cereal/types/polymorphic.hpp>
+CEREAL_REGISTER_TYPE(WorldHierarchy)
+CEREAL_REGISTER_POLYMORPHIC_RELATION(System, WorldHierarchy)
 

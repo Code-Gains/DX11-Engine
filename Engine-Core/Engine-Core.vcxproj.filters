@@ -43,6 +43,9 @@
     <Filter Include="Engine\Vectors">
       <UniqueIdentifier>{B0F51F65-9CC3-136B-8557-849171C4EFCF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\World">
+      <UniqueIdentifier>{D29A6696-BEFD-F53A-6783-2EF153C5C1BD}</UniqueIdentifier>
+    </Filter>
     <Filter Include="FreeImage">
       <UniqueIdentifier>{2AA92D51-9613-E2C7-DF51-936D4BFBBF1C}</UniqueIdentifier>
     </Filter>
@@ -132,6 +135,9 @@
     </Filter>
     <Filter Include="include\Shaders">
       <UniqueIdentifier>{624DF22A-CED8-5FEF-D7E9-E2E343F4BBEF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\World">
+      <UniqueIdentifier>{000D30A4-6CCD-ABDA-3508-F557A187F0B6}</UniqueIdentifier>
     </Filter>
     <Filter Include="nlohmannjson">
       <UniqueIdentifier>{FAEEE682-E651-7627-8FD7-AEDD7B1942AA}</UniqueIdentifier>
@@ -519,6 +525,9 @@
     <ClInclude Include="Source\include\ECS\Systems\ProfilerSystem.hpp">
       <Filter>include\ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\EcsSerialization.hpp">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\GraphicsAPI\DirectX11Context.hpp">
       <Filter>include\GraphicsAPI</Filter>
     </ClInclude>
@@ -540,6 +549,9 @@
     <ClInclude Include="Source\include\Logging.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\Registries\CerealRegistry.hpp">
+      <Filter>include\Registries</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\Registries\ComponentRegistry.hpp">
       <Filter>include\Registries</Filter>
     </ClInclude>
@@ -560,6 +572,9 @@
     </ClInclude>
     <ClInclude Include="Source\include\VertexType.hpp">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\World\World.hpp">
+      <Filter>include\World</Filter>
     </ClInclude>
     <ClInclude Include="Source\nlohmannjson\json.hpp">
       <Filter>nlohmannjson</Filter>
@@ -670,6 +685,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp">
       <Filter>Engine\Vectors</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\World\World.cpp">
+      <Filter>Engine\World</Filter>
     </ClCompile>
     <ClCompile Include="Source\imgui\imgui.cpp">
       <Filter>imgui</Filter>

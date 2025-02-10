@@ -1,9 +1,9 @@
 #pragma once
 
-class IGraphicsContext
+class GraphicsContext
 {
 public:
-    virtual ~IGraphicsContext() = default;
+    virtual ~GraphicsContext() = default;
 
     virtual bool Initialize() = 0;
     virtual void Cleanup() = 0;

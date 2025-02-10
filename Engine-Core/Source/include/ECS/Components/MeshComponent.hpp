@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <DirectXMath.h>
-#include <cereal/cereal.hpp>
 
 #include "Definitions.hpp"
 #include "VertexType.hpp"

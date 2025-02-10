@@ -3,7 +3,6 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
-#include <cereal/cereal.hpp>
 
 #include "Definitions.hpp"
 #include "VertexType.hpp"
@@ -25,6 +24,8 @@ class TerrainComponent : public Component
 public:
 	TerrainComponent();
 	TerrainComponent(const Heightmap& heightmap, MeshComponent<VertexPositionNormalUv>* mesh);
+
+	// Serialization
 
 	template<typename Archive>
 	void save(Archive& archive) const
