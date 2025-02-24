@@ -25,6 +25,9 @@
     <Filter Include="Engine\ECS\Components">
       <UniqueIdentifier>{9AA5BC9E-0612-7899-CF05-10F73B319A01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\ECS\Registries">
+      <UniqueIdentifier>{3555E4B3-A1C1-9FAE-6AB5-370CD6E0C116}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\ECS\Systems">
       <UniqueIdentifier>{AC5CA585-9840-66DB-01A1-602EEDA3505D}</UniqueIdentifier>
     </Filter>
@@ -474,6 +477,9 @@
     <ClInclude Include="Source\include\ECS\ComponentIdentifier.hpp">
       <Filter>include\ECS</Filter>
     </ClInclude>
+    <ClInclude Include="Source\include\ECS\ComponentVector.hpp">
+      <Filter>include\ECS</Filter>
+    </ClInclude>
     <ClInclude Include="Source\include\ECS\Components\CameraComponent.hpp">
       <Filter>include\ECS\Components</Filter>
     </ClInclude>
@@ -505,6 +511,9 @@
       <Filter>include\ECS</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ECS\Entity.hpp">
+      <Filter>include\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\include\ECS\IComponentVector.hpp">
       <Filter>include\ECS</Filter>
     </ClInclude>
     <ClInclude Include="Source\include\ECS\System.hpp">
@@ -605,6 +614,9 @@
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp">
       <Filter>Engine\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\ComponentVector.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Components\CameraComponent.cpp">
       <Filter>Engine\ECS\Components</Filter>
     </ClCompile>
@@ -637,6 +649,12 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\Entity.cpp">
       <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\IComponentVector.cpp">
+      <Filter>Engine\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\ECS\Registries\CerealRegistry.cpp">
+      <Filter>Engine\ECS\Registries</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\ECS\System.cpp">
       <Filter>Engine\ECS</Filter>
@@ -688,6 +706,9 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\World\World.cpp">
       <Filter>Engine\World</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\test.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Source\imgui\imgui.cpp">
       <Filter>imgui</Filter>

@@ -1,7 +1,10 @@
 #pragma once
 #include <regex>
 #include <string>
-#include "Component.hpp"
+//#include "Component.hpp"
+
+#include "IComponentVector.hpp"
+#include "ComponentVector.hpp"
 
 class ComponentRegistry
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include "MeshComponent.hpp"
+#include <cereal/cereal.hpp>
 
 class WorldHierarchyComponent : public Component
 {
@@ -16,4 +17,14 @@ public:
 	std::string GetEntityName(int entityId) const;
 
 	void Clear();
+
+	template<typename Archive>
+	void save(Archive& archive) const
+	{
+	}
+
+	template<typename Archive>
+	void load(Archive& archive)
+	{
+	}
 };

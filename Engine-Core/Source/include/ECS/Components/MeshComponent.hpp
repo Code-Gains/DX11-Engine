@@ -529,14 +529,14 @@ public:
 	template<typename Archive>
 	void save(Archive& archive) const
 	{
-		archive(CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
+		//archive(CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
 	}
 
 	template<typename Archive>
 	void load(Archive& archive)
 	{
-		archive(CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
-		FinalizeLoading();
+		//archive(CEREAL_NVP(_instancePoolIndex), CEREAL_NVP(_path));
+		//FinalizeLoading();
 	}
 };
 

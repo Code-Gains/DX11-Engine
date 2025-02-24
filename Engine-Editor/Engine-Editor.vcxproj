@@ -207,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor.cpp" />
+    <ClCompile Include="Source\EditorCerealRegistry.cpp" />
     <ClCompile Include="Source\EditorUIManagerSystem.cpp" />
     <ClCompile Include="Source\EntityEditor.cpp" />
     <ClCompile Include="Source\Main.cpp" />

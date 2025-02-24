@@ -297,6 +297,7 @@
     <ClInclude Include="Source\include\ECS\Archetype.hpp" />
     <ClInclude Include="Source\include\ECS\Component.hpp" />
     <ClInclude Include="Source\include\ECS\ComponentIdentifier.hpp" />
+    <ClInclude Include="Source\include\ECS\ComponentVector.hpp" />
     <ClInclude Include="Source\include\ECS\Components\CameraComponent.hpp" />
     <ClInclude Include="Source\include\ECS\Components\DirectionalLightComponent.hpp" />
     <ClInclude Include="Source\include\ECS\Components\LightComponent.hpp" />
@@ -308,6 +309,7 @@
     <ClInclude Include="Source\include\ECS\ECS.hpp" />
     <ClInclude Include="Source\include\ECS\ECSDebugger.hpp" />
     <ClInclude Include="Source\include\ECS\Entity.hpp" />
+    <ClInclude Include="Source\include\ECS\IComponentVector.hpp" />
     <ClInclude Include="Source\include\ECS\System.hpp" />
     <ClInclude Include="Source\include\ECS\Systems\CameraSystem.hpp" />
     <ClInclude Include="Source\include\ECS\Systems\EntityMonitoringSystem.hpp" />
@@ -342,6 +344,7 @@
     <ClCompile Include="Source\Engine\ECS\Archetype.cpp" />
     <ClCompile Include="Source\Engine\ECS\Component.cpp" />
     <ClCompile Include="Source\Engine\ECS\ComponentIdentifier.cpp" />
+    <ClCompile Include="Source\Engine\ECS\ComponentVector.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\CameraComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\DirectionalLightComponent.cpp" />
     <ClCompile Include="Source\Engine\ECS\Components\LightComponent.cpp" />
@@ -353,6 +356,8 @@
     <ClCompile Include="Source\Engine\ECS\ECS.cpp" />
     <ClCompile Include="Source\Engine\ECS\ECSDebugger.cpp" />
     <ClCompile Include="Source\Engine\ECS\Entity.cpp" />
+    <ClCompile Include="Source\Engine\ECS\IComponentVector.cpp" />
+    <ClCompile Include="Source\Engine\ECS\Registries\CerealRegistry.cpp" />
     <ClCompile Include="Source\Engine\ECS\System.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\CameraSystem.cpp" />
     <ClCompile Include="Source\Engine\ECS\Systems\EntityMonitoringSystem.cpp" />
@@ -370,6 +375,7 @@
     <ClCompile Include="Source\Engine\Shaders\TextureManager.cpp" />
     <ClCompile Include="Source\Engine\Vectors\IntVectors.cpp" />
     <ClCompile Include="Source\Engine\World\World.cpp" />
+    <ClCompile Include="Source\Engine\test.cpp" />
     <ClCompile Include="Source\imgui\imgui.cpp" />
     <ClCompile Include="Source\imgui\imgui_demo.cpp" />
     <ClCompile Include="Source\imgui\imgui_draw.cpp" />

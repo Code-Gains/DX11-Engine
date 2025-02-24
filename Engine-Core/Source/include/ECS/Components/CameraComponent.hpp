@@ -39,6 +39,7 @@ public:
 	template<typename Archive>
 	void save(Archive& archive) const
 	{
+        archive(CEREAL_NVP(_rotation));
 	}
 
 	template<typename Archive>

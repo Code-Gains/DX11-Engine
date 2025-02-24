@@ -1,8 +1,8 @@
 #pragma once
 #include <DirectXMath.h>
-#include "ComponentIdentifier.hpp"
+#include "Component.hpp"
 
-class LightComponent : public ComponentIdentifier
+class LightComponent : Component
 {
     DirectX::XMFLOAT4 _position;
     DirectX::XMFLOAT4 _ambient;

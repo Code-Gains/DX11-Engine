@@ -44,7 +44,7 @@ public:
 	template <typename Archive>
 	void serialize(Archive& archive)
 	{
-		archive(CEREAL_NVP(_isDirty), CEREAL_NVP(_position), CEREAL_NVP(_rotation), CEREAL_NVP(_scale));
+		//archive(CEREAL_NVP(_isDirty), CEREAL_NVP(_position), CEREAL_NVP(_rotation), CEREAL_NVP(_scale));
 	}
 };
 

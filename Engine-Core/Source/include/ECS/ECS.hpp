@@ -6,10 +6,12 @@
 
 //#include <cereal/cereal.hpp>
 #include "EcsSerialization.hpp"
+#include "CerealRegistry.hpp"
 
 #include "Archetype.hpp"
 #include "System.hpp"
 #include "Entity.hpp"
+#include "ComponentVector.hpp"
 #include "TransformComponent.hpp"
 #include "MaterialComponent.hpp"
 #include "MeshComponent.hpp"
@@ -244,7 +246,7 @@ public:
 
 		// Custom complex data
 		archive(CEREAL_NVP(_systems));
-		//archive(CEREAL_NVP(_signatureToArchetype));
+		archive(CEREAL_NVP(_signatureToArchetype));
 
 		//archive(_systems);
 		//std::cout << "ECS is saving.\n";
