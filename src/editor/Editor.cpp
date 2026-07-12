@@ -18,7 +18,7 @@ int main() {
     core.Init();
 
     std::vector<std::shared_ptr<MeshAsset>> meshes;
-    //meshes = core.LoadGltfMeshes(&core, "assets/DamagedHelmet.gltf").value();
+    meshes = core.LoadGltfMeshes(&core, "assets/DamagedHelmet.gltf").value();
     auto& registry = core.GetRegistry();
 
     auto editorCameraEntity = registry.create();

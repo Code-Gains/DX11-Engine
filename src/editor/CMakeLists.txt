@@ -39,6 +39,7 @@ target_link_libraries(editor
         editor_tools
 )
 
+copy_openal_runtime(editor)
 
 # -----------------------------
 # Run target

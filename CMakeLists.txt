@@ -198,6 +198,18 @@ target_include_directories(OpenALSoft INTERFACE
 )
 message(STATUS "OpenAL source dir: ${openal_soft_SOURCE_DIR}")
 
+function(copy_openal_runtime target_name)
+    if(WIN32)
+        add_custom_command(TARGET ${target_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:OpenAL>
+                $<TARGET_FILE_DIR:${target_name}>
+            COMMENT "Copying OpenAL runtime for ${target_name}"
+            VERBATIM
+        )
+    endif()
+endfunction()
+
 # ---------------------
 # Shaders
 # ---------------------
