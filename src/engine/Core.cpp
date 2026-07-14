@@ -388,6 +388,22 @@ void Core::Run() {
                     ImGui::TextDisabled("Missing shadow map ImGui descriptor");
                 }
 
+                const bool capturePending =
+                    _debugCaptureRequested ||
+                    _pendingScreenshot.buffer != VK_NULL_HANDLE ||
+                    _pendingShadowMapCapture.buffer != VK_NULL_HANDLE;
+                if (capturePending) {
+                    ImGui::BeginDisabled();
+                }
+                if (ImGui::Button("Export current view + shadow map")) {
+                    _debugCaptureRequested = true;
+                    ENGINE_LOG_INFO("Debug capture requested.");
+                }
+                if (capturePending) {
+                    ImGui::EndDisabled();
+                }
+                ImGui::TextDisabled("Writes to the project-root debug_capture folder");
+
                 ImGui::Separator();
                 ImGui::TextUnformatted("IBL Maps");
                 if (ImGui::Button("Export irradiance/prefilter PNGs")) {
@@ -554,11 +570,66 @@ void Core::Draw()
             pixels[i] = (uint8_t)(std::clamp(f, 0.0f, 1.0f) * 255.0f + 0.5f);
         }
 
-        stbi_write_png("screenshot.png", w, h, 4, pixels.data(), w * 4);
+        const std::filesystem::path screenshotPath =
+            _pendingShadowMapCapture.buffer != VK_NULL_HANDLE
+                ? _projectRoot / "debug_capture/view.png"
+                : _projectRoot / "screenshot.png";
+        if (!screenshotPath.parent_path().empty()) {
+            std::filesystem::create_directories(screenshotPath.parent_path());
+        }
+        const std::string screenshotPathString = screenshotPath.generic_string();
+        const bool screenshotWritten = stbi_write_png(
+            screenshotPathString.c_str(), w, h, 4, pixels.data(), w * 4) != 0;
+        if (screenshotWritten) {
+            ENGINE_LOG_INFO("Wrote view capture: " + screenshotPathString);
+        }
+        else {
+            ENGINE_LOG_ERROR("Failed to write view capture: " + screenshotPathString);
+        }
 
         vmaUnmapMemory(_allocator, _pendingScreenshot.allocation);
         DestroyBuffer(_pendingScreenshot);
         _pendingScreenshot.buffer = VK_NULL_HANDLE;
+    }
+
+    if (_pendingShadowMapCapture.buffer != VK_NULL_HANDLE)
+    {
+        void* data = nullptr;
+        vmaMapMemory(_allocator, _pendingShadowMapCapture.allocation, &data);
+
+        const uint32_t w = _shadowMapExtent.width;
+        const uint32_t h = _shadowMapExtent.height;
+        const auto* depth = static_cast<const float*>(data);
+        std::vector<uint8_t> pixels(static_cast<size_t>(w) * h);
+        for (size_t i = 0; i < pixels.size(); ++i) {
+            const float value = std::isfinite(depth[i])
+                ? std::clamp(depth[i], 0.0f, 1.0f)
+                : 0.0f;
+            pixels[i] = static_cast<uint8_t>(value * 255.0f + 0.5f);
+        }
+
+        const std::filesystem::path shadowPath =
+            _projectRoot / "debug_capture/shadow_map.png";
+        std::error_code directoryError;
+        std::filesystem::create_directories(shadowPath.parent_path(), directoryError);
+        const std::string shadowPathString = shadowPath.generic_string();
+        const bool shadowWritten = !directoryError && stbi_write_png(
+            shadowPathString.c_str(),
+            static_cast<int>(w),
+            static_cast<int>(h),
+            1,
+            pixels.data(),
+            static_cast<int>(w)) != 0;
+        if (shadowWritten) {
+            ENGINE_LOG_INFO("Wrote shadow-map capture: " + shadowPathString);
+        }
+        else {
+            ENGINE_LOG_ERROR("Failed to write shadow-map capture: " + shadowPathString);
+        }
+
+        vmaUnmapMemory(_allocator, _pendingShadowMapCapture.allocation);
+        DestroyBuffer(_pendingShadowMapCapture);
+        _pendingShadowMapCapture.buffer = VK_NULL_HANDLE;
     }
 
     frameData._deletionQueue.flush();
@@ -609,9 +680,14 @@ void Core::Draw()
     DrawGeometry(cmd);
     DrawSelectedOutline(cmd);
     { // TODO move to some other file
-        if (camera && camera->screenshotRequested)
+        const bool screenshotRequested = camera && camera->screenshotRequested;
+        const bool captureDebugPair = _debugCaptureRequested || screenshotRequested;
+        if (captureDebugPair)
         {
+            if (camera) {
                 camera->screenshotRequested = false;
+            }
+            _debugCaptureRequested = false;
 
             // 1. Transition draw image to transfer source
             vkutil::transition_image(cmd, _drawImage.image,
@@ -633,14 +709,6 @@ void Core::Draw()
 
             vkCmdPipelineBarrier2(cmd, &depInfo);
 
-            // Query actual row pitch
-            VkImageSubresource subResource = {};
-            subResource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            subResource.mipLevel = 0;
-            subResource.arrayLayer = 0;
-            VkSubresourceLayout subResourceLayout;
-            vkGetImageSubresourceLayout(_device, _drawImage.image, &subResource, &subResourceLayout);
-            
             // 2. Create a host-visible staging buffer
             VkDeviceSize imageSize = _drawExtent.width * _drawExtent.height * 8; // RGBA16
             AllocatedBuffer stagingBuffer = CreateBuffer(imageSize,
@@ -672,6 +740,52 @@ void Core::Draw()
             //    Simplest: store the buffer and save after the fence signals.
             _pendingScreenshot = stagingBuffer; // store for readback
             _pendingScreenshotExtent = _drawExtent;
+
+            if (captureDebugPair) {
+                const VkDeviceSize shadowMapSize =
+                    static_cast<VkDeviceSize>(_shadowMapExtent.width) *
+                    static_cast<VkDeviceSize>(_shadowMapExtent.height) *
+                    sizeof(float);
+                AllocatedBuffer shadowStagingBuffer = CreateBuffer(
+                    shadowMapSize,
+                    VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                    VMA_MEMORY_USAGE_CPU_ONLY);
+
+                VkImageSubresourceRange depthRange =
+                    vkinit::image_subresource_range(VK_IMAGE_ASPECT_DEPTH_BIT);
+                vkutil::transition_image(
+                    cmd,
+                    _shadowMapImage.image,
+                    VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    depthRange);
+
+                VkBufferImageCopy shadowCopy{};
+                shadowCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+                shadowCopy.imageSubresource.mipLevel = 0;
+                shadowCopy.imageSubresource.baseArrayLayer = 0;
+                shadowCopy.imageSubresource.layerCount = 1;
+                shadowCopy.imageExtent = {
+                    _shadowMapExtent.width,
+                    _shadowMapExtent.height,
+                    1
+                };
+                vkCmdCopyImageToBuffer(
+                    cmd,
+                    _shadowMapImage.image,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    shadowStagingBuffer.buffer,
+                    1,
+                    &shadowCopy);
+
+                vkutil::transition_image(
+                    cmd,
+                    _shadowMapImage.image,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
+                    depthRange);
+                _pendingShadowMapCapture = shadowStagingBuffer;
+            }
         }
         // record png image
     }

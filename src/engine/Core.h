@@ -505,7 +505,13 @@ private:
     };
 
     VkExtent2D _pendingScreenshotExtent { 0, 0 };
-    VkSubresourceLayout _pendingScreenshotLayout {};
+
+    AllocatedBuffer _pendingShadowMapCapture {
+        .buffer = VK_NULL_HANDLE,
+        .allocation = nullptr,
+        .info = {}
+    };
+    bool _debugCaptureRequested = false;
 
     void CreateScreenshotBuffer();
 
