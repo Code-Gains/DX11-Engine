@@ -302,6 +302,8 @@ void Core::InitPipelines()
 void Core::Run() {
     constexpr auto targetMinimizedFrameDuration = std::chrono::milliseconds(); // 20 FPS while minimized
     constexpr float fixedDelta = 1.0f / 60.0f; // 60 Hertz
+    constexpr float maximumFrameDelta = 0.1f;
+    constexpr int maximumFixedStepsPerFrame = 4;
     float fixedUpdateAccumulator = 0.0f;
 
     ENGINE_LOG_INFO("Starting Engine Main Loop.");
@@ -312,19 +314,26 @@ void Core::Run() {
     while (!_window->ShouldClose()) {
         auto frameStartTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<float> delta = frameStartTime - previousFrameTime;
-        _deltaTime = delta.count();
+        // Debugger breaks, resize stalls, GPU readbacks, and other blocking work
+        // must not become simulation time on the following frame.
+        _deltaTime = std::clamp(delta.count(), 0.0f, maximumFrameDelta);
         //set for next frame
         previousFrameTime = frameStartTime;
 
         // fixed update loop TODO verify if it should run before minimize check
         _window->PollEvents();
-        fixedUpdateAccumulator += _deltaTime;
-        if (fixedUpdateAccumulator >= fixedDelta) {
+        fixedUpdateAccumulator = std::min(
+            fixedUpdateAccumulator + _deltaTime,
+            fixedDelta * static_cast<float>(maximumFixedStepsPerFrame));
+        int fixedSteps = 0;
+        while (fixedUpdateAccumulator >= fixedDelta &&
+               fixedSteps < maximumFixedStepsPerFrame) {
             for (auto& system : _systems) {
                 system->FixedUpdate(fixedDelta);
             }
             ResolveHierarchyTransforms(_registry);
             fixedUpdateAccumulator -= fixedDelta;
+            ++fixedSteps;
         }
 
         // update loop

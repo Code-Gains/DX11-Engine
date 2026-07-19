@@ -632,6 +632,50 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
         }
     );
 
+    _componentSerializers.Register<EffectMeshComponent>(
+        "EffectMeshComponent",
+        [](Core&, const EffectMeshComponent& effect) {
+            return nlohmann::json {
+                {"color", Vec4ToJson(effect.color)},
+                {"corruptionColor", Vec4ToJson(effect.corruptionColor)},
+                {"velocity", Vec3ToJson(effect.velocity)},
+                {"angularVelocity", Vec3ToJson(effect.angularVelocity)},
+                {"lifetime", effect.lifetime},
+                {"age", effect.age},
+                {"startScale", effect.startScale},
+                {"endScale", effect.endScale},
+                {"fresnelPower", effect.fresnelPower},
+                {"fresnelIntensity", effect.fresnelIntensity},
+                {"baseIntensity", effect.baseIntensity},
+                {"corruptionScale", effect.corruptionScale},
+                {"corruptionSoftness", effect.corruptionSoftness},
+                {"corruptionIntensity", effect.corruptionIntensity},
+                {"corruptionAmount", effect.corruptionAmount},
+                {"destroyOnComplete", effect.destroyOnComplete}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            EffectMeshComponent effect;
+            effect.color = Vec4FromJson(data.at("color"));
+            effect.corruptionColor = Vec4FromJson(data.at("corruptionColor"));
+            effect.velocity = Vec3FromJson(data.at("velocity"));
+            effect.angularVelocity = Vec3FromJson(data.at("angularVelocity"));
+            effect.lifetime = data.value("lifetime", 0.35f);
+            effect.age = data.value("age", 0.0f);
+            effect.startScale = data.value("startScale", 1.0f);
+            effect.endScale = data.value("endScale", 2.0f);
+            effect.fresnelPower = data.value("fresnelPower", 2.5f);
+            effect.fresnelIntensity = data.value("fresnelIntensity", 2.0f);
+            effect.baseIntensity = data.value("baseIntensity", 0.2f);
+            effect.corruptionScale = data.value("corruptionScale", 8.0f);
+            effect.corruptionSoftness = data.value("corruptionSoftness", 0.04f);
+            effect.corruptionIntensity = data.value("corruptionIntensity", 0.0f);
+            effect.corruptionAmount = data.value("corruptionAmount", 0.0f);
+            effect.destroyOnComplete = data.value("destroyOnComplete", true);
+            return effect;
+        }
+    );
+
     _componentSerializers.RegisterTag<SingleRenderTag>("SingleRenderTag");
     _componentSerializers.RegisterTag<ActiveCameraTag>("ActiveCameraTag");
     _componentSerializers.RegisterTag<DisabledEntityTag>("DisabledEntityTag");

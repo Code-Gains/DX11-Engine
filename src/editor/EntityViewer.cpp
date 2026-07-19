@@ -90,6 +90,7 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
     _componentUis.push_back(std::make_unique<CameraComponentUi>());
     _componentUis.push_back(std::make_unique<MeshComponentUi>());
+    _componentUis.push_back(std::make_unique<EffectMeshComponentUi>());
     _componentUis.push_back(std::make_unique<SingleRenderTagUi>());
     _componentUis.push_back(std::make_unique<ActiveCameraTagUi>());
     _componentUis.push_back(std::make_unique<VelocityComponentUi>());
@@ -181,6 +182,19 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
         },
         [](entt::registry& registry, entt::entity entity) {
             registry.emplace<MeshComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Effect Mesh",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<MeshComponent>(entity) &&
+                   !registry.all_of<EffectMeshComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            auto& effect = registry.emplace<EffectMeshComponent>(entity);
+            effect.destroyOnComplete = false;
+            effect.lifetime = 100000.0f;
         }
     );
 

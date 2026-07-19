@@ -246,6 +246,35 @@ public:
     }
 };
 
+class EffectMeshComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* effect = registry.try_get<EffectMeshComponent>(entity);
+        if (!effect)
+            return;
+
+        if (DrawRemovableComponentHeader<EffectMeshComponent>(registry, entity, "Effect Mesh", "EffectMeshComponent"))
+        {
+            ImGui::ColorEdit4("Color##EffectMeshColor", &effect->color.x);
+            ImGui::ColorEdit4("Corruption Color##EffectMeshCorruptionColor", &effect->corruptionColor.x);
+            ImGui::DragFloat3("Velocity##EffectMeshVelocity", &effect->velocity.x, 0.1f);
+            ImGui::DragFloat3("Angular Velocity##EffectMeshAngularVelocity", &effect->angularVelocity.x, 0.1f);
+            ImGui::DragFloat("Lifetime##EffectMeshLifetime", &effect->lifetime, 0.01f, 0.001f, 100000.0f);
+            ImGui::DragFloat("Age##EffectMeshAge", &effect->age, 0.01f, 0.0f, 100000.0f);
+            ImGui::DragFloat("Start Scale##EffectMeshStartScale", &effect->startScale, 0.01f, 0.0f, 100000.0f);
+            ImGui::DragFloat("End Scale##EffectMeshEndScale", &effect->endScale, 0.01f, 0.0f, 100000.0f);
+            ImGui::DragFloat("Fresnel Power##EffectMeshFresnelPower", &effect->fresnelPower, 0.01f, 0.0f, 100.0f);
+            ImGui::DragFloat("Fresnel Intensity##EffectMeshFresnelIntensity", &effect->fresnelIntensity, 0.01f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Base Intensity##EffectMeshBaseIntensity", &effect->baseIntensity, 0.01f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Corruption Scale##EffectMeshCorruptionScale", &effect->corruptionScale, 0.01f, 0.001f, 100000.0f);
+            ImGui::DragFloat("Corruption Softness##EffectMeshCorruptionSoftness", &effect->corruptionSoftness, 0.001f, 0.001f, 10.0f);
+            ImGui::DragFloat("Corruption Intensity##EffectMeshCorruptionIntensity", &effect->corruptionIntensity, 0.01f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Corruption Amount##EffectMeshCorruptionAmount", &effect->corruptionAmount, 0.01f, 0.0f, 1.0f);
+            ImGui::Checkbox("Destroy On Complete##EffectMeshDestroyOnComplete", &effect->destroyOnComplete);
+        }
+    }
+};
+
 class SingleRenderTagUi : public ViewerComponentUi {
 public:
     void Draw(entt::registry& registry, entt::entity entity) override {
