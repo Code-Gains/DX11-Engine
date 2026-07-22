@@ -438,7 +438,10 @@ void RegistryViewer::DrawEntityNode(entt::entity entity)
         ImGui::PopStyleColor();
     }
 
-    if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+    if (ImGui::IsItemHovered() &&
+        ImGui::IsMouseReleased(ImGuiMouseButton_Left) &&
+        !ImGui::IsItemToggledOpen() &&
+        ImGui::GetDragDropPayload() == nullptr) {
         SetSelectedEntity(entity);
     }
 

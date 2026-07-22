@@ -9,6 +9,7 @@ using Clock = std::chrono::high_resolution_clock;
 #include "Transform.h"
 #include "Camera.h"
 #include "CameraSystem.h"
+#include "CinematicCameraSystem.h"
 #include "LineComponent.h"
 #include "NameComponent.h"
 #include "WorldSerializer.h"
@@ -271,6 +272,7 @@ void Core::Init()
     _systems.push_back(std::make_unique<EcsDebugger>(_registry));
     _systems.push_back(std::make_unique<InputSystem>(_registry, inputEntity, _window.get()));
     _systems.push_back(std::make_unique<CameraSystem>(_registry, this));
+    _systems.push_back(std::make_unique<CinematicCameraSystem>(_registry, this));
 
     //everything went fine
     _isInitialized = true;

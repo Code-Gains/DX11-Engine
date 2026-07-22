@@ -35,42 +35,12 @@ void AssetViewer::DrawUi()
             RefreshAssetList();
         }
 
-        ImGui::Separator();
-        ImGui::TextUnformatted("Prefab");
-        ImGui::SetNextItemWidth(320.0f);
-        ImGui::InputText(
-            "Path##SavePrefabPath",
-            _prefabPathBuffer.data(),
-            _prefabPathBuffer.size()
-        );
-        if (ImGui::IsItemEdited()) {
-            _overwritePrefabConfirmationActive = false;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Save Selected")) {
-            SaveSelectedEntityAsPrefab();
-        }
-
-        if (_overwritePrefabConfirmationActive) {
-            ImGui::SameLine();
-            if (ImGui::Button("Overwrite Prefab")) {
-                SaveSelectedEntityAsPrefab(true);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel##CancelPrefabOverwrite")) {
-                _overwritePrefabConfirmationActive = false;
-                SetStatus("Prefab overwrite cancelled.", true);
-            }
-        }
-
         if ((_statusTimer > 0.0f || !_statusSucceeded) && !_statusText.empty()) {
             const ImVec4 color = _statusSucceeded
                 ? ImVec4{ 0.35f, 0.85f, 0.45f, 1.0f }
                 : ImVec4{ 1.0f, 0.35f, 0.25f, 1.0f };
             ImGui::TextColored(color, "%s", _statusText.c_str());
         }
-
-        ImGui::Separator();
 
         ImGui::BeginChild(
             "AssetFileList",
@@ -91,6 +61,10 @@ void AssetViewer::DrawUi()
 
                 if (file.kind == AssetKind::Mesh) {
                     GetOrLoadMeshes(file.projectPath);
+                }
+                else if (file.kind == AssetKind::Prefab) {
+                    SetPrefabPathBuffer(file.projectPath);
+                    _overwritePrefabConfirmationActive = false;
                 }
             }
 
@@ -147,16 +121,37 @@ void AssetViewer::DrawUi()
         else if (_selectedAssetKind == AssetKind::Prefab)
         {
             ImGui::Text("Prefab: %s", _selectedAssetFile.c_str());
-            ImGui::Separator();
+
+            ImGui::SetNextItemWidth(320.0f);
+            ImGui::InputText(
+                "Save Path##SavePrefabPath",
+                _prefabPathBuffer.data(),
+                _prefabPathBuffer.size()
+            );
+            if (ImGui::IsItemEdited()) {
+                _overwritePrefabConfirmationActive = false;
+            }
 
             if (ImGui::Button("Instantiate")) {
                 InstantiateSelectedPrefab();
             }
             ImGui::SameLine();
-            if (ImGui::Button("Use For Save Path")) {
-                SetPrefabPathBuffer(_selectedAssetFile);
-                _overwritePrefabConfirmationActive = false;
+            if (ImGui::Button("Save Selected")) {
+                SaveSelectedEntityAsPrefab();
             }
+
+            if (_overwritePrefabConfirmationActive) {
+                ImGui::SameLine();
+                if (ImGui::Button("Overwrite Prefab")) {
+                    SaveSelectedEntityAsPrefab(true);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Cancel##CancelPrefabOverwrite")) {
+                    _overwritePrefabConfirmationActive = false;
+                    SetStatus("Prefab overwrite cancelled.", true);
+                }
+            }
+
             ImGui::SameLine();
             if (ImGui::Button("Copy Path")) {
                 ImGui::SetClipboardText(_selectedAssetFile.c_str());

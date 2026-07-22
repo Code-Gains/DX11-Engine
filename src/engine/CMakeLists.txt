@@ -15,6 +15,7 @@ add_library(engine STATIC
     InputSystem.cpp
     System.cpp
     CameraSystem.cpp
+    CinematicCameraSystem.cpp
     GravitySimulationSystem.cpp
     HierarchySystem.cpp
     VelocityIntegrationSystem.cpp

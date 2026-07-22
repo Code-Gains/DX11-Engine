@@ -1,10 +1,16 @@
 #pragma once
 
 #include <entt/entt.hpp>
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <string>
 
 #include "Transform.h"
 #include "Core.h"
@@ -15,6 +21,9 @@
 #include "GravityComponents.h"
 #include "HierarchyComponent.h"
 #include "HierarchySystem.h"
+#include "ImGuiWindowRegistry.h"
+#include "CameraShotEditorUi.h"
+#include "EditorUiLayout.h"
 
 class ViewerComponentUi
 {
@@ -70,6 +79,7 @@ public:
                 nameComponent->name.c_str()
             );
 
+            EditorUi::ScopedItemWidth width{ 240.0f };
             if (ImGui::InputText("Name##NameComponentValue", buffer, sizeof(buffer))) {
                 nameComponent->name = buffer;
             }
@@ -93,6 +103,7 @@ public:
                 ImGui::TextDisabled("World transform. Edit local transform in Node.");
             }
 
+            EditorUi::ScopedItemWidth width{ 240.0f };
             ImGui::DragFloat3("Position", &transform->position.x, 0.1f);
 
             if (ImGui::DragFloat3("Rotation", &rotationEulerDegrees.x, 0.1f))
@@ -117,6 +128,7 @@ public:
 
         if (DrawRemovableComponentHeader<SunlightComponent>(registry, entity, "Sunlight", "SunlightComponent"))
         {
+            EditorUi::ScopedItemWidth width{ 300.0f };
             ImGui::DragFloat3("Direction", &sunlight->direction.x, 0.01f, -1.0f, 1.0f);
 
             if (glm::length(sunlight->direction) > 0.001f) {
@@ -174,6 +186,7 @@ public:
             ImGui::SeparatorText("Local Transform");
             ImGui::TextDisabled("Edited relative to the parent when attached.");
 
+            EditorUi::ScopedItemWidth width{ 320.0f };
             ImGui::DragFloat3("Local Position", &hierarchy->localTransform.position.x, 0.1f);
 
             if (ImGui::DragFloat3("Local Rotation", &localRotationEulerDegrees.x, 0.1f))
@@ -216,11 +229,38 @@ public:
                 }
             }
 
+            EditorUi::ScopedItemWidth width{ 300.0f };
             ImGui::DragFloat("FOV", &camera->fov, 0.5f, 1.0f, 179.0f);
             ImGui::DragFloat("Near Plane", &camera->nearPlane, 0.01f, 0.001f, 1000.0f);
             ImGui::DragFloat("Far Plane", &camera->farPlane, 10.0f, 1.0f, 1000000.0f);
             ImGui::DragFloat("Speed", &camera->speed, 0.5f, 0.0f, 10000.0f);
             ImGui::ColorEdit4("Clear Color", &camera->clearColor.x);
+        }
+    }
+};
+
+class CinematicCameraShotComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* shot = registry.try_get<CinematicCameraShotComponent>(entity);
+        if (!shot)
+            return;
+
+        if (DrawRemovableComponentHeader<CinematicCameraShotComponent>(
+                registry,
+                entity,
+                "Cinematic Camera Shot",
+                "CinematicCameraShotComponent"))
+        {
+            shot->duration = CameraShotEditorUi::ResolveDuration(*shot);
+            if (ImGui::Button("Open Animation Editor##CinematicShotOpenAnimationEditor")) {
+                auto& windowRegistry = registry.ctx().get<ImGuiWindowRegistry>();
+                windowRegistry.SetWindowOpen("Animation Editor", true);
+            }
+
+            ImGui::Text("Total Duration: %.2f", shot->duration);
+            ImGui::Text("Keyframes: %d", static_cast<int>(shot->keyframes.size()));
+            ImGui::TextDisabled(shot->playing ? "Playing" : "Stopped");
         }
     }
 };
@@ -241,6 +281,7 @@ public:
 
             ImGui::Text("Path: %s", source.path.c_str());
             ImGui::Text("Mesh Index: %u", source.meshIndex);
+            EditorUi::ScopedItemWidth width{ 320.0f };
             ImGui::ColorEdit4("Base Color Factor", &mesh->baseColorFactor.x);
         }
     }
@@ -255,6 +296,7 @@ public:
 
         if (DrawRemovableComponentHeader<EffectMeshComponent>(registry, entity, "Effect Mesh", "EffectMeshComponent"))
         {
+            EditorUi::ScopedItemWidth width{ 320.0f };
             ImGui::ColorEdit4("Color##EffectMeshColor", &effect->color.x);
             ImGui::ColorEdit4("Corruption Color##EffectMeshCorruptionColor", &effect->corruptionColor.x);
             ImGui::DragFloat3("Velocity##EffectMeshVelocity", &effect->velocity.x, 0.1f);
@@ -310,6 +352,7 @@ public:
 
         if (DrawRemovableComponentHeader<VelocityComponent>(registry, entity, "Velocity", "VelocityComponent"))
         {
+            EditorUi::ScopedItemWidth width{ 320.0f };
             ImGui::DragFloat3("Linear", &velocity->linear.x, 0.1f);
             ImGui::DragFloat3("Angular", &velocity->angular.x, 0.1f);
         }
@@ -325,6 +368,7 @@ public:
 
         if (DrawRemovableComponentHeader<GravityBodyComponent>(registry, entity, "Gravity Body", "GravityBodyComponent"))
         {
+            EditorUi::ScopedItemWidth width{ 260.0f };
             ImGui::DragFloat("Mass", &gravityBody->mass, 0.1f, 0.0f, 1000000000.0f);
         }
     }
@@ -339,6 +383,7 @@ public:
 
         if (DrawRemovableComponentHeader<GravityParticleComponent>(registry, entity, "Gravity Particle", "GravityParticleComponent"))
         {
+            EditorUi::ScopedItemWidth width{ 260.0f };
             ImGui::DragFloat("Gravity Scale", &gravityParticle->gravityScale, 0.01f, 0.0f, 1000.0f);
         }
     }

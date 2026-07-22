@@ -3,6 +3,8 @@ add_library(editor_tools STATIC
     ViewerComponentUi.cpp
     EntityViewer.cpp
     AssetViewer.cpp
+    AnimationEditor.cpp
+    CameraShotEditorUi.cpp
 )
 
 target_include_directories(editor_tools

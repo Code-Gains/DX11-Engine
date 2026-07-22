@@ -7,6 +7,7 @@
 #include "RegistryViewer.h"
 #include "EntityViewer.h"
 #include "AssetViewer.h"
+#include "AnimationEditor.h"
 #include "NameComponent.h"
 #include "SunlightComponent.h"
 
@@ -36,6 +37,7 @@ int main() {
     core._systems.push_back(std::move(registryViewer));
 
     core._systems.push_back(std::make_unique<EntityViewer>(registry, registryViewerPtr));
+    core._systems.push_back(std::make_unique<AnimationEditor>(registry, registryViewerPtr));
     core._systems.push_back(std::make_unique<AssetViewer>(registry, &core, registryViewerPtr));
 
     auto meshEntity = registry.create();

@@ -9,11 +9,208 @@
 #include "GravityComponents.h"
 #include "HierarchyComponent.h"
 #include "EntityState.h"
+#include "LineComponent.h"
 
+#include <algorithm>
+#include <glm/gtx/quaternion.hpp>
 #include <string>
+
+namespace {
+
+glm::vec3 CatmullRom(
+    const glm::vec3& p0,
+    const glm::vec3& p1,
+    const glm::vec3& p2,
+    const glm::vec3& p3,
+    float value)
+{
+    const float t = std::clamp(value, 0.0f, 1.0f);
+    const float t2 = t * t;
+    const float t3 = t2 * t;
+
+    return 0.5f * (
+        (2.0f * p1) +
+        (-p0 + p2) * t +
+        (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 +
+        (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3
+    );
+}
+
+float SmoothStep(float value)
+{
+    const float t = std::clamp(value, 0.0f, 1.0f);
+    return t * t * (3.0f - 2.0f * t);
+}
+
+bool IsClosedCameraShotPath(const CinematicCameraShotComponent& shot)
+{
+    if (!shot.loop || shot.keyframes.size() < 4) {
+        return false;
+    }
+
+    const glm::vec3 delta =
+        shot.keyframes.front().position - shot.keyframes.back().position;
+    return glm::dot(delta, delta) < 0.0001f;
+}
+
+std::size_t PreviousControlIndex(
+    const CinematicCameraShotComponent& shot,
+    std::size_t previousIndex,
+    bool closedPath)
+{
+    if (previousIndex > 0) {
+        return previousIndex - 1;
+    }
+
+    return closedPath ? shot.keyframes.size() - 2 : previousIndex;
+}
+
+std::size_t NextControlIndex(
+    const CinematicCameraShotComponent& shot,
+    std::size_t nextIndex,
+    bool closedPath)
+{
+    if (nextIndex + 1 < shot.keyframes.size()) {
+        return nextIndex + 1;
+    }
+
+    return closedPath ? 1 : nextIndex;
+}
+
+glm::vec3 EvaluateCameraShotPosition(
+    const CinematicCameraShotComponent& shot,
+    std::size_t nextIndex,
+    float value)
+{
+    const auto& keyframes = shot.keyframes;
+    const std::size_t previousIndex = nextIndex - 1;
+    const auto& previous = keyframes[previousIndex];
+    const auto& next = keyframes[nextIndex];
+    const float linearT = std::clamp(value, 0.0f, 1.0f);
+
+    if (next.interpolationMode == CameraShotInterpolationMode::CatmullRom) {
+        const bool closedPath = IsClosedCameraShotPath(shot);
+        const std::size_t firstIndex = PreviousControlIndex(shot, previousIndex, closedPath);
+        const std::size_t lastIndex = NextControlIndex(shot, nextIndex, closedPath);
+
+        return CatmullRom(
+            keyframes[firstIndex].position,
+            previous.position,
+            next.position,
+            keyframes[lastIndex].position,
+            linearT);
+    }
+
+    const float segmentT = next.interpolationMode == CameraShotInterpolationMode::Smoothstep
+        ? SmoothStep(linearT)
+        : linearT;
+
+    return glm::mix(previous.position, next.position, segmentT);
+}
+
+void AddDebugLine(
+    entt::registry& registry,
+    const glm::vec3& start,
+    const glm::vec3& end,
+    const glm::vec4& color)
+{
+    auto entity = registry.create();
+    registry.emplace<LineComponent>(
+        entity,
+        start,
+        end,
+        color,
+        0.0f,
+        false);
+    registry.emplace<Engine::CoreOwnedTag>(entity);
+}
+
+void AddKeyframeMarker(
+    entt::registry& registry,
+    const CameraShotKeyframe& keyframe,
+    float size,
+    const glm::vec4& color)
+{
+    const glm::vec3 position = keyframe.position;
+    AddDebugLine(registry, position - glm::vec3{ size, 0.0f, 0.0f }, position + glm::vec3{ size, 0.0f, 0.0f }, color);
+    AddDebugLine(registry, position - glm::vec3{ 0.0f, size, 0.0f }, position + glm::vec3{ 0.0f, size, 0.0f }, color);
+    AddDebugLine(registry, position - glm::vec3{ 0.0f, 0.0f, size }, position + glm::vec3{ 0.0f, 0.0f, size }, color);
+
+    const glm::vec3 forward =
+        glm::normalize(keyframe.rotation * glm::vec3{ 0.0f, 0.0f, -1.0f });
+    AddDebugLine(
+        registry,
+        position,
+        position + forward * size * 2.0f,
+        glm::vec4{ 0.25f, 0.55f, 1.0f, 1.0f });
+}
+
+float ResolveMarkerSize(const CinematicCameraShotComponent& shot)
+{
+    if (shot.keyframes.empty()) {
+        return 0.25f;
+    }
+
+    glm::vec3 minPosition = shot.keyframes.front().position;
+    glm::vec3 maxPosition = shot.keyframes.front().position;
+
+    for (const auto& keyframe : shot.keyframes) {
+        minPosition = glm::min(minPosition, keyframe.position);
+        maxPosition = glm::max(maxPosition, keyframe.position);
+    }
+
+    return std::max(0.25f, glm::length(maxPosition - minPosition) * 0.015f);
+}
+
+void DrawCameraShotPath(entt::registry& registry, const CinematicCameraShotComponent& shot)
+{
+    if (!shot.showPath || shot.keyframes.empty()) {
+        return;
+    }
+
+    constexpr glm::vec4 pathColor{ 1.0f, 0.78f, 0.2f, 1.0f };
+    constexpr glm::vec4 firstColor{ 0.2f, 1.0f, 0.45f, 1.0f };
+    constexpr glm::vec4 middleColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+    constexpr glm::vec4 lastColor{ 1.0f, 0.25f, 0.85f, 1.0f };
+    const float markerSize = ResolveMarkerSize(shot);
+
+    for (std::size_t index = 0; index < shot.keyframes.size(); ++index) {
+        const glm::vec4 color = index == 0
+            ? firstColor
+            : (index + 1 == shot.keyframes.size() ? lastColor : middleColor);
+        AddKeyframeMarker(registry, shot.keyframes[index], markerSize, color);
+    }
+
+    if (shot.keyframes.size() < 2) {
+        return;
+    }
+
+    constexpr int samplesPerSegment = 16;
+    for (std::size_t nextIndex = 1; nextIndex < shot.keyframes.size(); ++nextIndex) {
+        glm::vec3 previousPosition = shot.keyframes[nextIndex - 1].position;
+        for (int sample = 1; sample <= samplesPerSegment; ++sample) {
+            const float t = static_cast<float>(sample) / static_cast<float>(samplesPerSegment);
+            const glm::vec3 position = EvaluateCameraShotPosition(shot, nextIndex, t);
+            AddDebugLine(registry, previousPosition, position, pathColor);
+            previousPosition = position;
+        }
+    }
+}
+
+} // namespace
 
 void EntityViewer::Update(float deltaTime)
 {
+    const auto selectedEntity = _registryViewerPtr->GetSelectedEntity();
+    if (selectedEntity == entt::null ||
+        !_registry.valid(selectedEntity) ||
+        !_registry.all_of<CinematicCameraShotComponent>(selectedEntity)) {
+        return;
+    }
+
+    DrawCameraShotPath(
+        _registry,
+        _registry.get<CinematicCameraShotComponent>(selectedEntity));
 }
 
 void EntityViewer::DrawUi()
@@ -89,6 +286,7 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<HierarchyComponentUi>());
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
     _componentUis.push_back(std::make_unique<CameraComponentUi>());
+    _componentUis.push_back(std::make_unique<CinematicCameraShotComponentUi>());
     _componentUis.push_back(std::make_unique<MeshComponentUi>());
     _componentUis.push_back(std::make_unique<EffectMeshComponentUi>());
     _componentUis.push_back(std::make_unique<SingleRenderTagUi>());
@@ -144,6 +342,17 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
             if (activeCameraView.begin() == activeCameraView.end()) {
                 registry.emplace<ActiveCameraTag>(entity);
             }
+        }
+    );
+
+    AddComponentMenuItem(
+        "Cinematic Camera Shot",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<Camera, Transform>(entity) &&
+                   !registry.all_of<CinematicCameraShotComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<CinematicCameraShotComponent>(entity);
         }
     );
 

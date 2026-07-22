@@ -6,6 +6,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <unordered_map>
+
+#include <imgui.h>
 
 // void CameraSystem::Update(float deltaTime) {
 //     auto view = _registry.view<InputState>();
@@ -13,6 +16,14 @@
 // }
 
 namespace {
+    struct EditorCameraOrbitState {
+        bool hasPivot = false;
+        glm::vec3 pivot{ 0.0f };
+        float pivotRadius = 1.0f;
+    };
+
+    std::unordered_map<entt::id_type, EditorCameraOrbitState> gOrbitStates;
+
     glm::vec3 DirectionFromYawPitch(float yaw, float pitch)
     {
         glm::vec3 direction;
@@ -51,11 +62,10 @@ namespace {
         SyncYawPitchFromDirection(camera, transform.rotation * glm::vec3(0.0f, 0.0f, -1.0f));
     }
 
-    bool TryResolveSelectedPivot(
+    bool TryResolveSelectedTransform(
         entt::registry& registry,
         entt::entity cameraEntity,
-        glm::vec3& pivot,
-        float& pivotRadius
+        const Transform*& selectedTransform
     )
     {
         if (!registry.ctx().contains<EditorSelection>()) {
@@ -70,13 +80,12 @@ namespace {
             return false;
         }
 
-        auto* selectedTransform = registry.try_get<Transform>(selection.selectedEntity);
-        if (!selectedTransform) {
+        auto* resolvedTransform = registry.try_get<Transform>(selection.selectedEntity);
+        if (!resolvedTransform) {
             return false;
         }
 
-        pivot = selectedTransform->position;
-        pivotRadius = MaxScaleAxis(*selectedTransform);
+        selectedTransform = resolvedTransform;
         return true;
     }
 
@@ -86,53 +95,59 @@ namespace {
         Camera& camera,
         Transform& transform,
         InputState& input,
-        float deltaTime)
+        float deltaTime,
+        bool mouseControlsAllowed,
+        bool keyboardShortcutsAllowed)
     {
-        glm::vec3 pivot{ 0.0f };
-        float pivotRadius = 1.0f;
-        const bool hasSelectedPivot = TryResolveSelectedPivot(registry, entity, pivot, pivotRadius);
+        auto& orbitState = gOrbitStates[entt::to_integral(entity)];
 
-        if (input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].held) {
+        if (mouseControlsAllowed && input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].held) {
             if (input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].pressed) {
-                if (hasSelectedPivot) {
-                    SyncYawPitchFromDirection(camera, pivot - transform.position);
-                }
-                else {
-                    SyncYawPitchFromTransform(camera, transform);
-                }
+                SyncYawPitchFromTransform(camera, transform);
             }
 
-            camera.yaw   += static_cast<float>(input.deltaX) * camera.orbitSensitivity;
-            camera.pitch -= static_cast<float>(input.deltaY) * camera.orbitSensitivity;
-            camera.pitch = glm::clamp(camera.pitch, -89.0f, 89.0f);
+            const bool mouseMoved =
+                std::abs(input.deltaX) > 0.0 ||
+                std::abs(input.deltaY) > 0.0;
 
-            camera.direction = DirectionFromYawPitch(camera.yaw, camera.pitch);
+            if (mouseMoved) {
+                camera.yaw   += static_cast<float>(input.deltaX) * camera.orbitSensitivity;
+                camera.pitch -= static_cast<float>(input.deltaY) * camera.orbitSensitivity;
+                camera.pitch = glm::clamp(camera.pitch, -89.0f, 89.0f);
 
-            if (hasSelectedPivot) {
-                const float orbitDistance = std::max(glm::length(transform.position - pivot), camera.nearPlane * 2.0f);
-                transform.position = pivot - camera.direction * orbitDistance;
+                camera.direction = DirectionFromYawPitch(camera.yaw, camera.pitch);
+
+                if (orbitState.hasPivot) {
+                    const float orbitDistance =
+                        std::max(glm::length(transform.position - orbitState.pivot), camera.nearPlane * 2.0f);
+                    transform.position = orbitState.pivot - camera.direction * orbitDistance;
+                }
+
+                transform.rotation = glm::quatLookAtRH(camera.direction, camera.up);
             }
-
-            transform.rotation = glm::quatLookAtRH(camera.direction, camera.up);
         }
 
         glm::vec3 forward = glm::normalize(transform.rotation * glm::vec3(0.0f, 0.0f, -1.0f));
         glm::vec3 right = glm::normalize(transform.rotation * glm::vec3(1.0f, 0.0f, 0.0f));
         glm::vec3 viewUp = glm::normalize(transform.rotation * glm::vec3(0.0f, 1.0f, 0.0f));
 
-        const float pivotDistance = hasSelectedPivot
-            ? std::max(glm::length(transform.position - pivot), 1.0f)
+        const float pivotDistance = orbitState.hasPivot
+            ? std::max(glm::length(transform.position - orbitState.pivot), 1.0f)
             : 10.0f;
 
-        if (input.mouseButtons[GLFW_MOUSE_BUTTON_MIDDLE].held) {
+        if (mouseControlsAllowed && input.mouseButtons[GLFW_MOUSE_BUTTON_MIDDLE].held) {
             const float panSpeed = pivotDistance * camera.panSensitivity;
-            transform.position +=
+            const glm::vec3 delta =
                 (-right * static_cast<float>(input.deltaX) +
                   viewUp * static_cast<float>(input.deltaY)) * panSpeed;
+            transform.position += delta;
+            if (orbitState.hasPivot) {
+                orbitState.pivot += delta;
+            }
         }
 
-        if (std::abs(input.scrollY) > 0.0) {
-            if (hasSelectedPivot) {
+        if (mouseControlsAllowed && std::abs(input.scrollY) > 0.0) {
+            if (orbitState.hasPivot) {
                 const float zoomStep = std::max(pivotDistance * camera.zoomSensitivity, 1.0f);
                 const float minDistance = camera.nearPlane * 2.0f;
                 const float nextDistance = glm::clamp(
@@ -141,7 +156,7 @@ namespace {
                     camera.farPlane * 0.5f
                 );
 
-                transform.position = pivot - forward * nextDistance;
+                transform.position = orbitState.pivot - forward * nextDistance;
             }
             else {
                 const float zoomStep = std::max(camera.speed * camera.zoomSensitivity, 1.0f);
@@ -149,29 +164,47 @@ namespace {
             }
         }
 
-        if (hasSelectedPivot && input.keys[GLFW_KEY_F].pressed) {
-            const float focusDistance = std::max(pivotRadius * camera.focusDistanceScale, 5.0f);
-            transform.position = pivot - forward * focusDistance;
+        const Transform* selectedTransform = nullptr;
+        if (keyboardShortcutsAllowed &&
+            input.keys[GLFW_KEY_F].pressed &&
+            TryResolveSelectedTransform(registry, entity, selectedTransform))
+        {
+            orbitState.hasPivot = true;
+            orbitState.pivot = selectedTransform->position;
+            orbitState.pivotRadius = MaxScaleAxis(*selectedTransform);
+
+            const float focusDistance =
+                std::max(orbitState.pivotRadius * camera.focusDistanceScale, 5.0f);
+            transform.position = orbitState.pivot - forward * focusDistance;
         }
 
-        if (!hasSelectedPivot && input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].held) {
+        if (mouseControlsAllowed &&
+            keyboardShortcutsAllowed &&
+            input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].held)
+        {
+            glm::vec3 movement{ 0.0f };
             if (input.keys[GLFW_KEY_W].held)
-                transform.position += forward * camera.speed * deltaTime;
+                movement += forward * camera.speed * deltaTime;
 
             if (input.keys[GLFW_KEY_S].held)
-                transform.position -= forward * camera.speed * deltaTime;
+                movement -= forward * camera.speed * deltaTime;
 
             if (input.keys[GLFW_KEY_A].held)
-                transform.position -= right * camera.speed * deltaTime;
+                movement -= right * camera.speed * deltaTime;
 
             if (input.keys[GLFW_KEY_D].held)
-                transform.position += right * camera.speed * deltaTime;
+                movement += right * camera.speed * deltaTime;
 
             if (input.keys[GLFW_KEY_SPACE].held)
-                transform.position += camera.up * camera.speed * deltaTime;
+                movement += camera.up * camera.speed * deltaTime;
 
             if (input.keys[GLFW_KEY_LEFT_SHIFT].held)
-                transform.position -= camera.up * camera.speed * deltaTime;
+                movement -= camera.up * camera.speed * deltaTime;
+
+            transform.position += movement;
+            if (orbitState.hasPivot) {
+                orbitState.pivot += movement;
+            }
         }
     }
 }
@@ -193,6 +226,9 @@ void CameraSystem::Update(float deltaTime)
 
     auto inputEntity = *inputView.begin();
     auto& input = inputView.get<InputState>(inputEntity);
+    const ImGuiIO& io = ImGui::GetIO();
+    const bool mouseControlsAllowed = !io.WantCaptureMouse;
+    const bool keyboardShortcutsAllowed = !io.WantCaptureKeyboard;
 
     auto pilotCameraView =
         _registry.view<Camera, Transform, EditorCameraPilotTag>(entt::exclude<Engine::CoreOwnedTag>);
@@ -201,7 +237,15 @@ void CameraSystem::Update(float deltaTime)
         for (auto entity : pilotCameraView) {
             auto& camera = pilotCameraView.get<Camera>(entity);
             auto& transform = pilotCameraView.get<Transform>(entity);
-            UpdateEditorCamera(_registry, entity, camera, transform, input, deltaTime);
+            UpdateEditorCamera(
+                _registry,
+                entity,
+                camera,
+                transform,
+                input,
+                deltaTime,
+                mouseControlsAllowed,
+                keyboardShortcutsAllowed);
         }
 
         return;
@@ -212,7 +256,15 @@ void CameraSystem::Update(float deltaTime)
         for (auto entity : editorCameraView) {
             auto& camera = editorCameraView.get<Camera>(entity);
             auto& transform = editorCameraView.get<Transform>(entity);
-            UpdateEditorCamera(_registry, entity, camera, transform, input, deltaTime);
+            UpdateEditorCamera(
+                _registry,
+                entity,
+                camera,
+                transform,
+                input,
+                deltaTime,
+                mouseControlsAllowed,
+                keyboardShortcutsAllowed);
         }
 
         return;
@@ -224,7 +276,15 @@ void CameraSystem::Update(float deltaTime)
     for (auto entity : sceneCameraView) {
         auto& camera = sceneCameraView.get<Camera>(entity);
         auto& transform = sceneCameraView.get<Transform>(entity);
-        UpdateEditorCamera(_registry, entity, camera, transform, input, deltaTime);
+        UpdateEditorCamera(
+            _registry,
+            entity,
+            camera,
+            transform,
+            input,
+            deltaTime,
+            mouseControlsAllowed,
+            keyboardShortcutsAllowed);
     }
 }
 

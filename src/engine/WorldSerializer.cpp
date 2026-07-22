@@ -11,6 +11,7 @@
 #include "SunlightComponent.h"
 #include "Transform.h"
 
+#include <algorithm>
 #include <exception>
 #include <fstream>
 #include <glm/trigonometric.hpp>
@@ -75,6 +76,70 @@ glm::quat QuatFromJson(const nlohmann::json& value)
         value.at(2).get<float>(),
         value.at(3).get<float>()
     };
+}
+
+const char* CameraShotInterpolationModeToString(CameraShotInterpolationMode mode)
+{
+    switch (mode) {
+    case CameraShotInterpolationMode::Linear:
+        return "Linear";
+    case CameraShotInterpolationMode::Smoothstep:
+        return "Smoothstep";
+    case CameraShotInterpolationMode::CatmullRom:
+        return "CatmullRom";
+    default:
+        return "CatmullRom";
+    }
+}
+
+CameraShotInterpolationMode CameraShotInterpolationModeFromString(const std::string& value)
+{
+    if (value == "Linear") {
+        return CameraShotInterpolationMode::Linear;
+    }
+
+    if (value == "Smoothstep") {
+        return CameraShotInterpolationMode::Smoothstep;
+    }
+
+    return CameraShotInterpolationMode::CatmullRom;
+}
+
+const char* CameraShotAimModeToString(CameraShotAimMode mode)
+{
+    switch (mode) {
+    case CameraShotAimMode::UseRotation:
+        return "UseRotation";
+    case CameraShotAimMode::LookAtPoint:
+        return "LookAtPoint";
+    case CameraShotAimMode::LookAtEntity:
+        return "LookAtEntity";
+    default:
+        return "UseRotation";
+    }
+}
+
+CameraShotAimMode CameraShotAimModeFromString(const std::string& value)
+{
+    if (value == "LookAtPoint") {
+        return CameraShotAimMode::LookAtPoint;
+    }
+
+    if (value == "LookAtEntity") {
+        return CameraShotAimMode::LookAtEntity;
+    }
+
+    return CameraShotAimMode::UseRotation;
+}
+
+float ResolveCameraShotDuration(const CinematicCameraShotComponent& shot)
+{
+    float duration = 0.0f;
+    for (std::size_t index = 1; index < shot.keyframes.size(); ++index) {
+        duration += glm::max(0.0f, shot.keyframes[index].duration);
+    }
+
+    return duration;
 }
 
 entt::entity EntityFromSerializedId(uint64_t id)
@@ -699,6 +764,113 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             camera.clearColor = Vec4FromJson(data.at("clearColor"));
             camera.speed = data.at("speed").get<float>();
             return camera;
+        }
+    );
+
+    _componentSerializers.Register<CinematicCameraShotComponent>(
+        "CinematicCameraShotComponent",
+        [](Core&, const CinematicCameraShotComponent& shot) {
+            nlohmann::json keyframes = nlohmann::json::array();
+            for (const auto& keyframe : shot.keyframes) {
+                keyframes.push_back({
+                    {"duration", keyframe.duration},
+                    {"position", Vec3ToJson(keyframe.position)},
+                    {"rotation", QuatToJson(keyframe.rotation)},
+                    {"fov", keyframe.fov},
+                    {"interpolationMode", CameraShotInterpolationModeToString(keyframe.interpolationMode)},
+                    {"aimMode", CameraShotAimModeToString(keyframe.aimMode)},
+                    {"lookAtPoint", Vec3ToJson(keyframe.lookAtPoint)},
+                    {"lookAtEntity", keyframe.lookAtEntity == entt::null
+                        ? uint64_t{ 0 }
+                        : static_cast<uint64_t>(entt::to_integral(keyframe.lookAtEntity))}
+                });
+            }
+
+            return nlohmann::json {
+                {"duration", ResolveCameraShotDuration(shot)},
+                {"time", shot.time},
+                {"playbackSpeed", shot.playbackSpeed},
+                {"playing", shot.playing},
+                {"loop", shot.loop},
+                {"showPath", shot.showPath},
+                {"interpolationMode", CameraShotInterpolationModeToString(shot.interpolationMode)},
+                {"keyframes", keyframes}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            CinematicCameraShotComponent shot;
+            shot.duration = data.value("duration", 3.0f);
+            shot.time = data.value("time", 0.0f);
+            shot.playbackSpeed = data.value("playbackSpeed", 1.0f);
+            shot.playing = data.value("playing", false);
+            shot.loop = data.value("loop", false);
+            shot.showPath = data.value("showPath", true);
+            if (data.contains("interpolationMode")) {
+                shot.interpolationMode = CameraShotInterpolationModeFromString(
+                    data.value("interpolationMode", "CatmullRom"));
+            }
+            else {
+                shot.interpolationMode = data.value("smoothInterpolation", true)
+                    ? CameraShotInterpolationMode::Smoothstep
+                    : CameraShotInterpolationMode::Linear;
+            }
+
+            bool loadedAbsoluteKeyframeTimes = false;
+            if (data.contains("keyframes") && data["keyframes"].is_array()) {
+                for (const auto& keyframeJson : data["keyframes"]) {
+                    CameraShotKeyframe keyframe;
+                    if (keyframeJson.contains("duration")) {
+                        keyframe.duration = keyframeJson.value("duration", 1.0f);
+                    }
+                    else {
+                        keyframe.duration = keyframeJson.value("time", 0.0f);
+                        loadedAbsoluteKeyframeTimes = true;
+                    }
+                    keyframe.position = Vec3FromJson(keyframeJson.at("position"));
+                    keyframe.rotation = QuatFromJson(keyframeJson.at("rotation"));
+                    keyframe.fov = keyframeJson.value("fov", 90.0f);
+                    keyframe.interpolationMode = keyframeJson.contains("interpolationMode")
+                        ? CameraShotInterpolationModeFromString(
+                            keyframeJson.value("interpolationMode", "CatmullRom"))
+                        : shot.interpolationMode;
+                    keyframe.aimMode = CameraShotAimModeFromString(
+                        keyframeJson.value("aimMode", "UseRotation"));
+                    keyframe.lookAtPoint = keyframeJson.contains("lookAtPoint")
+                        ? Vec3FromJson(keyframeJson.at("lookAtPoint"))
+                        : glm::vec3{ 0.0f };
+                    const uint64_t lookAtEntityId =
+                        keyframeJson.value("lookAtEntity", uint64_t{ 0 });
+                    keyframe.lookAtEntity = lookAtEntityId == 0
+                        ? entt::null
+                        : EntityFromSerializedId(lookAtEntityId);
+                    shot.keyframes.push_back(keyframe);
+                }
+            }
+
+            if (loadedAbsoluteKeyframeTimes) {
+                std::sort(
+                    shot.keyframes.begin(),
+                    shot.keyframes.end(),
+                    [](const CameraShotKeyframe& first, const CameraShotKeyframe& second) {
+                        return first.duration < second.duration;
+                    });
+
+                float previousAbsoluteTime = 0.0f;
+                for (std::size_t index = 0; index < shot.keyframes.size(); ++index) {
+                    const float absoluteTime = glm::max(0.0f, shot.keyframes[index].duration);
+                    shot.keyframes[index].duration = index == 0
+                        ? 0.0f
+                        : glm::max(0.0f, absoluteTime - previousAbsoluteTime);
+                    previousAbsoluteTime = absoluteTime;
+                }
+            }
+            else if (!shot.keyframes.empty()) {
+                shot.keyframes.front().duration = 0.0f;
+            }
+
+            shot.duration = ResolveCameraShotDuration(shot);
+
+            return shot;
         }
     );
 

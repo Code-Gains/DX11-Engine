@@ -1,8 +1,45 @@
 #pragma once
 #include "Transform.h"
 
+#include <entt/entt.hpp>
+#include <vector>
+
 struct ActiveCameraTag {};
 struct EditorCameraPilotTag {};
+
+enum class CameraShotInterpolationMode {
+    Linear,
+    Smoothstep,
+    CatmullRom
+};
+
+enum class CameraShotAimMode {
+    UseRotation,
+    LookAtPoint,
+    LookAtEntity
+};
+
+struct CameraShotKeyframe {
+    float duration = 1.0f;
+    glm::vec3 position{ 0.0f };
+    glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+    float fov = 90.0f;
+    CameraShotInterpolationMode interpolationMode = CameraShotInterpolationMode::CatmullRom;
+    CameraShotAimMode aimMode = CameraShotAimMode::UseRotation;
+    glm::vec3 lookAtPoint{ 0.0f };
+    entt::entity lookAtEntity{ entt::null };
+};
+
+struct CinematicCameraShotComponent {
+    std::vector<CameraShotKeyframe> keyframes;
+    float duration = 3.0f;
+    float time = 0.0f;
+    float playbackSpeed = 1.0f;
+    bool playing = false;
+    bool loop = false;
+    bool showPath = true;
+    CameraShotInterpolationMode interpolationMode = CameraShotInterpolationMode::CatmullRom;
+};
 
 struct Camera {
     float fov = 90.0f;
