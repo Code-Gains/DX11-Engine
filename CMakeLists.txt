@@ -213,7 +213,7 @@ endfunction()
 # ---------------------
 # Shaders
 # ---------------------
-set(SHADER_DIR "${CMAKE_CURRENT_LIST_DIR}/shaders" CACHE PATH "Shader directory" FORCE)
+set(ENGINE_SHADER_DIR "${CMAKE_CURRENT_LIST_DIR}/shaders" CACHE PATH "Engine shader directory")
 
 # ---------------------
 # Add src folders

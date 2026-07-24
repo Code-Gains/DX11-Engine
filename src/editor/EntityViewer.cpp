@@ -294,6 +294,7 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<VelocityComponentUi>());
     _componentUis.push_back(std::make_unique<GravityBodyComponentUi>());
     _componentUis.push_back(std::make_unique<GravityParticleComponentUi>());
+    _componentUis.push_back(std::make_unique<JoltColliderComponentUi>());
 
     AddComponentMenuItem(
         "Name",
@@ -442,6 +443,17 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
             if (!registry.all_of<VelocityComponent>(entity)) {
                 registry.emplace<VelocityComponent>(entity);
             }
+        }
+    );
+
+    AddComponentMenuItem(
+        "Jolt Collider",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<Transform>(entity) &&
+                   !registry.all_of<Engine::JoltColliderComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<Engine::JoltColliderComponent>(entity);
         }
     );
 

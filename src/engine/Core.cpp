@@ -16,13 +16,19 @@ using Clock = std::chrono::high_resolution_clock;
 #include "EditorSelection.h"
 #include "EntityState.h"
 #include "HierarchySystem.h"
+#include "JoltPhysicsSystem.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <limits>
+#include <numeric>
+#include <sstream>
+#include <typeinfo>
+#include <unordered_map>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -44,6 +50,11 @@ using Clock = std::chrono::high_resolution_clock;
 
 namespace Engine {
 namespace {
+
+struct BenchmarkTiming {
+    double totalMs = 0.0;
+    uint64_t calls = 0;
+};
 
 float Float16ToFloat32(uint16_t h16)
 {
@@ -273,6 +284,7 @@ void Core::Init()
     _systems.push_back(std::make_unique<InputSystem>(_registry, inputEntity, _window.get()));
     _systems.push_back(std::make_unique<CameraSystem>(_registry, this));
     _systems.push_back(std::make_unique<CinematicCameraSystem>(_registry, this));
+    _systems.push_back(std::make_unique<JoltPhysicsSystem>(_registry, this));
 
     //everything went fine
     _isInitialized = true;
@@ -310,11 +322,26 @@ void Core::Run() {
 
     ENGINE_LOG_INFO("Starting Engine Main Loop.");
     bool running = true;
+    std::vector<double> benchmarkFrameTimesMs;
+    std::unordered_map<std::string, BenchmarkTiming> benchmarkSystemTimings;
+    int benchmarkMeasuredFixedSteps = 0;
+    int benchmarkFrameIndex = 0;
+    if (_benchmarkOptions.enabled) {
+        benchmarkFrameTimesMs.reserve(static_cast<std::size_t>(std::max(0, _benchmarkOptions.measuredFrames)));
+        ENGINE_LOG_INFO(
+            "Benchmark mode: warmup frames=" +
+            std::to_string(_benchmarkOptions.warmupFrames) +
+            ", measured frames=" +
+            std::to_string(_benchmarkOptions.measuredFrames));
+    }
 
     // initialize frame time
     auto previousFrameTime = std::chrono::high_resolution_clock::now();
     while (!_window->ShouldClose()) {
         auto frameStartTime = std::chrono::high_resolution_clock::now();
+        const bool collectBenchmarkTimings =
+            _benchmarkOptions.enabled &&
+            benchmarkFrameIndex >= _benchmarkOptions.warmupFrames;
         std::chrono::duration<float> delta = frameStartTime - previousFrameTime;
         // Debugger breaks, resize stalls, GPU readbacks, and other blocking work
         // must not become simulation time on the following frame.
@@ -331,11 +358,25 @@ void Core::Run() {
         while (fixedUpdateAccumulator >= fixedDelta &&
                fixedSteps < maximumFixedStepsPerFrame) {
             for (auto& system : _systems) {
-                system->FixedUpdate(fixedDelta);
+                if (collectBenchmarkTimings) {
+                    const auto systemStartTime = std::chrono::high_resolution_clock::now();
+                    system->FixedUpdate(fixedDelta);
+                    const auto systemEndTime = std::chrono::high_resolution_clock::now();
+                    auto& timing = benchmarkSystemTimings[std::string{ "FixedUpdate " } + typeid(*system.get()).name()];
+                    timing.totalMs += std::chrono::duration<double, std::milli>(
+                        systemEndTime - systemStartTime).count();
+                    ++timing.calls;
+                }
+                else {
+                    system->FixedUpdate(fixedDelta);
+                }
             }
             ResolveHierarchyTransforms(_registry);
             fixedUpdateAccumulator -= fixedDelta;
             ++fixedSteps;
+            if (collectBenchmarkTimings) {
+                ++benchmarkMeasuredFixedSteps;
+            }
         }
 
         // update loop
@@ -364,7 +405,18 @@ void Core::Run() {
         }
 
         for (auto& system : _systems) {
-            system->Update(_deltaTime);
+            if (collectBenchmarkTimings) {
+                const auto systemStartTime = std::chrono::high_resolution_clock::now();
+                system->Update(_deltaTime);
+                const auto systemEndTime = std::chrono::high_resolution_clock::now();
+                auto& timing = benchmarkSystemTimings[std::string{ "Update " } + typeid(*system.get()).name()];
+                timing.totalMs += std::chrono::duration<double, std::milli>(
+                    systemEndTime - systemStartTime).count();
+                ++timing.calls;
+            }
+            else {
+                system->Update(_deltaTime);
+            }
         }
         _audioSystem.Update();
         ResolveHierarchyTransforms(_registry);
@@ -485,9 +537,91 @@ void Core::Run() {
         ImGui::RenderPlatformWindowsDefault();
         
         Draw();
+
+        if (_benchmarkOptions.enabled) {
+            const auto benchmarkFrameEndTime = std::chrono::high_resolution_clock::now();
+            const double frameTimeMs =
+                std::chrono::duration<double, std::milli>(benchmarkFrameEndTime - frameStartTime).count();
+
+            if (benchmarkFrameIndex >= _benchmarkOptions.warmupFrames) {
+                benchmarkFrameTimesMs.push_back(frameTimeMs);
+            }
+
+            ++benchmarkFrameIndex;
+
+            if (static_cast<int>(benchmarkFrameTimesMs.size()) >= _benchmarkOptions.measuredFrames) {
+                auto sortedFrameTimes = benchmarkFrameTimesMs;
+                std::sort(sortedFrameTimes.begin(), sortedFrameTimes.end());
+
+                const double totalMs =
+                    std::accumulate(benchmarkFrameTimesMs.begin(), benchmarkFrameTimesMs.end(), 0.0);
+                const double averageMs = totalMs / static_cast<double>(benchmarkFrameTimesMs.size());
+                const double minMs = sortedFrameTimes.front();
+                const double maxMs = sortedFrameTimes.back();
+                const std::size_t p95Index = static_cast<std::size_t>(
+                    std::clamp(
+                        static_cast<int>(std::ceil(static_cast<double>(sortedFrameTimes.size()) * 0.95)) - 1,
+                        0,
+                        static_cast<int>(sortedFrameTimes.size()) - 1));
+                const double p95Ms = sortedFrameTimes[p95Index];
+                const double averageFps = averageMs > 0.0 ? 1000.0 / averageMs : 0.0;
+
+                std::ostringstream result;
+                result << "Benchmark result: frames=" << benchmarkFrameTimesMs.size()
+                       << ", avg_ms=" << averageMs
+                       << ", min_ms=" << minMs
+                       << ", p95_ms=" << p95Ms
+                       << ", max_ms=" << maxMs
+                       << ", avg_fps=" << averageFps;
+                ENGINE_LOG_INFO(result.str());
+
+                std::vector<std::pair<std::string, BenchmarkTiming>> sortedTimings {
+                    benchmarkSystemTimings.begin(),
+                    benchmarkSystemTimings.end()
+                };
+                std::sort(
+                    sortedTimings.begin(),
+                    sortedTimings.end(),
+                    [](const auto& first, const auto& second) {
+                        return first.second.totalMs > second.second.totalMs;
+                    });
+
+                std::ostringstream timingResult;
+                timingResult << "Benchmark fixed steps during measured frames=" << benchmarkMeasuredFixedSteps;
+                ENGINE_LOG_INFO(timingResult.str());
+
+                const std::size_t timingCount = std::min<std::size_t>(8, sortedTimings.size());
+                for (std::size_t index = 0; index < timingCount; ++index) {
+                    const auto& [name, timing] = sortedTimings[index];
+                    const double averageCallMs = timing.calls > 0
+                        ? timing.totalMs / static_cast<double>(timing.calls)
+                        : 0.0;
+
+                    std::ostringstream systemResult;
+                    systemResult << "Benchmark system " << name
+                                 << ": total_ms=" << timing.totalMs
+                                 << ", calls=" << timing.calls
+                                 << ", avg_call_ms=" << averageCallMs;
+                    ENGINE_LOG_INFO(systemResult.str());
+                }
+                break;
+            }
+        }
     }
     ENGINE_LOG_INFO("Engine Shutting Down.");
     Shutdown();
+}
+
+void Core::SetBenchmarkOptions(BenchmarkOptions options)
+{
+    options.warmupFrames = std::max(0, options.warmupFrames);
+    options.measuredFrames = std::max(1, options.measuredFrames);
+    _benchmarkOptions = options;
+}
+
+void Core::SetVSyncEnabled(bool enabled)
+{
+    _vsyncEnabled = enabled;
 }
 
 entt::entity Core::ResolveRenderCameraEntity()

@@ -49,12 +49,16 @@ void Core::InitVulkan() {
     features12.bufferDeviceAddress = true;
     features12.descriptorIndexing = true;
 
+    //vulkan 1.0 features
+    VkPhysicalDeviceFeatures features10{};
+    features10.geometryShader = VK_TRUE;
 
     //use vkbootstrap to select a gpu. 
     //We want a gpu that can write to the SDL surface and supports vulkan 1.3 with the correct features
     vkb::PhysicalDeviceSelector selector{ vkb_inst };
     vkb::PhysicalDevice physicalDevice = selector
         .set_minimum_version(1, 3)
+        .set_required_features(features10)
         .set_required_features_13(features)
         .set_required_features_12(features12)
         .set_surface(_surface)
@@ -317,7 +321,7 @@ void Core::InitDefaultData()
     _flatNormalImage = CreateImage((void*)&flatNormal, VkExtent3D{ 1, 1, 1 }, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    uint32_t defaultMetallicRoughness = glm::packUnorm4x8(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    uint32_t defaultMetallicRoughness = glm::packUnorm4x8(glm::vec4(1.0f, 0.35f, 0.0f, 1.0f));
     _defaultMetallicRoughnessImage = CreateImage((void*)&defaultMetallicRoughness, VkExtent3D{ 1, 1, 1 }, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_USAGE_SAMPLED_BIT);
 

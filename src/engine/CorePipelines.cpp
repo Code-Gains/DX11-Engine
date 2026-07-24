@@ -5,6 +5,17 @@
 namespace Engine {
 bool Core::LoadEngineShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule)
 {
+    const auto projectPath = ResolveProjectPath(path);
+    std::error_code error;
+    if (std::filesystem::exists(projectPath, error)) {
+        const auto shaderPath = projectPath.string();
+        if (vkutil::load_shader_module(shaderPath.c_str(), _device, outShaderModule)) {
+            return true;
+        }
+
+        ENGINE_LOG_ERROR("Failed to load project shader override: " + projectPath.generic_string());
+    }
+
     const auto resolvedPath = ResolveEnginePath(path);
     const auto shaderPath = resolvedPath.string();
     return vkutil::load_shader_module(shaderPath.c_str(), _device, outShaderModule);

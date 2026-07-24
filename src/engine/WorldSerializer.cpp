@@ -5,6 +5,7 @@
 #include "GravityComponents.h"
 #include "HierarchyComponent.h"
 #include "EntityState.h"
+#include "JoltPhysicsComponents.h"
 #include "Log.h"
 #include "MeshComponent.h"
 #include "NameComponent.h"
@@ -130,6 +131,54 @@ CameraShotAimMode CameraShotAimModeFromString(const std::string& value)
     }
 
     return CameraShotAimMode::UseRotation;
+}
+
+const char* JoltColliderShapeToString(JoltColliderShape shape)
+{
+    switch (shape) {
+    case JoltColliderShape::Sphere:
+        return "Sphere";
+    case JoltColliderShape::Box:
+        return "Box";
+    case JoltColliderShape::Capsule:
+        return "Capsule";
+    default:
+        return "Sphere";
+    }
+}
+
+JoltColliderShape JoltColliderShapeFromString(const std::string& value)
+{
+    if (value == "Box") {
+        return JoltColliderShape::Box;
+    }
+
+    if (value == "Capsule") {
+        return JoltColliderShape::Capsule;
+    }
+
+    return JoltColliderShape::Sphere;
+}
+
+const char* JoltBodyMotionToString(JoltBodyMotion motion)
+{
+    switch (motion) {
+    case JoltBodyMotion::Static:
+        return "Static";
+    case JoltBodyMotion::Kinematic:
+        return "Kinematic";
+    default:
+        return "Kinematic";
+    }
+}
+
+JoltBodyMotion JoltBodyMotionFromString(const std::string& value)
+{
+    if (value == "Static") {
+        return JoltBodyMotion::Static;
+    }
+
+    return JoltBodyMotion::Kinematic;
 }
 
 float ResolveCameraShotDuration(const CinematicCameraShotComponent& shot)
@@ -935,6 +984,40 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             GravityParticleComponent gravityParticle;
             gravityParticle.gravityScale = data.at("gravityScale").get<float>();
             return gravityParticle;
+        }
+    );
+
+    _componentSerializers.Register<JoltColliderComponent>(
+        "JoltColliderComponent",
+        [](Core&, const JoltColliderComponent& collider) {
+            return nlohmann::json {
+                {"shape", JoltColliderShapeToString(collider.shape)},
+                {"motion", JoltBodyMotionToString(collider.motion)},
+                {"sensor", collider.sensor},
+                {"center", Vec3ToJson(collider.center)},
+                {"radius", collider.radius},
+                {"halfExtents", Vec3ToJson(collider.halfExtents)},
+                {"capsuleHalfHeight", collider.capsuleHalfHeight},
+                {"friction", collider.friction},
+                {"restitution", collider.restitution}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            JoltColliderComponent collider;
+            collider.shape = JoltColliderShapeFromString(data.value("shape", std::string{ "Sphere" }));
+            collider.motion = JoltBodyMotionFromString(data.value("motion", std::string{ "Kinematic" }));
+            collider.sensor = data.value("sensor", false);
+            collider.center = data.contains("center")
+                ? Vec3FromJson(data.at("center"))
+                : glm::vec3{ 0.0f };
+            collider.radius = data.value("radius", 1.0f);
+            collider.halfExtents = data.contains("halfExtents")
+                ? Vec3FromJson(data.at("halfExtents"))
+                : glm::vec3{ 0.5f };
+            collider.capsuleHalfHeight = data.value("capsuleHalfHeight", 0.5f);
+            collider.friction = data.value("friction", 0.2f);
+            collider.restitution = data.value("restitution", 0.0f);
+            return collider;
         }
     );
 }

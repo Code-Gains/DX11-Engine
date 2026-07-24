@@ -17,6 +17,7 @@ add_library(engine STATIC
     CameraSystem.cpp
     CinematicCameraSystem.cpp
     GravitySimulationSystem.cpp
+    JoltPhysicsSystem.cpp
     HierarchySystem.cpp
     VelocityIntegrationSystem.cpp
     PhysicsBody.cpp
@@ -91,9 +92,9 @@ target_link_libraries(engine
 # Shaders
 # ---------------------
 file(GLOB ALL_SHADERS CONFIGURE_DEPENDS
-    "${SHADER_DIR}/*.comp"
-    "${SHADER_DIR}/*.vert"
-    "${SHADER_DIR}/*.frag"
+    "${ENGINE_SHADER_DIR}/*.comp"
+    "${ENGINE_SHADER_DIR}/*.vert"
+    "${ENGINE_SHADER_DIR}/*.frag"
 )
 
 set(COMPILED_SHADERS "")
@@ -101,7 +102,7 @@ set(COMPILED_SHADERS "")
 foreach(SHADER_FILE IN LISTS ALL_SHADERS)
     get_filename_component(SHADER_NAME "${SHADER_FILE}" NAME)
 
-    set(SPIRV_FILE "${SHADER_DIR}/${SHADER_NAME}.spv")
+    set(SPIRV_FILE "${ENGINE_SHADER_DIR}/${SHADER_NAME}.spv")
 
     add_custom_command(
         OUTPUT "${SPIRV_FILE}"

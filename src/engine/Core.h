@@ -65,6 +65,12 @@ enum class EditorMode {
     Play
 };
 
+struct BenchmarkOptions {
+    bool enabled = false;
+    int warmupFrames = 120;
+    int measuredFrames = 1200;
+};
+
 // ============================================================================
 // Render data / GPU structs
 // ============================================================================
@@ -487,6 +493,8 @@ private:
     entt::registry _registry;
     AudioSystem _audioSystem;
     float _deltaTime = 0.0f;
+    BenchmarkOptions _benchmarkOptions;
+    bool _vsyncEnabled = true;
 
     // ------------------------------------------------------------------------
     // Batched rendering
@@ -573,6 +581,8 @@ public:
     void Init();
     void Run();
     void Shutdown();
+    void SetBenchmarkOptions(BenchmarkOptions options);
+    void SetVSyncEnabled(bool enabled);
 
     // ------------------------------------------------------------------------
     // Engine/project path helpers

@@ -22,6 +22,7 @@
 #include "HierarchyComponent.h"
 #include "HierarchySystem.h"
 #include "ImGuiWindowRegistry.h"
+#include "JoltPhysicsComponents.h"
 #include "CameraShotEditorUi.h"
 #include "EditorUiLayout.h"
 
@@ -385,6 +386,59 @@ public:
         {
             EditorUi::ScopedItemWidth width{ 260.0f };
             ImGui::DragFloat("Gravity Scale", &gravityParticle->gravityScale, 0.01f, 0.0f, 1000.0f);
+        }
+    }
+};
+
+class JoltColliderComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* collider = registry.try_get<Engine::JoltColliderComponent>(entity);
+        if (!collider)
+            return;
+
+        if (DrawRemovableComponentHeader<Engine::JoltColliderComponent>(
+                registry,
+                entity,
+                "Jolt Collider",
+                "JoltColliderComponent"))
+        {
+            EditorUi::ScopedItemWidth width{ 260.0f };
+
+            int shapeIndex = static_cast<int>(collider->shape);
+            constexpr const char* shapeLabels[] { "Sphere", "Box", "Capsule" };
+            if (ImGui::Combo("Shape##JoltColliderShape", &shapeIndex, shapeLabels, IM_ARRAYSIZE(shapeLabels))) {
+                collider->shape = static_cast<Engine::JoltColliderShape>(shapeIndex);
+            }
+
+            int motionIndex = static_cast<int>(collider->motion);
+            constexpr const char* motionLabels[] { "Static", "Kinematic" };
+            if (ImGui::Combo("Motion##JoltColliderMotion", &motionIndex, motionLabels, IM_ARRAYSIZE(motionLabels))) {
+                collider->motion = static_cast<Engine::JoltBodyMotion>(motionIndex);
+            }
+
+            ImGui::Checkbox("Sensor##JoltColliderSensor", &collider->sensor);
+            ImGui::DragFloat3("Center##JoltColliderCenter", &collider->center.x, 0.01f);
+
+            switch (collider->shape) {
+            case Engine::JoltColliderShape::Sphere:
+                ImGui::DragFloat("Radius##JoltColliderRadius", &collider->radius, 0.01f, 0.001f, 100000.0f);
+                break;
+            case Engine::JoltColliderShape::Box:
+                ImGui::DragFloat3("Half Extents##JoltColliderHalfExtents", &collider->halfExtents.x, 0.01f, 0.001f, 100000.0f);
+                break;
+            case Engine::JoltColliderShape::Capsule:
+                ImGui::DragFloat("Radius##JoltColliderCapsuleRadius", &collider->radius, 0.01f, 0.001f, 100000.0f);
+                ImGui::DragFloat("Half Height##JoltColliderCapsuleHalfHeight", &collider->capsuleHalfHeight, 0.01f, 0.0f, 100000.0f);
+                break;
+            }
+
+            ImGui::DragFloat("Friction##JoltColliderFriction", &collider->friction, 0.01f, 0.0f, 100.0f);
+            ImGui::DragFloat("Restitution##JoltColliderRestitution", &collider->restitution, 0.01f, 0.0f, 100.0f);
+
+            const auto* body = registry.try_get<Engine::JoltBodyComponent>(entity);
+            ImGui::TextDisabled(
+                body ? "Runtime body: created" : "Runtime body: pending");
         }
     }
 };

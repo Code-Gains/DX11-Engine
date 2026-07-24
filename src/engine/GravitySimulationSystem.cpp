@@ -56,10 +56,16 @@ void GravitySimulationSystem::FixedUpdate(float deltaTime)
         entt::exclude<GravityBodyComponent, DisabledEntityTag>
     );
 
+    entt::entity singleActiveBody = entt::null;
+    int activeBodyCount = 0;
+
     for (auto entity : bodyView) {
         if (IsEntityDisabled(_registry, entity)) {
             continue;
         }
+
+        singleActiveBody = entity;
+        ++activeBodyCount;
 
         auto& gravityState = _registry.get_or_emplace<GravityStateComponent>(entity);
         gravityState.acceleration = glm::vec3{ 0.0f };
@@ -76,6 +82,40 @@ void GravitySimulationSystem::FixedUpdate(float deltaTime)
         gravityState.acceleration = glm::vec3{ 0.0f };
         gravityState.gravityDirection = glm::vec3{ 0.0f, -1.0f, 0.0f };
         gravityState.dominantSource = entt::null;
+    }
+
+    if (activeBodyCount == 1 && singleActiveBody != entt::null) {
+        const auto& bodyTransform = bodyView.get<Transform>(singleActiveBody);
+        const auto& body = bodyView.get<GravityBodyComponent>(singleActiveBody);
+
+        for (auto particleEntity : particleView) {
+            if (IsEntityDisabled(_registry, particleEntity)) {
+                continue;
+            }
+
+            auto& particleTransform = particleView.get<Transform>(particleEntity);
+            auto& particle = particleView.get<GravityParticleComponent>(particleEntity);
+
+            const glm::vec3 distanceVector = bodyTransform.position - particleTransform.position;
+            const float distanceSquared = glm::dot(distanceVector, distanceVector);
+            if (distanceSquared < minDistanceSquared) {
+                continue;
+            }
+
+            const glm::vec3 direction = glm::normalize(distanceVector);
+            const glm::vec3 acceleration =
+                direction * gravitationalConstant * body.mass * particle.gravityScale / distanceSquared;
+
+            auto& velocity = particleView.get<VelocityComponent>(particleEntity);
+            velocity.linear += acceleration * deltaTime;
+
+            auto& gravityState = _registry.get_or_emplace<GravityStateComponent>(particleEntity);
+            gravityState.acceleration = acceleration;
+            gravityState.gravityDirection = direction;
+            gravityState.dominantSource = singleActiveBody;
+        }
+
+        return;
     }
 
     for (auto itA = bodyView.begin(); itA != bodyView.end(); ++itA) {

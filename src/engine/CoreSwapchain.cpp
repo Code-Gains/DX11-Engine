@@ -13,11 +13,14 @@ void Core::CreateSwapchain(uint32_t width, uint32_t height) {
 
     _swapchainImageFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
+    const VkPresentModeKHR presentMode = _vsyncEnabled
+        ? VK_PRESENT_MODE_FIFO_KHR
+        : VK_PRESENT_MODE_IMMEDIATE_KHR;
+
     vkb::Swapchain vkbSwapchain = swapchainBuilder
         //.use_default_format_selection()
         .set_desired_format(VkSurfaceFormatKHR{ .format = _swapchainImageFormat, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
-        //use vsync present mode
-        .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+        .set_desired_present_mode(presentMode)
         .set_desired_extent(width, height)
         .add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
         .build()
