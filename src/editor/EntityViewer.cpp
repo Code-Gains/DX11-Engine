@@ -279,7 +279,7 @@ void EntityViewer::DrawUi()
     windowRegistry.SetWindowOpen("Entity Viewer", open);
 }
 
-EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryViewerPtr) : System(registry), _registryViewerPtr(registryViewerPtr)
+EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryViewerPtr, Engine::Core* core) : System(registry), _registryViewerPtr(registryViewerPtr)
 {
     _componentUis.push_back(std::make_unique<NameComponentUi>());
     _componentUis.push_back(std::make_unique<TransformComponentUi>());
@@ -287,7 +287,7 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
     _componentUis.push_back(std::make_unique<CameraComponentUi>());
     _componentUis.push_back(std::make_unique<CinematicCameraShotComponentUi>());
-    _componentUis.push_back(std::make_unique<MeshComponentUi>());
+    _componentUis.push_back(std::make_unique<MeshComponentUi>(core));
     _componentUis.push_back(std::make_unique<EffectMeshComponentUi>());
     _componentUis.push_back(std::make_unique<SingleRenderTagUi>());
     _componentUis.push_back(std::make_unique<ActiveCameraTagUi>());

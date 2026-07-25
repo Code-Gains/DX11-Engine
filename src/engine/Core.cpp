@@ -244,6 +244,57 @@ WorldSerializer Core::CreateWorldSerializer() const
     return serializer;
 }
 
+MaterialAsset& Core::RegisterMaterialAsset(std::string name, MaterialInstance material)
+{
+    if (auto existing = _materialAssetIndicesByName.find(name); existing != _materialAssetIndicesByName.end()) {
+        auto& asset = _materialAssets[existing->second];
+        asset.material = material;
+        return asset;
+    }
+
+    auto& asset = _materialAssets.emplace_back();
+    asset.name = std::move(name);
+    asset.material = material;
+    _materialAssetIndicesByName.emplace(asset.name, _materialAssets.size() - 1);
+    return asset;
+}
+
+MaterialInstance* Core::FindMaterial(std::string_view name)
+{
+    auto it = _materialAssetIndicesByName.find(std::string{ name });
+    if (it == _materialAssetIndicesByName.end()) {
+        return nullptr;
+    }
+
+    return &_materialAssets[it->second].material;
+}
+
+const MaterialInstance* Core::FindMaterial(std::string_view name) const
+{
+    auto it = _materialAssetIndicesByName.find(std::string{ name });
+    if (it == _materialAssetIndicesByName.end()) {
+        return nullptr;
+    }
+
+    return &_materialAssets[it->second].material;
+}
+
+const std::deque<MaterialAsset>& Core::GetMaterialAssets() const
+{
+    return _materialAssets;
+}
+
+MaterialInstance* Core::ResolveMeshMaterial(const MeshComponent& meshComponent, const GeoSurface& surface)
+{
+    if (!meshComponent.materialOverride.empty()) {
+        if (auto* material = FindMaterial(meshComponent.materialOverride)) {
+            return material;
+        }
+    }
+
+    return surface.material;
+}
+
 void Core::Init()
 {
 #ifdef DEBUG
@@ -1174,14 +1225,10 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
     vkCmdDraw(cmd, 36, 1, 0, 0);
 
 
-    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _instancedMeshPipeline);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _instancedMeshPipelineLayout, 1, 1, &globalDescriptor, 0, nullptr);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _instancedMeshPipelineLayout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _instancedMeshPipelineLayout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
     // ECS Batch Rendering
     {
         auto t0 = Clock::now();
-        for (auto& [mesh, instances] : _batches) {
+        for (auto& [key, instances] : _batches) {
             instances.clear();
         }
 
@@ -1199,13 +1246,24 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             if (!meshComponent.mesh || meshComponent.mesh->surfaces.empty())
                 continue;
 
+            auto& surface = meshComponent.mesh->surfaces[0];
+            auto* material = ResolveMeshMaterial(meshComponent, surface);
+            RenderPipelineId pipelineId = _instancedMeshPipelineId;
+            if (material && material->pipelines.instanced.IsValid()) {
+                pipelineId = material->pipelines.instanced;
+            }
+
             InstanceData instance{};
             instance.position = trans.position;
             instance.rotation = trans.rotation;
             instance.scale = trans.scale;
             instance.baseColorFactor = meshComponent.baseColorFactor;
 
-            auto& batch = _batches[meshComponent.mesh.get()];
+            auto& batch = _batches[MeshBatchKey{
+                .mesh = meshComponent.mesh.get(),
+                .material = material,
+                .pipelineId = pipelineId
+            }];
             if (batch.capacity() == 0) {
                 batch.reserve(128);
             }
@@ -1226,12 +1284,22 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         auto t1 = Clock::now();
 
         size_t offset = 0; // starting point in the instance buffer
-        for (auto& [mesh, instances] : _batches) {
+        RenderPipelineId boundInstancedPipelineId;
+        for (auto& [key, instances] : _batches) {
+            auto* mesh = key.mesh;
+            auto* material = key.material;
             if (!mesh || mesh->surfaces.empty() || instances.empty())
                 continue;
 
             auto& surface = mesh->surfaces[0];
-            auto* material = surface.material;
+            const MaterialPipeline& instancedPipeline = GetRenderPipeline(key.pipelineId);
+            if (key.pipelineId != boundInstancedPipelineId) {
+                vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.pipeline);
+                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 1, 1, &globalDescriptor, 0, nullptr);
+                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
+                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
+                boundInstancedPipelineId = key.pipelineId;
+            }
 
             AllocatedImage* baseColor = material ? material->image : nullptr;
             AllocatedImage* normal = material ? material->normalImage : nullptr;
@@ -1294,7 +1362,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
             imageWriter.update_set(_device, imageSet);
 
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _instancedMeshPipelineLayout, 0, 1, &imageSet, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 0, 1, &imageSet, 0, nullptr);
 
             size_t dataSize = instances.size() * sizeof(InstanceData);
 
@@ -1315,7 +1383,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             pc.vertexBuffer = mesh->meshBuffers.vertexBufferAddress;
             pc.instanceBuffer = instanceAddress;
 
-            vkCmdPushConstants(cmd, _instancedMeshPipelineLayout,
+            vkCmdPushConstants(cmd, instancedPipeline.layout,
                             VK_SHADER_STAGE_VERTEX_BIT,
                             0,
                             sizeof(pc),
@@ -1342,11 +1410,9 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         }
     }
 
-    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _meshPipeline);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _meshPipelineLayout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
-    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _meshPipelineLayout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
     // ECS Singles rendering
     auto registryViewSingles = _registry.view<MeshComponent, Transform, SingleRenderTag>(entt::exclude<EffectMeshComponent, DisabledEntityTag>);
+    RenderPipelineId boundMeshPipelineId;
 
     for (auto entity : registryViewSingles) {
         if (IsEntityDisabled(_registry, entity)) {
@@ -1361,7 +1427,19 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             continue;
 
         auto& surface = meshAssetPtr->surfaces[0];
-        auto* material = surface.material;
+        auto* material = ResolveMeshMaterial(meshComponent, surface);
+        RenderPipelineId pipelineId = _meshPipelineId;
+        if (material && material->pipelines.single.IsValid()) {
+            pipelineId = material->pipelines.single;
+        }
+
+        const MaterialPipeline& meshPipeline = GetRenderPipeline(pipelineId);
+        if (pipelineId != boundMeshPipelineId) {
+            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.pipeline);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
+            boundMeshPipelineId = pipelineId;
+        }
 
         AllocatedImage* baseColor = material ? material->image : nullptr;
         AllocatedImage* normal = material ? material->normalImage : nullptr;
@@ -1424,8 +1502,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
         imageWriter.update_set(_device, imageSet);
 
-        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _meshPipelineLayout, 0, 1, &imageSet, 0, nullptr); 
-        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _meshPipelineLayout, 1, 1, &globalDescriptor, 0, nullptr);
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 0, 1, &imageSet, 0, nullptr); 
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 1, 1, &globalDescriptor, 0, nullptr);
         // T R S
         glm::mat4 T = glm::translate(glm::mat4(1.0f), transformComponent.position);
         glm::mat4 R = glm::mat4_cast(transformComponent.rotation);
@@ -1440,7 +1518,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             (material ? material->baseColorFactor : glm::vec4{ 1.0f }) *
             meshComponent.baseColorFactor;
 
-        vkCmdPushConstants(cmd, _meshPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
+        vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
 
         vkCmdBindIndexBuffer(cmd, meshAssetPtr->meshBuffers.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
         

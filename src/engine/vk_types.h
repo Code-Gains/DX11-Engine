@@ -12,6 +12,7 @@
 #include <functional>
 #include <deque>
 #include <iostream>
+#include <cstdint>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vk_enum_string_helper.h>
@@ -72,16 +73,39 @@ struct MaterialPipeline {
 	VkPipelineLayout layout;
 };
 
+struct RenderPipelineId {
+    uint32_t value = UINT32_MAX;
+
+    bool IsValid() const {
+        return value != UINT32_MAX;
+    }
+
+    friend bool operator==(RenderPipelineId lhs, RenderPipelineId rhs) {
+        return lhs.value == rhs.value;
+    }
+};
+
+struct MaterialPipelineSet {
+    RenderPipelineId single;
+    RenderPipelineId instanced;
+};
+
 struct MaterialInstance {
-    MaterialPipeline* pipeline;
-    VkDescriptorSet materialSet;
-    MaterialPass passType;
+    MaterialPipeline* pipeline = nullptr;
+    MaterialPipelineSet pipelines;
+    VkDescriptorSet materialSet = VK_NULL_HANDLE;
+    MaterialPass passType = MaterialPass::MainColor;
     glm::vec4 baseColorFactor{ 1.0f };
     AllocatedImage* image = nullptr;
     AllocatedImage* metallicRoughnessImage = nullptr;
     AllocatedImage* normalImage = nullptr;
     AllocatedImage* occlusionImage = nullptr;
     AllocatedImage* emissionImage = nullptr;
+};
+
+struct MaterialAsset {
+    std::string name;
+    MaterialInstance material;
 };
 //< mat_types
 //> vbuf_types

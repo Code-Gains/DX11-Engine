@@ -33,6 +33,7 @@ struct MeshAsset {
 struct MeshComponent {
     std::shared_ptr<MeshAsset> mesh;
     MeshAssetReference source;
+    std::string materialOverride;
     glm::vec4 baseColorFactor{ 1.0f };
 };
 

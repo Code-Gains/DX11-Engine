@@ -21,7 +21,7 @@ class EntityViewer : public System {
     std::vector<ComponentMenuEntry> _componentMenuEntries;
 
 public:
-    EntityViewer(entt::registry& registry, RegistryViewer* registryViewerPtr);
+    EntityViewer(entt::registry& registry, RegistryViewer* registryViewerPtr, Engine::Core* core = nullptr);
     void AddComponentUi(std::unique_ptr<ViewerComponentUi> componentUi);
     void AddComponentMenuItem(
         std::string label,

@@ -325,6 +325,16 @@ void Core::InitDefaultData()
     _defaultMetallicRoughnessImage = CreateImage((void*)&defaultMetallicRoughness, VkExtent3D{ 1, 1, 1 }, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_USAGE_SAMPLED_BIT);
 
+    _defaultMaterial.image = &_greyImage;
+    _defaultMaterial.normalImage = &_flatNormalImage;
+    _defaultMaterial.metallicRoughnessImage = &_defaultMetallicRoughnessImage;
+    _defaultMaterial.occlusionImage = &_whiteImage;
+    _defaultMaterial.emissionImage = &_blackImage;
+    _defaultMaterial.baseColorFactor = glm::vec4{ 1.0f };
+    _defaultMaterial.pipelines.single = _meshPipelineId;
+    _defaultMaterial.pipelines.instanced = _instancedMeshPipelineId;
+    RegisterMaterialAsset("Engine/DefaultPBR", _defaultMaterial);
+
     //checkerboard image
     uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
     std::array<uint32_t, 16 *16 > pixels; //for 16x16 checkerboard texture

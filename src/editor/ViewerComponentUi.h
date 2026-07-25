@@ -268,6 +268,8 @@ public:
 
 class MeshComponentUi : public ViewerComponentUi {
 public:
+    explicit MeshComponentUi(Engine::Core* core = nullptr) : _core(core) {}
+
     void Draw(entt::registry& registry, entt::entity entity) override {
         auto* mesh = registry.try_get<MeshComponent>(entity);
         if (!mesh)
@@ -283,9 +285,36 @@ public:
             ImGui::Text("Path: %s", source.path.c_str());
             ImGui::Text("Mesh Index: %u", source.meshIndex);
             EditorUi::ScopedItemWidth width{ 320.0f };
+
+            const char* currentMaterial =
+                mesh->materialOverride.empty()
+                    ? "Mesh Material"
+                    : mesh->materialOverride.c_str();
+
+            if (ImGui::BeginCombo("Material##MeshComponentMaterial", currentMaterial)) {
+                const bool useMeshMaterial = mesh->materialOverride.empty();
+                if (ImGui::Selectable("Mesh Material", useMeshMaterial)) {
+                    mesh->materialOverride.clear();
+                }
+
+                if (_core) {
+                    for (const auto& material : _core->GetMaterialAssets()) {
+                        const bool selected = mesh->materialOverride == material.name;
+                        if (ImGui::Selectable(material.name.c_str(), selected)) {
+                            mesh->materialOverride = material.name;
+                        }
+                    }
+                }
+
+                ImGui::EndCombo();
+            }
+
             ImGui::ColorEdit4("Base Color Factor", &mesh->baseColorFactor.x);
         }
     }
+
+private:
+    Engine::Core* _core = nullptr;
 };
 
 class EffectMeshComponentUi : public ViewerComponentUi {

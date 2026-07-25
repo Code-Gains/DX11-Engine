@@ -2,23 +2,134 @@
 #include "vk_pipelines.h"
 #include "vk_initializers.h"
 
-namespace Engine {
-bool Core::LoadEngineShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule)
-{
-    const auto projectPath = ResolveProjectPath(path);
-    std::error_code error;
-    if (std::filesystem::exists(projectPath, error)) {
-        const auto shaderPath = projectPath.string();
-        if (vkutil::load_shader_module(shaderPath.c_str(), _device, outShaderModule)) {
-            return true;
-        }
+#include <cassert>
 
-        ENGINE_LOG_ERROR("Failed to load project shader override: " + projectPath.generic_string());
+namespace Engine {
+RenderPipelineId Core::RegisterRenderPipeline(std::string name, MaterialPipeline pipeline)
+{
+    if (auto existing = _renderPipelineIdsByName.find(name); existing != _renderPipelineIdsByName.end()) {
+        _renderPipelines[existing->second.value] = pipeline;
+        return existing->second;
     }
 
+    RenderPipelineId id{ static_cast<uint32_t>(_renderPipelines.size()) };
+    _renderPipelines.push_back(pipeline);
+    _renderPipelineIdsByName.emplace(std::move(name), id);
+    return id;
+}
+
+RenderPipelineId Core::FindRenderPipeline(std::string_view name) const
+{
+    auto it = _renderPipelineIdsByName.find(std::string{ name });
+    if (it == _renderPipelineIdsByName.end()) {
+        return {};
+    }
+
+    return it->second;
+}
+
+const MaterialPipeline& Core::GetRenderPipeline(RenderPipelineId id) const
+{
+    assert(id.IsValid());
+    assert(id.value < _renderPipelines.size());
+    return _renderPipelines[id.value];
+}
+
+bool Core::LoadEngineShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule)
+{
     const auto resolvedPath = ResolveEnginePath(path);
     const auto shaderPath = resolvedPath.string();
     return vkutil::load_shader_module(shaderPath.c_str(), _device, outShaderModule);
+}
+
+bool Core::LoadProjectShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule)
+{
+    const auto resolvedPath = ResolveProjectPath(path);
+    const auto shaderPath = resolvedPath.string();
+    return vkutil::load_shader_module(shaderPath.c_str(), _device, outShaderModule);
+}
+
+VkPipeline Core::BuildMeshGraphicsPipeline(VkPipelineLayout layout, VkShaderModule vertexShader, VkShaderModule fragmentShader)
+{
+    PipelineBuilder pipelineBuilder;
+
+    pipelineBuilder._pipelineLayout = layout;
+    pipelineBuilder.set_shaders(vertexShader, fragmentShader);
+    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_multisampling(_msaaSamples);
+    pipelineBuilder.disable_blending();
+    pipelineBuilder.disable_depthtest();
+    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
+    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
+    pipelineBuilder.set_depth_format(_depthImage.imageFormat);
+
+    return pipelineBuilder.build_pipeline(_device);
+}
+
+MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
+    std::string name,
+    const std::filesystem::path& fragmentShaderPath)
+{
+    assert(_meshPipelineLayout != VK_NULL_HANDLE);
+    assert(_instancedMeshPipelineLayout != VK_NULL_HANDLE);
+
+    VkShaderModule fragmentShader = VK_NULL_HANDLE;
+    if (!LoadProjectShaderModule(fragmentShaderPath, &fragmentShader)) {
+        ENGINE_LOG_ERROR("Failed to load project mesh fragment shader: " + fragmentShaderPath.generic_string());
+        return {};
+    }
+
+    VkShaderModule singleVertexShader = VK_NULL_HANDLE;
+    if (!LoadEngineShaderModule("shaders/colored_triangle_mesh.vert.spv", &singleVertexShader)) {
+        ENGINE_LOG_ERROR("Failed to load engine mesh vertex shader for project material pipeline");
+        vkDestroyShaderModule(_device, fragmentShader, nullptr);
+        return {};
+    }
+
+    VkShaderModule instancedVertexShader = VK_NULL_HANDLE;
+    if (!LoadEngineShaderModule("shaders/batch_color_mesh.vert.spv", &instancedVertexShader)) {
+        ENGINE_LOG_ERROR("Failed to load engine instanced mesh vertex shader for project material pipeline");
+        vkDestroyShaderModule(_device, singleVertexShader, nullptr);
+        vkDestroyShaderModule(_device, fragmentShader, nullptr);
+        return {};
+    }
+
+    const VkPipeline singlePipeline =
+        BuildMeshGraphicsPipeline(_meshPipelineLayout, singleVertexShader, fragmentShader);
+    const VkPipeline instancedPipeline =
+        BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, instancedVertexShader, fragmentShader);
+
+    vkDestroyShaderModule(_device, instancedVertexShader, nullptr);
+    vkDestroyShaderModule(_device, singleVertexShader, nullptr);
+    vkDestroyShaderModule(_device, fragmentShader, nullptr);
+
+    auto singleId = RegisterRenderPipeline(
+        name + ".Single",
+        MaterialPipeline{
+            .pipeline = singlePipeline,
+            .layout = _meshPipelineLayout
+        }
+    );
+
+    auto instancedId = RegisterRenderPipeline(
+        name + ".Instanced",
+        MaterialPipeline{
+            .pipeline = instancedPipeline,
+            .layout = _instancedMeshPipelineLayout
+        }
+    );
+
+    _mainDeletionQueue.push_function([this, singlePipeline, instancedPipeline]() {
+        vkDestroyPipeline(_device, singlePipeline, nullptr);
+        vkDestroyPipeline(_device, instancedPipeline, nullptr);
+    });
+
+    return MaterialPipelineSet{
+        .single = singleId,
+        .instanced = instancedId
+    };
 }
 
 void Core::InitBackgroundPipelines()
@@ -139,32 +250,15 @@ void Core::InitMeshPipeline() {
     pipeline_layout_info.setLayoutCount = 4;
     VK_CHECK(vkCreatePipelineLayout(_device, &pipeline_layout_info, nullptr, &_meshPipelineLayout));
 
-    PipelineBuilder pipelineBuilder;
-
-    //use the triangle layout we created
-    pipelineBuilder._pipelineLayout = _meshPipelineLayout;
-    //connecting the vertex and pixel shaders to the pipeline
-    pipelineBuilder.set_shaders(triangleVertexShader, triangleFragShader);
-    //it will draw triangles
-    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    //filled triangles
-    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-    //no backface culling
-    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
-    pipelineBuilder.set_multisampling(_msaaSamples);
-    //no blending
-    pipelineBuilder.disable_blending();
-    //pipelineBuilder.enable_blending_additive();
-
-    pipelineBuilder.disable_depthtest();
-    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
-
-    //connect the image format we will draw into, from draw image
-    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(_depthImage.imageFormat);
-
     //finally build the pipeline
-    _meshPipeline = pipelineBuilder.build_pipeline(_device);
+    _meshPipeline = BuildMeshGraphicsPipeline(_meshPipelineLayout, triangleVertexShader, triangleFragShader);
+    _meshPipelineId = RegisterRenderPipeline(
+        "Engine/MeshPBR",
+        MaterialPipeline{
+            .pipeline = _meshPipeline,
+            .layout = _meshPipelineLayout
+        }
+    );
 
     //clean structures
     vkDestroyShaderModule(_device, triangleFragShader, nullptr);
@@ -206,32 +300,15 @@ void Core::InitInstancedMeshPipeline() {
 
     VK_CHECK(vkCreatePipelineLayout(_device, &pipeline_layout_info, nullptr, &_instancedMeshPipelineLayout));
 
-    PipelineBuilder pipelineBuilder;
-
-    //use the triangle layout we created
-    pipelineBuilder._pipelineLayout = _instancedMeshPipelineLayout;
-    //connecting the vertex and pixel shaders to the pipeline
-    pipelineBuilder.set_shaders(triangleVertexShader, triangleFragShader);
-    //it will draw triangles
-    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    //filled triangles
-    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-    //no backface culling
-    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
-    pipelineBuilder.set_multisampling(_msaaSamples);
-    //no blending
-    pipelineBuilder.disable_blending();
-    //pipelineBuilder.enable_blending_additive();
-
-    pipelineBuilder.disable_depthtest();
-    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
-
-    //connect the image format we will draw into, from draw image
-    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
-    pipelineBuilder.set_depth_format(_depthImage.imageFormat);
-
     //finally build the pipeline
-    _instancedMeshPipeline = pipelineBuilder.build_pipeline(_device);
+    _instancedMeshPipeline = BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, triangleVertexShader, triangleFragShader);
+    _instancedMeshPipelineId = RegisterRenderPipeline(
+        "Engine/InstancedMeshPBR",
+        MaterialPipeline{
+            .pipeline = _instancedMeshPipeline,
+            .layout = _instancedMeshPipelineLayout
+        }
+    );
 
     //clean structures
     vkDestroyShaderModule(_device, triangleFragShader, nullptr);

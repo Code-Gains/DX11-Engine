@@ -5,6 +5,7 @@
 // ============================================================================
 #include <array>
 #include <condition_variable>
+#include <cstdint>
 #include <deque>
 #include <filesystem>
 #include <functional>
@@ -13,6 +14,8 @@
 #include <optional>
 #include <queue>
 #include <span>
+#include <string>
+#include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <vector>
@@ -85,11 +88,6 @@ struct RenderObject {
     VkDeviceAddress vertexBufferAddress;
 };
 
-struct MaterialPipeline {
-    VkPipeline pipeline;
-    VkPipelineLayout layout;
-};
-
 struct BatchDrawPushConstants {
     glm::mat4 viewProjection;
     glm::vec4 baseColorFactor;
@@ -109,6 +107,27 @@ struct InstanceData {
     glm::vec3 scale;
     float pad1;
     glm::vec4 baseColorFactor{ 1.0f };
+};
+
+struct MeshBatchKey {
+    MeshAsset* mesh = nullptr;
+    MaterialInstance* material = nullptr;
+    RenderPipelineId pipelineId;
+
+    friend bool operator==(const MeshBatchKey& lhs, const MeshBatchKey& rhs) {
+        return lhs.mesh == rhs.mesh &&
+            lhs.material == rhs.material &&
+            lhs.pipelineId == rhs.pipelineId;
+    }
+};
+
+struct MeshBatchKeyHash {
+    size_t operator()(const MeshBatchKey& key) const {
+        const auto meshHash = std::hash<uintptr_t>{}(reinterpret_cast<uintptr_t>(key.mesh));
+        const auto materialHash = std::hash<uintptr_t>{}(reinterpret_cast<uintptr_t>(key.material));
+        const auto pipelineHash = std::hash<uint32_t>{}(key.pipelineId.value);
+        return meshHash ^ (materialHash << 1) ^ (pipelineHash << 2);
+    }
 };
 
 struct GPUSceneData {
@@ -307,6 +326,9 @@ private:
     void InitIrradiancePipeline();
     void InitBRDFLUTPipeline();
     bool LoadEngineShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule);
+    bool LoadProjectShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule);
+    VkPipeline BuildMeshGraphicsPipeline(VkPipelineLayout layout, VkShaderModule vertexShader, VkShaderModule fragmentShader);
+    MaterialInstance* ResolveMeshMaterial(const MeshComponent& meshComponent, const GeoSurface& surface);
 
     // ------------------------------------------------------------------------
     // Vulkan instance / device / surface
@@ -450,6 +472,14 @@ private:
     VkPipeline _selectionMaskPipeline = VK_NULL_HANDLE;
     VkPipeline _selectionOutlinePipeline = VK_NULL_HANDLE;
 
+    std::vector<MaterialPipeline> _renderPipelines;
+    std::unordered_map<std::string, RenderPipelineId> _renderPipelineIdsByName;
+    RenderPipelineId _meshPipelineId;
+    RenderPipelineId _instancedMeshPipelineId;
+
+    RenderPipelineId RegisterRenderPipeline(std::string name, MaterialPipeline pipeline);
+    const MaterialPipeline& GetRenderPipeline(RenderPipelineId id) const;
+
     AllocatedImage _selectionMaskImage {};
 
     AllocatedImage _shadowMapImage {};
@@ -499,7 +529,7 @@ private:
     // ------------------------------------------------------------------------
     // Batched rendering
     // ------------------------------------------------------------------------
-    std::unordered_map<MeshAsset*, std::vector<InstanceData>> _batches;
+    std::unordered_map<MeshBatchKey, std::vector<InstanceData>, MeshBatchKeyHash> _batches;
     AllocatedBuffer _instanceBuffer;
     float _timestampPeriod = 0.0f;
 
@@ -528,6 +558,8 @@ private:
     // ------------------------------------------------------------------------
     std::deque<MaterialInstance> _loadedMaterials;
     MaterialInstance _defaultMaterial;
+    std::deque<MaterialAsset> _materialAssets;
+    std::unordered_map<std::string, size_t> _materialAssetIndicesByName;
 
     // ------------------------------------------------------------------------
     // Skybox / environment maps / IBL pipelines
@@ -606,6 +638,16 @@ public:
     void ClearCurrentWorldPath();
     void RegisterComponentSerializers(std::function<void(ComponentSerializerRegistry&)> setup);
     WorldSerializer CreateWorldSerializer() const;
+
+    RenderPipelineId FindRenderPipeline(std::string_view name) const;
+    MaterialPipelineSet RegisterMeshMaterialPipelineSet(
+        std::string name,
+        const std::filesystem::path& fragmentShaderPath
+    );
+    MaterialAsset& RegisterMaterialAsset(std::string name, MaterialInstance material);
+    MaterialInstance* FindMaterial(std::string_view name);
+    const MaterialInstance* FindMaterial(std::string_view name) const;
+    const std::deque<MaterialAsset>& GetMaterialAssets() const;
 
     std::shared_ptr<MeshAsset> CreateRuntimeMesh(
         std::string name,

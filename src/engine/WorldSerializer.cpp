@@ -713,11 +713,17 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 reference = meshComponent.mesh->source;
             }
 
-            return nlohmann::json {
+            auto data = nlohmann::json {
                 {"path", reference.path},
                 {"meshIndex", reference.meshIndex},
                 {"baseColorFactor", Vec4ToJson(meshComponent.baseColorFactor)}
             };
+
+            if (!meshComponent.materialOverride.empty()) {
+                data["materialOverride"] = meshComponent.materialOverride;
+            }
+
+            return data;
         },
         [](Core& core, const nlohmann::json& data) {
             MeshComponent meshComponent;
@@ -729,6 +735,8 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 data.contains("baseColorFactor")
                     ? Vec4FromJson(data.at("baseColorFactor"))
                     : glm::vec4{ 1.0f };
+            meshComponent.materialOverride =
+                data.value("materialOverride", std::string{});
 
             auto meshes = core.LoadGltfMeshes(&core, meshComponent.source.path);
             if (!meshes.has_value()) {

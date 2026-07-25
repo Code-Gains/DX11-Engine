@@ -36,7 +36,7 @@ int main() {
     auto* registryViewerPtr = registryViewer.get();
     core._systems.push_back(std::move(registryViewer));
 
-    core._systems.push_back(std::make_unique<EntityViewer>(registry, registryViewerPtr));
+    core._systems.push_back(std::make_unique<EntityViewer>(registry, registryViewerPtr, &core));
     core._systems.push_back(std::make_unique<AnimationEditor>(registry, registryViewerPtr));
     core._systems.push_back(std::make_unique<AssetViewer>(registry, &core, registryViewerPtr));
 
