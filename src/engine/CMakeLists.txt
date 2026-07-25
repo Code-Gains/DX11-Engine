@@ -75,6 +75,31 @@ endif()
 
 message(STATUS "Using glslc: ${GLSLC_EXECUTABLE}")
 
+# ---------------------
+# slangc shader compiler
+# ---------------------
+set(SLANGC_EXECUTABLE "" CACHE FILEPATH "Path to the Slang shader compiler")
+
+if(NOT SLANGC_EXECUTABLE)
+    if(WIN32)
+        set(SLANGC_CANDIDATE "$ENV{VULKAN_SDK}/Bin/slangc.exe")
+    elseif(UNIX)
+        set(SLANGC_CANDIDATE "$ENV{VULKAN_SDK}/bin/slangc")
+    endif()
+
+    if(EXISTS "${SLANGC_CANDIDATE}")
+        set(SLANGC_EXECUTABLE "${SLANGC_CANDIDATE}" CACHE FILEPATH "Path to the Slang shader compiler" FORCE)
+    else()
+        find_program(SLANGC_EXECUTABLE slangc)
+    endif()
+endif()
+
+if(SLANGC_EXECUTABLE)
+    message(STATUS "Using slangc: ${SLANGC_EXECUTABLE}")
+else()
+    message(WARNING "slangc not found. GLSL shaders will still compile, but Slang shaders are unavailable.")
+endif()
+
 target_link_libraries(engine
     PUBLIC
         Vulkan::Vulkan
@@ -97,6 +122,16 @@ file(GLOB ALL_SHADERS CONFIGURE_DEPENDS
     "${ENGINE_SHADER_DIR}/*.frag"
 )
 
+file(GLOB ALL_SLANG_SHADERS CONFIGURE_DEPENDS
+    "${ENGINE_SHADER_DIR}/*.comp.slang"
+    "${ENGINE_SHADER_DIR}/*.vert.slang"
+    "${ENGINE_SHADER_DIR}/*.frag.slang"
+)
+
+file(GLOB ALL_GRAPHICS_SLANG_SHADERS CONFIGURE_DEPENDS
+    "${ENGINE_SHADER_DIR}/*.graphics.slang"
+)
+
 set(COMPILED_SHADERS "")
 
 foreach(SHADER_FILE IN LISTS ALL_SHADERS)
@@ -113,6 +148,66 @@ foreach(SHADER_FILE IN LISTS ALL_SHADERS)
     )
 
     list(APPEND COMPILED_SHADERS "${SPIRV_FILE}")
+endforeach()
+
+foreach(SHADER_FILE IN LISTS ALL_SLANG_SHADERS)
+    get_filename_component(SHADER_NAME "${SHADER_FILE}" NAME)
+    string(REGEX REPLACE "\\.slang$" "" OUTPUT_SHADER_NAME "${SHADER_NAME}")
+    set(SPIRV_FILE "${ENGINE_SHADER_DIR}/${OUTPUT_SHADER_NAME}.spv")
+
+    if(SHADER_NAME MATCHES "\\.vert\\.slang$")
+        set(SLANG_STAGE "vertex")
+    elseif(SHADER_NAME MATCHES "\\.frag\\.slang$")
+        set(SLANG_STAGE "fragment")
+    elseif(SHADER_NAME MATCHES "\\.comp\\.slang$")
+        set(SLANG_STAGE "compute")
+    else()
+        message(FATAL_ERROR "Could not infer Slang shader stage from ${SHADER_NAME}")
+    endif()
+
+    if(NOT SLANGC_EXECUTABLE)
+        message(FATAL_ERROR "Slang shader ${SHADER_NAME} requires slangc, but slangc was not found.")
+    endif()
+
+    add_custom_command(
+        OUTPUT "${SPIRV_FILE}"
+        COMMAND "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry main -stage "${SLANG_STAGE}" -o "${SPIRV_FILE}"
+        DEPENDS "${SHADER_FILE}"
+        COMMENT "Compiling Slang shader ${SHADER_NAME}"
+        VERBATIM
+    )
+
+    list(APPEND COMPILED_SHADERS "${SPIRV_FILE}")
+endforeach()
+
+foreach(SHADER_FILE IN LISTS ALL_GRAPHICS_SLANG_SHADERS)
+    get_filename_component(SHADER_NAME "${SHADER_FILE}" NAME)
+    string(REGEX REPLACE "\\.graphics\\.slang$" "" OUTPUT_SHADER_NAME "${SHADER_NAME}")
+    set(VERT_SPIRV_FILE "${ENGINE_SHADER_DIR}/${OUTPUT_SHADER_NAME}.vert.spv")
+    set(FRAG_SPIRV_FILE "${ENGINE_SHADER_DIR}/${OUTPUT_SHADER_NAME}.frag.spv")
+
+    if(NOT SLANGC_EXECUTABLE)
+        message(FATAL_ERROR "Slang shader ${SHADER_NAME} requires slangc, but slangc was not found.")
+    endif()
+
+    add_custom_command(
+        OUTPUT "${VERT_SPIRV_FILE}"
+        COMMAND "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry vertexMain -stage vertex -o "${VERT_SPIRV_FILE}"
+        DEPENDS "${SHADER_FILE}"
+        COMMENT "Compiling Slang vertex shader ${SHADER_NAME}"
+        VERBATIM
+    )
+
+    add_custom_command(
+        OUTPUT "${FRAG_SPIRV_FILE}"
+        COMMAND "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry fragmentMain -stage fragment -o "${FRAG_SPIRV_FILE}"
+        DEPENDS "${SHADER_FILE}"
+        COMMENT "Compiling Slang fragment shader ${SHADER_NAME}"
+        VERBATIM
+    )
+
+    list(APPEND COMPILED_SHADERS "${VERT_SPIRV_FILE}")
+    list(APPEND COMPILED_SHADERS "${FRAG_SPIRV_FILE}")
 endforeach()
 
 add_custom_target(engine_shaders ALL

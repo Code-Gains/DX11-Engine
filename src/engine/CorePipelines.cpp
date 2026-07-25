@@ -151,9 +151,6 @@ void Core::InitBackgroundPipelines()
     VK_CHECK(vkCreatePipelineLayout(_device, &computeLayout, nullptr, &_gradientPipelineLayout));
 
     VkShaderModule gradientShader;
-    // if (!vkutil::load_shader_module("../../../shaders/gradient_color.comp.spv", _device, &gradientShader)) {
-    //     ENGINE_LOG_ERROR("Error when building the compute shader");
-    // }
     if (!LoadEngineShaderModule("shaders/gradient.comp.spv", &gradientShader)) {
         ENGINE_LOG_ERROR("Error when building the compute shader");
     }
@@ -228,8 +225,6 @@ void Core::InitMeshPipeline() {
     VkShaderModule triangleVertexShader;
     if (!LoadEngineShaderModule("shaders/colored_triangle_mesh.vert.spv", &triangleVertexShader))
         ENGINE_LOG_ERROR("Error when building the triangle vertex shader module");
-    // if (!vkutil::load_shader_module("../../../shaders/batch_color_mesh.vert.spv", _device, &triangleVertexShader))
-    //     ENGINE_LOG_ERROR("Error when building the triangle vertex shader module");
 
     VkPushConstantRange bufferRange{};
     bufferRange.offset = 0;
