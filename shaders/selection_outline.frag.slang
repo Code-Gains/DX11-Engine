@@ -20,6 +20,11 @@ PushConstants pushConstants;
 [shader("fragment")]
 float4 main(FragmentInput input) : SV_Target
 {
+    if (input.uv.x < 0.0 || input.uv.x > 1.0 ||
+        input.uv.y < 0.0 || input.uv.y > 1.0) {
+        discard;
+    }
+
     float center = selectionMask.Sample(input.uv).r;
     if (center > 0.5) {
         discard;
@@ -35,7 +40,13 @@ float4 main(FragmentInput input) : SV_Target
                 continue;
             }
 
-            float sampleMask = selectionMask.Sample(input.uv + offset * pushConstants.texelSize).r;
+            float2 sampleUv = input.uv + offset * pushConstants.texelSize;
+            if (sampleUv.x < 0.0 || sampleUv.x > 1.0 ||
+                sampleUv.y < 0.0 || sampleUv.y > 1.0) {
+                continue;
+            }
+
+            float sampleMask = selectionMask.Sample(sampleUv).r;
             if (sampleMask > 0.5) {
                 nearSelection = true;
             }

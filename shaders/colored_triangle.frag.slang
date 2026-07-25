@@ -146,7 +146,7 @@ float4 main(FragmentInput input) : SV_Target
     float ambientOcclusion = occlusionTexture.Sample(input.uv).r;
     float3 emissive = emissionTexture.Sample(input.uv).rgb;
 
-    float3 n = GetNormalFromMap(input);
+    float3 n = normalize(input.normal);
 
     float3 light = normalize(sceneData.sunlightDirection.xyz);
     float3 view = normalize(sceneData.cameraPosition.xyz - input.worldPosition);
