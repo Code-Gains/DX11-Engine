@@ -314,6 +314,7 @@ private:
     void InitDescriptors();
     void InitImgui();
     void InitInstancedMeshPipeline();
+    void InitTransparentMeshPipeline();
     void InitMeshPipeline();
     void InitEffectMeshPipeline();
     void InitLinePipeline();
@@ -327,7 +328,11 @@ private:
     void InitBRDFLUTPipeline();
     bool LoadEngineShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule);
     bool LoadProjectShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule);
-    VkPipeline BuildMeshGraphicsPipeline(VkPipelineLayout layout, VkShaderModule vertexShader, VkShaderModule fragmentShader);
+    VkPipeline BuildMeshGraphicsPipeline(
+        VkPipelineLayout layout,
+        VkShaderModule vertexShader,
+        VkShaderModule fragmentShader,
+        bool transparent = false);
     MaterialInstance* ResolveMeshMaterial(const MeshComponent& meshComponent, const GeoSurface& surface);
 
     // ------------------------------------------------------------------------
@@ -476,6 +481,8 @@ private:
     std::unordered_map<std::string, RenderPipelineId> _renderPipelineIdsByName;
     RenderPipelineId _meshPipelineId;
     RenderPipelineId _instancedMeshPipelineId;
+    RenderPipelineId _transparentMeshPipelineId;
+    RenderPipelineId _transparentInstancedMeshPipelineId;
 
     RenderPipelineId RegisterRenderPipeline(std::string name, MaterialPipeline pipeline);
     const MaterialPipeline& GetRenderPipeline(RenderPipelineId id) const;

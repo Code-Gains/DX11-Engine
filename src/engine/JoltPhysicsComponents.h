@@ -34,6 +34,7 @@ struct JoltBodyComponent {
     JoltColliderShape shape = JoltColliderShape::Sphere;
     JoltBodyMotion motion = JoltBodyMotion::Kinematic;
     bool sensor = false;
+    glm::vec3 transformScale{ 1.0f };
     glm::vec3 center{ 0.0f };
     float radius = 1.0f;
     glm::vec3 halfExtents{ 0.5f };

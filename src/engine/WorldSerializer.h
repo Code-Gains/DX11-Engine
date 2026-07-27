@@ -196,10 +196,15 @@ private:
     Serialization::SerializedWorld CaptureWorld(Core& core) const;
     void ApplyWorld(Core& core, const Serialization::SerializedWorld& world) const;
     std::optional<Serialization::SerializedEntity> CaptureEntity(Core& core, entt::entity entity) const;
+    std::vector<Serialization::SerializedEntity> CaptureEntityHierarchy(Core& core, entt::entity root) const;
     entt::entity ApplyEntity(
         Core& core,
         const Serialization::SerializedEntity& entity,
         bool preserveSerializedId = false) const;
+    std::optional<entt::entity> ApplyPrefab(
+        Core& core,
+        uint64_t rootId,
+        const std::vector<Serialization::SerializedEntity>& entities) const;
     void RegisterDefaultComponentSerializers();
 
     ComponentSerializerRegistry _componentSerializers;

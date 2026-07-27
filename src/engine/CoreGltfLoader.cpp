@@ -292,6 +292,11 @@ size_t Core::LoadGltfMaterials(fastgltf::Asset &gltf, size_t imageOffset)
             gltfMaterial.pbrData.baseColorFactor[2],
             gltfMaterial.pbrData.baseColorFactor[3]
         };
+        if (material.baseColorFactor.a < 0.999f) {
+            material.passType = MaterialPass::Transparent;
+            material.pipelines.single = _transparentMeshPipelineId;
+            material.pipelines.instanced = _transparentInstancedMeshPipelineId;
+        }
 
         AssignGltfMaterialTexture(
             gltf,

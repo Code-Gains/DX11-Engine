@@ -457,6 +457,20 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
         }
     );
 
+    AddComponentMenuItem(
+        "Static Box Collider",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<Transform>(entity) &&
+                   !registry.all_of<Engine::JoltColliderComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            auto& collider = registry.emplace<Engine::JoltColliderComponent>(entity);
+            collider.shape = Engine::JoltColliderShape::Box;
+            collider.motion = Engine::JoltBodyMotion::Static;
+            collider.halfExtents = glm::vec3{ 0.5f };
+        }
+    );
+
     auto& windowRegistry = _registry.ctx().get<ImGuiWindowRegistry>();
 
     windowRegistry.RegisterWindow(

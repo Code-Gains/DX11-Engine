@@ -49,7 +49,11 @@ bool Core::LoadProjectShaderModule(const std::filesystem::path& path, VkShaderMo
     return vkutil::load_shader_module(shaderPath.c_str(), _device, outShaderModule);
 }
 
-VkPipeline Core::BuildMeshGraphicsPipeline(VkPipelineLayout layout, VkShaderModule vertexShader, VkShaderModule fragmentShader)
+VkPipeline Core::BuildMeshGraphicsPipeline(
+    VkPipelineLayout layout,
+    VkShaderModule vertexShader,
+    VkShaderModule fragmentShader,
+    bool transparent)
 {
     PipelineBuilder pipelineBuilder;
 
@@ -57,11 +61,16 @@ VkPipeline Core::BuildMeshGraphicsPipeline(VkPipelineLayout layout, VkShaderModu
     pipelineBuilder.set_shaders(vertexShader, fragmentShader);
     pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
     pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
-    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
     pipelineBuilder.set_multisampling(_msaaSamples);
-    pipelineBuilder.disable_blending();
+    if (transparent) {
+        pipelineBuilder.enable_blending_alphablend();
+    }
+    else {
+        pipelineBuilder.disable_blending();
+    }
     pipelineBuilder.disable_depthtest();
-    pipelineBuilder.enable_depthtest(true, VK_COMPARE_OP_GREATER_OR_EQUAL);
+    pipelineBuilder.enable_depthtest(!transparent, VK_COMPARE_OP_GREATER_OR_EQUAL);
     pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
     pipelineBuilder.set_depth_format(_depthImage.imageFormat);
 
@@ -312,6 +321,57 @@ void Core::InitInstancedMeshPipeline() {
     _mainDeletionQueue.push_function([&]() {
         vkDestroyPipelineLayout(_device, _instancedMeshPipelineLayout, nullptr);
         vkDestroyPipeline(_device, _instancedMeshPipeline, nullptr);
+    });
+}
+
+void Core::InitTransparentMeshPipeline()
+{
+    assert(_meshPipelineLayout != VK_NULL_HANDLE);
+    assert(_instancedMeshPipelineLayout != VK_NULL_HANDLE);
+
+    VkShaderModule triangleFragShader;
+    if (!LoadEngineShaderModule("shaders/colored_triangle.frag.spv", &triangleFragShader)) {
+        ENGINE_LOG_ERROR("Error when building the transparent mesh fragment shader module");
+    }
+
+    VkShaderModule singleVertexShader;
+    if (!LoadEngineShaderModule("shaders/colored_triangle_mesh.vert.spv", &singleVertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the transparent mesh vertex shader module");
+    }
+
+    VkShaderModule instancedVertexShader;
+    if (!LoadEngineShaderModule("shaders/batch_color_mesh.vert.spv", &instancedVertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the transparent instanced mesh vertex shader module");
+    }
+
+    VkPipeline transparentMeshPipeline =
+        BuildMeshGraphicsPipeline(_meshPipelineLayout, singleVertexShader, triangleFragShader, true);
+    VkPipeline transparentInstancedMeshPipeline =
+        BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, instancedVertexShader, triangleFragShader, true);
+
+    _transparentMeshPipelineId = RegisterRenderPipeline(
+        "Engine/TransparentMeshPBR",
+        MaterialPipeline{
+            .pipeline = transparentMeshPipeline,
+            .layout = _meshPipelineLayout
+        }
+    );
+
+    _transparentInstancedMeshPipelineId = RegisterRenderPipeline(
+        "Engine/TransparentInstancedMeshPBR",
+        MaterialPipeline{
+            .pipeline = transparentInstancedMeshPipeline,
+            .layout = _instancedMeshPipelineLayout
+        }
+    );
+
+    vkDestroyShaderModule(_device, instancedVertexShader, nullptr);
+    vkDestroyShaderModule(_device, singleVertexShader, nullptr);
+    vkDestroyShaderModule(_device, triangleFragShader, nullptr);
+
+    _mainDeletionQueue.push_function([this, transparentMeshPipeline, transparentInstancedMeshPipeline]() {
+        vkDestroyPipeline(_device, transparentInstancedMeshPipeline, nullptr);
+        vkDestroyPipeline(_device, transparentMeshPipeline, nullptr);
     });
 }
 

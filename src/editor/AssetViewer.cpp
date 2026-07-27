@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <string_view>
+#include <system_error>
 #include <utility>
 
 void AssetViewer::Update(float deltaTime)
@@ -68,6 +69,13 @@ void AssetViewer::DrawUi()
                 }
             }
 
+            if (ImGui::BeginPopupContextItem("AssetFileContextMenu")) {
+                if (ImGui::MenuItem("Delete File")) {
+                    RequestDeleteAsset(file.projectPath);
+                }
+                ImGui::EndPopup();
+            }
+
             ImGui::PopID();
         }
 
@@ -83,6 +91,9 @@ void AssetViewer::DrawUi()
         else if (_selectedAssetKind == AssetKind::Mesh)
         {
             ImGui::Text("Mesh: %s", _selectedAssetFile.c_str());
+            if (ImGui::Button("Delete File##DeleteSelectedMeshAsset")) {
+                RequestDeleteAsset(_selectedAssetFile);
+            }
             ImGui::Separator();
 
             auto* meshes = GetOrLoadMeshes(_selectedAssetFile);
@@ -112,6 +123,9 @@ void AssetViewer::DrawUi()
         else if (_selectedAssetKind == AssetKind::World)
         {
             ImGui::Text("World: %s", _selectedAssetFile.c_str());
+            if (ImGui::Button("Delete File##DeleteSelectedWorldAsset")) {
+                RequestDeleteAsset(_selectedAssetFile);
+            }
             ImGui::Separator();
 
             if (ImGui::Button("Load World")) {
@@ -121,6 +135,9 @@ void AssetViewer::DrawUi()
         else if (_selectedAssetKind == AssetKind::Prefab)
         {
             ImGui::Text("Prefab: %s", _selectedAssetFile.c_str());
+            if (ImGui::Button("Delete File##DeleteSelectedPrefabAsset")) {
+                RequestDeleteAsset(_selectedAssetFile);
+            }
 
             ImGui::SetNextItemWidth(320.0f);
             ImGui::InputText(
@@ -160,6 +177,13 @@ void AssetViewer::DrawUi()
         }
 
         ImGui::EndChild();
+
+        if (_openDeleteConfirmation) {
+            ImGui::OpenPopup("Delete Asset File");
+            _openDeleteConfirmation = false;
+        }
+
+        DrawDeleteConfirmationModal();
     }
 
     ImGui::End();
@@ -376,6 +400,114 @@ void AssetViewer::SaveSelectedEntityAsPrefab(bool overwriteConfirmed)
     else {
         SetStatus("Failed to save prefab " + projectPath.generic_string(), false);
     }
+}
+
+void AssetViewer::RequestDeleteAsset(const std::filesystem::path& projectPath)
+{
+    if (!IsProjectAssetPath(projectPath)) {
+        SetStatus("Can only delete files under assets/.", false);
+        return;
+    }
+
+    _deleteCandidateProjectPath = projectPath;
+    _deleteCandidateTargets = BuildDeleteTargets(projectPath);
+
+    if (_deleteCandidateTargets.empty()) {
+        SetStatus("No existing file found for " + projectPath.generic_string(), false);
+        return;
+    }
+
+    _openDeleteConfirmation = true;
+}
+
+void AssetViewer::DrawDeleteConfirmationModal()
+{
+    if (ImGui::BeginPopupModal("Delete Asset File", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::TextUnformatted("Delete asset file?");
+        ImGui::Separator();
+        ImGui::TextWrapped("%s", _deleteCandidateProjectPath.generic_string().c_str());
+
+        if (_deleteCandidateTargets.size() > 1) {
+            ImGui::Spacing();
+            ImGui::TextUnformatted("This will also delete:");
+            for (std::size_t index = 1; index < _deleteCandidateTargets.size(); ++index) {
+                ImGui::BulletText("%s", _core->MakeProjectRelative(_deleteCandidateTargets[index]).generic_string().c_str());
+            }
+        }
+
+        ImGui::Spacing();
+        if (ImGui::Button("Delete##ConfirmDeleteAsset")) {
+            ConfirmDeleteAsset();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel##CancelDeleteAsset")) {
+            _deleteCandidateProjectPath.clear();
+            _deleteCandidateTargets.clear();
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
+void AssetViewer::ConfirmDeleteAsset()
+{
+    if (!_core || _deleteCandidateTargets.empty()) {
+        return;
+    }
+
+    std::size_t deletedCount = 0;
+    for (const auto& target : _deleteCandidateTargets) {
+        std::error_code error;
+        if (std::filesystem::remove(target, error)) {
+            ++deletedCount;
+        }
+        else if (error) {
+            SetStatus("Failed to delete " + _core->MakeProjectRelative(target).generic_string() + ": " + error.message(), false);
+            return;
+        }
+    }
+
+    const auto deletedPath = _deleteCandidateProjectPath.generic_string();
+    _loadedMeshes.erase(deletedPath);
+    if (_selectedAssetFile == deletedPath) {
+        _selectedAssetFile.clear();
+    }
+
+    _deleteCandidateProjectPath.clear();
+    _deleteCandidateTargets.clear();
+    RefreshAssetList(false);
+    SetStatus("Deleted " + std::to_string(deletedCount) + " file(s).", true);
+}
+
+std::vector<std::filesystem::path> AssetViewer::BuildDeleteTargets(const std::filesystem::path& projectPath) const
+{
+    std::vector<std::filesystem::path> targets;
+    if (!_core || !IsProjectAssetPath(projectPath)) {
+        return targets;
+    }
+
+    const auto resolvedPath = _core->ResolveProjectPath(projectPath);
+    if (std::filesystem::is_regular_file(resolvedPath)) {
+        targets.push_back(resolvedPath);
+    }
+
+    if (projectPath.extension() == ".gltf") {
+        auto sidecarPath = resolvedPath;
+        sidecarPath.replace_extension(".bin");
+        if (std::filesystem::is_regular_file(sidecarPath)) {
+            targets.push_back(sidecarPath);
+        }
+    }
+
+    return targets;
+}
+
+bool AssetViewer::IsProjectAssetPath(const std::filesystem::path& projectPath) const
+{
+    const auto path = projectPath.generic_string();
+    return path == "assets" || path.starts_with("assets/");
 }
 
 void AssetViewer::SetPrefabPathBuffer(const std::filesystem::path& projectPath)

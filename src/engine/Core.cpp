@@ -357,6 +357,7 @@ void Core::InitPipelines()
     InitPrefilterPipeline();
     InitMeshPipeline();
     InitInstancedMeshPipeline();
+    InitTransparentMeshPipeline();
     InitEffectMeshPipeline();
     InitShadowPipeline();
     InitLinePipeline();
@@ -429,7 +430,6 @@ void Core::Run() {
                 ++benchmarkMeasuredFixedSteps;
             }
         }
-
         // update loop
         if (_window->WasResized()) {
             uint32_t width = _window->GetWidth();
@@ -1137,6 +1137,10 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         sceneData.ambientColor = glm::vec4(0.0f);
     }
 
+    const auto isTransparentMaterial = [](const MaterialInstance* material) {
+        return material && material->passType == MaterialPass::Transparent;
+    };
+
     sceneData.cameraPosition = glm::vec4(renderCameraTransform.position, 1.0f);
     sceneData.lightViewProjection = _sunLightViewProjection;
 
@@ -1248,6 +1252,10 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
             auto& surface = meshComponent.mesh->surfaces[0];
             auto* material = ResolveMeshMaterial(meshComponent, surface);
+            if (isTransparentMaterial(material)) {
+                continue;
+            }
+
             RenderPipelineId pipelineId = _instancedMeshPipelineId;
             if (material && material->pipelines.instanced.IsValid()) {
                 pipelineId = material->pipelines.instanced;
@@ -1428,6 +1436,10 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
         auto& surface = meshAssetPtr->surfaces[0];
         auto* material = ResolveMeshMaterial(meshComponent, surface);
+        if (isTransparentMaterial(material)) {
+            continue;
+        }
+
         RenderPipelineId pipelineId = _meshPipelineId;
         if (material && material->pipelines.single.IsValid()) {
             pipelineId = material->pipelines.single;
@@ -1522,6 +1534,121 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
         vkCmdBindIndexBuffer(cmd, meshAssetPtr->meshBuffers.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
         
+        vkCmdDrawIndexed(cmd, surface.count, 1, surface.startIndex, 0, 0);
+    }
+
+    // Transparent meshes render after opaque geometry. This first pass draws them
+    // individually so alpha composition is predictable enough for editor/game use.
+    auto registryViewTransparent = _registry.view<MeshComponent, Transform>(entt::exclude<EffectMeshComponent, DisabledEntityTag>);
+    RenderPipelineId boundTransparentPipelineId;
+
+    for (auto entity : registryViewTransparent) {
+        if (IsEntityDisabled(_registry, entity)) {
+            continue;
+        }
+
+        auto& meshComponent = registryViewTransparent.get<MeshComponent>(entity);
+        auto& transformComponent = registryViewTransparent.get<Transform>(entity);
+
+        auto meshAssetPtr = meshComponent.mesh.get();
+        if (!meshAssetPtr || meshAssetPtr->surfaces.empty()) {
+            continue;
+        }
+
+        auto& surface = meshAssetPtr->surfaces[0];
+        auto* material = ResolveMeshMaterial(meshComponent, surface);
+        if (!isTransparentMaterial(material)) {
+            continue;
+        }
+
+        RenderPipelineId pipelineId = _transparentMeshPipelineId;
+        if (material && material->pipelines.single.IsValid()) {
+            pipelineId = material->pipelines.single;
+        }
+
+        const MaterialPipeline& meshPipeline = GetRenderPipeline(pipelineId);
+        if (pipelineId != boundTransparentPipelineId) {
+            vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.pipeline);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
+            boundTransparentPipelineId = pipelineId;
+        }
+
+        AllocatedImage* baseColor = material ? material->image : nullptr;
+        AllocatedImage* normal = material ? material->normalImage : nullptr;
+        AllocatedImage* metallicRoughness = material ? material->metallicRoughnessImage : nullptr;
+        AllocatedImage* occlusion = material ? material->occlusionImage : nullptr;
+        AllocatedImage* emissive = material ? material->emissionImage : nullptr;
+
+        if (!baseColor) baseColor = &_greyImage;
+        if (!normal) normal = &_flatNormalImage;
+        if (!metallicRoughness) metallicRoughness = &_defaultMetallicRoughnessImage;
+        if (!occlusion) occlusion = &_whiteImage;
+        if (!emissive) emissive = &_blackImage;
+
+        VkDescriptorSet imageSet =
+            GetCurrentFrame()._frameDescriptors.allocate(
+                _device,
+                _multiImageDescriptorLayout
+            );
+
+        DescriptorWriter imageWriter;
+        imageWriter.write_image(
+            0,
+            baseColor->imageView,
+            baseColor->sampler != VK_NULL_HANDLE ? baseColor->sampler : _defaultSamplerLinear,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        );
+        imageWriter.write_image(
+            1,
+            normal->imageView,
+            normal->sampler != VK_NULL_HANDLE ? normal->sampler : _defaultSamplerLinear,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        );
+        imageWriter.write_image(
+            2,
+            metallicRoughness->imageView,
+            metallicRoughness->sampler != VK_NULL_HANDLE ? metallicRoughness->sampler : _defaultSamplerLinear,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        );
+        imageWriter.write_image(
+            3,
+            occlusion->imageView,
+            occlusion->sampler != VK_NULL_HANDLE ? occlusion->sampler : _defaultSamplerLinear,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        );
+        imageWriter.write_image(
+            4,
+            emissive->imageView,
+            emissive->sampler != VK_NULL_HANDLE ? emissive->sampler : _defaultSamplerLinear,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
+        );
+        imageWriter.update_set(_device, imageSet);
+
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 0, 1, &imageSet, 0, nullptr);
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 1, 1, &globalDescriptor, 0, nullptr);
+
+        glm::mat4 model =
+            glm::translate(glm::mat4(1.0f), transformComponent.position) *
+            glm::mat4_cast(transformComponent.rotation) *
+            glm::scale(glm::mat4(1.0f), transformComponent.scale);
+
+        GPUDrawPushConstants pushConstants{};
+        pushConstants.vertexBuffer = meshAssetPtr->meshBuffers.vertexBufferAddress;
+        pushConstants.model = model;
+        pushConstants.viewProjection = projectionMatrix * viewMatrix;
+        pushConstants.baseColorFactor =
+            (material ? material->baseColorFactor : glm::vec4{ 1.0f }) *
+            meshComponent.baseColorFactor;
+
+        vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &pushConstants);
+
+        vkCmdBindIndexBuffer(cmd, meshAssetPtr->meshBuffers.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
         vkCmdDrawIndexed(cmd, surface.count, 1, surface.startIndex, 0, 0);
     }
 
@@ -1664,6 +1791,10 @@ glm::mat4 Core::BuildSunLightViewProjection()
         if (!mesh.mesh || mesh.mesh->surfaces.empty()) {
             continue;
         }
+        if (auto* material = ResolveMeshMaterial(mesh, mesh.mesh->surfaces[0]);
+            material && material->passType == MaterialPass::Transparent) {
+            continue;
+        }
 
         const auto& transform = meshView.get<Transform>(entity);
         const glm::vec3 absScale = glm::abs(transform.scale);
@@ -1763,6 +1894,10 @@ void Core::DrawShadowMap(VkCommandBuffer cmd)
 
         auto meshAssetPtr = meshComponent.mesh.get();
         if (!meshAssetPtr || meshAssetPtr->surfaces.empty()) {
+            continue;
+        }
+        if (auto* material = ResolveMeshMaterial(meshComponent, meshAssetPtr->surfaces[0]);
+            material && material->passType == MaterialPass::Transparent) {
             continue;
         }
 

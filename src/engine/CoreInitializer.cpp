@@ -341,6 +341,13 @@ void Core::InitDefaultData()
     _defaultMaterial.pipelines.instanced = _instancedMeshPipelineId;
     RegisterMaterialAsset("Engine/DefaultPBR", _defaultMaterial);
 
+    MaterialInstance transparentMaterial = _defaultMaterial;
+    transparentMaterial.baseColorFactor = glm::vec4{ 0.35f, 0.8f, 1.0f, 0.28f };
+    transparentMaterial.passType = MaterialPass::Transparent;
+    transparentMaterial.pipelines.single = _transparentMeshPipelineId;
+    transparentMaterial.pipelines.instanced = _transparentInstancedMeshPipelineId;
+    RegisterMaterialAsset("Engine/TransparentPBR", transparentMaterial);
+
     //checkerboard image
     uint32_t magenta = glm::packUnorm4x8(glm::vec4(1, 0, 1, 1));
     std::array<uint32_t, 16 *16 > pixels; //for 16x16 checkerboard texture

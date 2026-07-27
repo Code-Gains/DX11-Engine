@@ -50,7 +50,7 @@ void GravitySimulationSystem::FixedUpdate(float deltaTime)
 
     std::unordered_map<entt::entity, GravityAccumulation> accumulations;
 
-    auto bodyView = _registry.view<Transform, GravityBodyComponent, VelocityComponent>(
+    auto bodyView = _registry.view<Transform, GravityBodyComponent>(
         entt::exclude<DisabledEntityTag>);
     auto particleView = _registry.view<Transform, GravityParticleComponent, VelocityComponent>(
         entt::exclude<GravityBodyComponent, DisabledEntityTag>
@@ -146,18 +146,22 @@ void GravitySimulationSystem::FixedUpdate(float deltaTime)
             }
 
             glm::vec3 direction = glm::normalize(distanceVector);
-            AddAcceleration(
-                accumulations,
-                entityA,
-                entityB,
-                direction * gravitationalConstant * bodyB.mass / distanceSquared
-            );
-            AddAcceleration(
-                accumulations,
-                entityB,
-                entityA,
-                -direction * gravitationalConstant * bodyA.mass / distanceSquared
-            );
+            if (bodyA.affectedByGravity && _registry.all_of<VelocityComponent>(entityA)) {
+                AddAcceleration(
+                    accumulations,
+                    entityA,
+                    entityB,
+                    direction * gravitationalConstant * bodyB.mass / distanceSquared
+                );
+            }
+            if (bodyB.affectedByGravity && _registry.all_of<VelocityComponent>(entityB)) {
+                AddAcceleration(
+                    accumulations,
+                    entityB,
+                    entityA,
+                    -direction * gravitationalConstant * bodyA.mass / distanceSquared
+                );
+            }
         }
     }
 

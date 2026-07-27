@@ -5,6 +5,7 @@ add_library(editor_tools STATIC
     AssetViewer.cpp
     AnimationEditor.cpp
     CameraShotEditorUi.cpp
+    JoltColliderDebugDrawSystem.cpp
 )
 
 target_include_directories(editor_tools

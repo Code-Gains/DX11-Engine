@@ -7,6 +7,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
+#include <glm/geometric.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -400,6 +401,22 @@ public:
         {
             EditorUi::ScopedItemWidth width{ 260.0f };
             ImGui::DragFloat("Mass", &gravityBody->mass, 0.1f, 0.0f, 1000000000.0f);
+            ImGui::Checkbox("Affected By Gravity", &gravityBody->affectedByGravity);
+
+            if (auto* velocity = registry.try_get<VelocityComponent>(entity)) {
+                const float linearSpeed = glm::length(velocity->linear);
+                ImGui::TextDisabled("Linear speed: %.3f", linearSpeed);
+            }
+
+            if (auto* gravityState = registry.try_get<GravityStateComponent>(entity)) {
+                const float acceleration = glm::length(gravityState->acceleration);
+                ImGui::TextDisabled("Gravity accel: %.3f", acceleration);
+                if (gravityState->dominantSource != entt::null) {
+                    ImGui::TextDisabled("Dominant source: %u", entt::to_integral(gravityState->dominantSource));
+                } else {
+                    ImGui::TextDisabled("Dominant source: none");
+                }
+            }
         }
     }
 };
@@ -468,6 +485,14 @@ public:
             const auto* body = registry.try_get<Engine::JoltBodyComponent>(entity);
             ImGui::TextDisabled(
                 body ? "Runtime body: created" : "Runtime body: pending");
+            if (body) {
+                const glm::vec3 boxSize = body->halfExtents * body->transformScale * 2.0f;
+                ImGui::TextDisabled(
+                    "Runtime box size: %.3f %.3f %.3f",
+                    boxSize.x,
+                    boxSize.y,
+                    boxSize.z);
+            }
         }
     }
 };

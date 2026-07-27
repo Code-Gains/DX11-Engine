@@ -8,6 +8,7 @@
 #include "EntityViewer.h"
 #include "AssetViewer.h"
 #include "AnimationEditor.h"
+#include "JoltColliderDebugDrawSystem.h"
 #include "NameComponent.h"
 #include "SunlightComponent.h"
 
@@ -39,6 +40,7 @@ int main() {
     core._systems.push_back(std::make_unique<EntityViewer>(registry, registryViewerPtr, &core));
     core._systems.push_back(std::make_unique<AnimationEditor>(registry, registryViewerPtr));
     core._systems.push_back(std::make_unique<AssetViewer>(registry, &core, registryViewerPtr));
+    core._systems.push_back(std::make_unique<JoltColliderDebugDrawSystem>(registry));
 
     auto meshEntity = registry.create();
     //registry.emplace<MeshComponent>(meshEntity, meshes[0]);

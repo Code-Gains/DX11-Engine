@@ -42,6 +42,9 @@ private:
     bool _statusSucceeded = true;
     std::array<char, 512> _prefabPathBuffer {};
     bool _overwritePrefabConfirmationActive = false;
+    std::filesystem::path _deleteCandidateProjectPath;
+    std::vector<std::filesystem::path> _deleteCandidateTargets;
+    bool _openDeleteConfirmation = false;
 
     void RefreshAssetList(bool updateStatus = true);
     std::vector<std::shared_ptr<MeshAsset>>* GetOrLoadMeshes(const std::filesystem::path& projectPath);
@@ -49,6 +52,11 @@ private:
     void LoadSelectedWorld();
     void InstantiateSelectedPrefab();
     void SaveSelectedEntityAsPrefab(bool overwriteConfirmed = false);
+    void RequestDeleteAsset(const std::filesystem::path& projectPath);
+    void DrawDeleteConfirmationModal();
+    void ConfirmDeleteAsset();
+    std::vector<std::filesystem::path> BuildDeleteTargets(const std::filesystem::path& projectPath) const;
+    bool IsProjectAssetPath(const std::filesystem::path& projectPath) const;
     void SetPrefabPathBuffer(const std::filesystem::path& projectPath);
     void SetStatus(std::string text, bool succeeded);
 };

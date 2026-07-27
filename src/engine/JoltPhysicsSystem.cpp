@@ -15,6 +15,9 @@
 #include <Jolt/Physics/Body/BodyInterface.h>
 #include <Jolt/Physics/Body/MotionType.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -87,6 +90,14 @@ public:
     }
 };
 
+class StaticObjectLayerFilter final : public JPH::ObjectLayerFilter {
+public:
+    bool ShouldCollide(JPH::ObjectLayer layer) const override
+    {
+        return layer == Layers::Static;
+    }
+};
+
 BroadPhaseLayerInterface& GetBroadPhaseLayerInterface()
 {
     static BroadPhaseLayerInterface interface;
@@ -102,6 +113,12 @@ ObjectVsBroadPhaseLayerFilter& GetObjectVsBroadPhaseLayerFilter()
 ObjectLayerPairFilter& GetObjectLayerPairFilter()
 {
     static ObjectLayerPairFilter filter;
+    return filter;
+}
+
+StaticObjectLayerFilter& GetStaticObjectLayerFilter()
+{
+    static StaticObjectLayerFilter filter;
     return filter;
 }
 
@@ -126,6 +143,11 @@ JPH::Vec3 ToJoltVec3(const glm::vec3& value)
 JPH::Quat ToJoltQuat(const glm::quat& value)
 {
     return JPH::Quat{ value.x, value.y, value.z, value.w };
+}
+
+glm::vec3 FromJoltVec3(const JPH::Vec3& value)
+{
+    return { value.GetX(), value.GetY(), value.GetZ() };
 }
 
 float MaxScaleAxis(const glm::vec3& scale)
@@ -255,10 +277,9 @@ void JoltPhysicsSystem::Update(float deltaTime)
         return;
     }
 
-    RemoveStaleBodies();
-    SyncBodies();
-
     if (_core && !_core->IsPlayMode()) {
+        RemoveStaleBodies();
+        SyncBodies();
         return;
     }
 
@@ -269,6 +290,26 @@ void JoltPhysicsSystem::Update(float deltaTime)
         _jobSystem.get());
 }
 
+void JoltPhysicsSystem::FixedUpdate(float)
+{
+    if (!_physicsSystem || (_core && !_core->IsPlayMode())) {
+        return;
+    }
+
+    RemoveStaleBodies();
+    SyncBodies();
+}
+
+void JoltPhysicsSystem::OnPlayStart()
+{
+    while (!_bodies.empty()) {
+        RemoveBody(_bodies.begin()->first);
+    }
+
+    InitializeJolt();
+    SyncBodies();
+}
+
 void JoltPhysicsSystem::OnPlayStop()
 {
     while (!_bodies.empty()) {
@@ -276,6 +317,54 @@ void JoltPhysicsSystem::OnPlayStop()
     }
 
     InitializeJolt();
+}
+
+std::vector<JoltPhysicsSystem::ShapeHit> JoltPhysicsSystem::CollideSphereWithStatic(
+    const glm::vec3& position,
+    float radius) const
+{
+    std::vector<ShapeHit> hits;
+    if (!_physicsSystem || radius <= 0.0f) {
+        return hits;
+    }
+
+    const JPH::SphereShape sphere{ std::max(0.0001f, radius) };
+    JPH::CollideShapeSettings settings;
+    JPH::AllHitCollisionCollector<JPH::CollideShapeCollector> collector;
+
+    _physicsSystem->GetNarrowPhaseQuery().CollideShape(
+        &sphere,
+        JPH::Vec3::sOne(),
+        JPH::RMat44::sTranslation(ToJoltVec3(position)),
+        settings,
+        JPH::RVec3::sZero(),
+        collector,
+        {},
+        GetStaticObjectLayerFilter());
+
+    hits.reserve(collector.mHits.size());
+    for (const auto& hit : collector.mHits) {
+        if (hit.mPenetrationDepth <= 0.0f) {
+            continue;
+        }
+
+        const auto entityIterator =
+            _bodyEntities.find(hit.mBodyID2.GetIndexAndSequenceNumber());
+        if (entityIterator == _bodyEntities.end()) {
+            continue;
+        }
+
+        const glm::vec3 normal =
+            FromJoltVec3((-hit.mPenetrationAxis).NormalizedOr(JPH::Vec3::sAxisY()));
+        hits.push_back(ShapeHit{
+            entityIterator->second,
+            normal,
+            FromJoltVec3(hit.mContactPointOn1),
+            hit.mPenetrationDepth
+        });
+    }
+
+    return hits;
 }
 
 void JoltPhysicsSystem::SyncBodies()
@@ -306,6 +395,7 @@ void JoltPhysicsSystem::RemoveStaleBodies()
         auto& bodyInterface = _physicsSystem->GetBodyInterface();
         bodyInterface.RemoveBody(bodyId);
         bodyInterface.DestroyBody(bodyId);
+        _bodyEntities.erase(bodyId.GetIndexAndSequenceNumber());
         if (_registry.valid(entity) && _registry.all_of<JoltBodyComponent>(entity)) {
             _registry.remove<JoltBodyComponent>(entity);
         }
@@ -327,6 +417,7 @@ void JoltPhysicsSystem::RemoveBody(entt::entity entity)
     const JPH::BodyID bodyId{ bodyIterator->second };
     bodyInterface.RemoveBody(bodyId);
     bodyInterface.DestroyBody(bodyId);
+    _bodyEntities.erase(bodyId.GetIndexAndSequenceNumber());
     _bodies.erase(bodyIterator);
 
     if (_registry.valid(entity) && _registry.all_of<JoltBodyComponent>(entity)) {
@@ -373,6 +464,7 @@ void JoltPhysicsSystem::CreateOrUpdateBody(entt::entity entity)
     }
 
     _bodies[entity] = bodyId.GetIndexAndSequenceNumber();
+    _bodyEntities[bodyId.GetIndexAndSequenceNumber()] = entity;
     _registry.emplace_or_replace<JoltBodyComponent>(
         entity,
         JoltBodyComponent{
@@ -380,6 +472,7 @@ void JoltPhysicsSystem::CreateOrUpdateBody(entt::entity entity)
             collider.shape,
             collider.motion,
             collider.sensor,
+            transform.scale,
             collider.center,
             collider.radius,
             collider.halfExtents,
@@ -396,12 +489,14 @@ bool JoltPhysicsSystem::BodyMatchesAuthoring(entt::entity entity) const
     }
 
     const auto& collider = _registry.get<JoltColliderComponent>(entity);
+    const auto& transform = _registry.get<Transform>(entity);
     const auto& body = _registry.get<JoltBodyComponent>(entity);
 
     return
         body.shape == collider.shape &&
         body.motion == collider.motion &&
         body.sensor == collider.sensor &&
+        ApproximatelyEqual(body.transformScale, transform.scale) &&
         ApproximatelyEqual(body.center, collider.center) &&
         ApproximatelyEqual(body.radius, collider.radius) &&
         ApproximatelyEqual(body.halfExtents, collider.halfExtents) &&

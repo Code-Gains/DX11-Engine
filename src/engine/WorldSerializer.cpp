@@ -21,6 +21,11 @@
 namespace Engine {
 namespace {
 
+struct SerializedPrefab {
+    uint64_t rootId = 0;
+    std::vector<Serialization::SerializedEntity> entities;
+};
+
 nlohmann::json Vec3ToJson(const glm::vec3& value)
 {
     return {
@@ -228,23 +233,32 @@ nlohmann::json WorldToJson(const Serialization::SerializedWorld& world)
     return root;
 }
 
-nlohmann::json PrefabToJson(const Serialization::SerializedEntity& entity)
+nlohmann::json PrefabToJson(
+    uint64_t rootId,
+    const std::vector<Serialization::SerializedEntity>& entities)
 {
-    nlohmann::json components = nlohmann::json::array();
+    nlohmann::json serializedEntities = nlohmann::json::array();
 
-    for (const auto& component : entity.components) {
-        components.push_back({
-            {"type", component.type},
-            {"data", component.data}
+    for (const auto& entity : entities) {
+        nlohmann::json components = nlohmann::json::array();
+
+        for (const auto& component : entity.components) {
+            components.push_back({
+                {"type", component.type},
+                {"data", component.data}
+            });
+        }
+
+        serializedEntities.push_back({
+            {"id", entity.id},
+            {"components", components}
         });
     }
 
     return {
         {"version", Serialization::CurrentWorldVersion},
-        {"entity", {
-            {"id", entity.id},
-            {"components", components}
-        }}
+        {"root", rootId},
+        {"entities", serializedEntities}
     };
 }
 
@@ -286,7 +300,7 @@ Serialization::SerializedEntity EntityFromJson(const nlohmann::json& entityJson)
     return entity;
 }
 
-Serialization::SerializedEntity PrefabFromJson(const nlohmann::json& root)
+SerializedPrefab PrefabFromJson(const nlohmann::json& root)
 {
     const uint32_t version = root.at("version").get<uint32_t>();
     if (version != Serialization::CurrentWorldVersion) {
@@ -294,15 +308,23 @@ Serialization::SerializedEntity PrefabFromJson(const nlohmann::json& root)
     }
 
     if (root.contains("entity")) {
-        return EntityFromJson(root.at("entity"));
+        auto entity = EntityFromJson(root.at("entity"));
+        return SerializedPrefab{
+            entity.id,
+            { std::move(entity) }
+        };
     }
 
     auto world = WorldFromJson(root);
-    if (world.entities.size() != 1) {
-        throw std::runtime_error("Prefab world must contain exactly one entity.");
+    if (world.entities.empty()) {
+        throw std::runtime_error("Prefab must contain at least one entity.");
     }
 
-    return std::move(world.entities.front());
+    const uint64_t rootId = root.value("root", world.entities.front().id);
+    return SerializedPrefab{
+        rootId,
+        std::move(world.entities)
+    };
 }
 
 nlohmann::json CaptureEditorState(Core& core)
@@ -467,9 +489,9 @@ bool WorldSerializer::LoadWorld(Core& core, const std::filesystem::path& path) c
 
 bool WorldSerializer::SavePrefab(Core& core, entt::entity entity, const std::filesystem::path& path) const
 {
-    auto serializedEntity = CaptureEntity(core, entity);
-    if (!serializedEntity.has_value()) {
-        ENGINE_LOG_ERROR("Failed to capture prefab entity.");
+    auto serializedEntities = CaptureEntityHierarchy(core, entity);
+    if (serializedEntities.empty()) {
+        ENGINE_LOG_ERROR("Failed to capture prefab hierarchy.");
         return false;
     }
 
@@ -479,7 +501,9 @@ bool WorldSerializer::SavePrefab(Core& core, entt::entity entity, const std::fil
         return false;
     }
 
-    output << PrefabToJson(serializedEntity.value()).dump(4);
+    output << PrefabToJson(
+        static_cast<uint64_t>(entt::to_integral(entity)),
+        serializedEntities).dump(4);
     return true;
 }
 
@@ -501,15 +525,15 @@ std::optional<entt::entity> WorldSerializer::InstantiatePrefab(
         return std::nullopt;
     }
 
-    Serialization::SerializedEntity entity;
+    SerializedPrefab prefab;
     try {
-        entity = PrefabFromJson(root);
+        prefab = PrefabFromJson(root);
     } catch (const std::exception& exception) {
         ENGINE_LOG_ERROR("Invalid prefab file: " + std::string(exception.what()));
         return std::nullopt;
     }
 
-    return ApplyEntity(core, entity);
+    return ApplyPrefab(core, prefab.rootId, prefab.entities);
 }
 
 std::optional<Serialization::SerializedEntity> WorldSerializer::SerializeEntity(
@@ -621,6 +645,50 @@ std::optional<Serialization::SerializedEntity> WorldSerializer::CaptureEntity(
     };
 }
 
+std::vector<Serialization::SerializedEntity> WorldSerializer::CaptureEntityHierarchy(
+    Core& core,
+    entt::entity root) const
+{
+    std::vector<Serialization::SerializedEntity> entities;
+    auto& registry = core.GetRegistry();
+    if (!registry.valid(root) || registry.all_of<CoreOwnedTag>(root)) {
+        return entities;
+    }
+
+    std::vector<entt::entity> pending{ root };
+    std::unordered_set<entt::entity> visited;
+
+    for (std::size_t index = 0; index < pending.size(); ++index) {
+        const entt::entity entity = pending[index];
+        if (!registry.valid(entity) ||
+            registry.all_of<CoreOwnedTag>(entity) ||
+            visited.contains(entity)) {
+            continue;
+        }
+
+        visited.insert(entity);
+
+        auto serializedEntity = CaptureEntity(core, entity);
+        if (serializedEntity.has_value()) {
+            entities.push_back(std::move(serializedEntity.value()));
+        }
+
+        auto hierarchyView = registry.view<HierarchyComponent>();
+        for (auto child : hierarchyView) {
+            if (visited.contains(child) || registry.all_of<CoreOwnedTag>(child)) {
+                continue;
+            }
+
+            const auto& hierarchy = hierarchyView.get<HierarchyComponent>(child);
+            if (hierarchy.parent == entity) {
+                pending.push_back(child);
+            }
+        }
+    }
+
+    return entities;
+}
+
 entt::entity WorldSerializer::ApplyEntity(
     Core& core,
     const Serialization::SerializedEntity& serializedEntity,
@@ -644,6 +712,54 @@ entt::entity WorldSerializer::ApplyEntity(
     }
 
     return entity;
+}
+
+std::optional<entt::entity> WorldSerializer::ApplyPrefab(
+    Core& core,
+    uint64_t rootId,
+    const std::vector<Serialization::SerializedEntity>& entities) const
+{
+    if (entities.empty()) {
+        return std::nullopt;
+    }
+
+    auto& registry = core.GetRegistry();
+    std::unordered_map<uint64_t, entt::entity> remappedEntities;
+    std::optional<entt::entity> rootEntity;
+
+    for (const auto& serializedEntity : entities) {
+        const entt::entity entity = registry.create();
+        remappedEntities[serializedEntity.id] = entity;
+        if (serializedEntity.id == rootId) {
+            rootEntity = entity;
+        }
+    }
+
+    if (!rootEntity.has_value()) {
+        rootEntity = remappedEntities[entities.front().id];
+    }
+
+    for (const auto& serializedEntity : entities) {
+        const entt::entity entity = remappedEntities.at(serializedEntity.id);
+        for (const auto& component : serializedEntity.components) {
+            _componentSerializers.LoadComponent(core, registry, entity, component);
+        }
+    }
+
+    for (const auto& [serializedId, entity] : remappedEntities) {
+        auto* hierarchy = registry.try_get<HierarchyComponent>(entity);
+        if (!hierarchy || hierarchy->parent == entt::null) {
+            continue;
+        }
+
+        const uint64_t serializedParentId = static_cast<uint64_t>(entt::to_integral(hierarchy->parent));
+        const auto parentIt = remappedEntities.find(serializedParentId);
+        hierarchy->parent = parentIt == remappedEntities.end()
+            ? entt::null
+            : parentIt->second;
+    }
+
+    return rootEntity;
 }
 
 void WorldSerializer::RegisterDefaultComponentSerializers()
@@ -971,12 +1087,14 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
         "GravityBodyComponent",
         [](Core&, const GravityBodyComponent& gravityBody) {
             return nlohmann::json {
-                {"mass", gravityBody.mass}
+                {"mass", gravityBody.mass},
+                {"affectedByGravity", gravityBody.affectedByGravity}
             };
         },
         [](Core&, const nlohmann::json& data) {
             GravityBodyComponent gravityBody;
             gravityBody.mass = data.at("mass").get<float>();
+            gravityBody.affectedByGravity = data.value("affectedByGravity", true);
             return gravityBody;
         }
     );

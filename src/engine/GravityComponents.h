@@ -10,6 +10,7 @@ struct VelocityComponent {
 
 struct GravityBodyComponent {
     float mass = 1.0f;
+    bool affectedByGravity = true;
 };
 
 struct GravityParticleComponent {
