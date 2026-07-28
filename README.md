@@ -2,7 +2,8 @@
 
 <img src="https://github.com/user-attachments/assets/eb783f61-a7c8-4060-96d0-16b92022b9d1" width="100" />
 
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/3b34be03-6400-47b6-9959-8d9c9e991521" />
+<img width="1918" height="1075" alt="image" src="https://github.com/user-attachments/assets/cb0ed745-2864-4f9d-8f25-285d9d50821e" />
+
 
 Chord Engine is an experimental Vulkan renderer using [EnTT](https://github.com/skypjack/entt) for CPU-side scene data. This project is mainly for graphics programming, engine architecture experiments, and learning by building the pieces directly.
 
@@ -86,5 +87,4 @@ Open the command palette and run `Tasks: Run Task`, then choose the task you wan
 
 - Build output is written to `build/`.
 - Compiled SPIR-V shader files are ignored by Git.
-- Local planning notes can live in `.plans/`; that folder is ignored by Git.
 - Third-party dependencies are fetched by CMake with `FetchContent`.
