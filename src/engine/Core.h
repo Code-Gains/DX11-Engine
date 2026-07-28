@@ -107,6 +107,7 @@ struct InstanceData {
     glm::vec3 scale;
     float pad1;
     glm::vec4 baseColorFactor{ 1.0f };
+    glm::vec4 flashColorAndAmount{ 1.0f, 0.12f, 0.04f, 0.0f };
 };
 
 struct MeshBatchKey {

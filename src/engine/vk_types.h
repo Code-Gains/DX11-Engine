@@ -131,6 +131,7 @@ struct GPUDrawPushConstants {
     glm::mat4 viewProjection;
     glm::mat4 model;
     glm::vec4 baseColorFactor;
+    glm::vec4 flashColorAndAmount;
     VkDeviceAddress vertexBuffer;
 };
 

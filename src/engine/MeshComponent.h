@@ -37,6 +37,13 @@ struct MeshComponent {
     glm::vec4 baseColorFactor{ 1.0f };
 };
 
+struct MeshFlashComponent {
+    glm::vec4 color{ 1.0f, 0.12f, 0.04f, 1.0f };
+    float amount = 0.0f;
+    float timer = 0.0f;
+    float duration = 0.12f;
+};
+
 struct EffectMeshComponent {
     glm::vec4 color{ 1.0f, 0.45f, 0.08f, 0.45f };
     glm::vec4 corruptionColor{ 1.0f, 1.0f, 1.0f, 0.0f };

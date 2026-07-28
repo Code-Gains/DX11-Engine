@@ -87,6 +87,23 @@ uint8_t LinearFloatToPngByte(float value)
     return static_cast<uint8_t>(value * 255.0f + 0.5f);
 }
 
+glm::vec4 ResolveMeshFlash(const entt::registry& registry, entt::entity entity)
+{
+    const auto* flash = registry.try_get<MeshFlashComponent>(entity);
+    if (!flash || flash->amount <= 0.0f || flash->timer <= 0.0f) {
+        return glm::vec4{ 1.0f, 0.12f, 0.04f, 0.0f };
+    }
+
+    const float duration = std::max(0.001f, flash->duration);
+    const float fade = std::clamp(flash->timer / duration, 0.0f, 1.0f);
+    return glm::vec4{
+        flash->color.r,
+        flash->color.g,
+        flash->color.b,
+        std::clamp(flash->amount * fade, 0.0f, 1.0f)
+    };
+}
+
 } // namespace
 
 #ifndef NDEBUG
@@ -1266,6 +1283,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             instance.rotation = trans.rotation;
             instance.scale = trans.scale;
             instance.baseColorFactor = meshComponent.baseColorFactor;
+            instance.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
 
             auto& batch = _batches[MeshBatchKey{
                 .mesh = meshComponent.mesh.get(),
@@ -1529,6 +1547,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         push_constants.baseColorFactor =
             (material ? material->baseColorFactor : glm::vec4{ 1.0f }) *
             meshComponent.baseColorFactor;
+        push_constants.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
 
         vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
 
@@ -1645,6 +1664,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         pushConstants.baseColorFactor =
             (material ? material->baseColorFactor : glm::vec4{ 1.0f }) *
             meshComponent.baseColorFactor;
+        pushConstants.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
 
         vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &pushConstants);
 

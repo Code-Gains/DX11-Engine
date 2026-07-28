@@ -12,6 +12,7 @@ struct PushConstants
     float4x4 viewProjection;
     float4x4 model;
     float4 baseColorFactor;
+    float4 flashColorAndAmount;
     uint64_t vertexBuffer;
 };
 
@@ -26,6 +27,7 @@ struct VertexOutput
     float2 uv : TEXCOORD2;
     float4 tangent : TEXCOORD3;
     float4 baseColorFactor : COLOR0;
+    float4 flashColorAndAmount : COLOR1;
 };
 
 float3x3 InverseTranspose3x3(float3x3 matrix)
@@ -59,5 +61,6 @@ VertexOutput main(uint vertexIndex : SV_VertexID)
     output.uv = float2(vertex.uv_x, vertex.uv_y);
     output.tangent = float4(normalize(mul(model3x3, vertex.tangent.xyz)), vertex.tangent.w);
     output.baseColorFactor = pushConstants.baseColorFactor;
+    output.flashColorAndAmount = pushConstants.flashColorAndAmount;
     return output;
 }

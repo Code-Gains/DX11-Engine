@@ -5,6 +5,7 @@ struct FragmentInput
     float2 uv : TEXCOORD2;
     float4 tangent : TEXCOORD3;
     float4 baseColorFactor : COLOR0;
+    float4 flashColorAndAmount : COLOR1;
 };
 
 struct SceneData
@@ -133,6 +134,10 @@ float SampleShadow(FragmentInput input, float3 normal, float3 lightDirection)
 float4 main(FragmentInput input) : SV_Target
 {
     float4 baseColor = colorTexture.Sample(input.uv) * input.baseColorFactor;
+    baseColor.rgb = lerp(
+        baseColor.rgb,
+        input.flashColorAndAmount.rgb,
+        clamp(input.flashColorAndAmount.a, 0.0, 1.0));
 
     float4 metallicRoughness = metallicRoughnessTexture.Sample(input.uv);
 

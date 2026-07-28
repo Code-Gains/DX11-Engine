@@ -10,7 +10,8 @@ enum class RuntimePauseReason : std::uint32_t {
     None = 0,
     Crafting = 1u << 0u,
     Menu = 1u << 1u,
-    WaveBreak = 1u << 2u
+    WaveBreak = 1u << 2u,
+    GameOver = 1u << 3u
 };
 
 struct RuntimePauseState {

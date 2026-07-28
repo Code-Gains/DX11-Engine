@@ -15,6 +15,7 @@ struct InstanceData
     float3 scale;
     float pad1;
     float4 baseColorFactor;
+    float4 flashColorAndAmount;
 };
 
 struct PushConstants
@@ -36,6 +37,7 @@ struct VertexOutput
     float2 uv : TEXCOORD2;
     float4 tangent : TEXCOORD3;
     float4 baseColorFactor : COLOR0;
+    float4 flashColorAndAmount : COLOR1;
 };
 
 float4x4 BuildTransform(float3 position, float4 q, float3 scale)
@@ -101,5 +103,6 @@ VertexOutput main(uint vertexIndex : SV_VertexID, uint instanceIndex : SV_Instan
     output.uv = float2(vertex.uv_x, vertex.uv_y);
     output.tangent = float4(normalize(mul(model3x3, vertex.tangent.xyz)), vertex.tangent.w);
     output.baseColorFactor = pushConstants.baseColorFactor * instance.baseColorFactor;
+    output.flashColorAndAmount = instance.flashColorAndAmount;
     return output;
 }
