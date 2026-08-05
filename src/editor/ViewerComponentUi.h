@@ -16,10 +16,12 @@
 #include "Transform.h"
 #include "Core.h"
 #include "NameComponent.h"
+#include "ScreenPostProcessComponent.h"
 #include "SunlightComponent.h"
 #include "Camera.h"
 #include "MeshComponent.h"
 #include "GravityComponents.h"
+#include "HeightFogComponent.h"
 #include "HierarchyComponent.h"
 #include "HierarchySystem.h"
 #include "ImGuiWindowRegistry.h"
@@ -146,6 +148,28 @@ public:
     }
 };
 
+class HeightFogComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* fog = registry.try_get<HeightFogComponent>(entity);
+        if (!fog)
+            return;
+
+        if (DrawRemovableComponentHeader<HeightFogComponent>(registry, entity, "Height Fog", "HeightFogComponent"))
+        {
+            EditorUi::ScopedItemWidth width{ 300.0f };
+            ImGui::Checkbox("Enabled##HeightFogEnabled", &fog->enabled);
+            ImGui::Checkbox("Debug Overlay##HeightFogDebugOverlay", &fog->debugOverlay);
+            ImGui::ColorEdit3("Color##HeightFogColor", &fog->color.x);
+            ImGui::DragFloat("Planet Radius##HeightFogPlanetRadius", &fog->planetRadius, 0.1f, 0.001f, 1000000.0f);
+            ImGui::DragFloat("Height##HeightFogHeight", &fog->height, 0.1f, 0.001f, 1000000.0f);
+            ImGui::DragFloat("Density##HeightFogDensity", &fog->density, 0.001f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Distance Falloff##HeightFogDistanceFalloff", &fog->distanceFalloff, 0.001f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Max Opacity##HeightFogMaxOpacity", &fog->maxOpacity, 0.01f, 0.0f, 1.0f);
+        }
+    }
+};
+
 class HierarchyComponentUi : public ViewerComponentUi {
 public:
     glm::vec3 localRotationEulerDegrees{0.0f};
@@ -199,6 +223,36 @@ public:
             }
 
             ImGui::DragFloat3("Local Scale", &hierarchy->localTransform.scale.x, 0.1f);
+        }
+    }
+};
+
+class ScreenPostProcessComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* effect = registry.try_get<ScreenPostProcessComponent>(entity);
+        if (!effect)
+            return;
+
+        if (DrawRemovableComponentHeader<ScreenPostProcessComponent>(registry, entity, "Screen Post Process", "ScreenPostProcessComponent"))
+        {
+            EditorUi::ScopedItemWidth width{ 300.0f };
+            ImGui::Checkbox("Enabled##ScreenPostProcessEnabled", &effect->enabled);
+            ImGui::Checkbox("Debug Overlay##ScreenPostProcessDebugOverlay", &effect->debugOverlay);
+            ImGui::Checkbox("Use World Radius##ScreenPostProcessUseWorldRadius", &effect->useWorldRadius);
+            ImGui::ColorEdit3("Color##ScreenPostProcessColor", &effect->color.x);
+            ImGui::DragFloat("Scale##ScreenPostProcessScale", &effect->scale, 0.01f, 0.001f, 100000.0f);
+            ImGui::DragFloat("Softness##ScreenPostProcessSoftness", &effect->softness, 0.001f, 0.001f, 1.0f);
+            ImGui::DragFloat("Intensity##ScreenPostProcessIntensity", &effect->intensity, 0.01f, 0.0f, 100.0f);
+            ImGui::DragFloat("Amount##ScreenPostProcessAmount", &effect->amount, 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Displacement##ScreenPostProcessDisplacement", &effect->displacement, 0.001f, 0.0f, 1.0f);
+            ImGui::DragFloat("Chromatic Aberration##ScreenPostProcessChromaticAberration", &effect->chromaticAberration, 0.001f, 0.0f, 1.0f);
+            ImGui::DragFloat("Block Size##ScreenPostProcessBlockSize", &effect->blockSize, 0.001f, 0.0001f, 1.0f);
+            ImGui::DragFloat("Radius##ScreenPostProcessRadius", &effect->radius, 0.1f, 0.001f, 100000.0f);
+            ImGui::DragFloat("Feather##ScreenPostProcessFeather", &effect->feather, 0.1f, 0.001f, 100000.0f);
+            ImGui::DragFloat("Sky Radius##ScreenPostProcessSkyRadius", &effect->skyRadius, 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Speed##ScreenPostProcessSpeed", &effect->speed, 0.01f, 0.0f, 100.0f);
+            ImGui::DragFloat("Age##ScreenPostProcessAge", &effect->age, 0.01f, 0.0f, 100000.0f);
         }
     }
 };

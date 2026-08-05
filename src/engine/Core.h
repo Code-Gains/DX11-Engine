@@ -319,6 +319,8 @@ private:
     void InitMeshPipeline();
     void InitEffectMeshPipeline();
     void InitLinePipeline();
+    void InitHeightFogPipeline();
+    void InitScreenPostProcessPipeline();
     void InitShadowResources();
     void InitShadowPipeline();
     void InitSelectionOutlinePipeline();
@@ -381,6 +383,7 @@ private:
     // Draw targets / render images
     // ------------------------------------------------------------------------
     VkExtent2D _drawExtent;
+    AllocatedImage _postProcessImage;
 
     VkDescriptorSet _drawImageDescriptors;
     VkDescriptorSetLayout _drawImageDescriptorLayout;
@@ -442,6 +445,8 @@ private:
     void DrawLines(VkCommandBuffer cmd, const glm::mat4& viewProjection);
     void DrawShadowMap(VkCommandBuffer cmd);
     void DrawSelectedOutline(VkCommandBuffer cmd);
+    void DrawHeightFog(VkCommandBuffer cmd);
+    void DrawScreenPostProcess(VkCommandBuffer cmd);
     glm::mat4 BuildSunLightViewProjection();
     void DrawImGui(VkCommandBuffer cmd, VkImageView targetImageView);
 
@@ -467,6 +472,8 @@ private:
     VkPipelineLayout _meshPipelineLayout;
     VkPipelineLayout _effectMeshPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _linePipelineLayout;
+    VkPipelineLayout _heightFogPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout _screenPostProcessPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _shadowPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _selectionMaskPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _selectionOutlinePipelineLayout = VK_NULL_HANDLE;
@@ -474,6 +481,10 @@ private:
     VkPipeline _meshPipeline;
     VkPipeline _effectMeshPipeline = VK_NULL_HANDLE;
     VkPipeline _linePipeline;
+    VkPipeline _heightFogPipeline = VK_NULL_HANDLE;
+    VkPipeline _heightFogMsaaPipeline = VK_NULL_HANDLE;
+    VkPipeline _screenPostProcessPipeline = VK_NULL_HANDLE;
+    VkPipeline _screenPostProcessMsaaPipeline = VK_NULL_HANDLE;
     VkPipeline _shadowPipeline = VK_NULL_HANDLE;
     VkPipeline _selectionMaskPipeline = VK_NULL_HANDLE;
     VkPipeline _selectionOutlinePipeline = VK_NULL_HANDLE;
@@ -521,6 +532,8 @@ private:
     VkDescriptorSetLayout _multiImageDescriptorLayout;
     VkDescriptorSetLayout _environmentDescriptorLayout;
     VkDescriptorSetLayout _shadowDescriptorLayout = VK_NULL_HANDLE;
+    VkDescriptorSetLayout _sampledImageDescriptorLayout = VK_NULL_HANDLE;
+    VkDescriptorSetLayout _screenPostProcessDescriptorLayout = VK_NULL_HANDLE;
 
     VkDescriptorSet _environmentDescriptorSet;
     VkDescriptorSet _shadowDescriptorSet = VK_NULL_HANDLE;

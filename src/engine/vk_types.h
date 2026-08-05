@@ -165,6 +165,24 @@ struct SelectionOutlinePushConstants {
     float pad0 = 0.0f;
 };
 
+struct HeightFogPushConstants {
+    glm::mat4 inverseViewProjection;
+    glm::vec4 cameraPosition;
+    glm::vec4 fogCenterAndRadius;
+    glm::vec4 fogColorAndDensity;
+    glm::vec4 fogParams;
+};
+
+struct ScreenPostProcessPushConstants {
+    glm::mat4 inverseViewProjection;
+    glm::mat4 viewProjection;
+    glm::vec4 colorAndAmount;
+    glm::vec4 corruptionParams;
+    glm::vec4 distortionParams;
+    glm::vec4 worldCenterAndRadius;
+    glm::vec4 localizationParams;
+};
+
 struct EffectMeshPushConstants {
     glm::mat4 viewProjection;
     glm::mat4 model;

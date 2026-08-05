@@ -80,9 +80,19 @@ void Core::CreateDrawImages(uint32_t width, uint32_t height)
         drawImageExtent,
         VK_FORMAT_R16G16B16A16_SFLOAT,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_SAMPLED_BIT |
         VK_IMAGE_USAGE_STORAGE_BIT |
         VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
         VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        false,
+        VK_SAMPLE_COUNT_1_BIT
+    );
+
+    _postProcessImage = CreateImage(
+        drawImageExtent,
+        _drawImage.imageFormat,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
         false,
         VK_SAMPLE_COUNT_1_BIT
     );
@@ -100,7 +110,7 @@ void Core::CreateDrawImages(uint32_t width, uint32_t height)
         drawImageExtent,
         VK_FORMAT_D32_SFLOAT,
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
-        VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+        VK_IMAGE_USAGE_SAMPLED_BIT,
         false,
         _msaaSamples
     );
@@ -108,7 +118,8 @@ void Core::CreateDrawImages(uint32_t width, uint32_t height)
     _depthImage = CreateImage(
         drawImageExtent,
         VK_FORMAT_D32_SFLOAT,
-        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_SAMPLED_BIT,
         false,
         VK_SAMPLE_COUNT_1_BIT
     );
@@ -127,6 +138,9 @@ void Core::CleanupDrawImages()
 {
     vkDestroyImageView(_device, _drawImage.imageView, nullptr);
     vmaDestroyImage(_allocator, _drawImage.image, _drawImage.allocation);
+
+    vkDestroyImageView(_device, _postProcessImage.imageView, nullptr);
+    vmaDestroyImage(_allocator, _postProcessImage.image, _postProcessImage.allocation);
 
     vkDestroyImageView(_device, _msaaColorImage.imageView, nullptr);
     vmaDestroyImage(_allocator, _msaaColorImage.image, _msaaColorImage.allocation);
@@ -157,6 +171,8 @@ void Core::CleanupDrawImageDescriptors()
     vkDestroyDescriptorSetLayout(_device, _drawImageDescriptorLayout, nullptr);
     vkDestroyDescriptorSetLayout(_device, _gpuSceneDataDescriptorLayout , nullptr);
     vkDestroyDescriptorSetLayout(_device, _singleImageDescriptorLayout , nullptr);
+    vkDestroyDescriptorSetLayout(_device, _sampledImageDescriptorLayout , nullptr);
+    vkDestroyDescriptorSetLayout(_device, _screenPostProcessDescriptorLayout , nullptr);
     vkDestroyDescriptorSetLayout(_device, _multiImageDescriptorLayout , nullptr);
     vkDestroyDescriptorSetLayout(_device, _environmentDescriptorLayout , nullptr);
     vkDestroyDescriptorSetLayout(_device, _shadowDescriptorLayout , nullptr);

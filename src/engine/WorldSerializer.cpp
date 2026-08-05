@@ -4,11 +4,13 @@
 #include "Core.h"
 #include "GravityComponents.h"
 #include "HierarchyComponent.h"
+#include "HeightFogComponent.h"
 #include "EntityState.h"
 #include "JoltPhysicsComponents.h"
 #include "Log.h"
 #include "MeshComponent.h"
 #include "NameComponent.h"
+#include "ScreenPostProcessComponent.h"
 #include "SunlightComponent.h"
 #include "Transform.h"
 
@@ -910,6 +912,82 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             effect.corruptionIntensity = data.value("corruptionIntensity", 0.0f);
             effect.corruptionAmount = data.value("corruptionAmount", 0.0f);
             effect.destroyOnComplete = data.value("destroyOnComplete", true);
+            return effect;
+        }
+    );
+
+    _componentSerializers.Register<HeightFogComponent>(
+        "HeightFogComponent",
+        [](Core&, const HeightFogComponent& fog) {
+            return nlohmann::json {
+                {"enabled", fog.enabled},
+                {"debugOverlay", fog.debugOverlay},
+                {"color", Vec3ToJson(fog.color)},
+                {"planetRadius", fog.planetRadius},
+                {"height", fog.height},
+                {"density", fog.density},
+                {"distanceFalloff", fog.distanceFalloff},
+                {"maxOpacity", fog.maxOpacity}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            HeightFogComponent fog;
+            fog.enabled = data.value("enabled", true);
+            fog.debugOverlay = data.value("debugOverlay", false);
+            fog.color = data.contains("color")
+                ? Vec3FromJson(data.at("color"))
+                : fog.color;
+            fog.planetRadius = data.value("planetRadius", fog.planetRadius);
+            fog.height = data.value("height", fog.height);
+            fog.density = data.value("density", fog.density);
+            fog.distanceFalloff = data.value("distanceFalloff", fog.distanceFalloff);
+            fog.maxOpacity = data.value("maxOpacity", fog.maxOpacity);
+            return fog;
+        }
+    );
+
+    _componentSerializers.Register<ScreenPostProcessComponent>(
+        "ScreenPostProcessComponent",
+        [](Core&, const ScreenPostProcessComponent& effect) {
+            return nlohmann::json {
+                {"enabled", effect.enabled},
+                {"debugOverlay", effect.debugOverlay},
+                {"useWorldRadius", effect.useWorldRadius},
+                {"color", Vec3ToJson(effect.color)},
+                {"scale", effect.scale},
+                {"softness", effect.softness},
+                {"intensity", effect.intensity},
+                {"amount", effect.amount},
+                {"displacement", effect.displacement},
+                {"chromaticAberration", effect.chromaticAberration},
+                {"blockSize", effect.blockSize},
+                {"radius", effect.radius},
+                {"feather", effect.feather},
+                {"skyRadius", effect.skyRadius},
+                {"speed", effect.speed},
+                {"age", effect.age}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            ScreenPostProcessComponent effect;
+            effect.enabled = data.value("enabled", effect.enabled);
+            effect.debugOverlay = data.value("debugOverlay", effect.debugOverlay);
+            effect.useWorldRadius = data.value("useWorldRadius", effect.useWorldRadius);
+            effect.color = data.contains("color")
+                ? Vec3FromJson(data.at("color"))
+                : effect.color;
+            effect.scale = data.value("scale", effect.scale);
+            effect.softness = data.value("softness", effect.softness);
+            effect.intensity = data.value("intensity", effect.intensity);
+            effect.amount = data.value("amount", effect.amount);
+            effect.displacement = data.value("displacement", effect.displacement);
+            effect.chromaticAberration = data.value("chromaticAberration", effect.chromaticAberration);
+            effect.blockSize = data.value("blockSize", effect.blockSize);
+            effect.radius = data.value("radius", effect.radius);
+            effect.feather = data.value("feather", effect.feather);
+            effect.skyRadius = data.value("skyRadius", effect.skyRadius);
+            effect.speed = data.value("speed", effect.speed);
+            effect.age = data.value("age", effect.age);
             return effect;
         }
     );

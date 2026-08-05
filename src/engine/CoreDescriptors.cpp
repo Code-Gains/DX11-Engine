@@ -32,6 +32,17 @@ void Core::InitDescriptors()
         builder.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         _singleImageDescriptorLayout = builder.Build(_device, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
+    {
+        DescriptorLayoutBuilder builder;
+        builder.AddBinding(0, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+        _sampledImageDescriptorLayout = builder.Build(_device, VK_SHADER_STAGE_FRAGMENT_BIT);
+    }
+    {
+        DescriptorLayoutBuilder builder;
+        builder.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        builder.AddBinding(1, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+        _screenPostProcessDescriptorLayout = builder.Build(_device, VK_SHADER_STAGE_FRAGMENT_BIT);
+    }
     // multiple material textures
     {
         DescriptorLayoutBuilder builder;
@@ -101,6 +112,7 @@ void Core::InitDescriptors()
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3 },
             { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 32 },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 16 },
         };
 
         _frames[i]._frameDescriptors = DescriptorAllocatorGrowable{};

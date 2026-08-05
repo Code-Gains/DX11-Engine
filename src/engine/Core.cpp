@@ -17,6 +17,8 @@ using Clock = std::chrono::high_resolution_clock;
 #include "EntityState.h"
 #include "HierarchySystem.h"
 #include "JoltPhysicsSystem.h"
+#include "HeightFogComponent.h"
+#include "ScreenPostProcessComponent.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -378,6 +380,8 @@ void Core::InitPipelines()
     InitEffectMeshPipeline();
     InitShadowPipeline();
     InitLinePipeline();
+    InitHeightFogPipeline();
+    InitScreenPostProcessPipeline();
     InitSelectionOutlinePipeline();
     InitSkyboxPipeline();
 }
@@ -892,6 +896,8 @@ void Core::Draw()
     }
     DrawGeometry(cmd);
     DrawSelectedOutline(cmd);
+    DrawHeightFog(cmd);
+    DrawScreenPostProcess(cmd);
     { // TODO move to some other file
         const bool screenshotRequested = camera && camera->screenshotRequested;
         const bool captureDebugPair = _debugCaptureRequested || screenshotRequested;
@@ -2202,6 +2208,321 @@ void Core::DrawSelectedOutline(VkCommandBuffer cmd)
     vkCmdDraw(cmd, 3, 1, 0, 0);
 
     vkCmdEndRendering(cmd);
+}
+
+void Core::DrawHeightFog(VkCommandBuffer cmd)
+{
+    if (_heightFogPipeline == VK_NULL_HANDLE ||
+        _heightFogMsaaPipeline == VK_NULL_HANDLE ||
+        _heightFogPipelineLayout == VK_NULL_HANDLE) {
+        return;
+    }
+
+    auto cameraEntity = ResolveRenderCameraEntity();
+    if (cameraEntity == entt::null ||
+        !_registry.valid(cameraEntity) ||
+        !_registry.all_of<Camera, Transform>(cameraEntity)) {
+        return;
+    }
+
+    entt::entity fogEntity = entt::null;
+    auto fogView = _registry.view<Transform, HeightFogComponent>(entt::exclude<DisabledEntityTag>);
+    for (auto entity : fogView) {
+        const auto& fog = fogView.get<HeightFogComponent>(entity);
+        if (!IsEntityDisabled(_registry, entity) &&
+            fog.enabled &&
+            fog.density > 0.0f &&
+            fog.maxOpacity > 0.0f) {
+            fogEntity = entity;
+            break;
+        }
+    }
+    if (fogEntity == entt::null) {
+        return;
+    }
+
+    const auto& camera = _registry.get<Camera>(cameraEntity);
+    const auto& cameraTransform = _registry.get<Transform>(cameraEntity);
+    const auto& fogTransform = fogView.get<Transform>(fogEntity);
+    const auto& fog = fogView.get<HeightFogComponent>(fogEntity);
+
+    const float renderAspectRatio =
+        static_cast<float>(glm::max(_drawExtent.width, 1u)) /
+        static_cast<float>(glm::max(_drawExtent.height, 1u));
+    const glm::mat4 viewMatrix = camera.GetViewMatrix(cameraTransform);
+    const glm::mat4 projectionMatrix = camera.GetProjectionMatrix(renderAspectRatio);
+
+    HeightFogPushConstants pushConstants{};
+    pushConstants.inverseViewProjection = glm::inverse(projectionMatrix * viewMatrix);
+    pushConstants.cameraPosition = glm::vec4(cameraTransform.position, 1.0f);
+    pushConstants.fogCenterAndRadius = glm::vec4(
+        fogTransform.position,
+        glm::max(0.001f, fog.planetRadius));
+    pushConstants.fogColorAndDensity = glm::vec4(
+        fog.color,
+        glm::max(0.0f, fog.density));
+    pushConstants.fogParams = glm::vec4(
+        glm::max(0.001f, fog.height),
+        glm::max(0.0f, fog.distanceFalloff),
+        glm::clamp(fog.maxOpacity, 0.0f, 1.0f),
+        fog.debugOverlay
+            ? -glm::max(0.05f, glm::clamp(fog.maxOpacity, 0.0f, 1.0f))
+            : 0.0f);
+
+    const bool useMsaaDepth = _msaaSamples != VK_SAMPLE_COUNT_1_BIT;
+    AllocatedImage& depthImage = useMsaaDepth ? _msaaDepthImage : _depthImage;
+    const VkImageLayout depthAttachmentLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    const VkImageLayout depthReadLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+    const VkImageSubresourceRange depthRange =
+        vkinit::image_subresource_range(VK_IMAGE_ASPECT_DEPTH_BIT);
+
+    vkutil::transition_image(
+        cmd,
+        depthImage.image,
+        depthAttachmentLayout,
+        depthReadLayout,
+        depthRange);
+
+    VkDescriptorSet depthSet =
+        GetCurrentFrame()._frameDescriptors.allocate(_device, _sampledImageDescriptorLayout);
+    DescriptorWriter writer;
+    writer.write_image(
+        0,
+        depthImage.imageView,
+        VK_NULL_HANDLE,
+        depthReadLayout,
+        VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+    writer.update_set(_device, depthSet);
+
+    VkRenderingAttachmentInfo colorAttachment =
+        vkinit::attachment_info(_drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    VkRenderingInfo renderInfo = vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
+
+    vkCmdBeginRendering(cmd, &renderInfo);
+
+    VkViewport viewport = {};
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width = _drawExtent.width;
+    viewport.height = _drawExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor = {};
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    scissor.extent.width = _drawExtent.width;
+    scissor.extent.height = _drawExtent.height;
+
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
+    vkCmdBindPipeline(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        useMsaaDepth ? _heightFogMsaaPipeline : _heightFogPipeline);
+    vkCmdBindDescriptorSets(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        _heightFogPipelineLayout,
+        0,
+        1,
+        &depthSet,
+        0,
+        nullptr);
+    vkCmdPushConstants(
+        cmd,
+        _heightFogPipelineLayout,
+        VK_SHADER_STAGE_FRAGMENT_BIT,
+        0,
+        sizeof(pushConstants),
+        &pushConstants);
+    vkCmdDraw(cmd, 3, 1, 0, 0);
+
+    vkCmdEndRendering(cmd);
+
+    vkutil::transition_image(
+        cmd,
+        depthImage.image,
+        depthReadLayout,
+        depthAttachmentLayout,
+        depthRange);
+}
+
+void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
+{
+    if (_screenPostProcessPipeline == VK_NULL_HANDLE ||
+        _screenPostProcessMsaaPipeline == VK_NULL_HANDLE ||
+        _screenPostProcessPipelineLayout == VK_NULL_HANDLE ||
+        _postProcessImage.imageView == VK_NULL_HANDLE) {
+        return;
+    }
+
+    entt::entity effectEntity = entt::null;
+    auto effectView = _registry.view<ScreenPostProcessComponent>(entt::exclude<DisabledEntityTag>);
+    for (auto entity : effectView) {
+        auto& effect = effectView.get<ScreenPostProcessComponent>(entity);
+        if (!IsEntityDisabled(_registry, entity) &&
+            effect.enabled &&
+            (effect.debugOverlay || effect.amount > 0.0f)) {
+            effectEntity = entity;
+            break;
+        }
+    }
+    if (effectEntity == entt::null) {
+        return;
+    }
+
+    auto cameraEntity = ResolveRenderCameraEntity();
+    if (cameraEntity == entt::null ||
+        !_registry.valid(cameraEntity) ||
+        !_registry.all_of<Camera, Transform>(cameraEntity)) {
+        return;
+    }
+
+    auto& effect = effectView.get<ScreenPostProcessComponent>(effectEntity);
+    effect.age += _deltaTime * glm::max(0.0f, effect.speed);
+
+    const auto& camera = _registry.get<Camera>(cameraEntity);
+    const auto& cameraTransform = _registry.get<Transform>(cameraEntity);
+    const float renderAspectRatio =
+        static_cast<float>(glm::max(_drawExtent.width, 1u)) /
+        static_cast<float>(glm::max(_drawExtent.height, 1u));
+    const glm::mat4 viewMatrix = camera.GetViewMatrix(cameraTransform);
+    const glm::mat4 projectionMatrix = camera.GetProjectionMatrix(renderAspectRatio);
+    const glm::vec3 worldCenter = _registry.all_of<Transform>(effectEntity)
+        ? _registry.get<Transform>(effectEntity).position
+        : cameraTransform.position;
+
+    ScreenPostProcessPushConstants pushConstants{};
+    pushConstants.inverseViewProjection = glm::inverse(projectionMatrix * viewMatrix);
+    pushConstants.viewProjection = projectionMatrix * viewMatrix;
+    pushConstants.colorAndAmount = glm::vec4(
+        effect.color,
+        glm::clamp(effect.amount, 0.0f, 1.0f));
+    pushConstants.corruptionParams = glm::vec4(
+        glm::max(0.001f, effect.scale),
+        glm::clamp(effect.softness, 0.001f, 1.0f),
+        glm::max(0.0f, effect.intensity),
+        effect.age);
+    pushConstants.distortionParams = glm::vec4(
+        glm::max(0.0f, effect.displacement),
+        glm::max(0.0f, effect.chromaticAberration),
+        glm::max(0.0001f, effect.blockSize),
+        effect.debugOverlay ? 1.0f : 0.0f);
+    pushConstants.worldCenterAndRadius = glm::vec4(
+        worldCenter,
+        glm::max(0.001f, effect.radius));
+    pushConstants.localizationParams = glm::vec4(
+        glm::max(0.001f, effect.feather),
+        glm::clamp(effect.skyRadius, 0.0f, 1.0f),
+        effect.useWorldRadius ? 1.0f : 0.0f,
+        0.0f);
+
+    vkutil::transition_image(
+        cmd,
+        _drawImage.image,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    vkutil::transition_image(
+        cmd,
+        _postProcessImage.image,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    const bool useMsaaDepth = _msaaSamples != VK_SAMPLE_COUNT_1_BIT;
+    AllocatedImage& depthImage = useMsaaDepth ? _msaaDepthImage : _depthImage;
+    const VkImageSubresourceRange depthRange =
+        vkinit::image_subresource_range(VK_IMAGE_ASPECT_DEPTH_BIT);
+    vkutil::transition_image(
+        cmd,
+        depthImage.image,
+        VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
+        depthRange);
+
+    VkDescriptorSet sceneSet =
+        GetCurrentFrame()._frameDescriptors.allocate(_device, _screenPostProcessDescriptorLayout);
+    DescriptorWriter writer;
+    writer.write_image(
+        0,
+        _drawImage.imageView,
+        _defaultSamplerLinear,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    writer.write_image(
+        1,
+        depthImage.imageView,
+        VK_NULL_HANDLE,
+        VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
+        VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+    writer.update_set(_device, sceneSet);
+
+    VkRenderingAttachmentInfo colorAttachment =
+        vkinit::attachment_info(_postProcessImage.imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    VkRenderingInfo renderInfo = vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
+
+    vkCmdBeginRendering(cmd, &renderInfo);
+
+    VkViewport viewport = {};
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width = _drawExtent.width;
+    viewport.height = _drawExtent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor = {};
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    scissor.extent.width = _drawExtent.width;
+    scissor.extent.height = _drawExtent.height;
+
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
+    vkCmdBindPipeline(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        useMsaaDepth ? _screenPostProcessMsaaPipeline : _screenPostProcessPipeline);
+    vkCmdBindDescriptorSets(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        _screenPostProcessPipelineLayout,
+        0,
+        1,
+        &sceneSet,
+        0,
+        nullptr);
+    vkCmdPushConstants(
+        cmd,
+        _screenPostProcessPipelineLayout,
+        VK_SHADER_STAGE_FRAGMENT_BIT,
+        0,
+        sizeof(pushConstants),
+        &pushConstants);
+    vkCmdDraw(cmd, 3, 1, 0, 0);
+
+    vkCmdEndRendering(cmd);
+
+    vkutil::transition_image(
+        cmd,
+        _postProcessImage.image,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+    vkutil::transition_image(
+        cmd,
+        _drawImage.image,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    vkutil::copy_image_to_image(
+        cmd,
+        _postProcessImage.image,
+        _drawImage.image,
+        _drawExtent,
+        _drawExtent);
+    vkutil::transition_image(
+        cmd,
+        _drawImage.image,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 }
 
 void Core::DrawImGui(VkCommandBuffer cmd, VkImageView targetImageView)

@@ -285,6 +285,8 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<TransformComponentUi>());
     _componentUis.push_back(std::make_unique<HierarchyComponentUi>());
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
+    _componentUis.push_back(std::make_unique<HeightFogComponentUi>());
+    _componentUis.push_back(std::make_unique<ScreenPostProcessComponentUi>());
     _componentUis.push_back(std::make_unique<CameraComponentUi>());
     _componentUis.push_back(std::make_unique<CinematicCameraShotComponentUi>());
     _componentUis.push_back(std::make_unique<MeshComponentUi>(core));
@@ -326,6 +328,27 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
         },
         [](entt::registry& registry, entt::entity entity) {
             registry.emplace<SunlightComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Height Fog",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<Transform>(entity) &&
+                   !registry.all_of<HeightFogComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<HeightFogComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Screen Post Process",
+        [](entt::registry& registry, entt::entity entity) {
+            return !registry.all_of<ScreenPostProcessComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<ScreenPostProcessComponent>(entity);
         }
     );
 

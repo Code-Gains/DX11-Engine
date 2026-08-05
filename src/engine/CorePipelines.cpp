@@ -465,6 +465,119 @@ void Core::InitLinePipeline()
     });
 }
 
+void Core::InitHeightFogPipeline()
+{
+    VkShaderModule fullscreenVertexShader;
+    if (!LoadEngineShaderModule("shaders/fullscreen_triangle.vert.spv", &fullscreenVertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the height fog fullscreen vertex shader module");
+    }
+
+    VkShaderModule fogFragShader;
+    if (!LoadEngineShaderModule("shaders/height_fog.frag.spv", &fogFragShader)) {
+        ENGINE_LOG_ERROR("Error when building the height fog fragment shader module");
+    }
+
+    VkShaderModule fogMsaaFragShader;
+    if (!LoadEngineShaderModule("shaders/height_fog_msaa.frag.spv", &fogMsaaFragShader)) {
+        ENGINE_LOG_ERROR("Error when building the height fog MSAA fragment shader module");
+    }
+
+    VkPushConstantRange pushRange{};
+    pushRange.offset = 0;
+    pushRange.size = sizeof(HeightFogPushConstants);
+    pushRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkinit::pipeline_layout_create_info();
+    pipelineLayoutInfo.pPushConstantRanges = &pushRange;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &_sampledImageDescriptorLayout;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    VK_CHECK(vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_heightFogPipelineLayout));
+
+    PipelineBuilder pipelineBuilder;
+    pipelineBuilder._pipelineLayout = _heightFogPipelineLayout;
+    pipelineBuilder.set_shaders(fullscreenVertexShader, fogFragShader);
+    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_multisampling_none();
+    pipelineBuilder.enable_blending_alphablend();
+    pipelineBuilder.disable_depthtest();
+    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
+
+    _heightFogPipeline = pipelineBuilder.build_pipeline(_device);
+
+    pipelineBuilder.set_shaders(fullscreenVertexShader, fogMsaaFragShader);
+    _heightFogMsaaPipeline = pipelineBuilder.build_pipeline(_device);
+
+    vkDestroyShaderModule(_device, fogMsaaFragShader, nullptr);
+    vkDestroyShaderModule(_device, fogFragShader, nullptr);
+    vkDestroyShaderModule(_device, fullscreenVertexShader, nullptr);
+
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroyPipelineLayout(_device, _heightFogPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _heightFogPipeline, nullptr);
+        vkDestroyPipeline(_device, _heightFogMsaaPipeline, nullptr);
+    });
+}
+
+void Core::InitScreenPostProcessPipeline()
+{
+    VkShaderModule fullscreenVertexShader;
+    if (!LoadEngineShaderModule("shaders/fullscreen_triangle.vert.spv", &fullscreenVertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the screen corruption fullscreen vertex shader module");
+    }
+
+    VkShaderModule fragShader = VK_NULL_HANDLE;
+    if (!LoadProjectShaderModule("shaders/project_screen_effect.frag.spv", &fragShader)) {
+        return;
+    }
+
+    VkShaderModule msaaFragShader = VK_NULL_HANDLE;
+    if (!LoadProjectShaderModule("shaders/project_screen_effect_msaa.frag.spv", &msaaFragShader)) {
+        vkDestroyShaderModule(_device, fragShader, nullptr);
+        return;
+    }
+
+    VkPushConstantRange pushRange{};
+    pushRange.offset = 0;
+    pushRange.size = sizeof(ScreenPostProcessPushConstants);
+    pushRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkinit::pipeline_layout_create_info();
+    pipelineLayoutInfo.pPushConstantRanges = &pushRange;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &_screenPostProcessDescriptorLayout;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    VK_CHECK(vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_screenPostProcessPipelineLayout));
+
+    PipelineBuilder pipelineBuilder;
+    pipelineBuilder._pipelineLayout = _screenPostProcessPipelineLayout;
+    pipelineBuilder.set_shaders(fullscreenVertexShader, fragShader);
+    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_multisampling_none();
+    pipelineBuilder.disable_blending();
+    pipelineBuilder.disable_depthtest();
+    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
+
+    _screenPostProcessPipeline = pipelineBuilder.build_pipeline(_device);
+
+    pipelineBuilder.set_shaders(fullscreenVertexShader, msaaFragShader);
+    _screenPostProcessMsaaPipeline = pipelineBuilder.build_pipeline(_device);
+
+    vkDestroyShaderModule(_device, msaaFragShader, nullptr);
+    vkDestroyShaderModule(_device, fragShader, nullptr);
+    vkDestroyShaderModule(_device, fullscreenVertexShader, nullptr);
+
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroyPipelineLayout(_device, _screenPostProcessPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _screenPostProcessPipeline, nullptr);
+        vkDestroyPipeline(_device, _screenPostProcessMsaaPipeline, nullptr);
+    });
+}
+
 void Core::InitShadowPipeline()
 {
     VkShaderModule fragShader;
