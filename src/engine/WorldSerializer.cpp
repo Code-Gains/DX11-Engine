@@ -952,7 +952,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             return nlohmann::json {
                 {"enabled", effect.enabled},
                 {"debugOverlay", effect.debugOverlay},
-                {"useWorldRadius", effect.useWorldRadius},
+                {"useScreenRadius", effect.useScreenRadius},
                 {"color", Vec3ToJson(effect.color)},
                 {"scale", effect.scale},
                 {"softness", effect.softness},
@@ -961,9 +961,8 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 {"displacement", effect.displacement},
                 {"chromaticAberration", effect.chromaticAberration},
                 {"blockSize", effect.blockSize},
-                {"radius", effect.radius},
-                {"feather", effect.feather},
-                {"skyRadius", effect.skyRadius},
+                {"screenRadius", effect.screenRadius},
+                {"screenFeather", effect.screenFeather},
                 {"speed", effect.speed},
                 {"age", effect.age}
             };
@@ -972,7 +971,9 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             ScreenPostProcessComponent effect;
             effect.enabled = data.value("enabled", effect.enabled);
             effect.debugOverlay = data.value("debugOverlay", effect.debugOverlay);
-            effect.useWorldRadius = data.value("useWorldRadius", effect.useWorldRadius);
+            effect.useScreenRadius = data.value(
+                "useScreenRadius",
+                data.value("useWorldRadius", effect.useScreenRadius));
             effect.color = data.contains("color")
                 ? Vec3FromJson(data.at("color"))
                 : effect.color;
@@ -983,9 +984,8 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             effect.displacement = data.value("displacement", effect.displacement);
             effect.chromaticAberration = data.value("chromaticAberration", effect.chromaticAberration);
             effect.blockSize = data.value("blockSize", effect.blockSize);
-            effect.radius = data.value("radius", effect.radius);
-            effect.feather = data.value("feather", effect.feather);
-            effect.skyRadius = data.value("skyRadius", effect.skyRadius);
+            effect.screenRadius = data.value("screenRadius", effect.screenRadius);
+            effect.screenFeather = data.value("screenFeather", effect.screenFeather);
             effect.speed = data.value("speed", effect.speed);
             effect.age = data.value("age", effect.age);
             return effect;

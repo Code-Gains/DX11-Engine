@@ -14,6 +14,7 @@ using Clock = std::chrono::high_resolution_clock;
 #include "NameComponent.h"
 #include "WorldSerializer.h"
 #include "EditorSelection.h"
+#include "EditorCaptureState.h"
 #include "EntityState.h"
 #include "HierarchySystem.h"
 #include "JoltPhysicsSystem.h"
@@ -106,6 +107,124 @@ glm::vec4 ResolveMeshFlash(const entt::registry& registry, entt::entity entity)
     };
 }
 
+EditorCaptureState& GetEditorCaptureState(entt::registry& registry)
+{
+    if (!registry.ctx().contains<EditorCaptureState>()) {
+        return registry.ctx().emplace<EditorCaptureState>();
+    }
+
+    return registry.ctx().get<EditorCaptureState>();
+}
+
+entt::entity ResolveCinematicCameraEntity(entt::registry& registry)
+{
+    if (registry.ctx().contains<EditorSelection>()) {
+        const auto& selection = registry.ctx().get<EditorSelection>();
+        const entt::entity selectedEntity = selection.selectedEntity;
+        if (selectedEntity != entt::null &&
+            registry.valid(selectedEntity) &&
+            registry.all_of<Camera, Transform, CinematicCameraShotComponent>(selectedEntity) &&
+            !IsEntityDisabled(registry, selectedEntity)) {
+            return selectedEntity;
+        }
+    }
+
+    auto activeView = registry.view<Camera, Transform, CinematicCameraShotComponent, ActiveCameraTag>(
+        entt::exclude<DisabledEntityTag>);
+    for (auto entity : activeView) {
+        if (!IsEntityDisabled(registry, entity)) {
+            return entity;
+        }
+    }
+
+    auto shotView = registry.view<Camera, Transform, CinematicCameraShotComponent>(
+        entt::exclude<DisabledEntityTag>);
+    for (auto entity : shotView) {
+        if (!IsEntityDisabled(registry, entity)) {
+            return entity;
+        }
+    }
+
+    return entt::null;
+}
+
+void SetActiveCamera(entt::registry& registry, entt::entity cameraEntity)
+{
+    std::vector<entt::entity> previousActiveCameras;
+    auto activeView = registry.view<ActiveCameraTag>();
+    for (auto entity : activeView) {
+        if (entity != cameraEntity) {
+            previousActiveCameras.push_back(entity);
+        }
+    }
+
+    for (auto entity : previousActiveCameras) {
+        if (registry.valid(entity)) {
+            registry.remove<ActiveCameraTag>(entity);
+        }
+    }
+
+    if (cameraEntity != entt::null &&
+        registry.valid(cameraEntity) &&
+        !registry.all_of<ActiveCameraTag>(cameraEntity)) {
+        registry.emplace<ActiveCameraTag>(cameraEntity);
+    }
+}
+
+void SetCaptureUiHidden(entt::registry& registry, bool hidden)
+{
+    auto& capture = GetEditorCaptureState(registry);
+    if (capture.uiHidden == hidden) {
+        return;
+    }
+
+    capture.uiHidden = hidden;
+    if (auto* windowRegistry = registry.ctx().find<ImGuiWindowRegistry>()) {
+        if (hidden) {
+            windowRegistry->HideAllWindows();
+        }
+        else {
+            windowRegistry->RestoreHiddenWindows();
+        }
+    }
+}
+
+void StartCinematicCapture(entt::registry& registry)
+{
+    const entt::entity cameraEntity = ResolveCinematicCameraEntity(registry);
+    if (cameraEntity == entt::null) {
+        return;
+    }
+
+    auto shotView = registry.view<CinematicCameraShotComponent>();
+    for (auto entity : shotView) {
+        shotView.get<CinematicCameraShotComponent>(entity).playing = false;
+    }
+
+    auto& shot = registry.get<CinematicCameraShotComponent>(cameraEntity);
+    shot.time = 0.0f;
+    shot.playing = true;
+    SetActiveCamera(registry, cameraEntity);
+    SetCaptureUiHidden(registry, true);
+}
+
+void HandleCaptureShortcuts(entt::registry& registry)
+{
+    const ImGuiIO& io = ImGui::GetIO();
+    if (io.WantTextInput || !io.KeyCtrl || !io.KeyShift) {
+        return;
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_C, false)) {
+        StartCinematicCapture(registry);
+    }
+
+    if (ImGui::IsKeyPressed(ImGuiKey_U, false)) {
+        auto& capture = GetEditorCaptureState(registry);
+        SetCaptureUiHidden(registry, !capture.uiHidden);
+    }
+}
+
 } // namespace
 
 #ifndef NDEBUG
@@ -196,6 +315,21 @@ EditorMode Core::GetEditorMode() const
 bool Core::IsPlayMode() const
 {
     return _editorMode == EditorMode::Play;
+}
+
+bool Core::IsEditorWireframeEnabled() const
+{
+    return _editorWireframeEnabled;
+}
+
+void Core::SetEditorWireframeEnabled(bool enabled)
+{
+    _editorWireframeEnabled = enabled;
+}
+
+void Core::ToggleEditorWireframe()
+{
+    _editorWireframeEnabled = !_editorWireframeEnabled;
 }
 
 void Core::StartPlayMode()
@@ -497,12 +631,15 @@ void Core::Run() {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
-        DrawUi();
+        HandleCaptureShortcuts(_registry);
+        const bool captureUiHidden = GetEditorCaptureState(_registry).uiHidden;
+        if (!captureUiHidden) {
+            ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+            DrawUi();
+        }
         auto& windowRegistry = _registry.ctx().get<ImGuiWindowRegistry>();
         bool open = windowRegistry.IsWindowOpen("Texture Debugger");
-        if (open)
+        if (!captureUiHidden && open)
         {
             if (ImGui::Begin("Texture Debugger", &open))
             {
@@ -1279,9 +1416,12 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
                 continue;
             }
 
-            RenderPipelineId pipelineId = _instancedMeshPipelineId;
+            RenderPipelineId pipelineId = ResolveEditorWireframePipeline(_instancedMeshPipelineId);
             if (material && material->pipelines.instanced.IsValid()) {
-                pipelineId = material->pipelines.instanced;
+                pipelineId =
+                    _editorWireframeEnabled && material->pipelines.wireframeInstanced.IsValid()
+                        ? material->pipelines.wireframeInstanced
+                        : material->pipelines.instanced;
             }
 
             InstanceData instance{};
@@ -1464,9 +1604,12 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             continue;
         }
 
-        RenderPipelineId pipelineId = _meshPipelineId;
+        RenderPipelineId pipelineId = ResolveEditorWireframePipeline(_meshPipelineId);
         if (material && material->pipelines.single.IsValid()) {
-            pipelineId = material->pipelines.single;
+            pipelineId =
+                _editorWireframeEnabled && material->pipelines.wireframeSingle.IsValid()
+                    ? material->pipelines.wireframeSingle
+                    : material->pipelines.single;
         }
 
         const MaterialPipeline& meshPipeline = GetRenderPipeline(pipelineId);
@@ -1586,9 +1729,12 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             continue;
         }
 
-        RenderPipelineId pipelineId = _transparentMeshPipelineId;
+        RenderPipelineId pipelineId = ResolveEditorWireframePipeline(_transparentMeshPipelineId);
         if (material && material->pipelines.single.IsValid()) {
-            pipelineId = material->pipelines.single;
+            pipelineId =
+                _editorWireframeEnabled && material->pipelines.wireframeSingle.IsValid()
+                    ? material->pipelines.wireframeSingle
+                    : material->pipelines.single;
         }
 
         const MaterialPipeline& meshPipeline = GetRenderPipeline(pipelineId);
@@ -2411,11 +2557,11 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
         effect.debugOverlay ? 1.0f : 0.0f);
     pushConstants.worldCenterAndRadius = glm::vec4(
         worldCenter,
-        glm::max(0.001f, effect.radius));
+        glm::max(0.001f, effect.screenRadius));
     pushConstants.localizationParams = glm::vec4(
-        glm::max(0.001f, effect.feather),
-        glm::clamp(effect.skyRadius, 0.0f, 1.0f),
-        effect.useWorldRadius ? 1.0f : 0.0f,
+        glm::max(0.001f, effect.screenFeather),
+        renderAspectRatio,
+        effect.useScreenRadius ? 1.0f : 0.0f,
         0.0f);
 
     vkutil::transition_image(

@@ -35,6 +35,29 @@ const MaterialPipeline& Core::GetRenderPipeline(RenderPipelineId id) const
     return _renderPipelines[id.value];
 }
 
+RenderPipelineId Core::ResolveEditorWireframePipeline(RenderPipelineId pipelineId) const
+{
+    if (!_editorWireframeEnabled || !pipelineId.IsValid()) {
+        return pipelineId;
+    }
+
+    if (pipelineId == _meshPipelineId && _meshWireframePipelineId.IsValid()) {
+        return _meshWireframePipelineId;
+    }
+    if (pipelineId == _instancedMeshPipelineId && _instancedMeshWireframePipelineId.IsValid()) {
+        return _instancedMeshWireframePipelineId;
+    }
+    if (pipelineId == _transparentMeshPipelineId && _transparentMeshWireframePipelineId.IsValid()) {
+        return _transparentMeshWireframePipelineId;
+    }
+    if (pipelineId == _transparentInstancedMeshPipelineId &&
+        _transparentInstancedMeshWireframePipelineId.IsValid()) {
+        return _transparentInstancedMeshWireframePipelineId;
+    }
+
+    return pipelineId;
+}
+
 bool Core::LoadEngineShaderModule(const std::filesystem::path& path, VkShaderModule* outShaderModule)
 {
     const auto resolvedPath = ResolveEnginePath(path);
@@ -53,14 +76,15 @@ VkPipeline Core::BuildMeshGraphicsPipeline(
     VkPipelineLayout layout,
     VkShaderModule vertexShader,
     VkShaderModule fragmentShader,
-    bool transparent)
+    bool transparent,
+    VkPolygonMode polygonMode)
 {
     PipelineBuilder pipelineBuilder;
 
     pipelineBuilder._pipelineLayout = layout;
     pipelineBuilder.set_shaders(vertexShader, fragmentShader);
     pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
-    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_polygon_mode(polygonMode);
     pipelineBuilder.set_cull_mode(VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE);
     pipelineBuilder.set_multisampling(_msaaSamples);
     if (transparent) {
@@ -109,6 +133,20 @@ MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
         BuildMeshGraphicsPipeline(_meshPipelineLayout, singleVertexShader, fragmentShader);
     const VkPipeline instancedPipeline =
         BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, instancedVertexShader, fragmentShader);
+    const VkPipeline wireframeSinglePipeline =
+        BuildMeshGraphicsPipeline(
+            _meshPipelineLayout,
+            singleVertexShader,
+            fragmentShader,
+            false,
+            VK_POLYGON_MODE_LINE);
+    const VkPipeline wireframeInstancedPipeline =
+        BuildMeshGraphicsPipeline(
+            _instancedMeshPipelineLayout,
+            instancedVertexShader,
+            fragmentShader,
+            false,
+            VK_POLYGON_MODE_LINE);
 
     vkDestroyShaderModule(_device, instancedVertexShader, nullptr);
     vkDestroyShaderModule(_device, singleVertexShader, nullptr);
@@ -130,14 +168,39 @@ MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
         }
     );
 
-    _mainDeletionQueue.push_function([this, singlePipeline, instancedPipeline]() {
+    auto wireframeSingleId = RegisterRenderPipeline(
+        name + ".WireframeSingle",
+        MaterialPipeline{
+            .pipeline = wireframeSinglePipeline,
+            .layout = _meshPipelineLayout
+        }
+    );
+
+    auto wireframeInstancedId = RegisterRenderPipeline(
+        name + ".WireframeInstanced",
+        MaterialPipeline{
+            .pipeline = wireframeInstancedPipeline,
+            .layout = _instancedMeshPipelineLayout
+        }
+    );
+
+    _mainDeletionQueue.push_function([
+        this,
+        singlePipeline,
+        instancedPipeline,
+        wireframeSinglePipeline,
+        wireframeInstancedPipeline]() {
         vkDestroyPipeline(_device, singlePipeline, nullptr);
         vkDestroyPipeline(_device, instancedPipeline, nullptr);
+        vkDestroyPipeline(_device, wireframeSinglePipeline, nullptr);
+        vkDestroyPipeline(_device, wireframeInstancedPipeline, nullptr);
     });
 
     return MaterialPipelineSet{
         .single = singleId,
-        .instanced = instancedId
+        .instanced = instancedId,
+        .wireframeSingle = wireframeSingleId,
+        .wireframeInstanced = wireframeInstancedId
     };
 }
 
@@ -256,10 +319,24 @@ void Core::InitMeshPipeline() {
 
     //finally build the pipeline
     _meshPipeline = BuildMeshGraphicsPipeline(_meshPipelineLayout, triangleVertexShader, triangleFragShader);
+    _meshWireframePipeline =
+        BuildMeshGraphicsPipeline(
+            _meshPipelineLayout,
+            triangleVertexShader,
+            triangleFragShader,
+            false,
+            VK_POLYGON_MODE_LINE);
     _meshPipelineId = RegisterRenderPipeline(
         "Engine/MeshPBR",
         MaterialPipeline{
             .pipeline = _meshPipeline,
+            .layout = _meshPipelineLayout
+        }
+    );
+    _meshWireframePipelineId = RegisterRenderPipeline(
+        "Engine/MeshPBR.Wireframe",
+        MaterialPipeline{
+            .pipeline = _meshWireframePipeline,
             .layout = _meshPipelineLayout
         }
     );
@@ -270,6 +347,7 @@ void Core::InitMeshPipeline() {
 
     _mainDeletionQueue.push_function([&]() {
         vkDestroyPipelineLayout(_device, _meshPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _meshWireframePipeline, nullptr);
         vkDestroyPipeline(_device, _meshPipeline, nullptr);
     });
 }
@@ -306,10 +384,24 @@ void Core::InitInstancedMeshPipeline() {
 
     //finally build the pipeline
     _instancedMeshPipeline = BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, triangleVertexShader, triangleFragShader);
+    _instancedMeshWireframePipeline =
+        BuildMeshGraphicsPipeline(
+            _instancedMeshPipelineLayout,
+            triangleVertexShader,
+            triangleFragShader,
+            false,
+            VK_POLYGON_MODE_LINE);
     _instancedMeshPipelineId = RegisterRenderPipeline(
         "Engine/InstancedMeshPBR",
         MaterialPipeline{
             .pipeline = _instancedMeshPipeline,
+            .layout = _instancedMeshPipelineLayout
+        }
+    );
+    _instancedMeshWireframePipelineId = RegisterRenderPipeline(
+        "Engine/InstancedMeshPBR.Wireframe",
+        MaterialPipeline{
+            .pipeline = _instancedMeshWireframePipeline,
             .layout = _instancedMeshPipelineLayout
         }
     );
@@ -320,6 +412,7 @@ void Core::InitInstancedMeshPipeline() {
 
     _mainDeletionQueue.push_function([&]() {
         vkDestroyPipelineLayout(_device, _instancedMeshPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _instancedMeshWireframePipeline, nullptr);
         vkDestroyPipeline(_device, _instancedMeshPipeline, nullptr);
     });
 }
@@ -348,6 +441,20 @@ void Core::InitTransparentMeshPipeline()
         BuildMeshGraphicsPipeline(_meshPipelineLayout, singleVertexShader, triangleFragShader, true);
     VkPipeline transparentInstancedMeshPipeline =
         BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, instancedVertexShader, triangleFragShader, true);
+    _transparentMeshWireframePipeline =
+        BuildMeshGraphicsPipeline(
+            _meshPipelineLayout,
+            singleVertexShader,
+            triangleFragShader,
+            true,
+            VK_POLYGON_MODE_LINE);
+    _transparentInstancedMeshWireframePipeline =
+        BuildMeshGraphicsPipeline(
+            _instancedMeshPipelineLayout,
+            instancedVertexShader,
+            triangleFragShader,
+            true,
+            VK_POLYGON_MODE_LINE);
 
     _transparentMeshPipelineId = RegisterRenderPipeline(
         "Engine/TransparentMeshPBR",
@@ -365,11 +472,29 @@ void Core::InitTransparentMeshPipeline()
         }
     );
 
+    _transparentMeshWireframePipelineId = RegisterRenderPipeline(
+        "Engine/TransparentMeshPBR.Wireframe",
+        MaterialPipeline{
+            .pipeline = _transparentMeshWireframePipeline,
+            .layout = _meshPipelineLayout
+        }
+    );
+
+    _transparentInstancedMeshWireframePipelineId = RegisterRenderPipeline(
+        "Engine/TransparentInstancedMeshPBR.Wireframe",
+        MaterialPipeline{
+            .pipeline = _transparentInstancedMeshWireframePipeline,
+            .layout = _instancedMeshPipelineLayout
+        }
+    );
+
     vkDestroyShaderModule(_device, instancedVertexShader, nullptr);
     vkDestroyShaderModule(_device, singleVertexShader, nullptr);
     vkDestroyShaderModule(_device, triangleFragShader, nullptr);
 
     _mainDeletionQueue.push_function([this, transparentMeshPipeline, transparentInstancedMeshPipeline]() {
+        vkDestroyPipeline(_device, _transparentInstancedMeshWireframePipeline, nullptr);
+        vkDestroyPipeline(_device, _transparentMeshWireframePipeline, nullptr);
         vkDestroyPipeline(_device, transparentInstancedMeshPipeline, nullptr);
         vkDestroyPipeline(_device, transparentMeshPipeline, nullptr);
     });

@@ -88,6 +88,8 @@ struct RenderPipelineId {
 struct MaterialPipelineSet {
     RenderPipelineId single;
     RenderPipelineId instanced;
+    RenderPipelineId wireframeSingle;
+    RenderPipelineId wireframeInstanced;
 };
 
 struct MaterialInstance {

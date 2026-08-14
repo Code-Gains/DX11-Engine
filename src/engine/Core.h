@@ -297,6 +297,7 @@ private:
     std::filesystem::path _engineRoot = std::filesystem::current_path();
     std::filesystem::path _projectRoot = std::filesystem::current_path();
     EditorMode _editorMode = EditorMode::Edit;
+    bool _editorWireframeEnabled = false;
     nlohmann::json _playModeSnapshot;
     std::optional<std::filesystem::path> _currentWorldPath;
     std::vector<std::function<void(ComponentSerializerRegistry&)>> _componentSerializerSetups;
@@ -335,7 +336,8 @@ private:
         VkPipelineLayout layout,
         VkShaderModule vertexShader,
         VkShaderModule fragmentShader,
-        bool transparent = false);
+        bool transparent = false,
+        VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL);
     MaterialInstance* ResolveMeshMaterial(const MeshComponent& meshComponent, const GeoSurface& surface);
 
     // ------------------------------------------------------------------------
@@ -479,6 +481,10 @@ private:
     VkPipelineLayout _selectionOutlinePipelineLayout = VK_NULL_HANDLE;
     VkPipeline _instancedMeshPipeline;
     VkPipeline _meshPipeline;
+    VkPipeline _instancedMeshWireframePipeline = VK_NULL_HANDLE;
+    VkPipeline _meshWireframePipeline = VK_NULL_HANDLE;
+    VkPipeline _transparentInstancedMeshWireframePipeline = VK_NULL_HANDLE;
+    VkPipeline _transparentMeshWireframePipeline = VK_NULL_HANDLE;
     VkPipeline _effectMeshPipeline = VK_NULL_HANDLE;
     VkPipeline _linePipeline;
     VkPipeline _heightFogPipeline = VK_NULL_HANDLE;
@@ -493,11 +499,16 @@ private:
     std::unordered_map<std::string, RenderPipelineId> _renderPipelineIdsByName;
     RenderPipelineId _meshPipelineId;
     RenderPipelineId _instancedMeshPipelineId;
+    RenderPipelineId _meshWireframePipelineId;
+    RenderPipelineId _instancedMeshWireframePipelineId;
     RenderPipelineId _transparentMeshPipelineId;
     RenderPipelineId _transparentInstancedMeshPipelineId;
+    RenderPipelineId _transparentMeshWireframePipelineId;
+    RenderPipelineId _transparentInstancedMeshWireframePipelineId;
 
     RenderPipelineId RegisterRenderPipeline(std::string name, MaterialPipeline pipeline);
     const MaterialPipeline& GetRenderPipeline(RenderPipelineId id) const;
+    RenderPipelineId ResolveEditorWireframePipeline(RenderPipelineId pipelineId) const;
 
     AllocatedImage _selectionMaskImage {};
 
@@ -654,6 +665,9 @@ public:
     bool IsPlayMode() const;
     void StartPlayMode();
     void StopPlayMode();
+    bool IsEditorWireframeEnabled() const;
+    void SetEditorWireframeEnabled(bool enabled);
+    void ToggleEditorWireframe();
     const std::optional<std::filesystem::path>& GetCurrentWorldPath() const;
     void SetCurrentWorldPath(std::filesystem::path path);
     void ClearCurrentWorldPath();

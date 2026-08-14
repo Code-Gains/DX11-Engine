@@ -57,6 +57,7 @@ void Core::InitVulkan() {
     VkPhysicalDeviceFeatures features10{};
     features10.geometryShader = VK_TRUE;
     features10.shaderInt64 = VK_TRUE;
+    features10.fillModeNonSolid = VK_TRUE;
 
     //use vkbootstrap to select a gpu. 
     //We want a gpu that can write to the SDL surface and supports vulkan 1.3 with the correct features
@@ -339,6 +340,8 @@ void Core::InitDefaultData()
     _defaultMaterial.baseColorFactor = glm::vec4{ 1.0f };
     _defaultMaterial.pipelines.single = _meshPipelineId;
     _defaultMaterial.pipelines.instanced = _instancedMeshPipelineId;
+    _defaultMaterial.pipelines.wireframeSingle = _meshWireframePipelineId;
+    _defaultMaterial.pipelines.wireframeInstanced = _instancedMeshWireframePipelineId;
     RegisterMaterialAsset("Engine/DefaultPBR", _defaultMaterial);
 
     MaterialInstance transparentMaterial = _defaultMaterial;
@@ -346,6 +349,8 @@ void Core::InitDefaultData()
     transparentMaterial.passType = MaterialPass::Transparent;
     transparentMaterial.pipelines.single = _transparentMeshPipelineId;
     transparentMaterial.pipelines.instanced = _transparentInstancedMeshPipelineId;
+    transparentMaterial.pipelines.wireframeSingle = _transparentMeshWireframePipelineId;
+    transparentMaterial.pipelines.wireframeInstanced = _transparentInstancedMeshWireframePipelineId;
     RegisterMaterialAsset("Engine/TransparentPBR", transparentMaterial);
 
     //checkerboard image

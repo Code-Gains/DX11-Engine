@@ -286,6 +286,8 @@ size_t Core::LoadGltfMaterials(fastgltf::Asset &gltf, size_t imageOffset)
         material.emissionImage = &_blackImage;
         material.pipelines.single = _meshPipelineId;
         material.pipelines.instanced = _instancedMeshPipelineId;
+        material.pipelines.wireframeSingle = _meshWireframePipelineId;
+        material.pipelines.wireframeInstanced = _instancedMeshWireframePipelineId;
         material.baseColorFactor = glm::vec4{
             gltfMaterial.pbrData.baseColorFactor[0],
             gltfMaterial.pbrData.baseColorFactor[1],
@@ -296,6 +298,8 @@ size_t Core::LoadGltfMaterials(fastgltf::Asset &gltf, size_t imageOffset)
             material.passType = MaterialPass::Transparent;
             material.pipelines.single = _transparentMeshPipelineId;
             material.pipelines.instanced = _transparentInstancedMeshPipelineId;
+            material.pipelines.wireframeSingle = _transparentMeshWireframePipelineId;
+            material.pipelines.wireframeInstanced = _transparentInstancedMeshWireframePipelineId;
         }
 
         AssignGltfMaterialTexture(

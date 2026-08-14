@@ -158,6 +158,14 @@ void ImGuiManager::DrawPlayControls()
     if (!isPlayMode) {
         ImGui::EndDisabled();
     }
+
+    ImGui::SameLine();
+    ImGui::Separator();
+    ImGui::SameLine();
+
+    if (ImGui::Button(_core->IsEditorWireframeEnabled() ? "Solid" : "Wireframe")) {
+        _core->ToggleEditorWireframe();
+    }
 }
 
 void ImGuiManager::DrawSceneMenuStatus()
