@@ -646,6 +646,55 @@ void Core::InitHeightFogPipeline()
     });
 }
 
+void Core::InitDepthVisualizationPipeline()
+{
+    VkShaderModule fullscreenVertexShader;
+    if (!LoadEngineShaderModule("shaders/fullscreen_triangle.vert.spv", &fullscreenVertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the depth visualization fullscreen vertex shader module");
+    }
+
+    VkShaderModule depthFragShader;
+    if (!LoadEngineShaderModule("shaders/depth_visualization.frag.spv", &depthFragShader)) {
+        ENGINE_LOG_ERROR("Error when building the depth visualization fragment shader module");
+    }
+
+    VkShaderModule depthMsaaFragShader;
+    if (!LoadEngineShaderModule("shaders/depth_visualization_msaa.frag.spv", &depthMsaaFragShader)) {
+        ENGINE_LOG_ERROR("Error when building the depth visualization MSAA fragment shader module");
+    }
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkinit::pipeline_layout_create_info();
+    pipelineLayoutInfo.pSetLayouts = &_sampledImageDescriptorLayout;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    VK_CHECK(vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_depthVisualizationPipelineLayout));
+
+    PipelineBuilder pipelineBuilder;
+    pipelineBuilder._pipelineLayout = _depthVisualizationPipelineLayout;
+    pipelineBuilder.set_shaders(fullscreenVertexShader, depthFragShader);
+    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_multisampling_none();
+    pipelineBuilder.disable_blending();
+    pipelineBuilder.disable_depthtest();
+    pipelineBuilder.set_color_attachment_format(_drawImage.imageFormat);
+
+    _depthVisualizationPipeline = pipelineBuilder.build_pipeline(_device);
+
+    pipelineBuilder.set_shaders(fullscreenVertexShader, depthMsaaFragShader);
+    _depthVisualizationMsaaPipeline = pipelineBuilder.build_pipeline(_device);
+
+    vkDestroyShaderModule(_device, depthMsaaFragShader, nullptr);
+    vkDestroyShaderModule(_device, depthFragShader, nullptr);
+    vkDestroyShaderModule(_device, fullscreenVertexShader, nullptr);
+
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroyPipelineLayout(_device, _depthVisualizationPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _depthVisualizationPipeline, nullptr);
+        vkDestroyPipeline(_device, _depthVisualizationMsaaPipeline, nullptr);
+    });
+}
+
 void Core::InitScreenPostProcessPipeline()
 {
     VkShaderModule fullscreenVertexShader;

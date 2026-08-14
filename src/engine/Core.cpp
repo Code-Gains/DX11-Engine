@@ -515,6 +515,7 @@ void Core::InitPipelines()
     InitShadowPipeline();
     InitLinePipeline();
     InitHeightFogPipeline();
+    InitDepthVisualizationPipeline();
     InitScreenPostProcessPipeline();
     InitSelectionOutlinePipeline();
     InitSkyboxPipeline();
@@ -662,6 +663,7 @@ void Core::Run() {
 
                 const bool capturePending =
                     _debugCaptureRequested ||
+                    _depthCaptureRequested ||
                     _pendingScreenshot.buffer != VK_NULL_HANDLE ||
                     _pendingShadowMapCapture.buffer != VK_NULL_HANDLE;
                 if (capturePending) {
@@ -670,6 +672,10 @@ void Core::Run() {
                 if (ImGui::Button("Export current view + shadow map")) {
                     _debugCaptureRequested = true;
                     ENGINE_LOG_INFO("Debug capture requested.");
+                }
+                if (ImGui::Button("Export camera depth")) {
+                    _depthCaptureRequested = true;
+                    ENGINE_LOG_INFO("Depth capture requested.");
                 }
                 if (capturePending) {
                     ImGui::EndDisabled();
@@ -924,10 +930,13 @@ void Core::Draw()
             pixels[i] = (uint8_t)(std::clamp(f, 0.0f, 1.0f) * 255.0f + 0.5f);
         }
 
-        const std::filesystem::path screenshotPath =
-            _pendingShadowMapCapture.buffer != VK_NULL_HANDLE
-                ? _projectRoot / "debug_capture/view.png"
-                : _projectRoot / "screenshot.png";
+        std::filesystem::path screenshotPath = _projectRoot / "screenshot.png";
+        if (_pendingScreenshotIsDepth) {
+            screenshotPath = _projectRoot / "debug_capture/depth.png";
+        }
+        else if (_pendingShadowMapCapture.buffer != VK_NULL_HANDLE) {
+            screenshotPath = _projectRoot / "debug_capture/view.png";
+        }
         if (!screenshotPath.parent_path().empty()) {
             std::filesystem::create_directories(screenshotPath.parent_path());
         }
@@ -944,6 +953,7 @@ void Core::Draw()
         vmaUnmapMemory(_allocator, _pendingScreenshot.allocation);
         DestroyBuffer(_pendingScreenshot);
         _pendingScreenshot.buffer = VK_NULL_HANDLE;
+        _pendingScreenshotIsDepth = false;
     }
 
     if (_pendingShadowMapCapture.buffer != VK_NULL_HANDLE)
@@ -1037,13 +1047,20 @@ void Core::Draw()
     DrawScreenPostProcess(cmd);
     { // TODO move to some other file
         const bool screenshotRequested = camera && camera->screenshotRequested;
+        const bool depthCaptureRequested = _depthCaptureRequested;
         const bool captureDebugPair = _debugCaptureRequested || screenshotRequested;
-        if (captureDebugPair)
+        const bool captureAnyView = captureDebugPair || depthCaptureRequested;
+        if (captureAnyView)
         {
             if (camera) {
                 camera->screenshotRequested = false;
             }
             _debugCaptureRequested = false;
+            _depthCaptureRequested = false;
+
+            if (depthCaptureRequested) {
+                DrawDepthVisualization(cmd);
+            }
 
             // 1. Transition draw image to transfer source
             vkutil::transition_image(cmd, _drawImage.image,
@@ -1096,6 +1113,7 @@ void Core::Draw()
             //    Simplest: store the buffer and save after the fence signals.
             _pendingScreenshot = stagingBuffer; // store for readback
             _pendingScreenshotExtent = _drawExtent;
+            _pendingScreenshotIsDepth = depthCaptureRequested;
 
             if (captureDebugPair) {
                 const VkDeviceSize shadowMapSize =
@@ -2482,6 +2500,86 @@ void Core::DrawHeightFog(VkCommandBuffer cmd)
         0,
         sizeof(pushConstants),
         &pushConstants);
+    vkCmdDraw(cmd, 3, 1, 0, 0);
+
+    vkCmdEndRendering(cmd);
+
+    vkutil::transition_image(
+        cmd,
+        depthImage.image,
+        depthReadLayout,
+        depthAttachmentLayout,
+        depthRange);
+}
+
+void Core::DrawDepthVisualization(VkCommandBuffer cmd)
+{
+    if (_depthVisualizationPipeline == VK_NULL_HANDLE ||
+        _depthVisualizationMsaaPipeline == VK_NULL_HANDLE ||
+        _depthVisualizationPipelineLayout == VK_NULL_HANDLE) {
+        return;
+    }
+
+    const bool useMsaaDepth = _msaaSamples != VK_SAMPLE_COUNT_1_BIT;
+    AllocatedImage& depthImage = useMsaaDepth ? _msaaDepthImage : _depthImage;
+    const VkImageLayout depthAttachmentLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    const VkImageLayout depthReadLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+    const VkImageSubresourceRange depthRange =
+        vkinit::image_subresource_range(VK_IMAGE_ASPECT_DEPTH_BIT);
+
+    vkutil::transition_image(
+        cmd,
+        depthImage.image,
+        depthAttachmentLayout,
+        depthReadLayout,
+        depthRange);
+
+    VkDescriptorSet depthSet =
+        GetCurrentFrame()._frameDescriptors.allocate(_device, _sampledImageDescriptorLayout);
+    DescriptorWriter writer;
+    writer.write_image(
+        0,
+        depthImage.imageView,
+        VK_NULL_HANDLE,
+        depthReadLayout,
+        VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+    writer.update_set(_device, depthSet);
+
+    VkRenderingAttachmentInfo colorAttachment =
+        vkinit::attachment_info(_drawImage.imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    VkRenderingInfo renderInfo = vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
+
+    vkCmdBeginRendering(cmd, &renderInfo);
+
+    VkViewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(_drawExtent.width);
+    viewport.height = static_cast<float>(_drawExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor = {};
+    scissor.offset.x = 0;
+    scissor.offset.y = 0;
+    scissor.extent.width = _drawExtent.width;
+    scissor.extent.height = _drawExtent.height;
+
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
+    vkCmdBindPipeline(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        useMsaaDepth ? _depthVisualizationMsaaPipeline : _depthVisualizationPipeline);
+    vkCmdBindDescriptorSets(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        _depthVisualizationPipelineLayout,
+        0,
+        1,
+        &depthSet,
+        0,
+        nullptr);
     vkCmdDraw(cmd, 3, 1, 0, 0);
 
     vkCmdEndRendering(cmd);

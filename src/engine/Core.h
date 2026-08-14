@@ -321,6 +321,7 @@ private:
     void InitEffectMeshPipeline();
     void InitLinePipeline();
     void InitHeightFogPipeline();
+    void InitDepthVisualizationPipeline();
     void InitScreenPostProcessPipeline();
     void InitShadowResources();
     void InitShadowPipeline();
@@ -448,6 +449,7 @@ private:
     void DrawShadowMap(VkCommandBuffer cmd);
     void DrawSelectedOutline(VkCommandBuffer cmd);
     void DrawHeightFog(VkCommandBuffer cmd);
+    void DrawDepthVisualization(VkCommandBuffer cmd);
     void DrawScreenPostProcess(VkCommandBuffer cmd);
     glm::mat4 BuildSunLightViewProjection();
     void DrawImGui(VkCommandBuffer cmd, VkImageView targetImageView);
@@ -475,6 +477,7 @@ private:
     VkPipelineLayout _effectMeshPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _linePipelineLayout;
     VkPipelineLayout _heightFogPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout _depthVisualizationPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _screenPostProcessPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _shadowPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _selectionMaskPipelineLayout = VK_NULL_HANDLE;
@@ -489,6 +492,8 @@ private:
     VkPipeline _linePipeline;
     VkPipeline _heightFogPipeline = VK_NULL_HANDLE;
     VkPipeline _heightFogMsaaPipeline = VK_NULL_HANDLE;
+    VkPipeline _depthVisualizationPipeline = VK_NULL_HANDLE;
+    VkPipeline _depthVisualizationMsaaPipeline = VK_NULL_HANDLE;
     VkPipeline _screenPostProcessPipeline = VK_NULL_HANDLE;
     VkPipeline _screenPostProcessMsaaPipeline = VK_NULL_HANDLE;
     VkPipeline _shadowPipeline = VK_NULL_HANDLE;
@@ -582,6 +587,8 @@ private:
         .info = {}
     };
     bool _debugCaptureRequested = false;
+    bool _depthCaptureRequested = false;
+    bool _pendingScreenshotIsDepth = false;
 
     void CreateScreenshotBuffer();
 
