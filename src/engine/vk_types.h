@@ -173,6 +173,7 @@ struct HeightFogPushConstants {
     glm::vec4 fogCenterAndRadius;
     glm::vec4 fogColorAndDensity;
     glm::vec4 fogParams;
+    glm::vec4 skyFogParams;
 };
 
 struct ScreenPostProcessPushConstants {
@@ -182,6 +183,7 @@ struct ScreenPostProcessPushConstants {
     glm::vec4 corruptionParams;
     glm::vec4 distortionParams;
     glm::vec4 worldCenterAndRadius;
+    glm::vec4 cameraRightAndFeather;
     glm::vec4 localizationParams;
 };
 

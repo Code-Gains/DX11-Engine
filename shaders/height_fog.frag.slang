@@ -11,6 +11,7 @@ struct PushConstants
     float4 fogCenterAndRadius;
     float4 fogColorAndDensity;
     float4 fogParams;
+    float4 skyFogParams;
 };
 
 [[vk::binding(0, 0)]]
@@ -27,14 +28,19 @@ float3 ReconstructWorldPosition(float2 uv, float depth)
     return worldPosition.xyz / worldPosition.w;
 }
 
-float ComputeFogOpacity(float3 rayOrigin, float3 rayDirection, float viewDistance)
+float ComputeFogOpacity(
+    float3 rayOrigin,
+    float3 rayDirection,
+    float viewDistance,
+    float densityMultiplier,
+    float opacityLimit)
 {
     float3 fogCenter = pushConstants.fogCenterAndRadius.xyz;
     float planetRadius = pushConstants.fogCenterAndRadius.w;
     float fogHeight = max(0.001, pushConstants.fogParams.x);
-    float density = max(0.0, pushConstants.fogColorAndDensity.w);
+    float density = max(0.0, pushConstants.fogColorAndDensity.w) * max(0.0, densityMultiplier);
     float distanceLimit = fogHeight * max(0.001, pushConstants.fogParams.y);
-    float maxOpacity = saturate(pushConstants.fogParams.z);
+    float maxOpacity = saturate(opacityLimit);
     float clampedDistance = min(max(0.0, viewDistance), distanceLimit);
 
     const int sampleCount = 8;
@@ -75,7 +81,9 @@ float4 main(FragmentInput input) : SV_Target
         float skyFogOpacity = ComputeFogOpacity(
             cameraPosition,
             rayToFar / max(viewDistance, 0.000001),
-            viewDistance);
+            viewDistance,
+            pushConstants.skyFogParams.x,
+            pushConstants.skyFogParams.y);
         if (skyFogOpacity <= 0.0) {
             discard;
         }
@@ -89,7 +97,9 @@ float4 main(FragmentInput input) : SV_Target
     float opacity = ComputeFogOpacity(
         cameraPosition,
         rayToWorld / max(viewDistance, 0.000001),
-        viewDistance);
+        viewDistance,
+        1.0,
+        pushConstants.fogParams.z);
 
     return float4(pushConstants.fogColorAndDensity.rgb, opacity);
 }

@@ -100,6 +100,21 @@ else()
     message(WARNING "slangc not found. GLSL shaders will still compile, but Slang shaders are unavailable.")
 endif()
 
+set(SLANGC_COMMAND_ENV "")
+if(UNIX AND NOT APPLE)
+    if(DEFINED ENV{LD_LIBRARY_PATH} AND NOT "$ENV{LD_LIBRARY_PATH}" STREQUAL "")
+        set(SLANGC_LD_LIBRARY_PATH "$ENV{VULKAN_SDK}/lib:$ENV{LD_LIBRARY_PATH}")
+    else()
+        set(SLANGC_LD_LIBRARY_PATH "$ENV{VULKAN_SDK}/lib")
+    endif()
+
+    set(SLANGC_COMMAND_ENV
+        "${CMAKE_COMMAND}" -E env
+        "LD_LIBRARY_PATH=${SLANGC_LD_LIBRARY_PATH}"
+        "PATH=$ENV{VULKAN_SDK}/bin:$ENV{PATH}"
+    )
+endif()
+
 target_link_libraries(engine
     PUBLIC
         Vulkan::Vulkan
@@ -171,7 +186,7 @@ foreach(SHADER_FILE IN LISTS ALL_SLANG_SHADERS)
 
     add_custom_command(
         OUTPUT "${SPIRV_FILE}"
-        COMMAND "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry main -stage "${SLANG_STAGE}" -o "${SPIRV_FILE}"
+        COMMAND ${SLANGC_COMMAND_ENV} "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry main -stage "${SLANG_STAGE}" -o "${SPIRV_FILE}"
         DEPENDS "${SHADER_FILE}"
         COMMENT "Compiling Slang shader ${SHADER_NAME}"
         VERBATIM
@@ -192,7 +207,7 @@ foreach(SHADER_FILE IN LISTS ALL_GRAPHICS_SLANG_SHADERS)
 
     add_custom_command(
         OUTPUT "${VERT_SPIRV_FILE}"
-        COMMAND "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry vertexMain -stage vertex -o "${VERT_SPIRV_FILE}"
+        COMMAND ${SLANGC_COMMAND_ENV} "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry vertexMain -stage vertex -o "${VERT_SPIRV_FILE}"
         DEPENDS "${SHADER_FILE}"
         COMMENT "Compiling Slang vertex shader ${SHADER_NAME}"
         VERBATIM
@@ -200,7 +215,7 @@ foreach(SHADER_FILE IN LISTS ALL_GRAPHICS_SLANG_SHADERS)
 
     add_custom_command(
         OUTPUT "${FRAG_SPIRV_FILE}"
-        COMMAND "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry fragmentMain -stage fragment -o "${FRAG_SPIRV_FILE}"
+        COMMAND ${SLANGC_COMMAND_ENV} "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry fragmentMain -stage fragment -o "${FRAG_SPIRV_FILE}"
         DEPENDS "${SHADER_FILE}"
         COMMENT "Compiling Slang fragment shader ${SHADER_NAME}"
         VERBATIM

@@ -166,6 +166,8 @@ public:
             ImGui::DragFloat("Density##HeightFogDensity", &fog->density, 0.001f, 0.0f, 1000.0f);
             ImGui::DragFloat("Distance Falloff##HeightFogDistanceFalloff", &fog->distanceFalloff, 0.001f, 0.0f, 1000.0f);
             ImGui::DragFloat("Max Opacity##HeightFogMaxOpacity", &fog->maxOpacity, 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Sky Density Multiplier##HeightFogSkyDensityMultiplier", &fog->skyDensityMultiplier, 0.01f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Sky Max Opacity##HeightFogSkyMaxOpacity", &fog->skyMaxOpacity, 0.01f, 0.0f, 1.0f);
         }
     }
 };
@@ -239,7 +241,7 @@ public:
             EditorUi::ScopedItemWidth width{ 300.0f };
             ImGui::Checkbox("Enabled##ScreenPostProcessEnabled", &effect->enabled);
             ImGui::Checkbox("Debug Overlay##ScreenPostProcessDebugOverlay", &effect->debugOverlay);
-            ImGui::Checkbox("Use Screen Radius##ScreenPostProcessUseScreenRadius", &effect->useScreenRadius);
+            ImGui::Checkbox("Use Radius Mask##ScreenPostProcessUseScreenRadius", &effect->useScreenRadius);
             ImGui::ColorEdit3("Color##ScreenPostProcessColor", &effect->color.x);
             ImGui::DragFloat("Scale##ScreenPostProcessScale", &effect->scale, 0.01f, 0.001f, 100000.0f);
             ImGui::DragFloat("Softness##ScreenPostProcessSoftness", &effect->softness, 0.001f, 0.001f, 1.0f);
@@ -248,7 +250,7 @@ public:
             ImGui::DragFloat("Displacement##ScreenPostProcessDisplacement", &effect->displacement, 0.001f, 0.0f, 1.0f);
             ImGui::DragFloat("Chromatic Aberration##ScreenPostProcessChromaticAberration", &effect->chromaticAberration, 0.001f, 0.0f, 1.0f);
             ImGui::DragFloat("Block Size##ScreenPostProcessBlockSize", &effect->blockSize, 0.001f, 0.0001f, 1.0f);
-            ImGui::DragFloat("Screen Radius##ScreenPostProcessScreenRadius", &effect->screenRadius, 0.01f, 0.001f, 1.0f);
+            ImGui::DragFloat("World Radius Extension##ScreenPostProcessWorldRadiusExtension", &effect->worldRadiusExtension, 0.01f, 0.0f, 100000.0f);
             ImGui::DragFloat("Screen Feather##ScreenPostProcessScreenFeather", &effect->screenFeather, 0.01f, 0.001f, 1.0f);
             ImGui::DragFloat("Speed##ScreenPostProcessSpeed", &effect->speed, 0.01f, 0.0f, 100.0f);
             ImGui::DragFloat("Age##ScreenPostProcessAge", &effect->age, 0.01f, 0.0f, 100000.0f);

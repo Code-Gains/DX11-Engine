@@ -11,4 +11,6 @@ struct HeightFogComponent {
     float density = 0.012f;
     float distanceFalloff = 1.0f;
     float maxOpacity = 0.7f;
+    float skyDensityMultiplier = 1.0f;
+    float skyMaxOpacity = 1.0f;
 };

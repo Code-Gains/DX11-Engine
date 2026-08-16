@@ -927,7 +927,9 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 {"height", fog.height},
                 {"density", fog.density},
                 {"distanceFalloff", fog.distanceFalloff},
-                {"maxOpacity", fog.maxOpacity}
+                {"maxOpacity", fog.maxOpacity},
+                {"skyDensityMultiplier", fog.skyDensityMultiplier},
+                {"skyMaxOpacity", fog.skyMaxOpacity}
             };
         },
         [](Core&, const nlohmann::json& data) {
@@ -942,6 +944,8 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             fog.density = data.value("density", fog.density);
             fog.distanceFalloff = data.value("distanceFalloff", fog.distanceFalloff);
             fog.maxOpacity = data.value("maxOpacity", fog.maxOpacity);
+            fog.skyDensityMultiplier = data.value("skyDensityMultiplier", fog.skyDensityMultiplier);
+            fog.skyMaxOpacity = data.value("skyMaxOpacity", fog.skyMaxOpacity);
             return fog;
         }
     );
@@ -961,7 +965,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 {"displacement", effect.displacement},
                 {"chromaticAberration", effect.chromaticAberration},
                 {"blockSize", effect.blockSize},
-                {"screenRadius", effect.screenRadius},
+                {"worldRadiusExtension", effect.worldRadiusExtension},
                 {"screenFeather", effect.screenFeather},
                 {"speed", effect.speed},
                 {"age", effect.age}
@@ -984,7 +988,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             effect.displacement = data.value("displacement", effect.displacement);
             effect.chromaticAberration = data.value("chromaticAberration", effect.chromaticAberration);
             effect.blockSize = data.value("blockSize", effect.blockSize);
-            effect.screenRadius = data.value("screenRadius", effect.screenRadius);
+            effect.worldRadiusExtension = data.value("worldRadiusExtension", effect.worldRadiusExtension);
             effect.screenFeather = data.value("screenFeather", effect.screenFeather);
             effect.speed = data.value("speed", effect.speed);
             effect.age = data.value("age", effect.age);

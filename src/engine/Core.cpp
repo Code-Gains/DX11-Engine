@@ -107,6 +107,12 @@ glm::vec4 ResolveMeshFlash(const entt::registry& registry, entt::entity entity)
     };
 }
 
+float MaxAbsScaleAxis(const glm::vec3& scale)
+{
+    const glm::vec3 absScale = glm::abs(scale);
+    return glm::max(absScale.x, glm::max(absScale.y, absScale.z));
+}
+
 EditorCaptureState& GetEditorCaptureState(entt::registry& registry)
 {
     if (!registry.ctx().contains<EditorCaptureState>()) {
@@ -2432,6 +2438,11 @@ void Core::DrawHeightFog(VkCommandBuffer cmd)
         fog.debugOverlay
             ? -glm::max(0.05f, glm::clamp(fog.maxOpacity, 0.0f, 1.0f))
             : 0.0f);
+    pushConstants.skyFogParams = glm::vec4(
+        glm::max(0.0f, fog.skyDensityMultiplier),
+        glm::clamp(fog.skyMaxOpacity, 0.0f, 1.0f),
+        0.0f,
+        0.0f);
 
     const bool useMsaaDepth = _msaaSamples != VK_SAMPLE_COUNT_1_BIT;
     AllocatedImage& depthImage = useMsaaDepth ? _msaaDepthImage : _depthImage;
@@ -2633,13 +2644,29 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
         static_cast<float>(glm::max(_drawExtent.height, 1u));
     const glm::mat4 viewMatrix = camera.GetViewMatrix(cameraTransform);
     const glm::mat4 projectionMatrix = camera.GetProjectionMatrix(renderAspectRatio);
-    const glm::vec3 worldCenter = _registry.all_of<Transform>(effectEntity)
-        ? _registry.get<Transform>(effectEntity).position
+    const glm::mat4 viewProjection = projectionMatrix * viewMatrix;
+    const auto* effectTransform = _registry.try_get<Transform>(effectEntity);
+    glm::vec3 worldCenter = effectTransform
+        ? effectTransform->position
         : cameraTransform.position;
+    float worldRadius = 0.0f;
+    if (effectTransform) {
+        worldRadius = MaxAbsScaleAxis(effectTransform->scale);
+        if (const auto* mesh = _registry.try_get<MeshComponent>(effectEntity);
+            mesh && mesh->mesh) {
+            worldCenter =
+                effectTransform->position +
+                effectTransform->rotation * (mesh->mesh->boundsCenter * effectTransform->scale);
+            worldRadius = mesh->mesh->boundsRadius * MaxAbsScaleAxis(effectTransform->scale);
+        }
+    }
+    worldRadius += glm::max(0.0f, effect.worldRadiusExtension);
+    const glm::vec3 cameraRight =
+        glm::normalize(cameraTransform.rotation * glm::vec3(1.0f, 0.0f, 0.0f));
 
     ScreenPostProcessPushConstants pushConstants{};
-    pushConstants.inverseViewProjection = glm::inverse(projectionMatrix * viewMatrix);
-    pushConstants.viewProjection = projectionMatrix * viewMatrix;
+    pushConstants.inverseViewProjection = glm::inverse(viewProjection);
+    pushConstants.viewProjection = viewProjection;
     pushConstants.colorAndAmount = glm::vec4(
         effect.color,
         glm::clamp(effect.amount, 0.0f, 1.0f));
@@ -2655,11 +2682,14 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
         effect.debugOverlay ? 1.0f : 0.0f);
     pushConstants.worldCenterAndRadius = glm::vec4(
         worldCenter,
-        glm::max(0.001f, effect.screenRadius));
+        worldRadius);
+    pushConstants.cameraRightAndFeather = glm::vec4(
+        cameraRight,
+        glm::max(0.001f, effect.screenFeather));
     pushConstants.localizationParams = glm::vec4(
-        glm::max(0.001f, effect.screenFeather),
         renderAspectRatio,
-        effect.useScreenRadius ? 1.0f : 0.0f,
+        effect.useScreenRadius && worldRadius > 0.0f ? 1.0f : 0.0f,
+        0.0f,
         0.0f);
 
     vkutil::transition_image(

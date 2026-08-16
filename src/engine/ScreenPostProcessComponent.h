@@ -14,7 +14,7 @@ struct ScreenPostProcessComponent {
     float displacement = 0.012f;
     float chromaticAberration = 0.006f;
     float blockSize = 0.03f;
-    float screenRadius = 0.18f;
+    float worldRadiusExtension = 0.0f;
     float screenFeather = 0.12f;
     float speed = 1.0f;
     float age = 0.0f;
