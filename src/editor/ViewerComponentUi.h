@@ -21,7 +21,6 @@
 #include "Camera.h"
 #include "MeshComponent.h"
 #include "GravityComponents.h"
-#include "HeightFogComponent.h"
 #include "HierarchyComponent.h"
 #include "HierarchySystem.h"
 #include "ImGuiWindowRegistry.h"
@@ -144,30 +143,6 @@ public:
             ImGui::ColorEdit3("Color", &sunlight->color.x);
 
             ImGui::DragFloat("Ambient", &sunlight->ambient, 0.01f, 0.0f, 1.0f);
-        }
-    }
-};
-
-class HeightFogComponentUi : public ViewerComponentUi {
-public:
-    void Draw(entt::registry& registry, entt::entity entity) override {
-        auto* fog = registry.try_get<HeightFogComponent>(entity);
-        if (!fog)
-            return;
-
-        if (DrawRemovableComponentHeader<HeightFogComponent>(registry, entity, "Height Fog", "HeightFogComponent"))
-        {
-            EditorUi::ScopedItemWidth width{ 300.0f };
-            ImGui::Checkbox("Enabled##HeightFogEnabled", &fog->enabled);
-            ImGui::Checkbox("Debug Overlay##HeightFogDebugOverlay", &fog->debugOverlay);
-            ImGui::ColorEdit3("Color##HeightFogColor", &fog->color.x);
-            ImGui::DragFloat("Planet Radius##HeightFogPlanetRadius", &fog->planetRadius, 0.1f, 0.001f, 1000000.0f);
-            ImGui::DragFloat("Height##HeightFogHeight", &fog->height, 0.1f, 0.001f, 1000000.0f);
-            ImGui::DragFloat("Density##HeightFogDensity", &fog->density, 0.001f, 0.0f, 1000.0f);
-            ImGui::DragFloat("Distance Falloff##HeightFogDistanceFalloff", &fog->distanceFalloff, 0.001f, 0.0f, 1000.0f);
-            ImGui::DragFloat("Max Opacity##HeightFogMaxOpacity", &fog->maxOpacity, 0.01f, 0.0f, 1.0f);
-            ImGui::DragFloat("Sky Density Multiplier##HeightFogSkyDensityMultiplier", &fog->skyDensityMultiplier, 0.01f, 0.0f, 1000.0f);
-            ImGui::DragFloat("Sky Max Opacity##HeightFogSkyMaxOpacity", &fog->skyMaxOpacity, 0.01f, 0.0f, 1.0f);
         }
     }
 };

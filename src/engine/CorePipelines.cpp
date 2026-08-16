@@ -592,19 +592,23 @@ void Core::InitLinePipeline()
 
 void Core::InitHeightFogPipeline()
 {
-    VkShaderModule fullscreenVertexShader;
+    VkShaderModule fullscreenVertexShader = VK_NULL_HANDLE;
     if (!LoadEngineShaderModule("shaders/fullscreen_triangle.vert.spv", &fullscreenVertexShader)) {
         ENGINE_LOG_ERROR("Error when building the height fog fullscreen vertex shader module");
+        return;
     }
 
-    VkShaderModule fogFragShader;
-    if (!LoadEngineShaderModule("shaders/height_fog.frag.spv", &fogFragShader)) {
-        ENGINE_LOG_ERROR("Error when building the height fog fragment shader module");
+    VkShaderModule fogFragShader = VK_NULL_HANDLE;
+    if (!LoadProjectShaderModule("shaders/height_fog.frag.spv", &fogFragShader)) {
+        vkDestroyShaderModule(_device, fullscreenVertexShader, nullptr);
+        return;
     }
 
-    VkShaderModule fogMsaaFragShader;
-    if (!LoadEngineShaderModule("shaders/height_fog_msaa.frag.spv", &fogMsaaFragShader)) {
-        ENGINE_LOG_ERROR("Error when building the height fog MSAA fragment shader module");
+    VkShaderModule fogMsaaFragShader = VK_NULL_HANDLE;
+    if (!LoadProjectShaderModule("shaders/height_fog_msaa.frag.spv", &fogMsaaFragShader)) {
+        vkDestroyShaderModule(_device, fogFragShader, nullptr);
+        vkDestroyShaderModule(_device, fullscreenVertexShader, nullptr);
+        return;
     }
 
     VkPushConstantRange pushRange{};
