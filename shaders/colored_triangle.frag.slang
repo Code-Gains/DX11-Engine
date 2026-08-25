@@ -6,6 +6,8 @@ struct FragmentInput
     float4 tangent : TEXCOORD3;
     float4 baseColorFactor : COLOR0;
     float4 flashColorAndAmount : COLOR1;
+    float4 corruptionColorAndAmount : COLOR2;
+    float4 corruptionParams : TEXCOORD4;
 };
 
 struct SceneData
@@ -98,6 +100,37 @@ float3 ACESFilm(float3 x)
     float e = 0.14;
 
     return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+}
+
+float Hash31(float3 p)
+{
+    p = frac(p * 0.1031);
+    p += dot(p, p.yzx + 33.33);
+    return frac((p.x + p.y) * p.z);
+}
+
+float BuildCorruptionMask(FragmentInput input)
+{
+    float amount = clamp(input.corruptionColorAndAmount.a, 0.0, 1.0);
+    if (amount <= 0.0) {
+        return 0.0;
+    }
+
+    float scale = max(input.corruptionParams.x, 0.001);
+    float softness = clamp(input.corruptionParams.y, 0.001, 1.0);
+    float time = input.corruptionParams.w;
+    float3 scaledPosition = input.worldPosition * scale;
+
+    float3 largeCell = floor(scaledPosition + float3(time * 0.37, 0.0, time * 0.19));
+    float3 detailCell = floor(scaledPosition * 3.0 + float3(0.0, time * 1.7, 0.0));
+    float cellNoise = Hash31(largeCell);
+    float detailNoise = Hash31(detailCell);
+    float stripeNoise = step(0.82, frac(dot(scaledPosition, float3(0.19, 0.73, 0.41)) + time * 2.3));
+    float corruptionNoise = lerp(cellNoise, detailNoise, 0.35);
+    corruptionNoise = lerp(corruptionNoise, stripeNoise, 0.22);
+
+    float threshold = 1.0 - amount;
+    return smoothstep(threshold - softness, threshold + softness, corruptionNoise);
 }
 
 float SampleShadow(FragmentInput input, float3 normal, float3 lightDirection)
@@ -223,6 +256,14 @@ float4 main(FragmentInput input) : SV_Target
         irradiance * diffuseColor * ambientOcclusion;
 
     color += diffuseIBL * IBL_INTENSITY;
+
+    float corruptionMask = BuildCorruptionMask(input);
+    if (corruptionMask > 0.0) {
+        float3 corruptionColor =
+            input.corruptionColorAndAmount.rgb *
+            (1.0 + max(0.0, input.corruptionParams.z));
+        color = lerp(color, corruptionColor, corruptionMask * input.corruptionColorAndAmount.a);
+    }
 
     float exposure = 1.0;
     color *= exposure;

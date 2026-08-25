@@ -41,6 +41,7 @@ void Core::InitDescriptors()
         DescriptorLayoutBuilder builder;
         builder.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         builder.AddBinding(1, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+        builder.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         _screenPostProcessDescriptorLayout = builder.Build(_device, VK_SHADER_STAGE_FRAGMENT_BIT);
     }
     // multiple material textures

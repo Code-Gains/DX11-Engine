@@ -72,6 +72,8 @@ void Core::CleanupSwapchainResources() {
 
 void Core::CreateDrawImages(uint32_t width, uint32_t height)
 {
+    _screenPostProcessDebugImagesReady = false;
+
     VkExtent3D drawImageExtent = { width, height, 1 };
     // --------------------------
     // SINGLE-SAMPLE COLOR IMAGE (resolve target)
@@ -132,10 +134,43 @@ void Core::CreateDrawImages(uint32_t width, uint32_t height)
         false,
         VK_SAMPLE_COUNT_1_BIT
     );
+
+    _screenPostProcessMaskImage = CreateImage(
+        drawImageExtent,
+        VK_FORMAT_R8_UNORM,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_SAMPLED_BIT |
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+        false,
+        VK_SAMPLE_COUNT_1_BIT
+    );
+
+    _screenPostProcessBlurTempImage = CreateImage(
+        drawImageExtent,
+        VK_FORMAT_R8_UNORM,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_SAMPLED_BIT |
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+        false,
+        VK_SAMPLE_COUNT_1_BIT
+    );
+
+    _screenPostProcessBlurredMaskImage = CreateImage(
+        drawImageExtent,
+        VK_FORMAT_R8_UNORM,
+        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+        VK_IMAGE_USAGE_SAMPLED_BIT |
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+        false,
+        VK_SAMPLE_COUNT_1_BIT
+    );
+
 }
 
 void Core::CleanupDrawImages()
 {
+    _screenPostProcessDebugImagesReady = false;
+
     vkDestroyImageView(_device, _drawImage.imageView, nullptr);
     vmaDestroyImage(_allocator, _drawImage.image, _drawImage.allocation);
 
@@ -153,6 +188,19 @@ void Core::CleanupDrawImages()
 
     vkDestroyImageView(_device, _selectionMaskImage.imageView, nullptr);
     vmaDestroyImage(_allocator, _selectionMaskImage.image, _selectionMaskImage.allocation);
+
+    vkDestroyImageView(_device, _screenPostProcessMaskImage.imageView, nullptr);
+    vmaDestroyImage(_allocator, _screenPostProcessMaskImage.image, _screenPostProcessMaskImage.allocation);
+    _screenPostProcessMaskImage.imguiDescriptorSet = VK_NULL_HANDLE;
+
+    vkDestroyImageView(_device, _screenPostProcessBlurTempImage.imageView, nullptr);
+    vmaDestroyImage(_allocator, _screenPostProcessBlurTempImage.image, _screenPostProcessBlurTempImage.allocation);
+    _screenPostProcessBlurTempImage.imguiDescriptorSet = VK_NULL_HANDLE;
+
+    vkDestroyImageView(_device, _screenPostProcessBlurredMaskImage.imageView, nullptr);
+    vmaDestroyImage(_allocator, _screenPostProcessBlurredMaskImage.image, _screenPostProcessBlurredMaskImage.allocation);
+    _screenPostProcessBlurredMaskImage.imguiDescriptorSet = VK_NULL_HANDLE;
+
 }
 
 void Core::UpdateDrawImageDescriptor()

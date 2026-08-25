@@ -916,6 +916,34 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
         }
     );
 
+    _componentSerializers.Register<MeshCorruptionComponent>(
+        "MeshCorruptionComponent",
+        [](Core&, const MeshCorruptionComponent& corruption) {
+            return nlohmann::json {
+                {"color", Vec4ToJson(corruption.color)},
+                {"scale", corruption.scale},
+                {"softness", corruption.softness},
+                {"intensity", corruption.intensity},
+                {"amount", corruption.amount},
+                {"age", corruption.age},
+                {"speed", corruption.speed}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            MeshCorruptionComponent corruption;
+            corruption.color = data.contains("color")
+                ? Vec4FromJson(data.at("color"))
+                : corruption.color;
+            corruption.scale = data.value("scale", corruption.scale);
+            corruption.softness = data.value("softness", corruption.softness);
+            corruption.intensity = data.value("intensity", corruption.intensity);
+            corruption.amount = data.value("amount", corruption.amount);
+            corruption.age = data.value("age", corruption.age);
+            corruption.speed = data.value("speed", corruption.speed);
+            return corruption;
+        }
+    );
+
     _componentSerializers.Register<HeightFogComponent>(
         "HeightFogComponent",
         [](Core&, const HeightFogComponent& fog) {
@@ -956,7 +984,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             return nlohmann::json {
                 {"enabled", effect.enabled},
                 {"debugOverlay", effect.debugOverlay},
-                {"useScreenRadius", effect.useScreenRadius},
+                {"useSourceMask", effect.useSourceMask},
                 {"color", Vec3ToJson(effect.color)},
                 {"scale", effect.scale},
                 {"softness", effect.softness},
@@ -965,8 +993,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 {"displacement", effect.displacement},
                 {"chromaticAberration", effect.chromaticAberration},
                 {"blockSize", effect.blockSize},
-                {"worldRadiusExtension", effect.worldRadiusExtension},
-                {"screenFeather", effect.screenFeather},
+                {"maskFeather", effect.maskFeather},
                 {"speed", effect.speed},
                 {"age", effect.age}
             };
@@ -975,9 +1002,9 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             ScreenPostProcessComponent effect;
             effect.enabled = data.value("enabled", effect.enabled);
             effect.debugOverlay = data.value("debugOverlay", effect.debugOverlay);
-            effect.useScreenRadius = data.value(
-                "useScreenRadius",
-                data.value("useWorldRadius", effect.useScreenRadius));
+            effect.useSourceMask = data.value(
+                "useSourceMask",
+                data.value("useScreenRadius", data.value("useWorldRadius", effect.useSourceMask)));
             effect.color = data.contains("color")
                 ? Vec3FromJson(data.at("color"))
                 : effect.color;
@@ -988,11 +1015,26 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             effect.displacement = data.value("displacement", effect.displacement);
             effect.chromaticAberration = data.value("chromaticAberration", effect.chromaticAberration);
             effect.blockSize = data.value("blockSize", effect.blockSize);
-            effect.worldRadiusExtension = data.value("worldRadiusExtension", effect.worldRadiusExtension);
-            effect.screenFeather = data.value("screenFeather", effect.screenFeather);
+            effect.maskFeather = data.value("maskFeather", data.value("screenFeather", effect.maskFeather));
             effect.speed = data.value("speed", effect.speed);
             effect.age = data.value("age", effect.age);
             return effect;
+        }
+    );
+
+    _componentSerializers.Register<ScreenPostProcessSourceComponent>(
+        "ScreenPostProcessSourceComponent",
+        [](Core&, const ScreenPostProcessSourceComponent& source) {
+            return nlohmann::json {
+                {"enabled", source.enabled},
+                {"worldRadiusExtension", source.worldRadiusExtension}
+            };
+        },
+        [](Core&, const nlohmann::json& data) {
+            ScreenPostProcessSourceComponent source;
+            source.enabled = data.value("enabled", source.enabled);
+            source.worldRadiusExtension = data.value("worldRadiusExtension", source.worldRadiusExtension);
+            return source;
         }
     );
 

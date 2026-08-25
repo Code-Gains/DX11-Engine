@@ -134,6 +134,8 @@ struct GPUDrawPushConstants {
     glm::mat4 model;
     glm::vec4 baseColorFactor;
     glm::vec4 flashColorAndAmount;
+    glm::vec4 corruptionColorAndAmount;
+    glm::vec4 corruptionParams;
     VkDeviceAddress vertexBuffer;
 };
 
@@ -185,6 +187,18 @@ struct ScreenPostProcessPushConstants {
     glm::vec4 worldCenterAndRadius;
     glm::vec4 cameraRightAndFeather;
     glm::vec4 localizationParams;
+};
+
+struct ScreenPostProcessMaskPushConstants {
+    glm::mat4 viewProjection;
+    glm::mat4 model;
+    glm::vec4 params;
+    VkDeviceAddress vertexBuffer;
+};
+
+struct ScreenMaskBlurPushConstants {
+    glm::vec4 texelSizeAndRadius;
+    glm::vec4 directionAndPad;
 };
 
 struct EffectMeshPushConstants {

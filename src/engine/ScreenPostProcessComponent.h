@@ -5,7 +5,7 @@
 struct ScreenPostProcessComponent {
     bool enabled = true;
     bool debugOverlay = false;
-    bool useScreenRadius = true;
+    bool useSourceMask = true;
     glm::vec3 color{ 0.75f, 0.95f, 1.0f };
     float scale = 8.0f;
     float softness = 0.04f;
@@ -14,8 +14,12 @@ struct ScreenPostProcessComponent {
     float displacement = 0.012f;
     float chromaticAberration = 0.006f;
     float blockSize = 0.03f;
-    float worldRadiusExtension = 0.0f;
-    float screenFeather = 0.12f;
+    float maskFeather = 0.08f;
     float speed = 1.0f;
     float age = 0.0f;
+};
+
+struct ScreenPostProcessSourceComponent {
+    bool enabled = true;
+    float worldRadiusExtension = 0.0f;
 };

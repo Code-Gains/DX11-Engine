@@ -286,9 +286,11 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<HierarchyComponentUi>());
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
     _componentUis.push_back(std::make_unique<ScreenPostProcessComponentUi>());
+    _componentUis.push_back(std::make_unique<ScreenPostProcessSourceComponentUi>());
     _componentUis.push_back(std::make_unique<CameraComponentUi>());
     _componentUis.push_back(std::make_unique<CinematicCameraShotComponentUi>());
     _componentUis.push_back(std::make_unique<MeshComponentUi>(core));
+    _componentUis.push_back(std::make_unique<MeshCorruptionComponentUi>());
     _componentUis.push_back(std::make_unique<EffectMeshComponentUi>());
     _componentUis.push_back(std::make_unique<SingleRenderTagUi>());
     _componentUis.push_back(std::make_unique<ActiveCameraTagUi>());
@@ -337,6 +339,17 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
         },
         [](entt::registry& registry, entt::entity entity) {
             registry.emplace<ScreenPostProcessComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Screen Post Process Source",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<MeshComponent>(entity) &&
+                   !registry.all_of<ScreenPostProcessSourceComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<ScreenPostProcessSourceComponent>(entity);
         }
     );
 
@@ -403,6 +416,17 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
         },
         [](entt::registry& registry, entt::entity entity) {
             registry.emplace<MeshComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Mesh Corruption",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<MeshComponent>(entity) &&
+                   !registry.all_of<MeshCorruptionComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<MeshCorruptionComponent>(entity);
         }
     );
 

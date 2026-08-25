@@ -108,6 +108,8 @@ struct InstanceData {
     float pad1;
     glm::vec4 baseColorFactor{ 1.0f };
     glm::vec4 flashColorAndAmount{ 1.0f, 0.12f, 0.04f, 0.0f };
+    glm::vec4 corruptionColorAndAmount{ 0.75f, 0.95f, 1.0f, 0.0f };
+    glm::vec4 corruptionParams{ 8.0f, 0.04f, 0.35f, 0.0f };
 };
 
 struct MeshBatchKey {
@@ -322,6 +324,8 @@ private:
     void InitLinePipeline();
     void InitHeightFogPipeline();
     void InitDepthVisualizationPipeline();
+    void InitScreenPostProcessMaskPipeline();
+    void InitScreenMaskBlurPipeline();
     void InitScreenPostProcessPipeline();
     void InitShadowResources();
     void InitShadowPipeline();
@@ -450,6 +454,8 @@ private:
     void DrawSelectedOutline(VkCommandBuffer cmd);
     void DrawHeightFog(VkCommandBuffer cmd);
     void DrawDepthVisualization(VkCommandBuffer cmd);
+    bool DrawScreenPostProcessMask(VkCommandBuffer cmd, const glm::mat4& viewProjection);
+    void BlurScreenPostProcessMask(VkCommandBuffer cmd, float feather);
     void DrawScreenPostProcess(VkCommandBuffer cmd);
     glm::mat4 BuildSunLightViewProjection();
     void DrawImGui(VkCommandBuffer cmd, VkImageView targetImageView);
@@ -478,6 +484,8 @@ private:
     VkPipelineLayout _linePipelineLayout;
     VkPipelineLayout _heightFogPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _depthVisualizationPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout _screenPostProcessMaskPipelineLayout = VK_NULL_HANDLE;
+    VkPipelineLayout _screenMaskBlurPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _screenPostProcessPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _shadowPipelineLayout = VK_NULL_HANDLE;
     VkPipelineLayout _selectionMaskPipelineLayout = VK_NULL_HANDLE;
@@ -494,6 +502,8 @@ private:
     VkPipeline _heightFogMsaaPipeline = VK_NULL_HANDLE;
     VkPipeline _depthVisualizationPipeline = VK_NULL_HANDLE;
     VkPipeline _depthVisualizationMsaaPipeline = VK_NULL_HANDLE;
+    VkPipeline _screenPostProcessMaskPipeline = VK_NULL_HANDLE;
+    VkPipeline _screenMaskBlurPipeline = VK_NULL_HANDLE;
     VkPipeline _screenPostProcessPipeline = VK_NULL_HANDLE;
     VkPipeline _screenPostProcessMsaaPipeline = VK_NULL_HANDLE;
     VkPipeline _shadowPipeline = VK_NULL_HANDLE;
@@ -516,6 +526,10 @@ private:
     RenderPipelineId ResolveEditorWireframePipeline(RenderPipelineId pipelineId) const;
 
     AllocatedImage _selectionMaskImage {};
+    AllocatedImage _screenPostProcessMaskImage {};
+    AllocatedImage _screenPostProcessBlurTempImage {};
+    AllocatedImage _screenPostProcessBlurredMaskImage {};
+    bool _screenPostProcessDebugImagesReady = false;
 
     AllocatedImage _shadowMapImage {};
     VkSampler _shadowMapSampler = VK_NULL_HANDLE;
@@ -591,6 +605,10 @@ private:
     bool _pendingScreenshotIsDepth = false;
 
     void CreateScreenshotBuffer();
+    bool ExportR8DebugImagePng(
+        AllocatedImage& image,
+        const std::filesystem::path& outputPath,
+        VkImageLayout currentLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     // ------------------------------------------------------------------------
     // Materials

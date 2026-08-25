@@ -13,6 +13,8 @@ struct PushConstants
     float4x4 model;
     float4 baseColorFactor;
     float4 flashColorAndAmount;
+    float4 corruptionColorAndAmount;
+    float4 corruptionParams;
     uint64_t vertexBuffer;
 };
 
@@ -28,6 +30,8 @@ struct VertexOutput
     float4 tangent : TEXCOORD3;
     float4 baseColorFactor : COLOR0;
     float4 flashColorAndAmount : COLOR1;
+    float4 corruptionColorAndAmount : COLOR2;
+    float4 corruptionParams : TEXCOORD4;
 };
 
 float3x3 InverseTranspose3x3(float3x3 matrix)
@@ -62,5 +66,7 @@ VertexOutput main(uint vertexIndex : SV_VertexID)
     output.tangent = float4(normalize(mul(model3x3, vertex.tangent.xyz)), vertex.tangent.w);
     output.baseColorFactor = pushConstants.baseColorFactor;
     output.flashColorAndAmount = pushConstants.flashColorAndAmount;
+    output.corruptionColorAndAmount = pushConstants.corruptionColorAndAmount;
+    output.corruptionParams = pushConstants.corruptionParams;
     return output;
 }

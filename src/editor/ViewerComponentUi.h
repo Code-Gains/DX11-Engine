@@ -216,7 +216,7 @@ public:
             EditorUi::ScopedItemWidth width{ 300.0f };
             ImGui::Checkbox("Enabled##ScreenPostProcessEnabled", &effect->enabled);
             ImGui::Checkbox("Debug Overlay##ScreenPostProcessDebugOverlay", &effect->debugOverlay);
-            ImGui::Checkbox("Use Radius Mask##ScreenPostProcessUseScreenRadius", &effect->useScreenRadius);
+            ImGui::Checkbox("Use Source Mask##ScreenPostProcessUseSourceMask", &effect->useSourceMask);
             ImGui::ColorEdit3("Color##ScreenPostProcessColor", &effect->color.x);
             ImGui::DragFloat("Scale##ScreenPostProcessScale", &effect->scale, 0.01f, 0.001f, 100000.0f);
             ImGui::DragFloat("Softness##ScreenPostProcessSoftness", &effect->softness, 0.001f, 0.001f, 1.0f);
@@ -225,10 +225,34 @@ public:
             ImGui::DragFloat("Displacement##ScreenPostProcessDisplacement", &effect->displacement, 0.001f, 0.0f, 1.0f);
             ImGui::DragFloat("Chromatic Aberration##ScreenPostProcessChromaticAberration", &effect->chromaticAberration, 0.001f, 0.0f, 1.0f);
             ImGui::DragFloat("Block Size##ScreenPostProcessBlockSize", &effect->blockSize, 0.001f, 0.0001f, 1.0f);
-            ImGui::DragFloat("World Radius Extension##ScreenPostProcessWorldRadiusExtension", &effect->worldRadiusExtension, 0.01f, 0.0f, 100000.0f);
-            ImGui::DragFloat("Screen Feather##ScreenPostProcessScreenFeather", &effect->screenFeather, 0.01f, 0.001f, 1.0f);
+            ImGui::DragFloat("Mask Feather##ScreenPostProcessMaskFeather", &effect->maskFeather, 0.001f, 0.0f, 1.0f);
             ImGui::DragFloat("Speed##ScreenPostProcessSpeed", &effect->speed, 0.01f, 0.0f, 100.0f);
             ImGui::DragFloat("Age##ScreenPostProcessAge", &effect->age, 0.01f, 0.0f, 100000.0f);
+        }
+    }
+};
+
+class ScreenPostProcessSourceComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* source = registry.try_get<ScreenPostProcessSourceComponent>(entity);
+        if (!source)
+            return;
+
+        if (DrawRemovableComponentHeader<ScreenPostProcessSourceComponent>(
+            registry,
+            entity,
+            "Screen Post Process Source",
+            "ScreenPostProcessSourceComponent"))
+        {
+            EditorUi::ScopedItemWidth width{ 300.0f };
+            ImGui::Checkbox("Enabled##ScreenPostProcessSourceEnabled", &source->enabled);
+            ImGui::DragFloat(
+                "World Radius Extension##ScreenPostProcessSourceWorldRadiusExtension",
+                &source->worldRadiusExtension,
+                0.01f,
+                0.0f,
+                100000.0f);
         }
     }
 };
@@ -346,6 +370,27 @@ public:
 
 private:
     Engine::Core* _core = nullptr;
+};
+
+class MeshCorruptionComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* corruption = registry.try_get<MeshCorruptionComponent>(entity);
+        if (!corruption)
+            return;
+
+        if (DrawRemovableComponentHeader<MeshCorruptionComponent>(registry, entity, "Mesh Corruption", "MeshCorruptionComponent"))
+        {
+            EditorUi::ScopedItemWidth width{ 320.0f };
+            ImGui::ColorEdit4("Color##MeshCorruptionColor", &corruption->color.x);
+            ImGui::DragFloat("Scale##MeshCorruptionScale", &corruption->scale, 0.01f, 0.001f, 100000.0f);
+            ImGui::DragFloat("Softness##MeshCorruptionSoftness", &corruption->softness, 0.001f, 0.001f, 1.0f);
+            ImGui::DragFloat("Intensity##MeshCorruptionIntensity", &corruption->intensity, 0.01f, 0.0f, 1000.0f);
+            ImGui::DragFloat("Amount##MeshCorruptionAmount", &corruption->amount, 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Speed##MeshCorruptionSpeed", &corruption->speed, 0.01f, 0.0f, 100.0f);
+            ImGui::DragFloat("Age##MeshCorruptionAge", &corruption->age, 0.01f, 0.0f, 100000.0f);
+        }
+    }
 };
 
 class EffectMeshComponentUi : public ViewerComponentUi {

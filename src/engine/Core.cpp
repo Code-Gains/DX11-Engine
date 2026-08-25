@@ -107,6 +107,36 @@ glm::vec4 ResolveMeshFlash(const entt::registry& registry, entt::entity entity)
     };
 }
 
+glm::vec4 ResolveMeshCorruptionColor(const entt::registry& registry, entt::entity entity)
+{
+    const auto* corruption = registry.try_get<MeshCorruptionComponent>(entity);
+    if (!corruption || corruption->amount <= 0.0f) {
+        return glm::vec4{ 0.75f, 0.95f, 1.0f, 0.0f };
+    }
+
+    return glm::vec4{
+        corruption->color.r,
+        corruption->color.g,
+        corruption->color.b,
+        std::clamp(corruption->amount * corruption->color.a, 0.0f, 1.0f)
+    };
+}
+
+glm::vec4 ResolveMeshCorruptionParams(const entt::registry& registry, entt::entity entity)
+{
+    const auto* corruption = registry.try_get<MeshCorruptionComponent>(entity);
+    if (!corruption) {
+        return glm::vec4{ 8.0f, 0.04f, 0.35f, 0.0f };
+    }
+
+    return glm::vec4{
+        std::max(0.001f, corruption->scale),
+        std::clamp(corruption->softness, 0.001f, 1.0f),
+        std::max(0.0f, corruption->intensity),
+        corruption->age
+    };
+}
+
 float MaxAbsScaleAxis(const glm::vec3& scale)
 {
     const glm::vec3 absScale = glm::abs(scale);
@@ -522,6 +552,8 @@ void Core::InitPipelines()
     InitLinePipeline();
     InitHeightFogPipeline();
     InitDepthVisualizationPipeline();
+    InitScreenPostProcessMaskPipeline();
+    InitScreenMaskBlurPipeline();
     InitScreenPostProcessPipeline();
     InitSelectionOutlinePipeline();
     InitSkyboxPipeline();
@@ -650,6 +682,56 @@ void Core::Run() {
         {
             if (ImGui::Begin("Texture Debugger", &open))
             {
+                const auto drawDebugTexture =
+                    [&](const char* label, AllocatedImage& image, const char* exportName) {
+                    if (image.imageView == VK_NULL_HANDLE) {
+                        ImGui::TextDisabled("%s unavailable", label);
+                        return;
+                    }
+
+                    if (image.imguiDescriptorSet == VK_NULL_HANDLE) {
+                        image.imguiDescriptorSet = ImGui_ImplVulkan_AddTexture(
+                            _defaultSamplerLinear,
+                            image.imageView,
+                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+                    }
+
+                    ImGui::TextUnformatted(label);
+                    ImGui::Text(
+                        "%ux%u",
+                        image.imageExtent.width,
+                        image.imageExtent.height);
+
+                    ImTextureID textureId =
+                        reinterpret_cast<ImTextureID>(image.imguiDescriptorSet);
+                    if (textureId) {
+                        const float previewWidth = 256.0f;
+                        const float aspect = image.imageExtent.height > 0
+                            ? static_cast<float>(image.imageExtent.width) /
+                                static_cast<float>(image.imageExtent.height)
+                            : 1.0f;
+                        ImGui::Image(
+                            textureId,
+                            ImVec2(previewWidth, previewWidth / glm::max(aspect, 0.001f)));
+                    }
+                    else {
+                        ImGui::TextDisabled("Missing ImGui descriptor");
+                    }
+
+                    ImGui::PushID(label);
+                    if (ImGui::Button("Export PNG")) {
+                        const std::filesystem::path outputPath =
+                            _projectRoot / "debug_capture" / exportName;
+                        if (ExportR8DebugImagePng(image, outputPath)) {
+                            ENGINE_LOG_INFO("Wrote texture debug capture: " + outputPath.generic_string());
+                        }
+                        else {
+                            ENGINE_LOG_ERROR("Failed texture debug capture: " + outputPath.generic_string());
+                        }
+                    }
+                    ImGui::PopID();
+                };
+
                 ImGui::Text("Shadow Map");
                 ImGui::Text(
                     "%ux%u",
@@ -687,6 +769,26 @@ void Core::Run() {
                     ImGui::EndDisabled();
                 }
                 ImGui::TextDisabled("Writes to the project-root debug_capture folder");
+
+                ImGui::Separator();
+                ImGui::TextUnformatted("Render Textures");
+                if (_screenPostProcessDebugImagesReady) {
+                    drawDebugTexture(
+                        "Screen Post Process Source Mask",
+                        _screenPostProcessMaskImage,
+                        "screen_post_process_source_mask.png");
+                    drawDebugTexture(
+                        "Screen Post Process Blur Temp",
+                        _screenPostProcessBlurTempImage,
+                        "screen_post_process_blur_temp.png");
+                    drawDebugTexture(
+                        "Screen Post Process Blurred Mask",
+                        _screenPostProcessBlurredMaskImage,
+                        "screen_post_process_blurred_mask.png");
+                }
+                else {
+                    ImGui::TextDisabled("No localized screen post-process mask has been rendered yet.");
+                }
 
                 ImGui::Separator();
                 ImGui::TextUnformatted("IBL Maps");
@@ -1328,6 +1430,12 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
     sceneData.cameraPosition = glm::vec4(renderCameraTransform.position, 1.0f);
     sceneData.lightViewProjection = _sunLightViewProjection;
 
+    auto corruptionTimeView = _registry.view<MeshCorruptionComponent>(entt::exclude<DisabledEntityTag>);
+    for (auto entity : corruptionTimeView) {
+        auto& corruption = corruptionTimeView.get<MeshCorruptionComponent>(entity);
+        corruption.age += _deltaTime * std::max(0.0f, corruption.speed);
+    }
+
     //write the buffer
     GPUSceneData* sceneUniformData = (GPUSceneData*)gpuSceneDataBuffer.allocation->GetMappedData();
     *sceneUniformData = sceneData;
@@ -1454,6 +1562,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             instance.scale = trans.scale;
             instance.baseColorFactor = meshComponent.baseColorFactor;
             instance.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
+            instance.corruptionColorAndAmount = ResolveMeshCorruptionColor(_registry, entity);
+            instance.corruptionParams = ResolveMeshCorruptionParams(_registry, entity);
 
             auto& batch = _batches[MeshBatchKey{
                 .mesh = meshComponent.mesh.get(),
@@ -1721,6 +1831,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             (material ? material->baseColorFactor : glm::vec4{ 1.0f }) *
             meshComponent.baseColorFactor;
         push_constants.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
+        push_constants.corruptionColorAndAmount = ResolveMeshCorruptionColor(_registry, entity);
+        push_constants.corruptionParams = ResolveMeshCorruptionParams(_registry, entity);
 
         vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
 
@@ -1841,6 +1953,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             (material ? material->baseColorFactor : glm::vec4{ 1.0f }) *
             meshComponent.baseColorFactor;
         pushConstants.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
+        pushConstants.corruptionColorAndAmount = ResolveMeshCorruptionColor(_registry, entity);
+        pushConstants.corruptionParams = ResolveMeshCorruptionParams(_registry, entity);
 
         vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &pushConstants);
 
@@ -2603,6 +2717,229 @@ void Core::DrawDepthVisualization(VkCommandBuffer cmd)
         depthRange);
 }
 
+bool Core::DrawScreenPostProcessMask(VkCommandBuffer cmd, const glm::mat4& viewProjection)
+{
+    if (_screenPostProcessMaskPipeline == VK_NULL_HANDLE ||
+        _screenPostProcessMaskPipelineLayout == VK_NULL_HANDLE ||
+        _screenPostProcessMaskImage.image == VK_NULL_HANDLE) {
+        return false;
+    }
+
+    VkImageSubresourceRange colorRange =
+        vkinit::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT);
+
+    vkutil::transition_image(
+        cmd,
+        _screenPostProcessMaskImage.image,
+        VK_IMAGE_LAYOUT_UNDEFINED,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        colorRange);
+
+    VkClearValue maskClear{};
+    maskClear.color = {{0.0f, 0.0f, 0.0f, 0.0f}};
+
+    VkRenderingAttachmentInfo maskAttachment =
+        vkinit::attachment_info(
+            _screenPostProcessMaskImage.imageView,
+            &maskClear,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+    VkRenderingInfo maskRenderInfo =
+        vkinit::rendering_info(_drawExtent, &maskAttachment, nullptr);
+
+    vkCmdBeginRendering(cmd, &maskRenderInfo);
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(_drawExtent.width);
+    viewport.height = static_cast<float>(_drawExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = _drawExtent;
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
+
+    vkCmdBindPipeline(
+        cmd,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        _screenPostProcessMaskPipeline);
+
+    const auto drawMaskEntity =
+        [&](entt::entity entity, const MeshComponent& meshComponent, const Transform& transformComponent, float worldRadiusExtension) {
+        if (IsEntityDisabled(_registry, entity)) {
+            return false;
+        }
+
+        auto* meshAsset = meshComponent.mesh.get();
+        if (!meshAsset || meshAsset->surfaces.empty()) {
+            return false;
+        }
+
+        const float baseRadius = glm::max(meshAsset->boundsRadius, 0.0001f);
+        const float radiusScale =
+            (baseRadius + glm::max(0.0f, worldRadiusExtension)) / baseRadius;
+        const glm::mat4 model =
+            glm::translate(glm::mat4(1.0f), transformComponent.position) *
+            glm::mat4_cast(transformComponent.rotation) *
+            glm::scale(glm::mat4(1.0f), transformComponent.scale * radiusScale);
+
+        ScreenPostProcessMaskPushConstants pushConstants{};
+        pushConstants.viewProjection = viewProjection;
+        pushConstants.model = model;
+        pushConstants.params = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
+        pushConstants.vertexBuffer = meshAsset->meshBuffers.vertexBufferAddress;
+
+        vkCmdPushConstants(
+            cmd,
+            _screenPostProcessMaskPipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            0,
+            sizeof(pushConstants),
+            &pushConstants);
+
+        vkCmdBindIndexBuffer(cmd, meshAsset->meshBuffers.indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+        for (const auto& surface : meshAsset->surfaces) {
+            vkCmdDrawIndexed(cmd, surface.count, 1, surface.startIndex, 0, 0);
+        }
+
+        return true;
+    };
+
+    bool drewMaskSource = false;
+    auto sourceView = _registry.view<ScreenPostProcessSourceComponent, MeshComponent, Transform>(entt::exclude<DisabledEntityTag>);
+    for (auto entity : sourceView) {
+        const auto& source = sourceView.get<ScreenPostProcessSourceComponent>(entity);
+        if (!source.enabled) {
+            continue;
+        }
+
+        drewMaskSource |= drawMaskEntity(
+            entity,
+            sourceView.get<MeshComponent>(entity),
+            sourceView.get<Transform>(entity),
+            source.worldRadiusExtension);
+    }
+
+    vkCmdEndRendering(cmd);
+
+    vkutil::transition_image(
+        cmd,
+        _screenPostProcessMaskImage.image,
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        colorRange);
+
+    return drewMaskSource;
+}
+
+void Core::BlurScreenPostProcessMask(VkCommandBuffer cmd, float feather)
+{
+    if (_screenMaskBlurPipeline == VK_NULL_HANDLE ||
+        _screenMaskBlurPipelineLayout == VK_NULL_HANDLE ||
+        _screenPostProcessMaskImage.image == VK_NULL_HANDLE ||
+        _screenPostProcessBlurTempImage.image == VK_NULL_HANDLE ||
+        _screenPostProcessBlurredMaskImage.image == VK_NULL_HANDLE) {
+        return;
+    }
+
+    const VkImageSubresourceRange colorRange =
+        vkinit::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT);
+    const float minDimension = static_cast<float>(
+        glm::max(1u, glm::min(_drawExtent.width, _drawExtent.height)));
+    const float radiusPixels = glm::clamp(
+        glm::max(0.0f, feather) * minDimension,
+        0.0f,
+        128.0f);
+
+    const auto drawBlurPass =
+        [&](AllocatedImage& sourceImage, AllocatedImage& targetImage, const glm::vec2& direction) {
+        vkutil::transition_image(
+            cmd,
+            targetImage.image,
+            VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            colorRange);
+
+        VkDescriptorSet sourceSet =
+            GetCurrentFrame()._frameDescriptors.allocate(_device, _singleImageDescriptorLayout);
+        DescriptorWriter writer;
+        writer.write_image(
+            0,
+            sourceImage.imageView,
+            _defaultSamplerLinear,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        writer.update_set(_device, sourceSet);
+
+        VkRenderingAttachmentInfo colorAttachment =
+            vkinit::attachment_info(
+                targetImage.imageView,
+                nullptr,
+                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        VkRenderingInfo renderInfo = vkinit::rendering_info(_drawExtent, &colorAttachment, nullptr);
+
+        vkCmdBeginRendering(cmd, &renderInfo);
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(_drawExtent.width);
+        viewport.height = static_cast<float>(_drawExtent.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+
+        VkRect2D scissor{};
+        scissor.offset = {0, 0};
+        scissor.extent = _drawExtent;
+
+        ScreenMaskBlurPushConstants pushConstants{};
+        pushConstants.texelSizeAndRadius = glm::vec4(
+            1.0f / static_cast<float>(glm::max(_drawExtent.width, 1u)),
+            1.0f / static_cast<float>(glm::max(_drawExtent.height, 1u)),
+            radiusPixels,
+            0.0f);
+        pushConstants.directionAndPad = glm::vec4(direction, 0.0f, 0.0f);
+
+        vkCmdSetViewport(cmd, 0, 1, &viewport);
+        vkCmdSetScissor(cmd, 0, 1, &scissor);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, _screenMaskBlurPipeline);
+        vkCmdBindDescriptorSets(
+            cmd,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            _screenMaskBlurPipelineLayout,
+            0,
+            1,
+            &sourceSet,
+            0,
+            nullptr);
+        vkCmdPushConstants(
+            cmd,
+            _screenMaskBlurPipelineLayout,
+            VK_SHADER_STAGE_FRAGMENT_BIT,
+            0,
+            sizeof(pushConstants),
+            &pushConstants);
+        vkCmdDraw(cmd, 3, 1, 0, 0);
+
+        vkCmdEndRendering(cmd);
+
+        vkutil::transition_image(
+            cmd,
+            targetImage.image,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            colorRange);
+    };
+
+    drawBlurPass(_screenPostProcessMaskImage, _screenPostProcessBlurTempImage, glm::vec2(1.0f, 0.0f));
+    drawBlurPass(_screenPostProcessBlurTempImage, _screenPostProcessBlurredMaskImage, glm::vec2(0.0f, 1.0f));
+    _screenPostProcessDebugImagesReady = true;
+}
+
 void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
 {
     if (_screenPostProcessPipeline == VK_NULL_HANDLE ||
@@ -2616,11 +2953,15 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
     auto effectView = _registry.view<ScreenPostProcessComponent>(entt::exclude<DisabledEntityTag>);
     for (auto entity : effectView) {
         auto& effect = effectView.get<ScreenPostProcessComponent>(entity);
-        if (!IsEntityDisabled(_registry, entity) &&
-            effect.enabled &&
-            (effect.debugOverlay || effect.amount > 0.0f)) {
+        if (IsEntityDisabled(_registry, entity) || !effect.enabled) {
+            continue;
+        }
+
+        effect.age += _deltaTime * glm::max(0.0f, effect.speed);
+
+        if ((effect.debugOverlay || effect.amount > 0.0f) &&
+            effectEntity == entt::null) {
             effectEntity = entity;
-            break;
         }
     }
     if (effectEntity == entt::null) {
@@ -2635,7 +2976,6 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
     }
 
     auto& effect = effectView.get<ScreenPostProcessComponent>(effectEntity);
-    effect.age += _deltaTime * glm::max(0.0f, effect.speed);
 
     const auto& camera = _registry.get<Camera>(cameraEntity);
     const auto& cameraTransform = _registry.get<Transform>(cameraEntity);
@@ -2645,24 +2985,15 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
     const glm::mat4 viewMatrix = camera.GetViewMatrix(cameraTransform);
     const glm::mat4 projectionMatrix = camera.GetProjectionMatrix(renderAspectRatio);
     const glm::mat4 viewProjection = projectionMatrix * viewMatrix;
-    const auto* effectTransform = _registry.try_get<Transform>(effectEntity);
-    glm::vec3 worldCenter = effectTransform
-        ? effectTransform->position
-        : cameraTransform.position;
-    float worldRadius = 0.0f;
-    if (effectTransform) {
-        worldRadius = MaxAbsScaleAxis(effectTransform->scale);
-        if (const auto* mesh = _registry.try_get<MeshComponent>(effectEntity);
-            mesh && mesh->mesh) {
-            worldCenter =
-                effectTransform->position +
-                effectTransform->rotation * (mesh->mesh->boundsCenter * effectTransform->scale);
-            worldRadius = mesh->mesh->boundsRadius * MaxAbsScaleAxis(effectTransform->scale);
-        }
+    const bool hasMask = effect.useSourceMask
+        ? DrawScreenPostProcessMask(cmd, viewProjection)
+        : false;
+    if (effect.useSourceMask && !hasMask) {
+        return;
     }
-    worldRadius += glm::max(0.0f, effect.worldRadiusExtension);
-    const glm::vec3 cameraRight =
-        glm::normalize(cameraTransform.rotation * glm::vec3(1.0f, 0.0f, 0.0f));
+    if (effect.useSourceMask && hasMask) {
+        BlurScreenPostProcessMask(cmd, effect.maskFeather);
+    }
 
     ScreenPostProcessPushConstants pushConstants{};
     pushConstants.inverseViewProjection = glm::inverse(viewProjection);
@@ -2681,14 +3012,14 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
         glm::max(0.0001f, effect.blockSize),
         effect.debugOverlay ? 1.0f : 0.0f);
     pushConstants.worldCenterAndRadius = glm::vec4(
-        worldCenter,
-        worldRadius);
+        cameraTransform.position,
+        0.0f);
     pushConstants.cameraRightAndFeather = glm::vec4(
-        cameraRight,
-        glm::max(0.001f, effect.screenFeather));
+        glm::normalize(cameraTransform.rotation * glm::vec3(1.0f, 0.0f, 0.0f)),
+        glm::max(0.0f, effect.maskFeather));
     pushConstants.localizationParams = glm::vec4(
         renderAspectRatio,
-        effect.useScreenRadius && worldRadius > 0.0f ? 1.0f : 0.0f,
+        effect.useSourceMask && hasMask ? 1.0f : 0.0f,
         0.0f,
         0.0f);
 
@@ -2728,6 +3059,14 @@ void Core::DrawScreenPostProcess(VkCommandBuffer cmd)
         VK_NULL_HANDLE,
         VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
         VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+    writer.write_image(
+        2,
+        effect.useSourceMask && hasMask
+            ? _screenPostProcessBlurredMaskImage.imageView
+            : _whiteImage.imageView,
+        _defaultSamplerLinear,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
     writer.update_set(_device, sceneSet);
 
     VkRenderingAttachmentInfo colorAttachment =
@@ -2827,6 +3166,88 @@ void Core::ExportIblDebugPngs()
             mip,
             outputDir / ("prefilter_mip" + std::to_string(mip) + "_atlas.png"));
     }
+}
+
+bool Core::ExportR8DebugImagePng(
+    AllocatedImage& image,
+    const std::filesystem::path& outputPath,
+    VkImageLayout currentLayout)
+{
+    if (image.image == VK_NULL_HANDLE ||
+        image.imageFormat != VK_FORMAT_R8_UNORM ||
+        image.imageExtent.width == 0 ||
+        image.imageExtent.height == 0) {
+        return false;
+    }
+
+    const uint32_t width = image.imageExtent.width;
+    const uint32_t height = image.imageExtent.height;
+    const VkDeviceSize imageSize =
+        static_cast<VkDeviceSize>(width) *
+        static_cast<VkDeviceSize>(height);
+    AllocatedBuffer stagingBuffer = CreateBuffer(
+        imageSize,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VMA_MEMORY_USAGE_CPU_ONLY);
+
+    ImmediateSubmit([&](VkCommandBuffer cmd) {
+        VkImageSubresourceRange range =
+            vkinit::image_subresource_range(VK_IMAGE_ASPECT_COLOR_BIT);
+
+        vkutil::transition_image(
+            cmd,
+            image.image,
+            currentLayout,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            range);
+
+        VkBufferImageCopy copyRegion{};
+        copyRegion.bufferOffset = 0;
+        copyRegion.bufferRowLength = 0;
+        copyRegion.bufferImageHeight = 0;
+        copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        copyRegion.imageSubresource.mipLevel = 0;
+        copyRegion.imageSubresource.baseArrayLayer = 0;
+        copyRegion.imageSubresource.layerCount = 1;
+        copyRegion.imageExtent = { width, height, 1 };
+
+        vkCmdCopyImageToBuffer(
+            cmd,
+            image.image,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            stagingBuffer.buffer,
+            1,
+            &copyRegion);
+
+        vkutil::transition_image(
+            cmd,
+            image.image,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            currentLayout,
+            range);
+    });
+
+    void* mappedData = nullptr;
+    vmaMapMemory(_allocator, stagingBuffer.allocation, &mappedData);
+    const auto* sourcePixels = static_cast<const uint8_t*>(mappedData);
+    std::vector<uint8_t> pixels(sourcePixels, sourcePixels + imageSize);
+    vmaUnmapMemory(_allocator, stagingBuffer.allocation);
+    DestroyBuffer(stagingBuffer);
+
+    std::error_code directoryError;
+    std::filesystem::create_directories(outputPath.parent_path(), directoryError);
+    if (directoryError) {
+        return false;
+    }
+
+    const std::string output = outputPath.generic_string();
+    return stbi_write_png(
+        output.c_str(),
+        static_cast<int>(width),
+        static_cast<int>(height),
+        1,
+        pixels.data(),
+        static_cast<int>(width)) != 0;
 }
 
 bool Core::ExportCubemapMipAtlasPng(

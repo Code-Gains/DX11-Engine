@@ -699,6 +699,96 @@ void Core::InitDepthVisualizationPipeline()
     });
 }
 
+void Core::InitScreenPostProcessMaskPipeline()
+{
+    VkShaderModule vertexShader;
+    if (!LoadEngineShaderModule("shaders/screen_post_process_mask.vert.spv", &vertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the screen post-process mask vertex shader module");
+    }
+
+    VkShaderModule fragmentShader;
+    if (!LoadEngineShaderModule("shaders/screen_post_process_mask.frag.spv", &fragmentShader)) {
+        ENGINE_LOG_ERROR("Error when building the screen post-process mask fragment shader module");
+    }
+
+    VkPushConstantRange pushRange{};
+    pushRange.offset = 0;
+    pushRange.size = sizeof(ScreenPostProcessMaskPushConstants);
+    pushRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkinit::pipeline_layout_create_info();
+    pipelineLayoutInfo.pPushConstantRanges = &pushRange;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    VK_CHECK(vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_screenPostProcessMaskPipelineLayout));
+
+    PipelineBuilder pipelineBuilder;
+    pipelineBuilder._pipelineLayout = _screenPostProcessMaskPipelineLayout;
+    pipelineBuilder.set_shaders(vertexShader, fragmentShader);
+    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_multisampling_none();
+    pipelineBuilder.disable_blending();
+    pipelineBuilder.disable_depthtest();
+    pipelineBuilder.set_color_attachment_format(_screenPostProcessMaskImage.imageFormat);
+
+    _screenPostProcessMaskPipeline = pipelineBuilder.build_pipeline(_device);
+
+    vkDestroyShaderModule(_device, fragmentShader, nullptr);
+    vkDestroyShaderModule(_device, vertexShader, nullptr);
+
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroyPipelineLayout(_device, _screenPostProcessMaskPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _screenPostProcessMaskPipeline, nullptr);
+    });
+}
+
+void Core::InitScreenMaskBlurPipeline()
+{
+    VkShaderModule fullscreenVertexShader;
+    if (!LoadEngineShaderModule("shaders/fullscreen_triangle.vert.spv", &fullscreenVertexShader)) {
+        ENGINE_LOG_ERROR("Error when building the screen mask blur vertex shader module");
+    }
+
+    VkShaderModule fragmentShader;
+    if (!LoadEngineShaderModule("shaders/screen_mask_blur.frag.spv", &fragmentShader)) {
+        ENGINE_LOG_ERROR("Error when building the screen mask blur fragment shader module");
+    }
+
+    VkPushConstantRange pushRange{};
+    pushRange.offset = 0;
+    pushRange.size = sizeof(ScreenMaskBlurPushConstants);
+    pushRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo = vkinit::pipeline_layout_create_info();
+    pipelineLayoutInfo.pPushConstantRanges = &pushRange;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &_singleImageDescriptorLayout;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    VK_CHECK(vkCreatePipelineLayout(_device, &pipelineLayoutInfo, nullptr, &_screenMaskBlurPipelineLayout));
+
+    PipelineBuilder pipelineBuilder;
+    pipelineBuilder._pipelineLayout = _screenMaskBlurPipelineLayout;
+    pipelineBuilder.set_shaders(fullscreenVertexShader, fragmentShader);
+    pipelineBuilder.set_input_topology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+    pipelineBuilder.set_polygon_mode(VK_POLYGON_MODE_FILL);
+    pipelineBuilder.set_cull_mode(VK_CULL_MODE_NONE, VK_FRONT_FACE_CLOCKWISE);
+    pipelineBuilder.set_multisampling_none();
+    pipelineBuilder.disable_blending();
+    pipelineBuilder.disable_depthtest();
+    pipelineBuilder.set_color_attachment_format(_screenPostProcessBlurredMaskImage.imageFormat);
+
+    _screenMaskBlurPipeline = pipelineBuilder.build_pipeline(_device);
+
+    vkDestroyShaderModule(_device, fragmentShader, nullptr);
+    vkDestroyShaderModule(_device, fullscreenVertexShader, nullptr);
+
+    _mainDeletionQueue.push_function([&]() {
+        vkDestroyPipelineLayout(_device, _screenMaskBlurPipelineLayout, nullptr);
+        vkDestroyPipeline(_device, _screenMaskBlurPipeline, nullptr);
+    });
+}
+
 void Core::InitScreenPostProcessPipeline()
 {
     VkShaderModule fullscreenVertexShader;
