@@ -86,6 +86,33 @@ glm::quat QuatFromJson(const nlohmann::json& value)
     };
 }
 
+const char* CameraBackgroundModeToString(CameraBackgroundMode mode)
+{
+    switch (mode) {
+    case CameraBackgroundMode::None:
+        return "None";
+    case CameraBackgroundMode::SolidColor:
+        return "SolidColor";
+    case CameraBackgroundMode::Skybox:
+        return "Skybox";
+    default:
+        return "Skybox";
+    }
+}
+
+CameraBackgroundMode CameraBackgroundModeFromString(const std::string& value)
+{
+    if (value == "None") {
+        return CameraBackgroundMode::None;
+    }
+
+    if (value == "SolidColor") {
+        return CameraBackgroundMode::SolidColor;
+    }
+
+    return CameraBackgroundMode::Skybox;
+}
+
 const char* CameraShotInterpolationModeToString(CameraShotInterpolationMode mode)
 {
     switch (mode) {
@@ -1049,6 +1076,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 {"fov", camera.fov},
                 {"nearPlane", camera.nearPlane},
                 {"farPlane", camera.farPlane},
+                {"backgroundMode", CameraBackgroundModeToString(camera.backgroundMode)},
                 {"clearColor", Vec4ToJson(camera.clearColor)},
                 {"speed", camera.speed}
             };
@@ -1058,8 +1086,12 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             camera.fov = data.at("fov").get<float>();
             camera.nearPlane = data.at("nearPlane").get<float>();
             camera.farPlane = data.at("farPlane").get<float>();
-            camera.clearColor = Vec4FromJson(data.at("clearColor"));
-            camera.speed = data.at("speed").get<float>();
+            camera.backgroundMode = CameraBackgroundModeFromString(
+                data.value("backgroundMode", std::string{ CameraBackgroundModeToString(camera.backgroundMode) }));
+            if (data.contains("clearColor")) {
+                camera.clearColor = Vec4FromJson(data.at("clearColor"));
+            }
+            camera.speed = data.value("speed", camera.speed);
             return camera;
         }
     );

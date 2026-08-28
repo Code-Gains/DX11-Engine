@@ -1360,11 +1360,17 @@ void Core::DrawBackground(VkCommandBuffer cmd)
     if (cameraEntity != entt::null && _registry.valid(cameraEntity)) {
         auto* camera = _registry.try_get<Camera>(cameraEntity);
 
-        if (camera) {
+        if (camera && camera->backgroundMode == CameraBackgroundMode::SolidColor) {
             clearValue.float32[0] = camera->clearColor.r;
             clearValue.float32[1] = camera->clearColor.g;
             clearValue.float32[2] = camera->clearColor.b;
             clearValue.float32[3] = camera->clearColor.a;
+        }
+        else if (camera && camera->backgroundMode == CameraBackgroundMode::None) {
+            clearValue.float32[0] = 0.0f;
+            clearValue.float32[1] = 0.0f;
+            clearValue.float32[2] = 0.0f;
+            clearValue.float32[3] = 0.0f;
         }
     }
 
@@ -1449,6 +1455,12 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
     VkClearValue colorClear{};
     colorClear.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+    if (renderCamera.backgroundMode == CameraBackgroundMode::SolidColor) {
+        colorClear.color.float32[0] = renderCamera.clearColor.r;
+        colorClear.color.float32[1] = renderCamera.clearColor.g;
+        colorClear.color.float32[2] = renderCamera.clearColor.b;
+        colorClear.color.float32[3] = renderCamera.clearColor.a;
+    }
 
     VkRenderingAttachmentInfo colorAttachment =
         _msaaSamples != VK_SAMPLE_COUNT_1_BIT
@@ -1489,36 +1501,38 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
 
     vkCmdSetScissor(cmd, 0, 1, &scissor);
 
-            vkCmdBindPipeline(
-        cmd,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        _skyboxPipeline
-    );
+    if (renderCamera.backgroundMode == CameraBackgroundMode::Skybox) {
+        vkCmdBindPipeline(
+            cmd,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            _skyboxPipeline
+        );
 
-    glm::mat4 skyboxView = glm::mat4(glm::mat3(viewMatrix));
-    glm::mat4 skyboxVP = projectionMatrix * skyboxView;
+        glm::mat4 skyboxView = glm::mat4(glm::mat3(viewMatrix));
+        glm::mat4 skyboxVP = projectionMatrix * skyboxView;
 
-    vkCmdPushConstants(
-        cmd,
-        _skyboxPipelineLayout,
-        VK_SHADER_STAGE_VERTEX_BIT,
-        0,
-        sizeof(glm::mat4),
-        &skyboxVP
-    );
+        vkCmdPushConstants(
+            cmd,
+            _skyboxPipelineLayout,
+            VK_SHADER_STAGE_VERTEX_BIT,
+            0,
+            sizeof(glm::mat4),
+            &skyboxVP
+        );
 
-    vkCmdBindDescriptorSets(
-        cmd,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        _skyboxPipelineLayout,
-        0,
-        1,
-        &_skyboxCubemap.descriptorSet,
-        0,
-        nullptr
-    );
+        vkCmdBindDescriptorSets(
+            cmd,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            _skyboxPipelineLayout,
+            0,
+            1,
+            &_skyboxCubemap.descriptorSet,
+            0,
+            nullptr
+        );
 
-    vkCmdDraw(cmd, 36, 1, 0, 0);
+        vkCmdDraw(cmd, 36, 1, 0, 0);
+    }
 
 
     // ECS Batch Rendering

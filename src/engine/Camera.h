@@ -7,6 +7,12 @@
 struct ActiveCameraTag {};
 struct EditorCameraPilotTag {};
 
+enum class CameraBackgroundMode {
+    None,
+    SolidColor,
+    Skybox
+};
+
 enum class CameraShotInterpolationMode {
     Linear,
     Smoothstep,
@@ -45,6 +51,7 @@ struct Camera {
     float fov = 90.0f;
     float nearPlane = 0.1f;
     float farPlane = 100000.0f;
+    CameraBackgroundMode backgroundMode = CameraBackgroundMode::Skybox;
     glm::vec4 clearColor {0.1f, 0.1f, 0.5f, 1.0f};
 
     // looking along -Z initially

@@ -290,7 +290,16 @@ public:
             ImGui::DragFloat("Near Plane", &camera->nearPlane, 0.01f, 0.001f, 1000.0f);
             ImGui::DragFloat("Far Plane", &camera->farPlane, 10.0f, 1.0f, 1000000.0f);
             ImGui::DragFloat("Speed", &camera->speed, 0.5f, 0.0f, 10000.0f);
-            ImGui::ColorEdit4("Clear Color", &camera->clearColor.x);
+
+            const char* backgroundLabels[] = { "None", "Solid Color", "Skybox" };
+            int backgroundMode = static_cast<int>(camera->backgroundMode);
+            if (ImGui::Combo("Background", &backgroundMode, backgroundLabels, IM_ARRAYSIZE(backgroundLabels))) {
+                camera->backgroundMode = static_cast<CameraBackgroundMode>(backgroundMode);
+            }
+
+            if (camera->backgroundMode == CameraBackgroundMode::SolidColor) {
+                ImGui::ColorEdit4("Clear Color", &camera->clearColor.x);
+            }
         }
     }
 };
