@@ -39,6 +39,9 @@ add_library(engine STATIC
     SoundCueAsset.cpp
 )
 
+add_executable(mesh-transform-tests ../../tests/MeshTransformTests.cpp)
+target_include_directories(mesh-transform-tests PRIVATE ${glm_SOURCE_DIR})
+
 target_compile_definitions(engine PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
 )

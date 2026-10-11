@@ -56,12 +56,13 @@ float4x4 BuildTransform(float3 position, float4 q, float3 scale)
     float wy = q.w * q.y;
     float wz = q.w * q.z;
 
-    return float4x4(
+    // These coefficients are columns of R*S; Slang constructors take rows.
+    return transpose(float4x4(
         scale.x * (1.0 - 2.0 * (y2 + z2)), scale.x * 2.0 * (xy + wz),          scale.x * 2.0 * (xz - wy),          0.0,
         scale.y * 2.0 * (xy - wz),          scale.y * (1.0 - 2.0 * (x2 + z2)), scale.y * 2.0 * (yz + wx),          0.0,
         scale.z * 2.0 * (xz + wy),          scale.z * 2.0 * (yz - wx),          scale.z * (1.0 - 2.0 * (x2 + y2)), 0.0,
         position.x,                         position.y,                         position.z,                         1.0
-    );
+    ));
 }
 
 float3 ApplyTransform(float3 point, float3 position, float4 quat, float3 scale)
