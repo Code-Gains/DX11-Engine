@@ -245,7 +245,8 @@ float4 main(FragmentInput input) : SV_Target
 
     float3 specularIBL =
         prefilteredColor *
-        (fresnel * brdf.x + brdf.y);
+        // The LUT integrates Schlick Fresnel; combine its weights with F0/F90.
+        (specularColor * brdf.x + float3(reflectance90) * brdf.y);
 
     color += specularIBL;
 
