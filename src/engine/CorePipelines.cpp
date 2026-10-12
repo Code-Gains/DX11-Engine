@@ -104,7 +104,9 @@ VkPipeline Core::BuildMeshGraphicsPipeline(
 
 MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
     std::string name,
-    const std::filesystem::path& fragmentShaderPath)
+    const std::filesystem::path& fragmentShaderPath,
+    const std::filesystem::path& singleVertexShaderPath,
+    const std::filesystem::path& instancedVertexShaderPath)
 {
     assert(_meshPipelineLayout != VK_NULL_HANDLE);
     assert(_instancedMeshPipelineLayout != VK_NULL_HANDLE);
@@ -116,14 +118,20 @@ MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
     }
 
     VkShaderModule singleVertexShader = VK_NULL_HANDLE;
-    if (!LoadEngineShaderModule("shaders/colored_triangle_mesh.vert.spv", &singleVertexShader)) {
+    const bool singleLoaded = singleVertexShaderPath.empty()
+        ? LoadEngineShaderModule("shaders/colored_triangle_mesh.vert.spv", &singleVertexShader)
+        : LoadProjectShaderModule(singleVertexShaderPath, &singleVertexShader);
+    if (!singleLoaded) {
         ENGINE_LOG_ERROR("Failed to load engine mesh vertex shader for project material pipeline");
         vkDestroyShaderModule(_device, fragmentShader, nullptr);
         return {};
     }
 
     VkShaderModule instancedVertexShader = VK_NULL_HANDLE;
-    if (!LoadEngineShaderModule("shaders/batch_color_mesh.vert.spv", &instancedVertexShader)) {
+    const bool instancedLoaded = instancedVertexShaderPath.empty()
+        ? LoadEngineShaderModule("shaders/batch_color_mesh.vert.spv", &instancedVertexShader)
+        : LoadProjectShaderModule(instancedVertexShaderPath, &instancedVertexShader);
+    if (!instancedLoaded) {
         ENGINE_LOG_ERROR("Failed to load engine instanced mesh vertex shader for project material pipeline");
         vkDestroyShaderModule(_device, singleVertexShader, nullptr);
         vkDestroyShaderModule(_device, fragmentShader, nullptr);

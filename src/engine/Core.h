@@ -770,7 +770,9 @@ public:
     RenderPipelineId FindRenderPipeline(std::string_view name) const;
     MaterialPipelineSet RegisterMeshMaterialPipelineSet(
         std::string name,
-        const std::filesystem::path& fragmentShaderPath
+        const std::filesystem::path& fragmentShaderPath,
+        const std::filesystem::path& singleVertexShaderPath = {},
+        const std::filesystem::path& instancedVertexShaderPath = {}
     );
     MaterialAsset& RegisterMaterialAsset(std::string name, MaterialInstance material);
     MaterialInstance* FindMaterial(std::string_view name);
