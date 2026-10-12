@@ -47,6 +47,7 @@
 // ECS PORT
 #include "EcsDebugger.h"
 #include "SunlightComponent.h"
+#include "PointLighting.h"
 #include "ImGuiWindowRegistry.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -616,6 +617,8 @@ void Core::InitPipelines()
     InitScreenPostProcessPipeline();
     InitSelectionOutlinePipeline();
     InitSkyboxPipeline();
+    InitToneMappingPipeline();
+    InitBloomPipelines();
 }
 
 void Core::Run() {
@@ -1440,6 +1443,7 @@ void Core::Draw()
     // transition our main draw image into general layout so we can write into it
     // we will overwrite it all so we dont care about what was the older layout
     DrawShadowMap(cmd);
+    DrawPointShadowMap(cmd);
     vkCmdWriteTimestamp2(
         cmd,
         VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
@@ -1467,12 +1471,14 @@ void Core::Draw()
         VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
         frameData._gpuQueryPool,
         GpuTimestampGeometryEnd);
-    DrawSelectedOutline(cmd);
     DrawHeightFog(cmd);
     DrawScreenPostProcess(cmd);
+    DrawBloom(cmd, camera ? _registry.try_get<PostProcessComponent>(cameraEntity) : nullptr);
+    DrawToneMapping(cmd, camera ? camera->exposure : 1.0f);
+    DrawSelectedOutline(cmd);
     vkCmdWriteTimestamp2(
         cmd,
-        VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
+        VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
         frameData._gpuQueryPool,
         GpuTimestampPostProcessEnd);
     const auto postProcessRecordingEndTime = std::chrono::high_resolution_clock::now();
@@ -1779,6 +1785,7 @@ void Core::BuildRenderQueues()
         instance.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
         instance.corruptionColorAndAmount = ResolveMeshCorruptionColor(_registry, entity);
         instance.corruptionParams = ResolveMeshCorruptionParams(_registry, entity);
+        instance.emissionOverride = meshComponent.GetEmissiveOverride();
 
         auto& shadowInstances = _shadowBatches[mesh];
         if (shadowInstances.capacity() == 0) {
@@ -1868,12 +1875,18 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
                 sunlight.color,
                 sunlight.ambient
             );
+        sceneData.ambientFillColor = glm::vec4(sunlight.ambientColor, 1.0f);
+        sceneData.environmentIntensity = glm::vec4(
+            std::max(sunlight.environmentDiffuseIntensity, 0.0f),
+            std::max(sunlight.environmentSpecularIntensity, 0.0f), sunlight.castShadows ? 0.0f : 1.0f, 0.0f);
         foundSunlight = true;
         break;
     }
     if (!foundSunlight) {
         sceneData.sunlightDirection = glm::vec4(0.0f);
         sceneData.ambientColor = glm::vec4(0.0f);
+        sceneData.ambientFillColor = glm::vec4(1.0f);
+        sceneData.environmentIntensity = glm::vec4(0.25f, 1.0f, 1.0f, 0.0f);
     }
 
     const auto isTransparentMaterial = [](const MaterialInstance* material) {
@@ -2000,7 +2013,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
                 vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.pipeline);
                 vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 1, 1, &globalDescriptor, 0, nullptr);
                 vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
-                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
+                vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, instancedPipeline.layout, 3, 1, &GetCurrentFrame()._pointShadowDescriptorSet, 0, nullptr);
                 boundInstancedPipelineId = key.pipelineId;
             }
 
@@ -2081,6 +2094,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
             BatchDrawPushConstants pc{};
             pc.viewProjection = projectionMatrix * viewMatrix;
             pc.baseColorFactor = material ? material->baseColorFactor : glm::vec4{ 1.0f };
+            pc.materialEmission = glm::vec4(material ? material->emissiveFactor : glm::vec3(0.0f), 0.0f);
             pc.vertexBuffer = mesh->meshBuffers.vertexBufferAddress;
             pc.instanceBuffer = instanceAddress;
 
@@ -2139,7 +2153,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         if (pipelineId != boundMeshPipelineId) {
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.pipeline);
             vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 3, 1, &GetCurrentFrame()._pointShadowDescriptorSet, 0, nullptr);
             boundMeshPipelineId = pipelineId;
         }
 
@@ -2222,6 +2236,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         push_constants.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
         push_constants.corruptionColorAndAmount = ResolveMeshCorruptionColor(_registry, entity);
         push_constants.corruptionParams = ResolveMeshCorruptionParams(_registry, entity);
+        push_constants.materialEmission = glm::vec4(material ? material->emissiveFactor : glm::vec3(0.0f), 0.0f);
+        push_constants.emissionOverride = meshComponent.GetEmissiveOverride();
 
         vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
 
@@ -2266,7 +2282,7 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         if (pipelineId != boundTransparentPipelineId) {
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.pipeline);
             vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 2, 1, &_environmentDescriptorSet, 0, nullptr);
-            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 3, 1, &_shadowDescriptorSet, 0, nullptr);
+            vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, meshPipeline.layout, 3, 1, &GetCurrentFrame()._pointShadowDescriptorSet, 0, nullptr);
             boundTransparentPipelineId = pipelineId;
         }
 
@@ -2344,6 +2360,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         pushConstants.flashColorAndAmount = ResolveMeshFlash(_registry, entity);
         pushConstants.corruptionColorAndAmount = ResolveMeshCorruptionColor(_registry, entity);
         pushConstants.corruptionParams = ResolveMeshCorruptionParams(_registry, entity);
+        pushConstants.materialEmission = glm::vec4(material ? material->emissiveFactor : glm::vec3(0.0f), 0.0f);
+        pushConstants.emissionOverride = meshComponent.GetEmissiveOverride();
 
         vkCmdPushConstants(cmd, meshPipeline.layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &pushConstants);
 
@@ -2513,12 +2531,21 @@ void Core::DrawShadowMap(VkCommandBuffer cmd)
 {
     auto& instanceBuffer = GetCurrentFrame()._instanceBuffer;
     _shadowInstanceBytesUsed = 0;
+    // Point shadows also consume these instances when sun shadows are disabled.
+    for (const auto& [mesh, instances] : _shadowBatches) {
+        if (!mesh || mesh->surfaces.empty() || instances.empty()) continue;
+        const size_t dataSize = instances.size() * sizeof(InstanceData);
+        memcpy(static_cast<char*>(instanceBuffer.info.pMappedData) + _shadowInstanceBytesUsed,
+            instances.data(), dataSize);
+        _shadowInstanceBytesUsed += dataSize;
+    }
     if (_shadowPipeline == VK_NULL_HANDLE ||
         _shadowPipelineLayout == VK_NULL_HANDLE ||
         _shadowMapImage.image == VK_NULL_HANDLE) {
         return;
     }
 
+    bool castSunShadows = false;
     auto sunlightView = _registry.view<SunlightComponent>(entt::exclude<DisabledEntityTag>);
     for (auto lightEntity : sunlightView) {
         if (IsEntityDisabled(_registry, lightEntity)) {
@@ -2527,8 +2554,11 @@ void Core::DrawShadowMap(VkCommandBuffer cmd)
 
         const auto& sunlight = sunlightView.get<SunlightComponent>(lightEntity);
         sceneData.sunlightDirection = glm::vec4(glm::normalize(sunlight.direction), sunlight.intensity);
+        castSunShadows = sunlight.castShadows;
         break;
     }
+
+    if (!castSunShadows) return;
 
     _sunLightViewProjection = BuildSunLightViewProjection();
 
@@ -2571,11 +2601,6 @@ void Core::DrawShadowMap(VkCommandBuffer cmd)
         }
 
         const size_t dataSize = instances.size() * sizeof(InstanceData);
-        memcpy(
-            static_cast<char*>(instanceBuffer.info.pMappedData) + offset,
-            instances.data(),
-            dataSize);
-
         ShadowBatchPushConstants pushConstants{};
         pushConstants.lightViewProjection = _sunLightViewProjection;
         pushConstants.vertexBuffer = meshAssetPtr->meshBuffers.vertexBufferAddress;

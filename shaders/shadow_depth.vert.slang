@@ -18,6 +18,7 @@ struct InstanceData
     float4 flashColorAndAmount;
     float4 corruptionColorAndAmount;
     float4 corruptionParams;
+    float4 emissionOverride;
 };
 
 struct PushConstants

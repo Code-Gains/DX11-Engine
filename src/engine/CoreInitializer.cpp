@@ -6,6 +6,7 @@
 #include "EditorImGuiTheme.h"
 #include "NameComponent.h"
 #include "vk_initializers.h"
+#include "vk_images.h"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -242,8 +243,21 @@ void Core::InitShadowResources()
         VK_FORMAT_D32_SFLOAT,
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
             VK_IMAGE_USAGE_SAMPLED_BIT |
-            VK_IMAGE_USAGE_TRANSFER_SRC_BIT
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+            VK_IMAGE_USAGE_TRANSFER_DST_BIT
     );
+
+    // Keep the bound descriptor valid even if sun shadows start disabled.
+    ImmediateSubmit([&](VkCommandBuffer cmd) {
+        const auto range = vkinit::image_subresource_range(VK_IMAGE_ASPECT_DEPTH_BIT);
+        vkutil::transition_image(cmd, _shadowMapImage.image, VK_IMAGE_LAYOUT_UNDEFINED,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, range);
+        VkClearDepthStencilValue clear{0.0f, 0};
+        vkCmdClearDepthStencilImage(cmd, _shadowMapImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            &clear, 1, &range);
+        vkutil::transition_image(cmd, _shadowMapImage.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL, range);
+    });
 
     VkSamplerCreateInfo samplerInfo{.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
     samplerInfo.magFilter = VK_FILTER_NEAREST;
@@ -283,6 +297,7 @@ void Core::InitShadowResources()
         vkDestroySampler(_device, _shadowMapSampler, nullptr);
         DestroyImage(_shadowMapImage);
     });
+    InitPointShadowResources();
 }
 
 void Core::InitDefaultData()

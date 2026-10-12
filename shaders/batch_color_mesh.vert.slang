@@ -18,12 +18,14 @@ struct InstanceData
     float4 flashColorAndAmount;
     float4 corruptionColorAndAmount;
     float4 corruptionParams;
+    float4 emissionOverride;
 };
 
 struct PushConstants
 {
     float4x4 viewProjection;
     float4 baseColorFactor;
+    float4 materialEmission;
     uint64_t vertexBuffer;
     uint64_t instanceBuffer;
 };
@@ -34,14 +36,16 @@ PushConstants pushConstants;
 struct VertexOutput
 {
     float4 position : SV_Position;
-    float3 worldPosition : TEXCOORD0;
-    float3 normal : TEXCOORD1;
-    float2 uv : TEXCOORD2;
-    float4 tangent : TEXCOORD3;
-    float4 baseColorFactor : COLOR0;
-    float4 flashColorAndAmount : COLOR1;
-    float4 corruptionColorAndAmount : COLOR2;
-    float4 corruptionParams : TEXCOORD4;
+    [[vk::location(0)]] float3 worldPosition : TEXCOORD0;
+    [[vk::location(1)]] float3 normal : TEXCOORD1;
+    [[vk::location(2)]] float2 uv : TEXCOORD2;
+    [[vk::location(3)]] float4 tangent : TEXCOORD3;
+    [[vk::location(4)]] float4 baseColorFactor : COLOR0;
+    [[vk::location(5)]] float4 flashColorAndAmount : COLOR1;
+    [[vk::location(6)]] float4 corruptionColorAndAmount : COLOR2;
+    [[vk::location(7)]] float4 corruptionParams : TEXCOORD4;
+    [[vk::location(12)]] float4 materialEmission : TEXCOORD7;
+    [[vk::location(13)]] float4 emissionOverride : TEXCOORD8;
 };
 
 float4x4 BuildTransform(float3 position, float4 q, float3 scale)
@@ -111,5 +115,7 @@ VertexOutput main(uint vertexIndex : SV_VertexID, uint instanceIndex : SV_Instan
     output.flashColorAndAmount = instance.flashColorAndAmount;
     output.corruptionColorAndAmount = instance.corruptionColorAndAmount;
     output.corruptionParams = instance.corruptionParams;
+    output.materialEmission = pushConstants.materialEmission;
+    output.emissionOverride = instance.emissionOverride;
     return output;
 }

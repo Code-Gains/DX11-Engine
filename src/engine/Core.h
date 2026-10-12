@@ -1,4 +1,6 @@
 #pragma once
+#include "PointLightComponent.h"
+#include "PostProcessComponent.h"
 
 // ============================================================================
 // Standard library
@@ -118,6 +120,7 @@ struct RenderObject {
 struct BatchDrawPushConstants {
     glm::mat4 viewProjection;
     glm::vec4 baseColorFactor;
+    glm::vec4 materialEmission;
     VkDeviceAddress vertexBuffer;
     VkDeviceAddress instanceBuffer;
 };
@@ -137,6 +140,7 @@ struct InstanceData {
     glm::vec4 flashColorAndAmount{ 1.0f, 0.12f, 0.04f, 0.0f };
     glm::vec4 corruptionColorAndAmount{ 0.75f, 0.95f, 1.0f, 0.0f };
     glm::vec4 corruptionParams{ 8.0f, 0.04f, 0.35f, 0.0f };
+    glm::vec4 emissionOverride{0.0f}; // RGB: radiance, W: texture mask enabled
 };
 
 struct MeshBatchKey {
@@ -165,6 +169,11 @@ struct GPUSceneData {
     glm::vec4 sunlightDirection = glm::vec4(-0.3f, 1.0f, -0.6f, 3.0f);
     glm::vec4 ambientColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.05f);
     glm::mat4 lightViewProjection = glm::mat4(1.0f);
+    glm::vec4 ambientFillColor = glm::vec4(1.0f);
+    glm::vec4 environmentIntensity = glm::vec4(0.25f, 1.0f, 0.0f, 0.0f); // x: diffuse, y: specular, z: sun shadows disabled
+    glm::uvec4 pointLightCounts = glm::uvec4(0); // x: uploaded, y: eligible
+    GPUPointLight pointLights[MaxPointLights]{};
+    glm::vec4 pointShadowParameters = glm::vec4(-1.0f, 0.05f, 10.0f, 0.02f); // index, near, far, world-space bias
 };
 
 struct ComputePushConstants {
@@ -267,6 +276,11 @@ struct FrameData {
     DeletionQueue _deletionQueue;
     DescriptorAllocatorGrowable _frameDescriptors;
     AllocatedBuffer _instanceBuffer {};
+    AllocatedImage _pointShadowMap {};
+    std::array<VkImageView, 6> _pointShadowFaces{};
+    VkDescriptorSet _pointShadowDescriptorSet = VK_NULL_HANDLE;
+    std::vector<AllocatedImage> _bloomImages;
+    VkExtent2D _bloomExtent{};
     bool _gpuQueriesReady = false;
 };
 
@@ -362,12 +376,17 @@ private:
     void InitEffectMeshPipeline();
     void InitLinePipeline();
     void InitHeightFogPipeline();
+    void InitToneMappingPipeline();
+    void InitBloomPipelines();
+    void DrawBloom(VkCommandBuffer cmd, const PostProcessComponent* settings);
+    void DrawToneMapping(VkCommandBuffer cmd, float exposure);
     void InitDepthVisualizationPipeline();
     void InitScreenPostProcessMaskPipeline();
     void InitScreenMaskBlurPipeline();
     void InitScreenPostProcessPipeline();
     void InitShadowResources();
     void InitShadowPipeline();
+    void InitPointShadowResources();
     void InitSelectionOutlinePipeline();
     void InitSkyboxPipeline();
     void InitDefaultData();
@@ -491,6 +510,7 @@ private:
         const glm::vec3& cameraPosition);
     void DrawLines(VkCommandBuffer cmd, const glm::mat4& viewProjection);
     void DrawShadowMap(VkCommandBuffer cmd);
+    void DrawPointShadowMap(VkCommandBuffer cmd);
     void DrawSelectedOutline(VkCommandBuffer cmd);
     void DrawHeightFog(VkCommandBuffer cmd);
     void DrawDepthVisualization(VkCommandBuffer cmd);
@@ -574,6 +594,9 @@ private:
 
     AllocatedImage _shadowMapImage {};
     VkSampler _shadowMapSampler = VK_NULL_HANDLE;
+    VkSampler _pointShadowSampler = VK_NULL_HANDLE;
+    entt::entity _pointShadowEntity = entt::null;
+    uint32_t _pointShadowDraws = 0;
     VkExtent2D _shadowMapExtent { 2048, 2048 };
     glm::mat4 _sunLightViewProjection { 1.0f };
     float _shadowOrthoRadius = 120.0f;
@@ -628,6 +651,7 @@ private:
       size_t _shadowInstanceBytesUsed = 0;
     float _timestampPeriod = 0.0f;
     GpuFrameTimings _latestGpuTimings;
+    bool _pointLightingEnabled = true;
     CpuDrawTimings _latestCpuDrawTimings;
     CpuRecordTimings _latestCpuRecordTimings;
 
@@ -678,6 +702,12 @@ private:
     VkPipelineLayout _prefilterPipelineLayout;
 
     VkPipeline _irradiancePipeline = VK_NULL_HANDLE;
+    VkPipeline _toneMappingPipeline = VK_NULL_HANDLE;
+    VkPipelineLayout _toneMappingPipelineLayout = VK_NULL_HANDLE;
+    VkDescriptorSetLayout _bloomDescriptorLayout = VK_NULL_HANDLE;
+    VkPipelineLayout _bloomPipelineLayout = VK_NULL_HANDLE;
+    VkPipeline _bloomDownsamplePipeline = VK_NULL_HANDLE;
+    VkPipeline _bloomUpsamplePipeline = VK_NULL_HANDLE;
     VkPipelineLayout _irradiancePipelineLayout = VK_NULL_HANDLE;
 
     CubemapAsset _skyboxCubemap;
@@ -722,6 +752,12 @@ public:
     void Run();
     void Shutdown();
     void SetBenchmarkOptions(BenchmarkOptions options);
+    const GpuFrameTimings& GetGpuFrameTimings() const { return _latestGpuTimings; }
+    bool IsPointLightingEnabled() const { return _pointLightingEnabled; }
+    void SetPointLightingEnabled(bool enabled) { _pointLightingEnabled = enabled; }
+    glm::uvec2 GetPointLightCounts() const { return glm::uvec2(sceneData.pointLightCounts); }
+    entt::entity GetPointShadowEntity() const { return _pointShadowEntity; }
+    uint32_t GetPointShadowDrawCount() const { return _pointShadowDraws; }
     void SetVSyncEnabled(bool enabled);
 
     // ------------------------------------------------------------------------

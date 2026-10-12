@@ -19,6 +19,7 @@
 #include "NameComponent.h"
 #include "ScreenPostProcessComponent.h"
 #include "SunlightComponent.h"
+#include "PointLightComponent.h"
 #include "Camera.h"
 #include "MeshComponent.h"
 #include "GravityComponents.h"
@@ -188,6 +189,61 @@ public:
     }
 };
 
+class PointLightComponentUi : public ViewerComponentUi {
+    Engine::Core* _core;
+public:
+    explicit PointLightComponentUi(Engine::Core* core) : _core(core) {}
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* light = registry.try_get<PointLightComponent>(entity);
+        if (!light) return;
+        if (DrawRemovableComponentHeader<PointLightComponent>(registry, entity, "Point Light", "PointLightComponent")) {
+            EditorUi::ScopedItemWidth width{300.0f};
+            ImGui::Checkbox("Enabled", &light->enabled);
+            ImGui::Checkbox("Cast Shadows", &light->castShadows);
+            ImGui::ColorEdit3("Color", &light->color.x);
+            ImGui::InputFloat("Intensity", &light->intensity, 0.0f, 0.0f, "%.3f");
+            ImGui::InputFloat("Range", &light->range, 0.0f, 0.0f, "%.3f");
+            light->intensity = glm::max(0.0f, light->intensity);
+            light->range = glm::max(0.0f, light->range);
+            if (light->castShadows) {
+                ImGui::InputFloat("Shadow Bias", &light->shadowBias, 0.0f, 0.0f, "%.4f");
+                light->shadowBias = glm::max(light->shadowBias, 0.0f);
+            }
+            if (_core && ImGui::TreeNode("Lighting Diagnostics")) {
+                bool enabled = _core->IsPointLightingEnabled();
+                if (ImGui::Checkbox("Point Lighting", &enabled)) _core->SetPointLightingEnabled(enabled);
+                const auto counts = _core->GetPointLightCounts();
+                ImGui::Text("Uploaded: %u / %u | Eligible: %u", counts.x, Engine::MaxPointLights, counts.y);
+                if (counts.y > Engine::MaxPointLights) ImGui::TextUnformatted("Light limit exceeded");
+                const auto& timings = _core->GetGpuFrameTimings();
+                if (timings.valid) ImGui::Text("GPU Geometry: %.3f ms", timings.geometryMs);
+                else ImGui::TextUnformatted("GPU Geometry: unavailable");
+                if (timings.valid) ImGui::Text("GPU Shadows (sun + point): %.3f ms", timings.shadowMs);
+                ImGui::Text("Point Shadow Draws: %u", _core->GetPointShadowDrawCount());
+                if (light->castShadows) ImGui::Text("Shadow Slot: %s",
+                    _core->GetPointShadowEntity() == entity ? "Active" : "Inactive");
+                ImGui::TreePop();
+            }
+        }
+    }
+};
+
+class PostProcessComponentUi : public ViewerComponentUi {
+public:
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* settings = registry.try_get<PostProcessComponent>(entity);
+        if (!settings) return;
+        if (DrawRemovableComponentHeader<PostProcessComponent>(registry, entity, "Post Process", "PostProcessComponent")) {
+            EditorUi::ScopedItemWidth width{300.0f};
+            ImGui::Checkbox("Bloom", &settings->bloomEnabled);
+            ImGui::InputFloat("Bloom Intensity", &settings->bloomIntensity, 0.0f, 0.0f, "%.3f");
+            ImGui::InputFloat("Bloom Threshold", &settings->bloomThreshold, 0.0f, 0.0f, "%.3f");
+            ImGui::InputFloat("Bloom Soft Knee", &settings->bloomSoftKnee, 0.0f, 0.0f, "%.3f");
+            settings->Sanitize();
+        }
+    }
+};
+
 class SunlightComponentUI : public ViewerComponentUi {
 public:
     void Draw(entt::registry& registry, entt::entity entity) override {
@@ -205,10 +261,19 @@ public:
             }
 
             ImGui::DragFloat("Intensity", &sunlight->intensity, 0.05f, 0.0f, 20.0f);
+            ImGui::Checkbox("Cast Shadows", &sunlight->castShadows);
 
             ImGui::ColorEdit3("Color", &sunlight->color.x);
 
-            ImGui::DragFloat("Ambient", &sunlight->ambient, 0.01f, 0.0f, 1.0f);
+            ImGui::SeparatorText("Ambient Fill");
+            ImGui::ColorEdit3("Ambient Color", &sunlight->ambientColor.x);
+            ImGui::InputFloat("Ambient Intensity", &sunlight->ambient, 0.0f, 0.0f, "%.3f");
+            sunlight->ambient = glm::max(sunlight->ambient, 0.0f);
+            ImGui::SeparatorText("Environment Lighting");
+            ImGui::InputFloat("Diffuse Intensity", &sunlight->environmentDiffuseIntensity, 0.0f, 0.0f, "%.3f");
+            ImGui::InputFloat("Reflection Intensity", &sunlight->environmentSpecularIntensity, 0.0f, 0.0f, "%.3f");
+            sunlight->environmentDiffuseIntensity = glm::max(sunlight->environmentDiffuseIntensity, 0.0f);
+            sunlight->environmentSpecularIntensity = glm::max(sunlight->environmentSpecularIntensity, 0.0f);
         }
     }
 };
@@ -392,6 +457,8 @@ public:
             ImGui::DragFloat("Near Plane", &camera->nearPlane, 0.01f, 0.001f, 1000.0f);
             ImGui::DragFloat("Far Plane", &camera->farPlane, 10.0f, 1.0f, 1000000.0f);
             ImGui::DragFloat("Speed", &camera->speed, 0.5f, 0.0f, 10000.0f);
+            ImGui::InputFloat("Exposure", &camera->exposure, 0.0f, 0.0f, "%.3f");
+            camera->exposure = glm::clamp(camera->exposure, 0.001f, 64.0f);
 
             const char* backgroundLabels[] = { "None", "Solid Color", "Skybox" };
             int backgroundMode = static_cast<int>(camera->backgroundMode);
@@ -492,6 +559,11 @@ public:
             }
 
             ImGui::ColorEdit4("Base Color Factor", &mesh->baseColorFactor.x);
+            ImGui::SeparatorText("Emission");
+            ImGui::ColorEdit3("Emissive Color", &mesh->emissiveColor.x);
+            ImGui::InputFloat("Emissive Strength", &mesh->emissiveStrength, 0.0f, 0.0f, "%.3f");
+            mesh->emissiveStrength = glm::max(mesh->emissiveStrength, 0.0f);
+            ImGui::Checkbox("Use Emission Texture", &mesh->emissiveUseTexture);
         }
     }
 

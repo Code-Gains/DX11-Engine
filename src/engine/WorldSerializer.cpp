@@ -13,6 +13,7 @@
 #include "NameComponent.h"
 #include "ScreenPostProcessComponent.h"
 #include "SunlightComponent.h"
+#include "PointLightComponent.h"
 #include "Transform.h"
 
 #include <algorithm>
@@ -996,7 +997,10 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             auto data = nlohmann::json {
                 {"path", reference.path},
                 {"meshIndex", reference.meshIndex},
-                {"baseColorFactor", Vec4ToJson(meshComponent.baseColorFactor)}
+                {"baseColorFactor", Vec4ToJson(meshComponent.baseColorFactor)},
+                {"emissiveColor", Vec3ToJson(meshComponent.emissiveColor)},
+                {"emissiveStrength", meshComponent.emissiveStrength},
+                {"emissiveUseTexture", meshComponent.emissiveUseTexture}
             };
 
             if (!meshComponent.materialOverride.empty()) {
@@ -1017,6 +1021,10 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                     : glm::vec4{ 1.0f };
             meshComponent.materialOverride =
                 data.value("materialOverride", std::string{});
+            meshComponent.emissiveColor = data.contains("emissiveColor")
+                ? glm::max(Vec3FromJson(data.at("emissiveColor")), glm::vec3(0.0f)) : glm::vec3(1.0f);
+            meshComponent.emissiveStrength = std::max(0.0f, data.value("emissiveStrength", 0.0f));
+            meshComponent.emissiveUseTexture = data.value("emissiveUseTexture", false);
 
             auto meshes = core.LoadGltfMeshes(&core, meshComponent.source.path);
             if (!meshes.has_value()) {
@@ -1218,6 +1226,24 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
         }
     );
 
+    _componentSerializers.Register<PostProcessComponent>(
+        "PostProcessComponent",
+        [](Core&, const PostProcessComponent& settings) {
+            return nlohmann::json{{"bloomEnabled", settings.bloomEnabled},
+                {"bloomIntensity", settings.bloomIntensity}, {"bloomThreshold", settings.bloomThreshold},
+                {"bloomSoftKnee", settings.bloomSoftKnee}};
+        },
+        [](Core&, const nlohmann::json& data) {
+            PostProcessComponent settings;
+            settings.bloomEnabled = data.value("bloomEnabled", true);
+            settings.bloomIntensity = data.value("bloomIntensity", 0.15f);
+            settings.bloomThreshold = data.value("bloomThreshold", 1.0f);
+            settings.bloomSoftKnee = data.value("bloomSoftKnee", 0.5f);
+            settings.Sanitize();
+            return settings;
+        }
+    );
+
     _componentSerializers.Register<Camera>(
         "Camera",
         [](Core&, const Camera& camera) {
@@ -1225,6 +1251,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
                 {"fov", camera.fov},
                 {"nearPlane", camera.nearPlane},
                 {"farPlane", camera.farPlane},
+                {"exposure", camera.exposure},
                 {"backgroundMode", CameraBackgroundModeToString(camera.backgroundMode)},
                 {"clearColor", Vec4ToJson(camera.clearColor)},
                 {"speed", camera.speed}
@@ -1235,6 +1262,7 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             camera.fov = data.at("fov").get<float>();
             camera.nearPlane = data.at("nearPlane").get<float>();
             camera.farPlane = data.at("farPlane").get<float>();
+            camera.exposure = glm::clamp(data.value("exposure", 1.0f), 0.001f, 64.0f);
             camera.backgroundMode = CameraBackgroundModeFromString(
                 data.value("backgroundMode", std::string{ CameraBackgroundModeToString(camera.backgroundMode) }));
             if (data.contains("clearColor")) {
@@ -1358,17 +1386,45 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
             return nlohmann::json {
                 {"direction", Vec3ToJson(sunlight.direction)},
                 {"intensity", sunlight.intensity},
+                {"castShadows", sunlight.castShadows},
                 {"color", Vec3ToJson(sunlight.color)},
-                {"ambient", sunlight.ambient}
+                {"ambient", sunlight.ambient},
+                {"ambientColor", Vec3ToJson(sunlight.ambientColor)},
+                {"environmentDiffuseIntensity", sunlight.environmentDiffuseIntensity},
+                {"environmentSpecularIntensity", sunlight.environmentSpecularIntensity}
             };
         },
         [](Core&, const nlohmann::json& data) {
             SunlightComponent sunlight;
             sunlight.direction = Vec3FromJson(data.at("direction"));
             sunlight.intensity = data.at("intensity").get<float>();
+            sunlight.castShadows = data.value("castShadows", true);
             sunlight.color = Vec3FromJson(data.at("color"));
             sunlight.ambient = data.at("ambient").get<float>();
+            sunlight.ambientColor = data.contains("ambientColor")
+                ? Vec3FromJson(data.at("ambientColor")) : sunlight.color;
+            sunlight.environmentDiffuseIntensity = std::max(0.0f, data.value("environmentDiffuseIntensity", 0.25f));
+            sunlight.environmentSpecularIntensity = std::max(0.0f, data.value("environmentSpecularIntensity", 1.0f));
             return sunlight;
+        }
+    );
+
+    _componentSerializers.Register<PointLightComponent>(
+        "PointLightComponent",
+        [](Core&, const PointLightComponent& light) {
+            return nlohmann::json{{"color", Vec3ToJson(light.color)},
+                {"intensity", light.intensity}, {"range", light.range}, {"enabled", light.enabled},
+                {"castShadows", light.castShadows}, {"shadowBias", light.shadowBias}};
+        },
+        [](Core&, const nlohmann::json& data) {
+            PointLightComponent light;
+            if (data.contains("color")) light.color = glm::max(Vec3FromJson(data.at("color")), glm::vec3(0.0f));
+            light.intensity = std::max(0.0f, data.value("intensity", 20.0f));
+            light.range = std::max(0.0f, data.value("range", 10.0f));
+            light.enabled = data.value("enabled", true);
+            light.castShadows = data.value("castShadows", false);
+            light.shadowBias = std::max(0.0f, data.value("shadowBias", 0.02f));
+            return light;
         }
     );
 

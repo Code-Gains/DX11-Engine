@@ -98,6 +98,7 @@ struct MaterialInstance {
     VkDescriptorSet materialSet = VK_NULL_HANDLE;
     MaterialPass passType = MaterialPass::MainColor;
     glm::vec4 baseColorFactor{ 1.0f };
+    glm::vec3 emissiveFactor{1.0f}; // Linear emissive RGB, including imported strength.
     AllocatedImage* image = nullptr;
     AllocatedImage* metallicRoughnessImage = nullptr;
     AllocatedImage* normalImage = nullptr;
@@ -136,6 +137,8 @@ struct GPUDrawPushConstants {
     glm::vec4 flashColorAndAmount;
     glm::vec4 corruptionColorAndAmount;
     glm::vec4 corruptionParams;
+    glm::vec4 materialEmission;
+    glm::vec4 emissionOverride;
     VkDeviceAddress vertexBuffer;
 };
 

@@ -50,6 +50,8 @@ std::string DefaultComponentCategory(std::string_view label)
     }
     if (label == "Environment" ||
         label == "Sunlight" ||
+        label == "Point Light" ||
+        label == "Post Process" ||
         label == "Screen Post Process" ||
         label == "Screen Post Process Source" ||
         label == "Camera" ||
@@ -717,6 +719,8 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<HierarchyComponentUi>());
     _componentUis.push_back(std::make_unique<EnvironmentComponentUi>());
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
+    _componentUis.push_back(std::make_unique<PointLightComponentUi>(core));
+    _componentUis.push_back(std::make_unique<PostProcessComponentUi>());
     _componentUis.push_back(std::make_unique<ScreenPostProcessComponentUi>());
     _componentUis.push_back(std::make_unique<ScreenPostProcessSourceComponentUi>());
     _componentUis.push_back(std::make_unique<CameraComponentUi>());
@@ -765,12 +769,33 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     );
 
     AddComponentMenuItem(
+        "Point Light",
+        [](entt::registry& registry, entt::entity entity) {
+            return !registry.all_of<PointLightComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            if (!registry.all_of<Transform>(entity)) registry.emplace<Transform>(entity);
+            registry.emplace<PointLightComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
         "Sunlight",
         [](entt::registry& registry, entt::entity entity) {
             return !registry.all_of<SunlightComponent>(entity);
         },
         [](entt::registry& registry, entt::entity entity) {
             registry.emplace<SunlightComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Post Process",
+        [](entt::registry& registry, entt::entity entity) {
+            return registry.all_of<Camera>(entity) && !registry.all_of<PostProcessComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            registry.emplace<PostProcessComponent>(entity);
         }
     );
 

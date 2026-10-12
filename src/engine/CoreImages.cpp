@@ -417,7 +417,8 @@ AllocatedImage Core::CreateCubemap(
         1
     };
 
-    cubemap.imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    // File-backed LDR environments are sRGB; sampling decodes them for linear lighting.
+    cubemap.imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
 
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

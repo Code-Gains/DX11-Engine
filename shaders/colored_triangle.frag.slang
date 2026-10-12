@@ -1,13 +1,22 @@
+#include "material_emission.slang"
+
 struct FragmentInput
 {
-    float3 worldPosition : TEXCOORD0;
-    float3 normal : TEXCOORD1;
-    float2 uv : TEXCOORD2;
-    float4 tangent : TEXCOORD3;
-    float4 baseColorFactor : COLOR0;
-    float4 flashColorAndAmount : COLOR1;
-    float4 corruptionColorAndAmount : COLOR2;
-    float4 corruptionParams : TEXCOORD4;
+    [[vk::location(0)]] float3 worldPosition : TEXCOORD0;
+    [[vk::location(1)]] float3 normal : TEXCOORD1;
+    [[vk::location(2)]] float2 uv : TEXCOORD2;
+    [[vk::location(3)]] float4 tangent : TEXCOORD3;
+    [[vk::location(4)]] float4 baseColorFactor : COLOR0;
+    [[vk::location(5)]] float4 flashColorAndAmount : COLOR1;
+    [[vk::location(6)]] float4 corruptionColorAndAmount : COLOR2;
+    [[vk::location(7)]] float4 corruptionParams : TEXCOORD4;
+    [[vk::location(12)]] float4 materialEmission : TEXCOORD7;
+    [[vk::location(13)]] float4 emissionOverride : TEXCOORD8;
+};
+
+struct PointLight {
+    float4 positionAndRange;
+    float4 colorAndIntensity;
 };
 
 struct SceneData
@@ -16,6 +25,11 @@ struct SceneData
     float4 sunlightDirection;
     float4 ambientColor;
     float4x4 lightViewProjection;
+    float4 ambientFillColor;
+    float4 environmentIntensity;
+    uint4 pointLightCounts;
+    PointLight pointLights[16];
+    float4 pointShadowParameters;
 };
 
 [[vk::binding(0, 0)]]
@@ -44,7 +58,6 @@ Sampler2D shadowMap;
 
 static const float PI = 3.14159265359;
 static const float MIN_ROUGHNESS = 0.04;
-static const float IBL_INTENSITY = 0.25;
 static const float SHADOW_NORMAL_BIAS = 0.12;
 
 float3 FresnelSchlick(float3 f0, float3 f90, float viewDotHalfway)
@@ -74,6 +87,8 @@ float MicrofacetDistribution(float normalDotHalfway, float alphaRoughness)
     return roughnessSquared / (PI * f * f);
 }
 
+#include "point_lighting.slang"
+
 float3 GetNormalFromMap(FragmentInput input)
 {
     float3 tangentNormal =
@@ -89,17 +104,6 @@ float3 GetNormalFromMap(FragmentInput input)
     float3x3 tbn = float3x3(tangent, bitangent, normal);
 
     return normalize(mul(tbn, tangentNormal));
-}
-
-float3 ACESFilm(float3 x)
-{
-    float a = 2.51;
-    float b = 0.03;
-    float c = 2.43;
-    float d = 0.59;
-    float e = 0.14;
-
-    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
 float Hash31(float3 p)
@@ -135,6 +139,7 @@ float BuildCorruptionMask(FragmentInput input)
 
 float SampleShadow(FragmentInput input, float3 normal, float3 lightDirection)
 {
+    if (sceneData.environmentIntensity.z > 0.5) return 1.0;
     float3 shadowPosition = input.worldPosition + normal * SHADOW_NORMAL_BIAS;
     float4 lightClip = mul(sceneData.lightViewProjection, float4(shadowPosition, 1.0));
     float3 lightNdc = lightClip.xyz / lightClip.w;
@@ -182,11 +187,13 @@ float4 main(FragmentInput input) : SV_Target
 
     float alphaRoughness = roughness * roughness;
     float ambientOcclusion = occlusionTexture.Sample(input.uv).r;
-    float3 emissive = emissionTexture.Sample(input.uv).rgb;
+    float3 emissive = EvaluateEmission(emissionTexture.Sample(input.uv).rgb,
+        input.materialEmission, input.emissionOverride);
 
     float3 n = normalize(input.normal);
 
-    float3 light = normalize(sceneData.sunlightDirection.xyz);
+    float3 light = sceneData.sunlightDirection.w > 0.0
+        ? normalize(sceneData.sunlightDirection.xyz) : float3(0.0, 1.0, 0.0);
     float3 view = normalize(sceneData.cameraPosition.xyz - input.worldPosition);
     float3 halfway = normalize(light + view);
 
@@ -222,12 +229,14 @@ float4 main(FragmentInput input) : SV_Target
 
     float3 ambient =
         baseColor.rgb *
-        sceneData.ambientColor.rgb *
+        sceneData.ambientFillColor.rgb *
         sceneData.ambientColor.a;
 
     float shadow = normalDotLight > 0.0 ? SampleShadow(input, n, light) : 0.0;
     float3 color = ambient + shadow * normalDotLight * lightColor * (diffuseContrib + specContrib);
     color *= ambientOcclusion;
+    color += EvaluatePointLights(input.worldPosition, n, view, normalDotView,
+        alphaRoughness, diffuseColor, specularColor, reflectance90);
 
     color += emissive;
 
@@ -248,7 +257,7 @@ float4 main(FragmentInput input) : SV_Target
         // The LUT integrates Schlick Fresnel; combine its weights with F0/F90.
         (specularColor * brdf.x + float3(reflectance90) * brdf.y);
 
-    color += specularIBL;
+    color += specularIBL * sceneData.environmentIntensity.y;
 
     float3 irradiance =
         irradianceMap.Sample(n).rgb;
@@ -256,7 +265,7 @@ float4 main(FragmentInput input) : SV_Target
     float3 diffuseIBL =
         irradiance * diffuseColor * ambientOcclusion;
 
-    color += diffuseIBL * IBL_INTENSITY;
+    color += diffuseIBL * sceneData.environmentIntensity.x;
 
     float corruptionMask = BuildCorruptionMask(input);
     if (corruptionMask > 0.0) {
@@ -265,11 +274,6 @@ float4 main(FragmentInput input) : SV_Target
             (1.0 + max(0.0, input.corruptionParams.z));
         color = lerp(color, corruptionColor, corruptionMask * input.corruptionColorAndAmount.a);
     }
-
-    float exposure = 1.0;
-    color *= exposure;
-    color = ACESFilm(color);
-    color = pow(color, float3(1.0 / 2.2));
 
     return float4(color, baseColor.a);
 }

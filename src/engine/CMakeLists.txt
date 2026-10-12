@@ -31,6 +31,9 @@ add_library(engine STATIC
     CoreBuffers.cpp
     CoreImages.cpp
     CoreIBL.cpp
+    CoreToneMapping.cpp
+    CoreBloom.cpp
+    CorePointShadows.cpp
     CoreMeshUtils.cpp
     ImGuiWindowRegistry.cpp
     ImGuiManager.cpp
@@ -41,6 +44,15 @@ add_library(engine STATIC
 
 add_executable(mesh-transform-tests ../../tests/MeshTransformTests.cpp)
 target_include_directories(mesh-transform-tests PRIVATE ${glm_SOURCE_DIR})
+
+add_executable(lighting-settings-tests ../../tests/LightingSettingsTests.cpp)
+target_link_libraries(lighting-settings-tests PRIVATE engine)
+copy_openal_runtime(lighting-settings-tests)
+
+add_executable(bloom-render-tests ../../tests/BloomRenderTests.cpp)
+target_link_libraries(bloom-render-tests PRIVATE engine)
+target_compile_definitions(bloom-render-tests PRIVATE ENGINE_TEST_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../..")
+copy_openal_runtime(bloom-render-tests)
 
 target_compile_definitions(engine PRIVATE
     $<$<CONFIG:Debug>:DEBUG>
@@ -194,7 +206,7 @@ foreach(SHADER_FILE IN LISTS ALL_SLANG_SHADERS)
     add_custom_command(
         OUTPUT "${SPIRV_FILE}"
         COMMAND ${SLANGC_COMMAND_ENV} "${SLANGC_EXECUTABLE}" "${SHADER_FILE}" -target spirv -entry main -stage "${SLANG_STAGE}" -o "${SPIRV_FILE}"
-        DEPENDS "${SHADER_FILE}"
+        DEPENDS "${SHADER_FILE}" "${ENGINE_SHADER_DIR}/point_lighting.slang" "${ENGINE_SHADER_DIR}/material_emission.slang" "${ENGINE_SHADER_DIR}/bloom_common.slang"
         COMMENT "Compiling Slang shader ${SHADER_NAME}"
         VERBATIM
     )

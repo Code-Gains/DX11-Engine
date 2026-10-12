@@ -4,6 +4,7 @@
 #include <vk_types.h>
 
 #include <glm/vec3.hpp>
+#include <glm/common.hpp>
 
 struct MeshAssetReference {
     std::string path;
@@ -37,6 +38,14 @@ struct MeshComponent {
     MeshAssetReference source;
     std::string materialOverride;
     glm::vec4 baseColorFactor{ 1.0f };
+    glm::vec3 emissiveColor{1.0f};
+    float emissiveStrength = 0.0f;
+    bool emissiveUseTexture = false;
+
+    glm::vec4 GetEmissiveOverride() const {
+        return glm::vec4(glm::max(emissiveColor, glm::vec3(0.0f)) * glm::max(emissiveStrength, 0.0f),
+            emissiveUseTexture ? 1.0f : 0.0f);
+    }
 };
 
 struct MeshFlashComponent {

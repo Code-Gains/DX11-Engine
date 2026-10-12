@@ -216,7 +216,7 @@ std::optional<fastgltf::Asset> Core::LoadGltfAsset(std::filesystem::path filePat
 
     constexpr auto gltfOptions = fastgltf::Options::LoadExternalBuffers;
 
-    fastgltf::Parser parser;
+    fastgltf::Parser parser(fastgltf::Extensions::KHR_materials_emissive_strength);
     auto parentPath = filePath.parent_path();
     auto extension = filePath.extension().string();
 
@@ -283,7 +283,10 @@ size_t Core::LoadGltfMaterials(fastgltf::Asset &gltf, size_t imageOffset)
         material.normalImage = &_flatNormalImage;
         material.metallicRoughnessImage = &_defaultMetallicRoughnessImage;
         material.occlusionImage = &_whiteImage;
-        material.emissionImage = &_blackImage;
+        material.emissionImage = &_whiteImage;
+        material.emissiveFactor = glm::vec3{
+            gltfMaterial.emissiveFactor[0], gltfMaterial.emissiveFactor[1], gltfMaterial.emissiveFactor[2]
+        } * static_cast<float>(gltfMaterial.emissiveStrength);
         material.pipelines.single = _meshPipelineId;
         material.pipelines.instanced = _instancedMeshPipelineId;
         material.pipelines.wireframeSingle = _meshWireframePipelineId;
