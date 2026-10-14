@@ -1894,6 +1894,8 @@ void Core::DrawGeometry(VkCommandBuffer cmd)
         return material && material->passType == MaterialPass::Transparent;
     };
 
+    _materialAnimationTime += _deltaTime;
+    sceneData.environmentIntensity.w = static_cast<float>(_materialAnimationTime);
     sceneData.cameraPosition = glm::vec4(renderCameraTransform.position, 1.0f);
     sceneData.lightViewProjection = _sunLightViewProjection;
 

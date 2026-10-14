@@ -171,7 +171,7 @@ struct GPUSceneData {
     glm::vec4 ambientColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.05f);
     glm::mat4 lightViewProjection = glm::mat4(1.0f);
     glm::vec4 ambientFillColor = glm::vec4(1.0f);
-    glm::vec4 environmentIntensity = glm::vec4(0.25f, 1.0f, 0.0f, 0.0f); // x: diffuse, y: specular, z: sun shadows disabled
+    glm::vec4 environmentIntensity = glm::vec4(0.25f, 1.0f, 0.0f, 0.0f); // x: diffuse, y: specular, z: sun shadows disabled, w: material animation seconds
     glm::uvec4 pointLightCounts = glm::uvec4(0); // x: uploaded, y: eligible
     GPUPointLight pointLights[MaxPointLights]{};
     glm::vec4 pointShadowParameters = glm::vec4(-1.0f, 0.05f, 10.0f, 0.02f); // index, near, far, world-space bias
@@ -649,6 +649,7 @@ private:
     entt::registry _registry;
     AudioSystem _audioSystem;
     float _deltaTime = 0.0f;
+    double _materialAnimationTime = 0.0;
     BenchmarkOptions _benchmarkOptions;
     bool _vsyncEnabled = true;
 
