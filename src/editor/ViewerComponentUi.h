@@ -228,6 +228,35 @@ public:
     }
 };
 
+class SpotLightComponentUi : public ViewerComponentUi {
+    Engine::Core* _core;
+public:
+    explicit SpotLightComponentUi(Engine::Core* core) : _core(core) {}
+    void Draw(entt::registry& registry, entt::entity entity) override {
+        auto* light = registry.try_get<SpotLightComponent>(entity);
+        if (!light) return;
+        if (DrawRemovableComponentHeader<SpotLightComponent>(registry, entity, "Spot Light", "SpotLightComponent")) {
+            EditorUi::ScopedItemWidth width{300.0f};
+            ImGui::Checkbox("Enabled", &light->enabled);
+            ImGui::ColorEdit3("Color", &light->color.x);
+            ImGui::InputFloat("Intensity", &light->intensity, 0, 0, "%.3f");
+            ImGui::InputFloat("Range", &light->range, 0, 0, "%.3f");
+            ImGui::InputFloat("Inner Half-Angle", &light->innerAngle, 0, 0, "%.2f");
+            ImGui::InputFloat("Outer Half-Angle", &light->outerAngle, 0, 0, "%.2f");
+            ImGui::Checkbox("Cast Shadows", &light->castShadows);
+            if (light->castShadows) ImGui::InputFloat("Shadow Bias", &light->shadowBias, 0, 0, "%.4f");
+            light->Sanitize();
+            if (_core) {
+                const auto counts = _core->GetSpotLightCounts();
+                ImGui::Text("Uploaded Spot Lights: %u / %u", counts.x, counts.y);
+                if (light->castShadows) ImGui::Text("Shadow Slot: %s",
+                    _core->GetSpotShadowEntity() == entity ? "Active" : "Inactive");
+                ImGui::Text("Spot Shadow Draws: %u", _core->GetSpotShadowDrawCount());
+            }
+        }
+    }
+};
+
 class PostProcessComponentUi : public ViewerComponentUi {
 public:
     void Draw(entt::registry& registry, entt::entity entity) override {

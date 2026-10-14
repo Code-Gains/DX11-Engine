@@ -1428,6 +1428,28 @@ void WorldSerializer::RegisterDefaultComponentSerializers()
         }
     );
 
+    _componentSerializers.Register<SpotLightComponent>(
+        "SpotLightComponent",
+        [](Core&, const SpotLightComponent& light) {
+            return nlohmann::json{{"color", Vec3ToJson(light.color)}, {"intensity", light.intensity},
+                {"range", light.range}, {"innerAngle", light.innerAngle}, {"outerAngle", light.outerAngle},
+                {"enabled", light.enabled}, {"castShadows", light.castShadows}, {"shadowBias", light.shadowBias}};
+        },
+        [](Core&, const nlohmann::json& data) {
+            SpotLightComponent light;
+            if (data.contains("color")) light.color = glm::max(Vec3FromJson(data.at("color")), glm::vec3(0));
+            light.intensity = data.value("intensity", 40.0f);
+            light.range = data.value("range", 20.0f);
+            light.innerAngle = data.value("innerAngle", 20.0f);
+            light.outerAngle = data.value("outerAngle", 30.0f);
+            light.enabled = data.value("enabled", true);
+            light.castShadows = data.value("castShadows", true);
+            light.shadowBias = data.value("shadowBias", 0.02f);
+            light.Sanitize();
+            return light;
+        }
+    );
+
     _componentSerializers.Register<VelocityComponent>(
         "VelocityComponent",
         [](Core&, const VelocityComponent& velocity) {

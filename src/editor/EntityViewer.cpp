@@ -51,6 +51,7 @@ std::string DefaultComponentCategory(std::string_view label)
     if (label == "Environment" ||
         label == "Sunlight" ||
         label == "Point Light" ||
+        label == "Spot Light" ||
         label == "Post Process" ||
         label == "Screen Post Process" ||
         label == "Screen Post Process Source" ||
@@ -720,6 +721,7 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
     _componentUis.push_back(std::make_unique<EnvironmentComponentUi>());
     _componentUis.push_back(std::make_unique<SunlightComponentUI>());
     _componentUis.push_back(std::make_unique<PointLightComponentUi>(core));
+    _componentUis.push_back(std::make_unique<SpotLightComponentUi>(core));
     _componentUis.push_back(std::make_unique<PostProcessComponentUi>());
     _componentUis.push_back(std::make_unique<ScreenPostProcessComponentUi>());
     _componentUis.push_back(std::make_unique<ScreenPostProcessSourceComponentUi>());
@@ -786,6 +788,17 @@ EntityViewer::EntityViewer(entt::registry &registry, RegistryViewer* registryVie
         },
         [](entt::registry& registry, entt::entity entity) {
             registry.emplace<SunlightComponent>(entity);
+        }
+    );
+
+    AddComponentMenuItem(
+        "Spot Light",
+        [](entt::registry& registry, entt::entity entity) {
+            return !registry.all_of<SpotLightComponent>(entity);
+        },
+        [](entt::registry& registry, entt::entity entity) {
+            if (!registry.all_of<Transform>(entity)) registry.emplace<Transform>(entity);
+            registry.emplace<SpotLightComponent>(entity);
         }
     );
 

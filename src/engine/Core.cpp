@@ -1444,6 +1444,7 @@ void Core::Draw()
     // we will overwrite it all so we dont care about what was the older layout
     DrawShadowMap(cmd);
     DrawPointShadowMap(cmd);
+    DrawSpotShadowMap(cmd);
     vkCmdWriteTimestamp2(
         cmd,
         VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,

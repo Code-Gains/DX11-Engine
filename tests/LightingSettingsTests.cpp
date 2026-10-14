@@ -4,6 +4,7 @@
 #include "WorldSerializer.h"
 #include "PointLighting.h"
 #include "PointShadowMath.h"
+#include "SpotLighting.h"
 
 #include <cstddef>
 #include <cstdlib>
@@ -16,7 +17,12 @@ static_assert(offsetof(Engine::GPUSceneData, pointLightCounts) == 144);
 static_assert(offsetof(Engine::GPUSceneData, pointLights) == 160);
 static_assert(sizeof(Engine::GPUPointLight) == 32);
 static_assert(offsetof(Engine::GPUSceneData, pointShadowParameters) == 672);
-static_assert(sizeof(Engine::GPUSceneData) == 688);
+static_assert(sizeof(Engine::GPUSpotLight) == 64);
+static_assert(offsetof(Engine::GPUSceneData, spotLightCounts) == 688);
+static_assert(offsetof(Engine::GPUSceneData, spotLights) == 704);
+static_assert(offsetof(Engine::GPUSceneData, spotLightViewProjection) == 1216);
+static_assert(offsetof(Engine::GPUSceneData, spotShadowParameters) == 1280);
+static_assert(sizeof(Engine::GPUSceneData) == 1296);
 static_assert(offsetof(Engine::InstanceData, emissionOverride) == 112);
 static_assert(sizeof(Engine::InstanceData) == 128);
 static_assert(offsetof(Engine::BatchDrawPushConstants, materialEmission) == 80);
@@ -137,6 +143,49 @@ int main()
         registry.get<PointLightComponent>(restoredPoint).intensity == 0.0f, "negative light settings clamp");
 
     entt::registry lights;
+    const auto spotEntity = registry.create();
+    auto& spot = registry.emplace<SpotLightComponent>(spotEntity);
+    registry.emplace<Transform>(spotEntity);
+    spot.color = {0.2f, 0.6f, 1.0f};
+    spot.intensity = 90.0f;
+    spot.innerAngle = 10.0f;
+    spot.outerAngle = 40.0f;
+    const auto spotSaved = serializers.SaveComponents(core, registry, spotEntity);
+    const auto spotRestored = registry.create();
+    for (const auto& serialized : spotSaved) serializers.LoadComponent(core, registry, spotRestored, serialized);
+    const auto& spotCopy = registry.get<SpotLightComponent>(spotRestored);
+    Check(spotCopy.color == spot.color && spotCopy.innerAngle == 10 && spotCopy.outerAngle == 40 &&
+        spotCopy.intensity == 90 && spotCopy.castShadows, "spotlight settings must round trip");
+    auto spotData = Engine::CollectSpotLights(registry);
+    Check(spotData.count == 2 && spotData.shadowLightIndex == 0, "spotlights must choose one deterministic shadow slot");
+    Check(glm::vec3(spotData.lights[0].directionAndOuterCos) == glm::vec3(0,0,-1), "spotlights aim along local negative Z");
+    registry.get<Transform>(spotEntity).rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0,1,0));
+    spotData = Engine::CollectSpotLights(registry);
+    Check(glm::length(glm::vec3(spotData.lights[0].directionAndOuterCos) - glm::vec3(-1,0,0)) < 0.00001f,
+        "spotlight direction must follow transform rotation");
+    registry.emplace<DisabledEntityTag>(spotEntity);
+    Check(Engine::CollectSpotLights(registry).count == 1, "disabled spotlights must not upload");
+    spot.outerAngle = 100.0f;
+    spot.innerAngle = 110.0f;
+    spot.Sanitize();
+    Check(spot.outerAngle == 85 && spot.innerAngle < spot.outerAngle, "cone limits must remain valid for perspective shadows");
+    const auto spotMatrix = Engine::BuildSpotShadowMatrix({0,0,0}, {0,0,-1}, 30, 20);
+    auto spotClip = spotMatrix * glm::vec4(0,0,-5,1);
+    const auto spotNdc = glm::vec3(spotClip) / spotClip.w;
+    Check(std::abs(spotNdc.x) < 0.00001f && std::abs(spotNdc.y) < 0.00001f && spotNdc.z > 0 && spotNdc.z < 1,
+        "spotlight axis must project into the center of its reversed-depth map");
+    const auto outsideClip = spotMatrix * glm::vec4(5,0,-5,1);
+    Check(outsideClip.x / outsideClip.w > 1, "positions beyond outer cone must leave shadow coverage");
+    const auto upMatrix = Engine::BuildSpotShadowMatrix({0,0,0}, {0,1,0}, 30, 20);
+    Check(std::isfinite(upMatrix[0][0]), "vertical spotlights must have a nonsingular view basis");
+    entt::registry spotCap;
+    for (unsigned int i = 0; i < 12; ++i) {
+        auto entity = spotCap.create();
+        spotCap.emplace<Transform>(entity);
+        spotCap.emplace<SpotLightComponent>(entity);
+    }
+    Check(Engine::CollectSpotLights(spotCap).count == 8 && Engine::CollectSpotLights(spotCap).eligibleCount == 12,
+        "spotlight upload must obey its bounded cap");
     for (unsigned int i = 0; i < 20; ++i) {
         auto entity = lights.create();
         lights.emplace<Transform>(entity).position = glm::vec3(float(i), 2.0f, 3.0f);

@@ -19,6 +19,14 @@ struct PointLight {
     float4 colorAndIntensity;
 };
 
+struct SpotLight
+{
+    float4 positionAndRange;
+    float4 colorAndIntensity;
+    float4 directionAndOuterCos;
+    float4 coneParameters;
+};
+
 struct SceneData
 {
     float4 cameraPosition;
@@ -30,6 +38,10 @@ struct SceneData
     uint4 pointLightCounts;
     PointLight pointLights[16];
     float4 pointShadowParameters;
+    uint4 spotLightCounts;
+    SpotLight spotLights[8];
+    float4x4 spotLightViewProjection;
+    float4 spotShadowParameters;
 };
 
 [[vk::binding(0, 0)]]
@@ -88,6 +100,7 @@ float MicrofacetDistribution(float normalDotHalfway, float alphaRoughness)
 }
 
 #include "point_lighting.slang"
+#include "spot_lighting.slang"
 
 float3 GetNormalFromMap(FragmentInput input)
 {
@@ -236,6 +249,8 @@ float4 main(FragmentInput input) : SV_Target
     float3 color = ambient + shadow * normalDotLight * lightColor * (diffuseContrib + specContrib);
     color *= ambientOcclusion;
     color += EvaluatePointLights(input.worldPosition, n, view, normalDotView,
+        alphaRoughness, diffuseColor, specularColor, reflectance90);
+    color += EvaluateSpotLights(input.worldPosition, n, view, normalDotView,
         alphaRoughness, diffuseColor, specularColor, reflectance90);
 
     color += emissive;

@@ -1,5 +1,6 @@
 #pragma once
 #include "PointLightComponent.h"
+#include "SpotLightComponent.h"
 #include "PostProcessComponent.h"
 
 // ============================================================================
@@ -174,6 +175,10 @@ struct GPUSceneData {
     glm::uvec4 pointLightCounts = glm::uvec4(0); // x: uploaded, y: eligible
     GPUPointLight pointLights[MaxPointLights]{};
     glm::vec4 pointShadowParameters = glm::vec4(-1.0f, 0.05f, 10.0f, 0.02f); // index, near, far, world-space bias
+    glm::uvec4 spotLightCounts{0};
+    GPUSpotLight spotLights[MaxSpotLights]{};
+    glm::mat4 spotLightViewProjection{1.0f};
+    glm::vec4 spotShadowParameters{-1.0f, 0.05f, 20.0f, 0.02f};
 };
 
 struct ComputePushConstants {
@@ -277,6 +282,7 @@ struct FrameData {
     DescriptorAllocatorGrowable _frameDescriptors;
     AllocatedBuffer _instanceBuffer {};
     AllocatedImage _pointShadowMap {};
+    AllocatedImage _spotShadowMap {};
     std::array<VkImageView, 6> _pointShadowFaces{};
     VkDescriptorSet _pointShadowDescriptorSet = VK_NULL_HANDLE;
     std::vector<AllocatedImage> _bloomImages;
@@ -387,6 +393,7 @@ private:
     void InitShadowResources();
     void InitShadowPipeline();
     void InitPointShadowResources();
+    void InitSpotShadowResources();
     void InitSelectionOutlinePipeline();
     void InitSkyboxPipeline();
     void InitDefaultData();
@@ -511,6 +518,7 @@ private:
     void DrawLines(VkCommandBuffer cmd, const glm::mat4& viewProjection);
     void DrawShadowMap(VkCommandBuffer cmd);
     void DrawPointShadowMap(VkCommandBuffer cmd);
+    void DrawSpotShadowMap(VkCommandBuffer cmd);
     void DrawSelectedOutline(VkCommandBuffer cmd);
     void DrawHeightFog(VkCommandBuffer cmd);
     void DrawDepthVisualization(VkCommandBuffer cmd);
@@ -597,6 +605,8 @@ private:
     VkSampler _pointShadowSampler = VK_NULL_HANDLE;
     entt::entity _pointShadowEntity = entt::null;
     uint32_t _pointShadowDraws = 0;
+    entt::entity _spotShadowEntity = entt::null;
+    uint32_t _spotShadowDraws = 0;
     VkExtent2D _shadowMapExtent { 2048, 2048 };
     glm::mat4 _sunLightViewProjection { 1.0f };
     float _shadowOrthoRadius = 120.0f;
@@ -758,6 +768,9 @@ public:
     glm::uvec2 GetPointLightCounts() const { return glm::uvec2(sceneData.pointLightCounts); }
     entt::entity GetPointShadowEntity() const { return _pointShadowEntity; }
     uint32_t GetPointShadowDrawCount() const { return _pointShadowDraws; }
+    entt::entity GetSpotShadowEntity() const { return _spotShadowEntity; }
+    uint32_t GetSpotShadowDrawCount() const { return _spotShadowDraws; }
+    glm::uvec2 GetSpotLightCounts() const { return glm::uvec2(sceneData.spotLightCounts); }
     void SetVSyncEnabled(bool enabled);
 
     // ------------------------------------------------------------------------

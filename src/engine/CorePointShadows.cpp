@@ -64,6 +64,8 @@ void Core::InitPointShadowResources()
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         writer.write_image(1, image.imageView, _pointShadowSampler, VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
             VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+        writer.write_image(2, frame._spotShadowMap.imageView, _pointShadowSampler, VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL,
+            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
         writer.update_set(_device, frame._pointShadowDescriptorSet);
 
         _mainDeletionQueue.push_function([this, frameIndex]() {

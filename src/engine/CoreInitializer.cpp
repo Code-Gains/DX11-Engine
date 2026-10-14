@@ -297,6 +297,7 @@ void Core::InitShadowResources()
         vkDestroySampler(_device, _shadowMapSampler, nullptr);
         DestroyImage(_shadowMapImage);
     });
+    InitSpotShadowResources();
     InitPointShadowResources();
 }
 
