@@ -102,6 +102,26 @@ namespace {
     {
         auto& orbitState = gOrbitStates[entt::to_integral(entity)];
 
+        if (const auto* request = registry.ctx().find<EditorCameraFocusRequest>()) {
+            const auto center = request->center;
+            const float radius = request->radius;
+            registry.ctx().erase<EditorCameraFocusRequest>();
+            if (std::isfinite(center.x) && std::isfinite(center.y) && std::isfinite(center.z) &&
+                std::isfinite(radius) && radius > 0.0f) {
+                SyncYawPitchFromTransform(camera, transform);
+                orbitState.hasPivot = true;
+                orbitState.pivot = center;
+                orbitState.pivotRadius = radius;
+                const auto& io = ImGui::GetIO();
+                const float aspect = io.DisplaySize.y > 0.0f
+                    ? std::max(io.DisplaySize.x / io.DisplaySize.y, 0.01f) : 1.0f;
+                const float vertical = glm::radians(glm::clamp(camera.fov, 1.0f, 179.0f)) * 0.5f;
+                const float halfAngle = std::min(vertical, std::atan(std::tan(vertical) * aspect));
+                const float distance = std::max(radius * 1.15f / std::sin(halfAngle), radius + camera.nearPlane * 2.0f);
+                transform.position = center - camera.direction * distance;
+            }
+        }
+
         if (mouseControlsAllowed && input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].held) {
             if (input.mouseButtons[GLFW_MOUSE_BUTTON_RIGHT].pressed) {
                 SyncYawPitchFromTransform(camera, transform);
