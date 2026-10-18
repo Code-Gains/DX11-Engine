@@ -5,6 +5,8 @@
 
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <algorithm>
+#include <cmath>
 #include <unordered_set>
 
 namespace Engine {
@@ -40,19 +42,29 @@ glm::mat4 ComposeMatrix(const Transform& transform)
 Transform TransformFromMatrix(const glm::mat4& matrix)
 {
     Transform transform;
-    glm::vec3 skew;
-    glm::vec4 perspective;
+    transform.position = glm::vec3(matrix[3]);
+    glm::dmat4 normalized(matrix);
+    const glm::dvec3 lengths(glm::length(glm::dvec3(normalized[0])),
+                             glm::length(glm::dvec3(normalized[1])),
+                             glm::length(glm::dvec3(normalized[2])));
+    transform.scale = glm::vec3(lengths);
+    const double magnitude = std::max({lengths.x, lengths.y, lengths.z});
+    if (!std::isfinite(magnitude) || magnitude == 0)
+        return transform;
 
-    glm::decompose(
-        matrix,
-        transform.scale,
-        transform.rotation,
-        transform.position,
-        skew,
-        perspective
-    );
-
-    transform.rotation = glm::normalize(transform.rotation);
+    // GLM's absolute determinant tolerance rejects valid small local scales (e.g. 1/500).
+    // Normalize the linear part before decomposition, then restore its magnitude.
+    for (int column = 0; column < 3; ++column)
+        for (int row = 0; row < 3; ++row)
+            normalized[column][row] /= magnitude;
+    glm::dvec3 scale, position, skew;
+    glm::dvec4 perspective;
+    glm::dquat rotation;
+    if (glm::decompose(normalized, scale, rotation, position, skew, perspective)) {
+        transform.position = glm::vec3(position);
+        transform.scale = glm::vec3(scale * magnitude);
+        transform.rotation = glm::quat(glm::normalize(rotation));
+    }
     return transform;
 }
 

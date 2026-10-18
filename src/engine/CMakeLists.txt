@@ -44,6 +44,9 @@ add_library(engine STATIC
 )
 
 add_executable(mesh-transform-tests ../../tests/MeshTransformTests.cpp)
+add_executable(hierarchy-transform-tests ../../tests/HierarchyTransformTests.cpp HierarchySystem.cpp)
+target_include_directories(hierarchy-transform-tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${glm_SOURCE_DIR})
+target_link_libraries(hierarchy-transform-tests PRIVATE EnTT)
 target_include_directories(mesh-transform-tests PRIVATE ${glm_SOURCE_DIR})
 
 add_executable(lighting-settings-tests ../../tests/LightingSettingsTests.cpp)
