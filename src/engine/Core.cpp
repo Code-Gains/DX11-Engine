@@ -14,6 +14,7 @@
 #include "WorldSerializer.h"
 #include "EditorSelection.h"
 #include "EditorCaptureState.h"
+#include "RuntimePauseState.h"
 #include "EnvironmentComponent.h"
 #include "EntityState.h"
 #include "HierarchySystem.h"
@@ -433,6 +434,7 @@ void Core::StartPlayMode()
 
     auto serializer = CreateWorldSerializer();
     _playModeSnapshot = serializer.SaveWorldToJson(*this);
+    ClearRuntimePause(_registry);
     _editorMode = EditorMode::Play;
     for (auto& system : _systems) {
         system->OnPlayStart();
@@ -449,6 +451,7 @@ void Core::StopPlayMode()
         system->OnPlayStop();
     }
 
+    ClearRuntimePause(_registry);
     auto serializer = CreateWorldSerializer();
     serializer.LoadWorldFromJson(*this, _playModeSnapshot);
     _playModeSnapshot = nlohmann::json();
@@ -945,6 +948,9 @@ void Core::Run() {
             windowRegistry.SetWindowOpen("Audio Debugger", audioOpen);
         }
 
+        for (auto& system : _systems) {
+            system->DrawGameUi();
+        }
         ImGui::Render();
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
@@ -1614,6 +1620,36 @@ void Core::Draw()
 
     //draw imgui into the swapchain image
     DrawImGui(cmd,  _swapchainImageViews[swapchainImageIndex]);
+
+    if (_screenCapturePath) {
+        const auto path = std::exchange(_screenCapturePath, std::nullopt).value();
+        const auto extent = _swapchainExtent;
+        auto buffer = CreateBuffer(static_cast<size_t>(extent.width) * extent.height * 4,
+                                   VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+        vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],
+                                 VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+        VkBufferImageCopy copy{};
+        copy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        copy.imageExtent = {extent.width, extent.height, 1};
+        vkCmdCopyImageToBuffer(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               buffer.buffer, 1, &copy);
+        vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex],
+                                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+        const bool bgra = _swapchainImageFormat == VK_FORMAT_B8G8R8A8_UNORM ||
+                          _swapchainImageFormat == VK_FORMAT_B8G8R8A8_SRGB;
+        frameData._deletionQueue.push_function([this, buffer, extent, path, bgra]() {
+            void* mapped = nullptr;
+            vmaMapMemory(_allocator, buffer.allocation, &mapped);
+            vmaInvalidateAllocation(_allocator, buffer.allocation, 0, VK_WHOLE_SIZE);
+            auto* source = static_cast<const std::uint8_t*>(mapped);
+            std::vector<std::uint8_t> pixels(source, source + static_cast<size_t>(extent.width) * extent.height * 4);
+            if (bgra) for (size_t i = 0; i < pixels.size(); i += 4) std::swap(pixels[i], pixels[i + 2]);
+            if (!path.parent_path().empty()) std::filesystem::create_directories(path.parent_path());
+            stbi_write_png(path.string().c_str(), extent.width, extent.height, 4, pixels.data(), extent.width * 4);
+            vmaUnmapMemory(_allocator, buffer.allocation);
+            DestroyBuffer(buffer);
+        });
+    }
 
     // set swapchain image layout to Present so we can draw it
     vkutil::transition_image(cmd, _swapchainImages[swapchainImageIndex], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);

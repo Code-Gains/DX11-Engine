@@ -5,6 +5,7 @@
 #include "HierarchyComponent.h"
 #include "JoltPhysicsComponents.h"
 #include "Log.h"
+#include "RuntimePauseState.h"
 #include "Transform.h"
 
 #include <Jolt/Jolt.h>
@@ -581,7 +582,7 @@ void JoltPhysicsSystem::Update(float deltaTime)
         return;
     }
 
-    if (_core && !_core->IsPlayMode()) {
+    if ((_core && !_core->IsPlayMode()) || Engine::IsGameplayPaused(_registry)) {
         return;
     }
 
@@ -594,7 +595,7 @@ void JoltPhysicsSystem::Update(float deltaTime)
 
 void JoltPhysicsSystem::FixedUpdate(float)
 {
-    if (!_physicsSystem || (_core && !_core->IsPlayMode())) {
+    if (!_physicsSystem || (_core && !_core->IsPlayMode()) || Engine::IsGameplayPaused(_registry)) {
         return;
     }
 

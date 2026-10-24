@@ -10,6 +10,8 @@ public:
 	virtual void Update(float deltaTime) {}
 	virtual void FixedUpdate(float deltaTime) {}
 	virtual void DrawUi() {}
+	// Gameplay overlays remain available when editor UI is hidden.
+	virtual void DrawGameUi() {}
 	virtual void Draw() {}
 
 protected:

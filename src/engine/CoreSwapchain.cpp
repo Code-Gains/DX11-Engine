@@ -17,14 +17,17 @@ void Core::CreateSwapchain(uint32_t width, uint32_t height) {
         ? VK_PRESENT_MODE_FIFO_KHR
         : VK_PRESENT_MODE_IMMEDIATE_KHR;
 
-    vkb::Swapchain vkbSwapchain = swapchainBuilder
+    VkSurfaceCapabilitiesKHR capabilities{};
+    VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_chosenGPU, _surface, &capabilities));
+    _screenCaptureSupported = (capabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) != 0;
+    swapchainBuilder
         //.use_default_format_selection()
         .set_desired_format(VkSurfaceFormatKHR{ .format = _swapchainImageFormat, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
         .set_desired_present_mode(presentMode)
         .set_desired_extent(width, height)
-        .add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
-        .build()
-        .value();
+        .add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    if (_screenCaptureSupported) swapchainBuilder.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_SRC_BIT);
+    vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();
 
     _swapchainExtent = vkbSwapchain.extent;
     // store swapchain and its related images

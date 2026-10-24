@@ -221,6 +221,25 @@ AllocatedImage* Core::LoadUiImage(const std::filesystem::path& path)
     return inserted->second.get();
 }
 
+AllocatedImage* Core::CreateRuntimeUiImageRgba8(
+    std::string key, uint32_t width, uint32_t height, std::span<const std::uint8_t> rgba)
+{
+    key = "runtime-ui:" + key;
+    if (auto existing = _uiImages.find(key); existing != _uiImages.end()) return existing->second.get();
+    if (width == 0 || height == 0 || rgba.size() != static_cast<size_t>(width) * height * 4)
+        throw std::invalid_argument("Runtime UI image must contain width * height RGBA pixels");
+    auto image = std::make_shared<AllocatedImage>(CreateImage(
+        const_cast<std::uint8_t*>(rgba.data()), VkExtent3D{width, height, 1}, VK_FORMAT_R8G8B8A8_UNORM,
+        VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+    image->sampler = _defaultSamplerLinear;
+    image->imguiDescriptorSet = ImGui_ImplVulkan_AddTexture(image->sampler, image->imageView,
+                                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    auto* pointer = image.get();
+    _mainDeletionQueue.push_function([this, pointer]() { DestroyImage(*pointer); });
+    _uiImages.emplace(std::move(key), std::move(image));
+    return pointer;
+}
+
 AllocatedImage* Core::CreateOrUpdateRuntimeCubemapRgba8(
     std::string key,
     uint32_t faceSize,

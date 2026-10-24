@@ -12,6 +12,10 @@
 #include <string>
 #include <string_view>
 
+namespace {
+enum class EditorPauseReason { Toolbar };
+}
+
 ImGuiManager::ImGuiManager(entt::registry& registry)
     : System(registry)
 {
@@ -118,7 +122,7 @@ void ImGuiManager::DrawPlayControls()
 
     const bool isPlayMode = _core->IsPlayMode();
     const bool isMenuPaused =
-        Engine::HasPauseReason(_registry, Engine::RuntimePauseReason::Menu);
+        Engine::HasPauseReason(_registry, EditorPauseReason::Toolbar);
 
     ImGui::Separator();
 
@@ -127,7 +131,6 @@ void ImGuiManager::DrawPlayControls()
     }
 
     if (ImGui::Button("Play")) {
-        Engine::ClearRuntimePause(_registry);
         _core->StartPlayMode();
     }
 
@@ -142,7 +145,6 @@ void ImGuiManager::DrawPlayControls()
     }
 
     if (ImGui::Button("Stop")) {
-        Engine::ClearRuntimePause(_registry);
         _core->StopPlayMode();
     }
 
@@ -151,7 +153,7 @@ void ImGuiManager::DrawPlayControls()
     if (ImGui::Button(isMenuPaused ? "Resume" : "Pause")) {
         Engine::SetPauseReason(
             _registry,
-            Engine::RuntimePauseReason::Menu,
+            EditorPauseReason::Toolbar,
             !isMenuPaused);
     }
 

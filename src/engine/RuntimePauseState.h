@@ -2,25 +2,30 @@
 
 #include <entt/entt.hpp>
 
+#include <algorithm>
 #include <cstdint>
+#include <typeindex>
+#include <type_traits>
+#include <vector>
 
 namespace Engine {
 
-enum class RuntimePauseReason : std::uint32_t {
-    None = 0,
-    Crafting = 1u << 0u,
-    Menu = 1u << 1u,
-    WaveBreak = 1u << 2u,
-    GameOver = 1u << 3u
+// The enum type is part of the key, so independent callers can use the same numeric value safely.
+struct RuntimePauseSource {
+    std::type_index type;
+    std::uint64_t value;
+
+    bool operator==(const RuntimePauseSource&) const = default;
 };
 
 struct RuntimePauseState {
-    std::uint32_t reasons = 0u;
+    std::vector<RuntimePauseSource> sources;
 };
 
-inline std::uint32_t PauseReasonMask(RuntimePauseReason reason)
+template <typename Reason> requires std::is_enum_v<Reason>
+inline RuntimePauseSource PauseSourceKey(Reason reason)
 {
-    return static_cast<std::uint32_t>(reason);
+    return {typeid(Reason), static_cast<std::uint64_t>(reason)};
 }
 
 inline RuntimePauseState& GetRuntimePauseState(entt::registry& registry)
@@ -32,33 +37,41 @@ inline RuntimePauseState& GetRuntimePauseState(entt::registry& registry)
     return registry.ctx().emplace<RuntimePauseState>();
 }
 
-inline bool IsGameplayPaused(entt::registry& registry)
+inline bool IsGameplayPaused(const entt::registry& registry)
 {
     const auto* state = registry.ctx().find<RuntimePauseState>();
-    return state && state->reasons != 0u;
+    return state && !state->sources.empty();
 }
 
-inline bool HasPauseReason(entt::registry& registry, RuntimePauseReason reason)
+template <typename Reason> requires std::is_enum_v<Reason>
+inline bool HasPauseReason(const entt::registry& registry, Reason reason)
 {
     const auto* state = registry.ctx().find<RuntimePauseState>();
-    return state && (state->reasons & PauseReasonMask(reason)) != 0u;
+    return state && std::find(state->sources.begin(), state->sources.end(), PauseSourceKey(reason)) != state->sources.end();
 }
 
-inline void SetPauseReason(entt::registry& registry, RuntimePauseReason reason, bool enabled)
+// Idempotent per key, not a reference count. Independently resumable owners need distinct keys.
+template <typename Reason> requires std::is_enum_v<Reason>
+inline void SetPauseReason(entt::registry& registry, Reason reason, bool enabled)
 {
-    auto& state = GetRuntimePauseState(registry);
-    const std::uint32_t mask = PauseReasonMask(reason);
+    const auto key = PauseSourceKey(reason);
     if (enabled) {
-        state.reasons |= mask;
+        auto& sources = GetRuntimePauseState(registry).sources;
+        if (std::find(sources.begin(), sources.end(), key) == sources.end()) {
+            sources.push_back(key);
+        }
     }
-    else {
-        state.reasons &= ~mask;
+    else if (auto* state = registry.ctx().find<RuntimePauseState>()) {
+        std::erase(state->sources, key);
     }
 }
 
+// Session reset only; individual callers should release only their own key.
 inline void ClearRuntimePause(entt::registry& registry)
 {
-    GetRuntimePauseState(registry).reasons = 0u;
+    if (auto* state = registry.ctx().find<RuntimePauseState>()) {
+        state->sources.clear();
+    }
 }
 
 }

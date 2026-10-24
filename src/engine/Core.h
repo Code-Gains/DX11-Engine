@@ -354,6 +354,8 @@ private:
 
     bool _appMinimized = false;
     bool _isInitialized = false;
+    std::optional<std::filesystem::path> _screenCapturePath;
+    bool _screenCaptureSupported = false;
     std::filesystem::path _engineRoot = std::filesystem::current_path();
     std::filesystem::path _projectRoot = std::filesystem::current_path();
     EditorMode _editorMode = EditorMode::Edit;
@@ -837,6 +839,13 @@ public:
     );
 
     AllocatedImage* LoadUiImage(const std::filesystem::path& path);
+    AllocatedImage* CreateRuntimeUiImageRgba8(std::string key, uint32_t width, uint32_t height,
+                                           std::span<const std::uint8_t> rgba);
+    void RequestScreenCapture(std::filesystem::path path) {
+        if (!_screenCaptureSupported) throw std::runtime_error("This surface does not support screen capture");
+        _screenCapturePath = std::move(path);
+    }
+    void SetWindowSize(int width, int height) { glfwSetWindowSize(_window->GetNativeHandle(), width, height); }
     AllocatedImage* CreateOrUpdateRuntimeCubemapRgba8(
         std::string key,
         uint32_t faceSize,
