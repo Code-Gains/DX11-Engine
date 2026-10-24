@@ -822,7 +822,8 @@ public:
         std::string name,
         const std::filesystem::path& fragmentShaderPath,
         const std::filesystem::path& singleVertexShaderPath = {},
-        const std::filesystem::path& instancedVertexShaderPath = {}
+        const std::filesystem::path& instancedVertexShaderPath = {},
+        bool transparent = false
     );
     MaterialAsset& RegisterMaterialAsset(std::string name, MaterialInstance material);
     MaterialInstance* FindMaterial(std::string_view name);

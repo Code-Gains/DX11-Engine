@@ -106,7 +106,8 @@ MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
     std::string name,
     const std::filesystem::path& fragmentShaderPath,
     const std::filesystem::path& singleVertexShaderPath,
-    const std::filesystem::path& instancedVertexShaderPath)
+    const std::filesystem::path& instancedVertexShaderPath,
+    bool transparent)
 {
     assert(_meshPipelineLayout != VK_NULL_HANDLE);
     assert(_instancedMeshPipelineLayout != VK_NULL_HANDLE);
@@ -139,22 +140,22 @@ MaterialPipelineSet Core::RegisterMeshMaterialPipelineSet(
     }
 
     const VkPipeline singlePipeline =
-        BuildMeshGraphicsPipeline(_meshPipelineLayout, singleVertexShader, fragmentShader);
+        BuildMeshGraphicsPipeline(_meshPipelineLayout, singleVertexShader, fragmentShader, transparent);
     const VkPipeline instancedPipeline =
-        BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, instancedVertexShader, fragmentShader);
+        BuildMeshGraphicsPipeline(_instancedMeshPipelineLayout, instancedVertexShader, fragmentShader, transparent);
     const VkPipeline wireframeSinglePipeline =
         BuildMeshGraphicsPipeline(
             _meshPipelineLayout,
             singleVertexShader,
             fragmentShader,
-            false,
+            transparent,
             VK_POLYGON_MODE_LINE);
     const VkPipeline wireframeInstancedPipeline =
         BuildMeshGraphicsPipeline(
             _instancedMeshPipelineLayout,
             instancedVertexShader,
             fragmentShader,
-            false,
+            transparent,
             VK_POLYGON_MODE_LINE);
 
     vkDestroyShaderModule(_device, instancedVertexShader, nullptr);
